@@ -188,20 +188,30 @@ def opening_polygon(o: dict, wall: Optional[dict]):
     return line.buffer(max(float(wall.get("thickness") or 0.1), 0.02) / 2.0, cap_style=2, join_style=2)
 
 
-def level_outline(walls: list[dict], openings: list[dict]):
-    """The filled outer outline of a level: the walls and the openings in them united, slits closed (the equivalent of
-    ``wenart.ingest.generic.topology.bridged_union`` on the building's dicts), its largest part's exterior."""
+def _wall_parts(walls: list[dict], openings: list[dict]) -> list:
     by_id = {w["id"]: w for w in walls}
     polys = [p for p in (wall_polygon(w) for w in walls) if p is not None]
     polys += [p for p in (opening_polygon(o, by_id.get(o.get("wall_id"))) for o in openings
                           if not o.get("virtual")) if p is not None]
     if not polys:
-        return None
+        return []
     u = unary_union(polys).buffer(SLIT_CLOSE_M, join_style=2).buffer(-SLIT_CLOSE_M, join_style=2)
-    parts = [g for g in getattr(u, "geoms", [u]) if g.geom_type == "Polygon" and not g.is_empty]
+    return [g for g in getattr(u, "geoms", [u]) if g.geom_type == "Polygon" and not g.is_empty]
+
+
+def level_outline(walls: list[dict], openings: list[dict]):
+    """The filled outer outline of a level: the walls and the openings in them united, slits closed (the equivalent of
+    ``wenart.ingest.generic.topology.bridged_union`` on the building's dicts), its largest part's exterior."""
+    parts = _wall_parts(walls, openings)
     if not parts:
         return None
     return Polygon(max(parts, key=lambda g: g.area).exterior)
+
+
+def level_parts(walls: list[dict], openings: list[dict]) -> list:
+    """Every filled part of a level (13 Nov 2026, review CS1-10: a storey of two blocks): each part's exterior as a
+    polygon, holes filled."""
+    return [Polygon(g.exterior) for g in _wall_parts(walls, openings)]
 
 
 def outward_deg(wall: dict, filled) -> Optional[float]:
@@ -828,6 +838,14 @@ def rc9(building: dict, sheets: dict, storeys: Optional[dict] = None, storey_el:
                                 [sec_src, "plans"], None, list(c.get("element_ids") or []), conflict=c.get("id")))
     # The ground line
     ground = _ground_z(sheets)
+    refused = ((building.get("level_inference") or {}).get("ground_doors") or {})
+    if ground is not None and refused.get("z") is not None:
+        # 13 Nov 2026 (R04, review S1F-POD-P03): the completion refused the section's ground (it buried storeys with
+        # doors at grade) and put the ground at the drawn line beside those doors: listed once, the doors then
+        # measured against the ground the model uses
+        out.append(_finding("RC9", "minor", None, f"{sec_src}'s ground line at {ground:.2f} m was refused by the "
+                            f"completion (ground_doors): {str(refused.get('reason') or '')[:240]}", [sec_src]))
+        ground, sec_src = float(refused["z"]), "the completion (ground_doors)"
     if ground is not None and levels:
         low = levels[0]
         storey = _value(low.get("floor_to_floor")) or 3.0
@@ -1058,12 +1076,29 @@ def size_tags(texts: list[dict]) -> list[dict]:
 
 
 # --------------------------------------------------------------------------------------------------------------- RC12
-def _counts(building: dict, lid: str) -> dict:
+PLANNED_COPY_RULES = ("copy_door_window",)
+
+
+def _planned(o: dict) -> bool:
+    return ((o.get("adjusted_by_ai") or {}).get("rule") in PLANNED_COPY_RULES
+            or (o.get("corrected_by_ai") or {}).get("rule") in PLANNED_COPY_RULES)
+
+
+def _counts(building: dict, lid: str, undo_planned: bool = False) -> dict:
+    """The rooms, walls, doors and windows of a level; ``undo_planned`` (20 Nov 2026, pre-pod review R03-05): with the
+    copy's planned changes undone (a door made a window or removed by ``copy_door_window`` counts as its door)."""
     ops = [o for o in building.get("openings") or [] if o.get("level_id") == lid]
-    return {"rooms": sum(1 for r in building.get("rooms") or [] if r.get("level_id") == lid),
-            "walls": sum(1 for w in building.get("walls") or [] if w.get("level_id") == lid),
-            "doors": sum(1 for o in ops if o.get("type") == "door"),
-            "windows": sum(1 for o in ops if o.get("type") == "window")}
+    out = {"rooms": sum(1 for r in building.get("rooms") or [] if r.get("level_id") == lid),
+           "walls": sum(1 for w in building.get("walls") or [] if w.get("level_id") == lid),
+           "doors": sum(1 for o in ops if o.get("type") == "door"),
+           "windows": sum(1 for o in ops if o.get("type") == "window")}
+    if undo_planned:
+        made = [o for o in ops if o.get("type") == "window" and _planned(o)]
+        gone = [o for o in building.get("openings_merged") or [] if o.get("level_id") == lid and _planned(o)
+                and o.get("type") == "door"]
+        out["doors"] += len(made) + len(gone)
+        out["windows"] -= len(made)
+    return out
 
 
 def room_openings(room: dict, walls: dict, openings: list[dict]) -> dict:
@@ -1091,9 +1126,31 @@ def rc12(building: dict) -> list[dict]:
     out: list[dict] = []
     levels = {lv["id"]: lv for lv in building.get("levels") or []}
     copies = [lv for lv in levels.values() if lv.get("typical_of") and lv.get("typical_of") != lv["id"]]
+    # 13 Nov 2026 (review S1-21d): a ground floor inferred from the typical plan differs from it as planned (its
+    # balconies left off): the copies are compared with the drawn storey, the ground floor with it as info only
+    st = (building.get("level_inference") or {}).get("storeys") or {}
+    guessed = {i.get("level_id") for i in st.get("inferred") or []}
+    ref_for = {}
+    if st.get("ground_from_typical"):
+        for base in {lv["typical_of"] for lv in copies}:
+            if base in guessed:
+                group = sorted((lv for lv in copies if lv["typical_of"] == base),
+                               key=lambda lv: (lv.get("order") or 0, lv["id"]))
+                drawn = [lv for lv in group if lv["id"] not in guessed] or group
+                ref_for[base] = drawn[0]["id"]
+    for base, ref in ref_for.items():
+        a, b = _counts(building, ref), _counts(building, base)
+        diff = {k: (a[k], b[k]) for k in a if a[k] != b[k]}
+        dropped = [d.get("id") for d in ((st.get("ground_floor") or {}).get("dropped") or [])]
+        if diff:
+            out.append(_finding("RC12", "info", base, f"{base}, the ground floor inferred from the typical plan, differs "
+                                f"from the drawn storey {ref} as planned (its balconies left off: "
+                                f"{', '.join(dropped) or 'none'}): " + ", ".join(
+                                    f"{k} {x} on {ref} / {y} on {base}" for k, (x, y) in diff.items()),
+                                [f"typical floor {ref}", f"inferred ground floor {base}"]))
     for lv in copies:
-        base = lv["typical_of"]
-        if base not in levels:
+        base = ref_for.get(lv["typical_of"], lv["typical_of"])
+        if base not in levels or base == lv["id"]:
             continue
         a, b = _counts(building, base), _counts(building, lv["id"])
         if not b["rooms"] and not b["walls"]:
@@ -1101,11 +1158,21 @@ def rc12(building: dict) -> list[dict]:
                                 f"materialised in building.json: not compared", [f"plan of {base}", lv["id"]]))
             continue
         diff = {k: (a[k], b[k]) for k in a if a[k] != b[k]}
-        if diff:
-            sev = "major" if set(diff) - {"walls"} else "minor"
-            out.append(_finding("RC12", sev, lv["id"], f"{lv['id']} (a copy of the typical floor {base}) differs from "
-                                f"it: " + ", ".join(f"{k} {x} on {base} / {y} on {lv['id']}" for k, (x, y) in diff.items()),
-                                [f"typical floor {base}", f"copy {lv['id']}"]))
+        # (20 Nov 2026, pre-pod review R03-05) the copy's planned changes (copy_door_window) are info, not a difference;
+        # a base at the ground floor is the drawn floor
+        bu = _counts(building, lv["id"], undo_planned=True)
+        real = {k: (a[k], bu[k]) for k in a if a[k] != bu[k]}
+        what = "the drawn floor" if (levels[base].get("order") or 0) == 0 else "the typical floor"
+        if diff and not real:
+            out.append(_finding("RC12", "info", lv["id"], f"{lv['id']} (a copy of {what} {base}) differs from it only by "
+                                f"the planned copy changes (copy_door_window): " + ", ".join(
+                                    f"{k} {x} on {base} / {y} on {lv['id']}" for k, (x, y) in diff.items()),
+                                [f"{what} {base}", f"copy {lv['id']}"]))
+        elif real:
+            sev = "major" if set(real) - {"walls"} else "minor"
+            out.append(_finding("RC12", sev, lv["id"], f"{lv['id']} (a copy of {what} {base}) differs from "
+                                f"it: " + ", ".join(f"{k} {x} on {base} / {y} on {lv['id']}" for k, (x, y) in real.items()),
+                                [f"{what} {base}", f"copy {lv['id']}"]))
     rooms = {r["id"]: r for r in building.get("rooms") or []}
     walls = {w["id"]: w for w in building.get("walls") or []}
     openings = [o for o in building.get("openings") or [] if not o.get("virtual")]

@@ -482,6 +482,9 @@ def heights(section: Optional[SectionGeometry], levels: list[dict], reference_ex
         out["ground"].append({"side": side, "z": _value(z(top_line[1]), "vector",
                                                          [_ev(file_rel, top_line[2], "ground_line", rid)],
                                                          note=note)})
+        # 13 Nov 2026 (review S1F-POD-P03, R04): every line read on the side, for the completion's check of the ground
+        # against the doors at grade (``wenart.ingest.ground_lines``)
+        out["ground"][-1]["z"]["lines"] = [{"side": side, "z": round(z(g[1]), 3), "entity": g[2]} for g in lines]
 
     # Cut axis.
     width_m = section.width * s
@@ -591,6 +594,8 @@ def _name_ground_sides(out: dict, rid: str, warnings: list) -> None:
         first = out["ground"][0]
         first["side"] = "all"
         first["z"]["evidence"] = first["z"]["evidence"] + out["ground"][1]["z"]["evidence"]
+        if "lines" in first["z"] or "lines" in out["ground"][1]["z"]:
+            first["z"]["lines"] = (first["z"].get("lines") or []) + (out["ground"][1]["z"].get("lines") or [])
         out["ground"] = [first]
     elif out["ground"]:
         warnings.append(f"section {rid}: the cut direction is unknown: the ground levels keep the section's left/right")
@@ -702,6 +707,48 @@ def _assumed_levels(out: dict, levels: list[dict], ceiling: float, slab: float, 
         prev = lv["id"]
 
 
+PITCH_RULE = "dwg_block_marks"
+
+
+def apply_pitch(out: dict, levels: list[dict], pitch: float, slab_default: float, file_rel: Optional[str],
+                source: str) -> list[str]:
+    """20 Nov 2026 (pre-pod review R03-01: real03's floors stood 3.00 m apart, the DWG's unused sections mark them every
+    3.20 m): the floors the heights only assume take the storey pitch another document of the same building gives
+    (``storeys.dwg_rung``): every level at and above the ground floor at its order times the pitch, its floor to floor the
+    pitch, its ceiling the pitch less the slab (method ``derived``, its evidence ``inferred``, rule ``PITCH_RULE``)."""
+    if not pitch or not 2.2 <= float(pitch) <= STOREY_MAX_M:
+        return []
+    by_id = {e["level_id"]: e for e in out.get("levels") or []}
+    ev = [_ev(file_rel or "", None, PITCH_RULE, "", text=f"{float(pitch):.2f} m a storey", confidence=0.6,
+              method="inferred")]
+    done = []
+    for lv in levels:
+        order = lv.get("order") or 0
+        e = by_id.get(lv["id"])
+        if order < 0 or e is None or (e.get("floor_z") or {}).get("method") not in (None, "assumed"):
+            continue
+        ev = [_ev(file_rel or "", None, PITCH_RULE, "", text=f"{float(pitch):.2f} m a storey", confidence=0.6,
+                  method="inferred")]
+        e["floor_z"] = _value(order * float(pitch), "derived", ev, 0.6, note=f"order x {float(pitch):.2f} m ({source})")
+        e["floor_to_floor"] = _value(float(pitch), "derived", ev, 0.6, note=source)
+        ceil = e.get("ceiling_height") or {}
+        if ceil.get("method") in (None, "assumed"):
+            e["ceiling_height"] = assumed(round(float(pitch) - slab_default, 3),
+                                          f"floor to floor {float(pitch):.2f} m less the slab {slab_default:.2f} m")
+        done.append(lv["id"])
+    for sl in out.get("slabs") or []:
+        between = sl.get("between") or []
+        upper = next((lv for lv in levels if len(between) > 1 and lv["id"] == between[1]), None)
+        if upper is not None and upper["id"] in done:
+            sl["z_top"] = _value((upper.get("order") or 0) * float(pitch), "derived", ev, 0.6,
+                                 note=f"the floor of {upper['id']} ({source})")
+    if not done:
+        return []
+    return [f"heights: {len(done)} floor(s) {float(pitch):.2f} m a storey ({source}; inferred): "
+            + ", ".join(f"{lid} z {next(lv.get('order') or 0 for lv in levels if lv['id'] == lid) * float(pitch):+.2f}"
+                        for lid in done[:14])]
+
+
 def apply_storey_marks(out: dict, levels: list[dict], storey_el: dict, slab_default: float, file_rel: Optional[str],
                        region_id: Optional[str], rule: str = "section_storey_marks",
                        source: str = "the storeys the sections name at their floor marks") -> list[str]:
@@ -792,6 +839,9 @@ def apply_storey_marks(out: dict, levels: list[dict], storey_el: dict, slab_defa
                 zv["value"] = round(new_z, 3)
                 zv["note"] = ((zv.get("note") + "; ") if zv.get("note") else "") + \
                     f"in the storey marks' frame: {how}"
+                for ln in zv.get("lines") or []:          # 13 Nov 2026 (R04): every line read, in the same frame
+                    on = sorted((zb - ln["z"], rel) for rel, zb in frame if -MARK_TOL_M <= zb - ln["z"] <= GROUND_MARK_TOL_M)
+                    ln["z"] = round((on[0][1] - base) if on else ln["z"] + shift, 3)
         lines.append(f"ground moved {shift:+.2f} m into the storey marks' frame (the section's level marks)")
     return lines
 

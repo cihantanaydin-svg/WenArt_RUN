@@ -1148,7 +1148,8 @@ def circulation(building: dict, sides: Optional[Sequence[dict]] = None, graph: O
     reached = _reach(graph, starts) & set(rooms) if starts else set()
     free = _reach(graph, starts, blocked=lambda rid: _rtype(by_id.get(rid)) == "bedroom") & set(rooms) \
         if starts else set()
-    unreached = [r for r in rooms if r not in reached]
+    # (20 Nov 2026, pre-pod review BP-05) an open-air room (a light well, a terrace) is no room a door must reach
+    unreached = [r for r in rooms if r not in reached and not AA.is_open_air(by_id[r])]
     per_level: dict = {}
     for rid, r in by_id.items():
         if _rtype(r) not in OPEN_AIR_TYPES:
@@ -1482,7 +1483,8 @@ def review_falls(prep: dict) -> dict:
                                  "change": None})
     for o in (prep.get("roof") or {}).get("openings") or []:
         guard = o.get("guard_height") or o.get("parapet_height")
-        q["answers"].append({"element": o["id"], "found": f"roof terrace {o['id']}: guarded to {float(guard):.2f} m "
+        what = "light well" if o.get("kind") == "light_well" else "roof terrace"      # BP-05
+        q["answers"].append({"element": o["id"], "found": f"{what} {o['id']}: guarded to {float(guard):.2f} m "
                              f"(parapet {float(o['parapet_height']):.2f} m" + (" + glass railing)" if o.get("guard_height")
                                                                                  else ")"), "change": None})
     return q
@@ -1499,7 +1501,7 @@ def outer_gaps(building: dict, prep: dict) -> list[dict]:
     (an open-air room, a site platform, a lower roof, the ground within 0.2 m) or is None; ``drop`` is its bottom
     over the ground outside; ``upper``: its level stands over the ground floor."""
     from wenart.blender import site as S
-    from wenart.blender.architect_actions import OPEN_AIR
+    from wenart.blender import architect_actions as AA
 
     levels = building.get("levels") or []
     if not levels or len(prep.get("ground_outline") or []) < 3:
@@ -1524,7 +1526,7 @@ def outer_gaps(building: dict, prep: dict) -> list[dict]:
         lands = None
         room = next((x for x in rooms if x.get("level_id") == lv["id"] and G.point_in_polygon(probe, x["polygon"])),
                     None)
-        if room is not None and str(room.get("room_type") or "").lower() in OPEN_AIR:
+        if room is not None and AA.is_open_air(room):
             lands = f"the {room.get('room_type')} {room['id']}"
         if lands is None:
             pf = next((p for p in site.get("platforms") or [] if len(p.get("polygon") or []) >= 3
@@ -1608,7 +1610,11 @@ def review_arrival(building: dict, prep: dict) -> tuple[dict, dict]:
     site = prep.get("site") or {}
     paths = [a for a in site.get("areas") or [] if a.get("kind") == "path"]
     ents = [e for e in (building.get("site") or {}).get("entrances") or [] if isinstance(e, dict)]
-    main = next((e for e in ents if e.get("main")), ents[0] if ents else None)
+    # (13 Nov 2026, review S1F-POD-P05) a room's door onto a balcony or a terrace is never taken for the main entrance
+    spaces = {x.get("id"): x.get("kind") for x in (building.get("site") or {}).get("outdoor_spaces") or []
+              if isinstance(x, dict)}
+    ways = [e for e in ents if spaces.get(e.get("onto")) not in ("balcony", "loggia", "terrace", "deck")]
+    main = next((e for e in ents if e.get("main")), ways[0] if ways else None)
     if main is None:
         b1["answers"].append({"element": "entrance", "found": "no entrance door is known", "change": None,
                               "open": True, "ask": "Which door is the main entrance?"})
@@ -1715,6 +1721,8 @@ def review(building: dict, prep: dict) -> dict:
         applied = AA.apply_answers(building, answers)
     a3, _recs = review_outside_doors(building)
     questions = [a3]
+    from wenart.blender import architect_storeys as ASTO   # 6 Nov 2026 (real21): the inferred storey count (N1)
+    questions += [q for q in [ASTO.review(building)] if q]
     sides = opening_sides(building)
     questions.append(review_circulation(building, sides))
     questions.append(review_kitchen(building, sides))

@@ -179,9 +179,17 @@ MACHINE_ROOM_RE = re.compile(r"(?<![a-z])(?:asansor\s*mak|makin?a?e?\s*dair|makn
                              r"motor\s*room|maschinenraum|mahal(?:li)?\s*(?:asansor|makin))")
 
 
+# 19 Nov 2026 (merge with the building-sense branch, review CODE-05): 'without a machine room' (makinesiz, makinasız,
+# makine dairesiz, MRL) names a lift, never its machine room
+MACHINE_LESS_RE = re.compile(r"(?<![a-z])(?:makin[ae]s[iu]z\w*|makin?a?e?\s*dairesiz\w*|mak\.?\s*dairesiz\w*|mrl)"
+                             r"(?![a-z])")
+
+
 def machine_room(label: Optional[str]) -> bool:
-    """19 Nov 2026 (review A3, OA3-03): a label naming a lift's (or a plant's) machine room (``MACHINE_ROOM_RE``)."""
-    return bool(label) and bool(MACHINE_ROOM_RE.search(" ".join(fold_ascii(str(label)).lower().split())))
+    """19 Nov 2026 (review A3, OA3-03): a label naming a lift's (or a plant's) machine room (``MACHINE_ROOM_RE``),
+    never one that says the lift has none (``MACHINE_LESS_RE``)."""
+    text = " ".join(fold_ascii(str(label or "")).lower().split())
+    return bool(label) and bool(MACHINE_ROOM_RE.search(MACHINE_LESS_RE.sub(" ", text)))
 BEDROOM_MIN_M2 = 6.0          # a room an abbreviation alone calls a bedroom (Y. / Ç. ODASI) is one only from this size
 # ``hall`` alone names a living room when its face is at least this large and this compact (§2.7.2).
 HALL_AS_LIVING_MIN_AREA = 9.0

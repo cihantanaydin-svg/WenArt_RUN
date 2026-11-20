@@ -3667,6 +3667,7 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
                             f"{f['layer'] or '-'}): {f['strokes']} strokes (frame and title block at the frame edge) "
                             f"are not plan geometry")
         ex.report["sheet_frames"] = [{k: v for k, v in f.items() if k != "stroke_ids"} for f in frames]
+    ex.report["page_strokes"] = page.strokes      # 12 Nov 2026: the completion rules read the drawing (drawn_strokes)
     is_raster = page.source_kind.startswith("raster")
     if is_raster:
         ex.report["raster"] = {"evidence_only": evidence_only, "labels": []}

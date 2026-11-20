@@ -53,6 +53,24 @@ MIN_WINDOW_H = 0.60
 ROOM_TYPES = ("bedroom", "living", "dining", "kitchen", "bathroom", "wc", "office", "study", "storage", "laundry",
               "hall", "dressing", "closet", "other")
 OPEN_AIR = ("balcony", "terrace", "roof_terrace", "loggia", "veranda", "patio", "porch", "garden")
+
+
+def is_open_air(room: Optional[dict]) -> bool:
+    """20 Nov 2026 (pre-pod review BP-01: real21's light wells, rooms of type shaft and subtype light_well that the roof
+    cuts open, were inside rooms to the architect, which moved their windows onto the blank party walls): a room open
+    to the sky: an open-air type (``OPEN_AIR``), a light well (``room_subtype`` or type) or an open-air flag."""
+    from wenart.blender.outdoor import OPEN_AIR_FLAGS
+
+    if room is None:
+        return False
+    return str(room.get("room_type") or "").lower() in OPEN_AIR + ("light_well",) \
+        or str(room.get("room_subtype") or "").lower() == "light_well" or any(room.get(k) for k in OPEN_AIR_FLAGS)
+
+
+def party_wall(wall: Optional[dict]) -> bool:
+    """A blank party wall (``party_wall`` and not internal: a neighbour's building behind it): never an opening."""
+    pw = (wall or {}).get("party_wall")
+    return bool(pw) and not (isinstance(pw, dict) and pw.get("internal"))
 DAYLIGHT_RATIO = 0.10
 STORE_WORDS = ("store", "storage", "service", "depo", "kiler")
 
@@ -135,6 +153,9 @@ ACTIONS = {
     # 29 Oct 2026 (user: "this dressing could be a see through dressing room in the both sides"; UL125): D8
     "wardrobe_fronts": "the fronts of a walk-in dressing room's wardrobes (params: kind): slatted or smoked-glass "
                        "sliding doors, open runs (all with real contents and a light inside), or closed fronts",
+    # 6 Nov 2026 (real21): the storey count the reading inferred (wenart/blender/architect_storeys.py, N1)
+    "storey_count": "the building has another number of storeys (params: count): recorded; the storeys are read, so "
+                    "the next reading builds that many",
 }
 # The rules whose answers are carried out first (a door that becomes a window is not widened as a door)
 FIRST_RULES = ("E1", "O2", "D4")
@@ -270,7 +291,7 @@ class Plan:
 
     @staticmethod
     def is_outside(room: Optional[dict]) -> bool:
-        return room is None or str(room.get("room_type") or "").lower() in OPEN_AIR
+        return room is None or is_open_air(room)
 
     @staticmethod
     def axis(wall: dict):
@@ -294,6 +315,9 @@ class Plan:
         key = (wall["id"], room_id)
         if key in self._runs:
             return self._runs[key]
+        if party_wall(wall):
+            self._runs[key] = []           # (BP-01) a blank party wall has no outer run: no opening is put there
+            return []
         a, u, length = self.axis(wall)
         n = (-u[1], u[0])
         reach = float(wall.get("thickness") or 0.2) / 2.0 + PROBE_M
@@ -404,7 +428,7 @@ class Plan:
         if room_id not in ids:
             return False
         other = sides[1 - ids.index(room_id)]
-        return other is not None and str(other.get("room_type") or "").lower() in OPEN_AIR
+        return is_open_air(other)
 
     def ceiling(self, level_id) -> float:
         lv = self.levels.get(level_id) or {}
@@ -2482,7 +2506,10 @@ def apply_answers(building: dict, answers: dict, head_limit=None) -> list[dict]:
             placed = _window_places(plan)
             guard = walk_snapshot(building) if rec["by"] != "user" else None
             try:
-                if opt == "move_window_to_outer_wall":
+                if opt == "storey_count":                   # 6 Nov 2026 (real21): N1, recorded for the reading
+                    from wenart.blender import architect_storeys as ASTO
+                    ok, text = ASTO.act_storey_count(building, key, ans, params.get("count"))
+                elif opt == "move_window_to_outer_wall":
                     ok, text = act_move_window(plan, key, ans, params.get("window_id") or target,
                                                params.get("room_id") or (target if target in plan.room else None))
                 elif opt == "enlarge_windows":

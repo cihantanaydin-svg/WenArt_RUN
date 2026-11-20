@@ -431,7 +431,7 @@ def draw(out_dir, result: Optional[dict] = None, renders: Optional[str] = None) 
     d.mkdir(parents=True, exist_ok=True)
     docs: dict = {}
     made = []
-    for lid, pg in RC.level_pages(building).items():
+    for lid, pg in RC.level_pages(building, inferred_ground=True).items():
         reg = regions.get(pg.get("region"))
         dxf = RC.source_dxf(out_dir, pg["file"])
         if dxf is None or (reg is None and pg.get("region")):
@@ -470,9 +470,15 @@ def draw(out_dir, result: Optional[dict] = None, renders: Optional[str] = None) 
         top = Path(renders) / f"top_{lid}_plan.jpg" if renders else None
         if top is not None and top.is_file():
             panels.append((top, "4 the pod's top-down render"))
-        copies = [k for k, lv in levels.items() if lv.get("typical_of") == lid]
+        # (20 Nov 2026, R21-04 / R20-07) the copies of the same plan, never the ground floor inferred from it
+        base = (levels.get(lid) or {}).get("typical_of") or lid
+        swap = RC.drawn_for_inferred_ground(building)
+        copies = [k for k, lv in levels.items() if lv.get("typical_of") == base and k != lid and k not in swap
+                  and k not in swap.values()] if not pg.get("inferred_ground") else []
         n = sum(1 for f in result["findings"] if f.get("level_id") == lid)
         header = (f"{building.get('project', {}).get('id')} {lid}: {title}"
+                  + (" (the ground floor inferred from the typical plan, cut to the footprint: not checked against "
+                     "the plan)" if pg.get("inferred_ground") else "")
                   + (f" (also {', '.join(copies)})" if copies else "") + f": {n} finding(s)")
         dest = d / f"compare_{lid}.jpg"
         _combine([p for p, _ in panels], [t for _, t in panels], dest, header)

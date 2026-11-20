@@ -1,0 +1,96 @@
+"""12 Nov 2026 (the coordinator: the building-sense audit rules are being verified against every project by misfire
+hunters; their guards drop in without a rewrite): every change a completion rule makes passes
+``wenart.ingest.rule_guards.blocked`` first.
+
+What: every rule key is asked by its rule; a guard (one function) stops one change and the stop is logged with the
+rule, its audit ids, the item and the reason; a rule switched off by its key or its audit id (code, environment,
+``level_inference.rules_off``) makes no change; without guards the rules work as before.
+"""
+from __future__ import annotations
+
+import re
+from pathlib import Path
+
+import pytest
+
+from test_core_rules_20261112 import block, flat_door, run
+from test_sense_rules_20261112 import balcony_site, building, flat
+
+from wenart import building as B
+from wenart.ingest import completion as CP
+from wenart.ingest import rule_guards as RG
+from wenart.ingest import sense_rules as SR
+
+ROOT = Path(__file__).resolve().parents[1] / "wenart" / "ingest"
+
+
+@pytest.fixture(autouse=True)
+def clean(monkeypatch):
+    monkeypatch.delenv("WENART_RULES_OFF", raising=False)
+    saved = {k: list(v) for k, v in RG.GUARDS.items()}
+    yield
+    RG.GUARDS.clear()
+    RG.GUARDS.update(saved)
+    RG.OFF.clear()
+
+
+def test_every_rule_key_is_asked_by_its_rule():
+    src = "".join((ROOT / f).read_text(encoding="utf-8") for f in ("completion.py", "core_rules.py", "sense_rules.py",
+                                                                  "exterior.py", "facades.py", "ground_floor.py",
+                                                                  "ground_lines.py", "basement.py"))
+    eaves = (ROOT.parent / "blender" / "party_eaves.py").read_text(encoding="utf-8")
+    # a staged rule (13 Nov 2026) is asked as a whole (RG.active) where its code branches; the build's party eaves
+    # read the reading's record of the staged rules (level_inference.rules_staged)
+    src += (ROOT.parent / "sheets" / "storeys.py").read_text(encoding="utf-8")     # margin_join: the sheets stage
+    asked = set(re.findall(r'RGU?\.(?:blocked|active)\(\s*"([a-z_]+)"', src))
+    asked |= {"party_eaves"} if 'staged.get("party_eaves")' in eaves and "RG.STAGED" in src else set()
+    asked |= {"stair_box", "stair_typical_copy", "stair_signs"} if "RG.blocked(kind, b" in src else set()
+    assert asked == set(RULES := RG.RULES), sorted(set(RULES) ^ asked)
+    assert all(ids and all(re.fullmatch(r"R\d\d", i) for i in ids) and what for ids, what in RULES.values())
+
+
+def test_a_guard_stops_one_change_and_says_why():
+    # (19 Nov 2026: the landing door is the reader's rule since the merge of reader A; a core gap shows the guard)
+    RG.guard("core_gap")(lambda b, item: "a drawn passage" if item["level_id"] == "L1" else None)
+    b = flat_door(block())
+    rec = run(b)
+    assert [x["level_id"] for x in rec["core_gaps"]] == ["L0"]
+    log = b["level_inference"]["guarded"]
+    assert [(e["rule"], e["item"]["level_id"], e["reason"]) for e in log] == [("core_gap", "L1", "a drawn passage")]
+    assert log[0]["audit"] == ["R16"] and log[0]["item"]["opening"] == "o_L1_gap"
+
+
+def test_a_rule_switched_off_by_its_audit_id_makes_no_change(monkeypatch):
+    monkeypatch.setenv("WENART_RULES_OFF", "R16, stair_box")
+    b = flat_door(block())
+    rec = run(b)
+    assert rec["core_gaps"] == [] and rec["stairs"] == []
+    assert {o["id"] for o in b["openings"]} >= {"o_L0_gap", "o_L1_gap"}
+    rules = {e["rule"] for e in b["level_inference"]["guarded"]}
+    assert {"core_gap", "stair_box"} <= rules
+    assert all("WENART_RULES_OFF" in e["reason"] for e in b["level_inference"]["guarded"])
+
+
+def test_the_building_can_switch_a_rule_off_and_the_log_holds_each_item_once():
+    b = building(flat(), site=balcony_site())
+    b["level_inference"]["rules_off"] = ["balcony_door"]
+    assert SR.balcony_doors(b, B.IdCounter().next) == []
+    assert SR.balcony_doors(b, B.IdCounter().next) == []
+    assert [e["rule"] for e in b["level_inference"]["guarded"]] == ["balcony_door"]
+
+
+def test_a_guard_can_keep_a_level_above_ground():
+    b = building(flat())
+    b["levels"][0].update(kind="basement", order=-1)
+    assert CP.below_ground(b, b["levels"][0])
+    RG.OFF.add("below_ground")
+    assert CP.below_ground(b, b["levels"][0]) is None
+
+
+def test_without_guards_the_rules_work_as_before():
+    b = flat_door(block())
+    rec = run(b)
+    assert rec["stairs"] and rec["core_gaps"]
+    assert "guarded" not in b["level_inference"]
+    with pytest.raises(KeyError):
+        RG.guard("no_such_rule")

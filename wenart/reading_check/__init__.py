@@ -78,19 +78,46 @@ def _apply(tf, p):
     return (tf[0] * p[0] + tf[1] * p[1] + tf[2], tf[3] * p[0] + tf[4] * p[1] + tf[5])
 
 
-def level_pages(building: dict) -> dict:
-    """``{level_id: {"region", "file", "tf"}}`` of the levels read from a CAD region (the page transform the model
-    used); a typical floor's copies are left out (their plan is the typical floor's)."""
+def drawn_for_inferred_ground(building: dict) -> dict:
+    """``{inferred ground floor id: drawn storey id}`` (pure; 20 Nov 2026, pre-pod review R21-04 / R20-07): a ground
+    floor the storey rule read from the typical plan (``ground_from_typical``; its level has ``storey_inference``) and
+    the lowest storey of the same plan the documents draw (a copy without ``storey_inference``)."""
+    st = (building.get("level_inference") or {}).get("storeys") or {}
+    if not st.get("ground_from_typical"):
+        return {}
     levels = {lv["id"]: lv for lv in building.get("levels") or []}
+    out = {}
+    for lv in levels.values():
+        if lv.get("typical_of") or not lv.get("storey_inference"):
+            continue
+        drawn = sorted((x for x in levels.values() if x.get("typical_of") == lv["id"] and not x.get("storey_inference")),
+                       key=lambda x: (x.get("order") or 0, x["id"]))
+        if drawn:
+            out[lv["id"]] = drawn[0]["id"]
+    return out
+
+
+def level_pages(building: dict, inferred_ground: bool = False) -> dict:
+    """``{level_id: {"region", "file", "tf"}}`` of the levels read from a CAD region (the page transform the model
+    used); a typical floor's copies are left out (their plan is the typical floor's). 20 Nov 2026 (pre-pod review
+    R21-04 / R20-07): a ground floor inferred from the typical plan is left out and the drawn storey of that plan is
+    checked in its place; ``inferred_ground`` keeps it too, marked ``inferred_ground`` (its own sheet, not checked)."""
+    levels = {lv["id"]: lv for lv in building.get("levels") or []}
+    swap = drawn_for_inferred_ground(building)
+    drawn = set(swap.values())
     out = {}
     for doc in building.get("documents") or []:
         for pg in doc.get("pages") or []:
             lid, tf = pg.get("level_id"), pg.get("transform_to_building")
             if not lid or not tf or lid in out:
                 continue
-            if (levels.get(lid) or {}).get("typical_of"):
+            if (levels.get(lid) or {}).get("typical_of") and lid not in drawn:
+                continue
+            if lid in swap and not inferred_ground:
                 continue
             out[lid] = {"region": pg.get("region_id"), "file": doc.get("file"), "tf": tf}
+            if lid in swap:
+                out[lid]["inferred_ground"] = True
     return out
 
 
@@ -572,6 +599,9 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
             findings.append(_finding("RC6", "major", None, f"sheets.json: {str(w)[:280]}"))
     pages = level_pages(building)
     anchors, checked, notes = {}, [], []
+    for g, d in drawn_for_inferred_ground(building).items():
+        notes.append(f"{g}: the ground floor inferred from the typical plan (cut to the footprint) is not checked "
+                     f"against that plan; its drawn storey {d} is (R21-04)")
     conv = {"layers": {}, "levels": {}}
     for lid, pg in pages.items():
         page = read_level_page(out_dir, sheets, pg)
@@ -655,8 +685,14 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
     counts = {s: sum(1 for f in findings if f["severity"] == s and not f.get("advisory"))
               for s in ("critical", "major", "minor")}
     counts["advisory"] = {s: sum(1 for f in advisory if f["severity"] == s) for s in ("major", "minor", "info")}
+    # 6 Nov 2026 (real21, UL331): what the reading inferred where the documents are silent (the storeys, the windows)
+    try:
+        from wenart.ingest import completion as CP
+        inferred = CP.summary(building)
+    except Exception as exc:  # noqa: BLE001 - the list never stops the reading check
+        inferred = {"error": f"{type(exc).__name__}: {str(exc)[:200]}"}
     return {"project": (building.get("project") or {}).get("id"), "levels_checked": checked, "reference": ref,
-            "conventions": conv,
+            "conventions": conv, "inferred": inferred,
             "findings": findings, "counts": counts, "notes": notes,
             "verdict": "ready" if not counts["critical"] else "fix before a pod run",
             "levels": [lv["id"] for lv in building.get("levels") or []],
@@ -691,6 +727,64 @@ def _note_conventions(conv: dict, lid: str, page, anchors: dict, sheets: dict, p
                            "placement_note": (reg.get("registration") or {}).get("note"), "underground": under}
 
 
+def inferred_lines(inf: dict) -> list:
+    """The report's section on what the reading inferred where the documents are silent (6 Nov 2026, real21): the
+    inferred storeys with the evidence ladder and the count's rule (a guess said so), the ground floor's changes, the
+    inferred windows and doors per level and the party walls (pure)."""
+    st = inf.get("storeys") or {}
+    ops = inf.get("openings") or {}
+    wells = inf.get("light_wells") or {}
+    if not st.get("inferred") and not ops and not wells and not inf.get("core_rules"):
+        return []
+    lines = ["", "## What the reading inferred (the documents are silent)", ""]
+    if st.get("inferred"):
+        lines.append(f"Storeys: {st.get('count')} from **{str(st.get('rule')).replace('_', ' ')}** (confidence "
+                     f"{st.get('confidence')})" + (" - **a guess**: " + str(st.get("guess_note")) if st.get("guess")
+                                                   else "") + ".")
+        lines += ["", "| inferred storey | label | reason |", "|---|---|---|"]
+        for i in st["inferred"]:
+            lines.append(f"| {i['level_id']} | {i['label']} | {str(i['reason']).replace('|', '/')}"
+                         + ("" if i.get("built", True) else " (not built)") + " |")
+        lines += ["", "| evidence rung | count | what it found |", "|---|---|---|"]
+        for r in st.get("ladder") or []:
+            lines.append(f"| {r['rung']} | {r['count'] if r['count'] else '-'} | {str(r['note']).replace('|', '/')} |")
+        gf = st.get("ground_floor") or {}
+        if gf.get("dropped"):
+            lines.append(f"\nGround floor: cantilevered balconies left out ({', '.join(d['id'] for d in gf['dropped'])}):"
+                         f" {gf['dropped'][0]['reason']}.")
+        if gf.get("entrance"):
+            lines.append(f"\nEntrance: {gf['entrance']['reason']}.")
+        if st.get("roof"):
+            lines.append(f"\nRoof: {st['roof']} (inferred).")
+        if st.get("open_point"):
+            op = st["open_point"]
+            lines.append(f"\nOpen point {op['key']} ({op['severity']}): {op['question']}; default {op['default']}, "
+                         f"choices {op['options']} (brief `storeys: N`).")
+    if ops:
+        lines += ["", f"Windows and doors inferred (the plans draw none; sizes: {inf.get('window_sizes') or '-'}):", "",
+                  "| level | windows | doors | party walls (no window) |", "|---|---|---|---|"]
+        for lid in sorted(ops, key=lambda k: (len(k), k)):
+            lines.append(f"| {lid} | {ops[lid]['windows']} | {ops[lid]['doors']} | "
+                         f"{', '.join((inf.get('party_walls') or {}).get(lid) or []) or '-'} |")
+    if inf.get("below_ground"):
+        lines.append(f"\nBelow ground (no window inferred): {', '.join(inf['below_ground'])}.")
+    if wells:
+        lines.append("\nLight wells (open-air voids through the storeys, never rooms): "
+                     + ", ".join(f"{lid}: {len(ids)}" for lid, ids in sorted((wells.get('rooms') or {}).items()))
+                     + f"; {len(wells.get('slab_voids') or [])} slab void(s), {len(wells.get('roof_openings') or [])} "
+                       f"roof opening(s).")
+    core = inf.get("core") or {}
+    for key in ("stair_head", "lift_overrun"):
+        if core.get(key):
+            lines.append(f"\nCore, {key.replace('_', ' ')}: {core[key]}.")
+    rules = inf.get("core_rules") or {}
+    if rules:
+        lines += ["", "| core rule | count | first reason |", "|---|---|---|"]
+        for k, v in rules.items():
+            lines.append(f"| {k} | {len(v)} | {str(v[0]).replace('|', '/')[:220]} |")
+    return lines
+
+
 def write(out_dir, result: dict) -> Path:
     """``reading_check/reading_check.json`` and ``.md`` in the pipeline output."""
     d = Path(out_dir) / "reading_check"
@@ -714,6 +808,7 @@ def write(out_dir, result: dict) -> Path:
                      f"{f.get('level_id') or '-'} | {f['message'].replace('|', '/')} |")
     if result.get("notes"):
         lines += ["", "Notes:"] + [f"- {n}" for n in result["notes"]]
+    lines += inferred_lines(result.get("inferred") or {})
     conv = result.get("conventions") or {}
     if conv.get("levels"):
         lines += ["", "## What the reading understood about the drawing", "",
