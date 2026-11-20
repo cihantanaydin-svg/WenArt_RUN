@@ -575,7 +575,13 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
     for lo in building.get("levels_left_out") or []:
         findings.append(_finding("RC1", "critical", f"order {lo.get('order')}", f"level {lo.get('label')} left out "
                                  f"of the model: {lo.get('reason')}", region=lo.get("region_id")))
-    carried = [r for lv in building.get("levels") or [] for r in lv.get("reading_review") or []]
+    # 20 Nov 2026 (real03's basement L-1 read, then left out of the bare build: no variant listed it): a level in the
+    # reading that no variant's build takes is left out as surely as one the reading drops
+    from wenart import views as _V
+    for lo in _V.levels_not_built(building):
+        findings.append(_finding("RC1", "critical", lo["id"], f"level {lo['id']} ({lo.get('label')}) is read but no "
+                                 f"build takes it: {lo['reason']}"))
+    carried =[r for lv in building.get("levels") or [] for r in lv.get("reading_review") or []]
     # 5 Nov 2026 (review): the per-label "lies outside the building" warnings of a level marked for those labels are
     # RC7's places too (the quoted names of the level's reasons)
     carried_names = {n for r in carried for n in re.findall(r"'([^']+)'", r)}
