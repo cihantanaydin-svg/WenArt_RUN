@@ -5469,7 +5469,8 @@
        12.811,
        14.681
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "BALKON",
@@ -5477,7 +5478,8 @@
        20.412,
        14.681
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "EBEVEYN ODASI (M.K.A.)",
@@ -5485,6 +5487,7 @@
        14.918,
        13.54
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -5493,6 +5496,7 @@
        18.287,
        13.54
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -5501,7 +5505,8 @@
        1.877,
        12.909
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "BALKON",
@@ -5509,7 +5514,8 @@
        31.331,
        12.909
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "EBEVEYN ODASI",
@@ -5517,6 +5523,7 @@
        4.256,
        11.536
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -5525,6 +5532,7 @@
        28.952,
        11.536
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -5533,6 +5541,7 @@
        21.788,
        10.116
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -5541,6 +5550,7 @@
        11.256,
        10.069
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -5549,6 +5559,7 @@
        24.471,
        10.032
       ],
+      "type": "stair",
       "exterior": false
      },
      {
@@ -5557,6 +5568,7 @@
        8.501,
        10.019
       ],
+      "type": "stair",
       "exterior": false
      },
      {
@@ -5565,6 +5577,7 @@
        3.596,
        9.898
       ],
+      "type": "other",
       "exterior": false
      },
      {
@@ -5573,6 +5586,7 @@
        29.646,
        9.898
       ],
+      "type": "other",
       "exterior": false
      },
      {
@@ -5581,6 +5595,7 @@
        0.856,
        9.81
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -5589,6 +5604,7 @@
        32.177,
        9.788
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -5597,6 +5613,7 @@
        13.533,
        8.899
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -5605,6 +5622,7 @@
        19.63,
        8.795
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -5613,6 +5631,7 @@
        5.814,
        8.729
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -5621,6 +5640,7 @@
        27.386,
        8.708
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -5629,6 +5649,7 @@
        29.085,
        8.66
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -5637,6 +5658,7 @@
        4.127,
        8.558
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -5645,6 +5667,7 @@
        8.55,
        8.455
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -5653,6 +5676,7 @@
        15.054,
        6.394
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -5661,6 +5685,7 @@
        12.935,
        5.44
       ],
+      "type": "shaft",
       "exterior": false
      },
      {
@@ -5669,6 +5694,7 @@
        27.386,
        5.245
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -5677,6 +5703,7 @@
        20.427,
        5.146
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -5685,6 +5712,7 @@
        4.127,
        5.106
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -5693,6 +5721,7 @@
        29.085,
        5.103
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -5701,6 +5730,7 @@
        22.5,
        5.022
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -5709,6 +5739,7 @@
        5.807,
        4.981
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -5717,6 +5748,7 @@
        12.564,
        4.259
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -5725,6 +5757,7 @@
        10.688,
        4.14
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -5733,6 +5766,7 @@
        31.807,
        3.823
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -5741,6 +5775,7 @@
        3.596,
        3.591
       ],
+      "type": "other",
       "exterior": false
      },
      {
@@ -5749,6 +5784,7 @@
        29.646,
        3.591
       ],
+      "type": "other",
       "exterior": false
      },
      {
@@ -5757,6 +5793,7 @@
        21.638,
        3.559
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -5765,6 +5802,7 @@
        1.673,
        3.511
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -5773,6 +5811,7 @@
        18.208,
        3.448
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -5781,6 +5820,7 @@
        24.396,
        2.955
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -5789,6 +5829,7 @@
        4.256,
        2.042
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -5797,6 +5838,7 @@
        28.952,
        2.042
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -5805,6 +5847,7 @@
        22.133,
        1.548
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -5813,6 +5856,7 @@
        14.738,
        1.531
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -5821,6 +5865,7 @@
        8.609,
        1.457
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -5829,6 +5874,7 @@
        11.601,
        1.367
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -5837,7 +5883,8 @@
        1.877,
        0.656
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "BALKON",
@@ -5845,7 +5892,8 @@
        31.331,
        0.656
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "BALKON",
@@ -5853,7 +5901,8 @@
        8.773,
        -0.343
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "BALKON",
@@ -5861,44 +5910,13 @@
        24.435,
        -0.343
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      }
     ],
     "drawn_angled": []
    },
    "compare": [
-    {
-     "kind": "room",
-     "at": [
-      12.811,
-      14.681
-     ],
-     "point": [
-      0.383,
-      0.4426
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 1,
-     "qid": "q1"
-    },
-    {
-     "kind": "room",
-     "at": [
-      20.412,
-      14.681
-     ],
-     "point": [
-      0.5278,
-      0.4426
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 2,
-     "qid": "q2"
-    },
     {
      "kind": "room",
      "at": [
@@ -5914,8 +5932,8 @@
       "r_L0_ebeveyn_odasi_m_k_a"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 3,
-     "qid": "q3"
+     "n": 1,
+     "qid": "q1"
     },
     {
      "kind": "room",
@@ -5932,40 +5950,8 @@
       "r_L0_ebeveyn_odasi_m_k_a_2"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 4,
-     "qid": "q4"
-    },
-    {
-     "kind": "room",
-     "at": [
-      1.877,
-      12.909
-     ],
-     "point": [
-      0.1748,
-      0.476
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 5,
-     "qid": "q5"
-    },
-    {
-     "kind": "room",
-     "at": [
-      31.331,
-      12.909
-     ],
-     "point": [
-      0.7358,
-      0.476
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 6,
-     "qid": "q6"
+     "n": 2,
+     "qid": "q2"
     },
     {
      "kind": "room",
@@ -5982,8 +5968,8 @@
       "r_L0_ebeveyn_odasi_6"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 7,
-     "qid": "q7"
+     "n": 3,
+     "qid": "q3"
     },
     {
      "kind": "room",
@@ -6000,8 +5986,8 @@
       "r_L0_ebeveyn_odasi_5"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 8,
-     "qid": "q8"
+     "n": 4,
+     "qid": "q4"
     },
     {
      "kind": "room",
@@ -6018,8 +6004,8 @@
       "r_L0_yasama_7"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 9,
-     "qid": "q9"
+     "n": 5,
+     "qid": "q5"
     },
     {
      "kind": "room",
@@ -6036,8 +6022,8 @@
       "r_L0_yasama_8"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 10,
-     "qid": "q10"
+     "n": 6,
+     "qid": "q6"
     },
     {
      "kind": "room",
@@ -6054,8 +6040,8 @@
       "r_L0_kat_merdiveni"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 11,
-     "qid": "q11"
+     "n": 7,
+     "qid": "q7"
     },
     {
      "kind": "room",
@@ -6072,8 +6058,8 @@
       "r_L0_yangin_merdiveni"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 12,
-     "qid": "q12"
+     "n": 8,
+     "qid": "q8"
     },
     {
      "kind": "room",
@@ -6090,8 +6076,8 @@
       "r_L0_islik_3"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 13,
-     "qid": "q13"
+     "n": 9,
+     "qid": "q9"
     },
     {
      "kind": "room",
@@ -6108,8 +6094,8 @@
       "r_L0_islik_4"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 14,
-     "qid": "q14"
+     "n": 10,
+     "qid": "q10"
     },
     {
      "kind": "room",
@@ -6126,8 +6112,8 @@
       "r_L0_yasama_5"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 15,
-     "qid": "q15"
+     "n": 11,
+     "qid": "q11"
     },
     {
      "kind": "room",
@@ -6144,8 +6130,8 @@
       "r_L0_yasama_6"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 16,
-     "qid": "q16"
+     "n": 12,
+     "qid": "q12"
     },
     {
      "kind": "room",
@@ -6162,8 +6148,8 @@
       "r_L0_banyo_6"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 17,
-     "qid": "q17"
+     "n": 13,
+     "qid": "q13"
     },
     {
      "kind": "room",
@@ -6178,6 +6164,78 @@
      "model_fact": "yes",
      "element_ids": [
       "r_L0_banyo_8"
+     ],
+     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
+     "n": 14,
+     "qid": "q14"
+    },
+    {
+     "kind": "room",
+     "at": [
+      5.814,
+      8.729
+     ],
+     "point": [
+      0.2498,
+      0.5549
+     ],
+     "model_fact": "yes",
+     "element_ids": [
+      "r_L0_banyo_5"
+     ],
+     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
+     "n": 15,
+     "qid": "q15"
+    },
+    {
+     "kind": "room",
+     "at": [
+      27.386,
+      8.708
+     ],
+     "point": [
+      0.6606,
+      0.5552
+     ],
+     "model_fact": "yes",
+     "element_ids": [
+      "r_L0_banyo_7"
+     ],
+     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
+     "n": 16,
+     "qid": "q16"
+    },
+    {
+     "kind": "room",
+     "at": [
+      29.085,
+      8.66
+     ],
+     "point": [
+      0.693,
+      0.5562
+     ],
+     "model_fact": "yes",
+     "element_ids": [
+      "r_L0_giris_holu_5"
+     ],
+     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
+     "n": 17,
+     "qid": "q17"
+    },
+    {
+     "kind": "room",
+     "at": [
+      4.127,
+      8.558
+     ],
+     "point": [
+      0.2176,
+      0.5581
+     ],
+     "model_fact": "yes",
+     "element_ids": [
+      "r_L0_giris_holu_6"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
      "n": 18,
@@ -8092,6 +8150,7 @@
        13.807,
        7.327
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -8100,6 +8159,7 @@
        17.446,
        6.732
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -8108,6 +8168,7 @@
        17.617,
        4.039
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -8116,6 +8177,7 @@
        14.968,
        3.527
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -8124,6 +8186,7 @@
        12.738,
        3.118
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -8132,7 +8195,8 @@
        20.351,
        1.332
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      }
     ],
     "drawn_angled": []
@@ -8231,22 +8295,6 @@
     {
      "kind": "room",
      "at": [
-      20.351,
-      1.332
-     ],
-     "point": [
-      0.8311,
-      0.6355
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 6,
-     "qid": "q6"
-    },
-    {
-     "kind": "room",
-     "at": [
       4.751,
       3.515
      ],
@@ -8259,8 +8307,8 @@
       "r_L-1_oda_6"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 7,
-     "qid": "q7"
+     "n": 6,
+     "qid": "q6"
     },
     {
      "kind": "room",
@@ -8277,8 +8325,8 @@
       "r_L-1_oda_7"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 8,
-     "qid": "q8"
+     "n": 7,
+     "qid": "q7"
     },
     {
      "kind": "room",
@@ -8295,8 +8343,8 @@
       "r_L-1_oda_5"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 9,
-     "qid": "q9"
+     "n": 8,
+     "qid": "q8"
     },
     {
      "kind": "room",
@@ -8313,8 +8361,8 @@
       "r_L-1_oda_3"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 10,
-     "qid": "q10"
+     "n": 9,
+     "qid": "q9"
     },
     {
      "kind": "room",
@@ -8331,8 +8379,8 @@
       "r_L-1_oda_4"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 11,
-     "qid": "q11"
+     "n": 10,
+     "qid": "q10"
     },
     {
      "kind": "room",
@@ -8349,8 +8397,8 @@
       "r_L-1_oda_2"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 12,
-     "qid": "q12"
+     "n": 11,
+     "qid": "q11"
     },
     {
      "kind": "room",
@@ -8367,8 +8415,8 @@
       "r_L-1_oda_8"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 13,
-     "qid": "q13"
+     "n": 12,
+     "qid": "q12"
     },
     {
      "kind": "room",
@@ -8385,8 +8433,8 @@
       "r_L-1_oda"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 14,
-     "qid": "q14"
+     "n": 13,
+     "qid": "q13"
     },
     {
      "kind": "opening",
@@ -8403,8 +8451,8 @@
       "win_L-1_005"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 15,
-     "qid": "q15"
+     "n": 14,
+     "qid": "q14"
     },
     {
      "kind": "opening",
@@ -8421,8 +8469,8 @@
       "win_L-1_006"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 16,
-     "qid": "q16"
+     "n": 15,
+     "qid": "q15"
     },
     {
      "kind": "opening",
@@ -8439,8 +8487,8 @@
       "win_L-1_007"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 17,
-     "qid": "q17"
+     "n": 16,
+     "qid": "q16"
     },
     {
      "kind": "opening",
@@ -8457,8 +8505,8 @@
       "win_L-1_008"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 18,
-     "qid": "q18"
+     "n": 17,
+     "qid": "q17"
     },
     {
      "kind": "opening",
@@ -8475,8 +8523,8 @@
       "win_L-1_009"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 19,
-     "qid": "q19"
+     "n": 18,
+     "qid": "q18"
     },
     {
      "kind": "opening",
@@ -8493,8 +8541,8 @@
       "win_L-1_010"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 20,
-     "qid": "q20"
+     "n": 19,
+     "qid": "q19"
     },
     {
      "kind": "opening",
@@ -8511,8 +8559,8 @@
       "d_L-1_003"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 21,
-     "qid": "q21"
+     "n": 20,
+     "qid": "q20"
     },
     {
      "kind": "opening",
@@ -8529,8 +8577,8 @@
       "d_L-1_009"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 22,
-     "qid": "q22"
+     "n": 21,
+     "qid": "q21"
     },
     {
      "kind": "opening",
@@ -8547,8 +8595,8 @@
       "d_L-1_010"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 23,
-     "qid": "q23"
+     "n": 22,
+     "qid": "q22"
     },
     {
      "kind": "opening",
@@ -8565,8 +8613,8 @@
       "d_L-1_011"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 24,
-     "qid": "q24"
+     "n": 23,
+     "qid": "q23"
     }
    ]
   },
@@ -10433,6 +10481,7 @@
        15.035,
        7.327
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -10441,6 +10490,7 @@
        18.795,
        6.901
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -10449,6 +10499,7 @@
        14.254,
        6.112
       ],
+      "type": "wc",
       "exterior": false
      },
      {
@@ -10457,6 +10508,7 @@
        14.127,
        5.019
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -10465,6 +10517,7 @@
        18.358,
        3.304
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -10473,6 +10526,7 @@
        12.289,
        2.473
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -10481,6 +10535,7 @@
        15.054,
        2.468
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -10489,7 +10544,8 @@
        20.223,
        0.921
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      }
     ],
     "drawn_angled": []
@@ -10624,22 +10680,6 @@
     {
      "kind": "room",
      "at": [
-      20.223,
-      0.921
-     ],
-     "point": [
-      0.8258,
-      0.6635
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 8,
-     "qid": "q8"
-    },
-    {
-     "kind": "room",
-     "at": [
       2.75,
       2.975
      ],
@@ -10652,8 +10692,8 @@
       "r_L0_oda_5"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 9,
-     "qid": "q9"
+     "n": 8,
+     "qid": "q8"
     },
     {
      "kind": "room",
@@ -10670,8 +10710,8 @@
       "r_L0_oda_6"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 10,
-     "qid": "q10"
+     "n": 9,
+     "qid": "q9"
     },
     {
      "kind": "room",
@@ -10688,8 +10728,8 @@
       "r_L0_oda_2"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 11,
-     "qid": "q11"
+     "n": 10,
+     "qid": "q10"
     },
     {
      "kind": "room",
@@ -10706,8 +10746,8 @@
       "r_L0_oda"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 12,
-     "qid": "q12"
+     "n": 11,
+     "qid": "q11"
     },
     {
      "kind": "room",
@@ -10724,8 +10764,8 @@
       "r_L0_oda_3"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 13,
-     "qid": "q13"
+     "n": 12,
+     "qid": "q12"
     },
     {
      "kind": "room",
@@ -10742,8 +10782,8 @@
       "r_L0_oda_4"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 14,
-     "qid": "q14"
+     "n": 13,
+     "qid": "q13"
     },
     {
      "kind": "room",
@@ -10760,8 +10800,8 @@
       "r_L0_oda_8"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 15,
-     "qid": "q15"
+     "n": 14,
+     "qid": "q14"
     },
     {
      "kind": "opening",
@@ -10778,8 +10818,8 @@
       "win_L0_011"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 16,
-     "qid": "q16"
+     "n": 15,
+     "qid": "q15"
     },
     {
      "kind": "opening",
@@ -10796,8 +10836,8 @@
       "win_L0_012"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 17,
-     "qid": "q17"
+     "n": 16,
+     "qid": "q16"
     },
     {
      "kind": "opening",
@@ -10814,8 +10854,8 @@
       "win_L0_013"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 18,
-     "qid": "q18"
+     "n": 17,
+     "qid": "q17"
     },
     {
      "kind": "opening",
@@ -10832,8 +10872,8 @@
       "win_L0_014"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 19,
-     "qid": "q19"
+     "n": 18,
+     "qid": "q18"
     },
     {
      "kind": "opening",
@@ -10850,8 +10890,8 @@
       "win_L0_015"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 20,
-     "qid": "q20"
+     "n": 19,
+     "qid": "q19"
     },
     {
      "kind": "opening",
@@ -10868,8 +10908,8 @@
       "win_L0_016"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 21,
-     "qid": "q21"
+     "n": 20,
+     "qid": "q20"
     },
     {
      "kind": "opening",
@@ -10886,8 +10926,8 @@
       "d_L0_001"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 22,
-     "qid": "q22"
+     "n": 21,
+     "qid": "q21"
     },
     {
      "kind": "opening",
@@ -10904,8 +10944,8 @@
       "d_L0_002"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 23,
-     "qid": "q23"
+     "n": 22,
+     "qid": "q22"
     },
     {
      "kind": "opening",
@@ -10922,8 +10962,8 @@
       "d_L0_005"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 24,
-     "qid": "q24"
+     "n": 23,
+     "qid": "q23"
     },
     {
      "kind": "opening",
@@ -10940,8 +10980,8 @@
       "d_L0_010"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 25,
-     "qid": "q25"
+     "n": 24,
+     "qid": "q24"
     }
    ]
   },
@@ -12594,6 +12634,7 @@
        15.035,
        7.327
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -12602,6 +12643,7 @@
        18.795,
        6.901
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -12610,6 +12652,7 @@
        6.952,
        5.019
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -12618,6 +12661,7 @@
        14.127,
        5.019
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -12626,6 +12670,7 @@
        18.358,
        3.304
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -12634,6 +12679,7 @@
        12.289,
        2.473
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -12642,6 +12688,7 @@
        15.054,
        2.468
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -12650,7 +12697,8 @@
        20.223,
        0.921
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      }
     ],
     "drawn_angled": []
@@ -12785,22 +12833,6 @@
     {
      "kind": "room",
      "at": [
-      20.223,
-      0.921
-     ],
-     "point": [
-      0.8266,
-      0.6635
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 8,
-     "qid": "q8"
-    },
-    {
-     "kind": "room",
-     "at": [
       2.75,
       2.975
      ],
@@ -12813,8 +12845,8 @@
       "r_L2_oda_3"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 9,
-     "qid": "q9"
+     "n": 8,
+     "qid": "q8"
     },
     {
      "kind": "room",
@@ -12831,8 +12863,8 @@
       "r_L2_oda_4"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 10,
-     "qid": "q10"
+     "n": 9,
+     "qid": "q9"
     },
     {
      "kind": "room",
@@ -12849,8 +12881,8 @@
       "r_L2_oda_2"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 11,
-     "qid": "q11"
+     "n": 10,
+     "qid": "q10"
     },
     {
      "kind": "room",
@@ -12867,8 +12899,8 @@
       "r_L2_oda"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 12,
-     "qid": "q12"
+     "n": 11,
+     "qid": "q11"
     },
     {
      "kind": "room",
@@ -12885,8 +12917,8 @@
       "r_L2_oda_5"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 13,
-     "qid": "q13"
+     "n": 12,
+     "qid": "q12"
     },
     {
      "kind": "room",
@@ -12903,8 +12935,8 @@
       "r_L2_oda_6"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 14,
-     "qid": "q14"
+     "n": 13,
+     "qid": "q13"
     },
     {
      "kind": "balcony",
@@ -12921,8 +12953,8 @@
       "d_L2_011"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 15,
-     "qid": "q15"
+     "n": 14,
+     "qid": "q14"
     },
     {
      "kind": "balcony",
@@ -12939,8 +12971,8 @@
       "win_L2_012"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 16,
-     "qid": "q16"
+     "n": 15,
+     "qid": "q15"
     },
     {
      "kind": "balcony",
@@ -12957,8 +12989,8 @@
       "win_L2_013"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 17,
-     "qid": "q17"
+     "n": 16,
+     "qid": "q16"
     },
     {
      "kind": "opening",
@@ -12975,8 +13007,8 @@
       "win_L2_009"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 18,
-     "qid": "q18"
+     "n": 17,
+     "qid": "q17"
     },
     {
      "kind": "opening",
@@ -12993,8 +13025,8 @@
       "win_L2_010"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 19,
-     "qid": "q19"
+     "n": 18,
+     "qid": "q18"
     },
     {
      "kind": "opening",
@@ -13011,8 +13043,8 @@
       "win_L2_011"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 20,
-     "qid": "q20"
+     "n": 19,
+     "qid": "q19"
     },
     {
      "kind": "opening",
@@ -13029,8 +13061,8 @@
       "win_L2_014"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 21,
-     "qid": "q21"
+     "n": 20,
+     "qid": "q20"
     },
     {
      "kind": "opening",
@@ -13047,8 +13079,8 @@
       "d_L2_001"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 22,
-     "qid": "q22"
+     "n": 21,
+     "qid": "q21"
     },
     {
      "kind": "opening",
@@ -13065,8 +13097,8 @@
       "d_L2_002"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 23,
-     "qid": "q23"
+     "n": 22,
+     "qid": "q22"
     },
     {
      "kind": "opening",
@@ -13083,8 +13115,8 @@
       "d_L2_005"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 24,
-     "qid": "q24"
+     "n": 23,
+     "qid": "q23"
     },
     {
      "kind": "opening",
@@ -13101,8 +13133,8 @@
       "d_L2_010"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 25,
-     "qid": "q25"
+     "n": 24,
+     "qid": "q24"
     },
     {
      "kind": "opening",
@@ -13119,8 +13151,8 @@
       "o_L2_003"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 26,
-     "qid": "q26"
+     "n": 25,
+     "qid": "q25"
     },
     {
      "kind": "opening",
@@ -13137,8 +13169,8 @@
       "win_L2_001"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 27,
-     "qid": "q27"
+     "n": 26,
+     "qid": "q26"
     }
    ]
   },
@@ -14106,6 +14138,7 @@
        16.89,
        6.079
       ],
+      "type": "storage",
       "exterior": false
      },
      {
@@ -14114,6 +14147,7 @@
        15.766,
        5.816
       ],
+      "type": "shaft",
       "exterior": false
      },
      {
@@ -14122,6 +14156,7 @@
        5.863,
        5.672
       ],
+      "type": "shaft",
       "exterior": false
      },
      {
@@ -14130,6 +14165,7 @@
        8.006,
        4.913
       ],
+      "type": "shaft",
       "exterior": false
      },
      {
@@ -14138,6 +14174,7 @@
        13.656,
        4.87
       ],
+      "type": "shaft",
       "exterior": false
      },
      {
@@ -14146,6 +14183,7 @@
        14.517,
        2.661
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -14154,7 +14192,8 @@
        10.637,
        2.587
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "TERAS",
@@ -14162,7 +14201,8 @@
        18.353,
        2.448
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      }
     ],
     "drawn_angled": [
@@ -14344,38 +14384,6 @@
     {
      "kind": "room",
      "at": [
-      10.637,
-      2.587
-     ],
-     "point": [
-      0.4766,
-      0.4595
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 7,
-     "qid": "q7"
-    },
-    {
-     "kind": "room",
-     "at": [
-      18.353,
-      2.448
-     ],
-     "point": [
-      0.7304,
-      0.4664
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 8,
-     "qid": "q8"
-    },
-    {
-     "kind": "room",
-     "at": [
       6.804,
       2.189
      ],
@@ -14388,8 +14396,8 @@
       "r_L3_oda"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 9,
-     "qid": "q9"
+     "n": 7,
+     "qid": "q7"
     },
     {
      "kind": "room",
@@ -14406,8 +14414,8 @@
       "r_L3_oda_4"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 10,
-     "qid": "q10"
+     "n": 8,
+     "qid": "q8"
     },
     {
      "kind": "room",
@@ -14424,8 +14432,8 @@
       "r_L3_oda_5"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 11,
-     "qid": "q11"
+     "n": 9,
+     "qid": "q9"
     },
     {
      "kind": "room",
@@ -14442,8 +14450,8 @@
       "r_L3_oda_6"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 12,
-     "qid": "q12"
+     "n": 10,
+     "qid": "q10"
     },
     {
      "kind": "room",
@@ -14460,8 +14468,8 @@
       "r_L3_oda_7"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 13,
-     "qid": "q13"
+     "n": 11,
+     "qid": "q11"
     },
     {
      "kind": "room",
@@ -14478,8 +14486,8 @@
       "r_L3_depo_2"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 14,
-     "qid": "q14"
+     "n": 12,
+     "qid": "q12"
     },
     {
      "kind": "room",
@@ -14496,8 +14504,8 @@
       "r_L3_depo_3"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 15,
-     "qid": "q15"
+     "n": 13,
+     "qid": "q13"
     },
     {
      "kind": "angled",
@@ -14512,8 +14520,8 @@
      "model_fact": "yes",
      "element_ids": [],
      "ask": "Is this wall drawn at an angle in the drawing? Is it straight (not at that angle) in the model?",
-     "n": 16,
-     "qid": "q16"
+     "n": 14,
+     "qid": "q14"
     },
     {
      "kind": "angled",
@@ -14528,8 +14536,8 @@
      "model_fact": "yes",
      "element_ids": [],
      "ask": "Is this wall drawn at an angle in the drawing? Is it straight (not at that angle) in the model?",
-     "n": 17,
-     "qid": "q17"
+     "n": 15,
+     "qid": "q15"
     },
     {
      "kind": "angled",
@@ -14544,8 +14552,8 @@
      "model_fact": "yes",
      "element_ids": [],
      "ask": "Is this wall drawn at an angle in the drawing? Is it straight (not at that angle) in the model?",
-     "n": 18,
-     "qid": "q18"
+     "n": 16,
+     "qid": "q16"
     },
     {
      "kind": "balcony",
@@ -14562,8 +14570,8 @@
       "d_L3_001"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 19,
-     "qid": "q19"
+     "n": 17,
+     "qid": "q17"
     },
     {
      "kind": "balcony",
@@ -14580,8 +14588,8 @@
       "d_L3_002"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 20,
-     "qid": "q20"
+     "n": 18,
+     "qid": "q18"
     },
     {
      "kind": "balcony",
@@ -14598,8 +14606,8 @@
       "d_L3_003"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 21,
-     "qid": "q21"
+     "n": 19,
+     "qid": "q19"
     },
     {
      "kind": "balcony",
@@ -14616,8 +14624,8 @@
       "d_L3_004"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 22,
-     "qid": "q22"
+     "n": 20,
+     "qid": "q20"
     },
     {
      "kind": "balcony",
@@ -14634,8 +14642,8 @@
       "d_L3_005"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 23,
-     "qid": "q23"
+     "n": 21,
+     "qid": "q21"
     },
     {
      "kind": "balcony",
@@ -14652,8 +14660,8 @@
       "d_L3_006"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 24,
-     "qid": "q24"
+     "n": 22,
+     "qid": "q22"
     },
     {
      "kind": "balcony",
@@ -14670,8 +14678,8 @@
       "d_L3_009"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 25,
-     "qid": "q25"
+     "n": 23,
+     "qid": "q23"
     },
     {
      "kind": "balcony",
@@ -14688,8 +14696,8 @@
       "d_L3_010"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 26,
-     "qid": "q26"
+     "n": 24,
+     "qid": "q24"
     },
     {
      "kind": "opening",
@@ -14706,8 +14714,8 @@
       "win_L3_002"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 27,
-     "qid": "q27"
+     "n": 25,
+     "qid": "q25"
     },
     {
      "kind": "opening",
@@ -14724,8 +14732,8 @@
       "win_L3_003"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 28,
-     "qid": "q28"
+     "n": 26,
+     "qid": "q26"
     },
     {
      "kind": "opening",
@@ -14742,8 +14750,8 @@
       "win_L3_004"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 29,
-     "qid": "q29"
+     "n": 27,
+     "qid": "q27"
     },
     {
      "kind": "opening",
@@ -14760,8 +14768,8 @@
       "o_L3_001"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 30,
-     "qid": "q30"
+     "n": 28,
+     "qid": "q28"
     },
     {
      "kind": "opening",
@@ -14778,8 +14786,8 @@
       "o_L3_002"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 31,
-     "qid": "q31"
+     "n": 29,
+     "qid": "q29"
     },
     {
      "kind": "opening",
@@ -14796,8 +14804,8 @@
       "win_L3_001"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 32,
-     "qid": "q32"
+     "n": 30,
+     "qid": "q30"
     },
     {
      "kind": "opening",
@@ -14814,8 +14822,8 @@
       "o_r_L3_oda_4_hall"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 33,
-     "qid": "q33"
+     "n": 31,
+     "qid": "q31"
     }
    ]
   },
@@ -17893,7 +17901,8 @@
        3.927,
        17.205
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "çocuk yatak od.",
@@ -17901,6 +17910,7 @@
        4.452,
        14.404
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -17909,6 +17919,7 @@
        8.567,
        13.901
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -17917,6 +17928,7 @@
        8.814,
        11.876
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -17925,6 +17937,7 @@
        3.816,
        10.69
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -17933,6 +17946,7 @@
        7.621,
        9.134
       ],
+      "type": "wc",
       "exterior": false
      },
      {
@@ -17941,6 +17955,7 @@
        9.864,
        9.065
       ],
+      "type": "shaft",
       "exterior": false
      },
      {
@@ -17949,6 +17964,7 @@
        7.4,
        7.716
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -17957,6 +17973,7 @@
        7.966,
        4.851
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -17965,6 +17982,7 @@
        4.27,
        4.717
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -17973,7 +17991,8 @@
        4.132,
        0.711
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      }
     ],
     "drawn_angled": [
@@ -18239,22 +18258,6 @@
     {
      "kind": "room",
      "at": [
-      3.927,
-      17.205
-     ],
-     "point": [
-      0.1949,
-      0.1395
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 1,
-     "qid": "q1"
-    },
-    {
-     "kind": "room",
-     "at": [
       4.452,
       14.404
      ],
@@ -18267,8 +18270,8 @@
       "r_L-1_cocuk_yatak_od"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 2,
-     "qid": "q2"
+     "n": 1,
+     "qid": "q1"
     },
     {
      "kind": "room",
@@ -18285,8 +18288,8 @@
       "r_L-1_e_yatak_od"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 3,
-     "qid": "q3"
+     "n": 2,
+     "qid": "q2"
     },
     {
      "kind": "room",
@@ -18303,8 +18306,8 @@
       "r_L-1_banyo"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 4,
-     "qid": "q4"
+     "n": 3,
+     "qid": "q3"
     },
     {
      "kind": "room",
@@ -18321,8 +18324,8 @@
       "r_L-1_gunluk_oda"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 5,
-     "qid": "q5"
+     "n": 4,
+     "qid": "q4"
     },
     {
      "kind": "room",
@@ -18339,8 +18342,8 @@
       "r_L-1_lav_w_c"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 6,
-     "qid": "q6"
+     "n": 5,
+     "qid": "q5"
     },
     {
      "kind": "room",
@@ -18357,8 +18360,8 @@
       "r_L-1_asansor"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 7,
-     "qid": "q7"
+     "n": 6,
+     "qid": "q6"
     },
     {
      "kind": "room",
@@ -18375,8 +18378,8 @@
       "r_L-1_antre"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 8,
-     "qid": "q8"
+     "n": 7,
+     "qid": "q7"
     },
     {
      "kind": "room",
@@ -18393,8 +18396,8 @@
       "r_L-1_mutfak"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 9,
-     "qid": "q9"
+     "n": 8,
+     "qid": "q8"
     },
     {
      "kind": "room",
@@ -18411,24 +18414,8 @@
       "r_L-1_salon"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 10,
-     "qid": "q10"
-    },
-    {
-     "kind": "room",
-     "at": [
-      4.132,
-      0.711
-     ],
-     "point": [
-      0.203,
-      0.8072
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 11,
-     "qid": "q11"
+     "n": 9,
+     "qid": "q9"
     },
     {
      "kind": "room",
@@ -18445,8 +18432,8 @@
       "r_L-1_oda_2"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 12,
-     "qid": "q12"
+     "n": 10,
+     "qid": "q10"
     },
     {
      "kind": "room",
@@ -18463,8 +18450,8 @@
       "r_L-1_oda_4_hall"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 13,
-     "qid": "q13"
+     "n": 11,
+     "qid": "q11"
     },
     {
      "kind": "room",
@@ -18481,8 +18468,8 @@
       "r_L-1_oda_5"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 14,
-     "qid": "q14"
+     "n": 12,
+     "qid": "q12"
     },
     {
      "kind": "room",
@@ -18499,8 +18486,8 @@
       "r_L-1_oda_8"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 15,
-     "qid": "q15"
+     "n": 13,
+     "qid": "q13"
     },
     {
      "kind": "room",
@@ -18517,8 +18504,8 @@
       "r_L-1_oda_10"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 16,
-     "qid": "q16"
+     "n": 14,
+     "qid": "q14"
     },
     {
      "kind": "room",
@@ -18535,8 +18522,8 @@
       "r_L-1_oda"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 17,
-     "qid": "q17"
+     "n": 15,
+     "qid": "q15"
     },
     {
      "kind": "room",
@@ -18551,6 +18538,42 @@
      "model_fact": "yes",
      "element_ids": [
       "r_L-1_oda_3"
+     ],
+     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
+     "n": 16,
+     "qid": "q16"
+    },
+    {
+     "kind": "room",
+     "at": [
+      6.289,
+      11.255
+     ],
+     "point": [
+      0.2892,
+      0.3804
+     ],
+     "model_fact": "yes",
+     "element_ids": [
+      "r_L-1_antre"
+     ],
+     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
+     "n": 17,
+     "qid": "q17"
+    },
+    {
+     "kind": "room",
+     "at": [
+      12.466,
+      11.005
+     ],
+     "point": [
+      0.5357,
+      0.3905
+     ],
+     "model_fact": "yes",
+     "element_ids": [
+      "r_L-1_oda_7"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
      "n": 18,
@@ -19929,6 +19952,7 @@
        12.629,
        15.128
       ],
+      "type": "wc",
       "exterior": false
      },
      {
@@ -19937,6 +19961,7 @@
        17.766,
        11.895
       ],
+      "type": "storage",
       "exterior": false
      },
      {
@@ -19945,6 +19970,7 @@
        14.967,
        11.536
       ],
+      "type": "technical",
       "exterior": false
      },
      {
@@ -19953,6 +19979,7 @@
        21.682,
        7.684
       ],
+      "type": "hall",
       "exterior": false
      }
     ],
@@ -24340,7 +24367,8 @@
        3.879,
        17.209
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "e. yatak od.",
@@ -24348,6 +24376,7 @@
        7.696,
        15.201
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -24356,6 +24385,7 @@
        4.452,
        14.716
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -24364,6 +24394,7 @@
        8.622,
        12.989
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -24372,6 +24403,7 @@
        8.814,
        11.876
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -24380,6 +24412,7 @@
        3.593,
        10.662
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -24388,6 +24421,7 @@
        7.622,
        9.134
       ],
+      "type": "wc",
       "exterior": false
      },
      {
@@ -24396,6 +24430,7 @@
        9.864,
        9.065
       ],
+      "type": "shaft",
       "exterior": false
      },
      {
@@ -24404,6 +24439,7 @@
        7.4,
        7.716
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -24412,6 +24448,7 @@
        7.862,
        4.39
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -24420,6 +24457,7 @@
        4.423,
        4.36
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -24428,7 +24466,8 @@
        4.216,
        0.711
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      }
     ],
     "drawn_angled": [
@@ -24758,22 +24797,6 @@
     {
      "kind": "room",
      "at": [
-      3.879,
-      17.209
-     ],
-     "point": [
-      0.2375,
-      0.1393
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 1,
-     "qid": "q1"
-    },
-    {
-     "kind": "room",
-     "at": [
       7.696,
       15.201
      ],
@@ -24786,8 +24809,8 @@
       "r_L0_e_yatak_od"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 2,
-     "qid": "q2"
+     "n": 1,
+     "qid": "q1"
     },
     {
      "kind": "room",
@@ -24804,8 +24827,8 @@
       "r_L0_cocuk_yatak_od"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 3,
-     "qid": "q3"
+     "n": 2,
+     "qid": "q2"
     },
     {
      "kind": "room",
@@ -24822,8 +24845,8 @@
       "r_L0_dus"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 4,
-     "qid": "q4"
+     "n": 3,
+     "qid": "q3"
     },
     {
      "kind": "room",
@@ -24840,8 +24863,8 @@
       "r_L0_banyo"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 5,
-     "qid": "q5"
+     "n": 4,
+     "qid": "q4"
     },
     {
      "kind": "room",
@@ -24858,8 +24881,8 @@
       "r_L0_gunluk_oda"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 6,
-     "qid": "q6"
+     "n": 5,
+     "qid": "q5"
     },
     {
      "kind": "room",
@@ -24876,8 +24899,8 @@
       "r_L0_lav_w_c"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 7,
-     "qid": "q7"
+     "n": 6,
+     "qid": "q6"
     },
     {
      "kind": "room",
@@ -24894,8 +24917,8 @@
       "r_L0_asansor"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 8,
-     "qid": "q8"
+     "n": 7,
+     "qid": "q7"
     },
     {
      "kind": "room",
@@ -24912,8 +24935,8 @@
       "r_L0_antre"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 9,
-     "qid": "q9"
+     "n": 8,
+     "qid": "q8"
     },
     {
      "kind": "room",
@@ -24930,8 +24953,8 @@
       "r_L0_mutfak"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 10,
-     "qid": "q10"
+     "n": 9,
+     "qid": "q9"
     },
     {
      "kind": "room",
@@ -24948,24 +24971,8 @@
       "r_L0_salon"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 11,
-     "qid": "q11"
-    },
-    {
-     "kind": "room",
-     "at": [
-      4.216,
-      0.711
-     ],
-     "point": [
-      0.2496,
-      0.8072
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 12,
-     "qid": "q12"
+     "n": 10,
+     "qid": "q10"
     },
     {
      "kind": "room",
@@ -24982,8 +24989,8 @@
       "r_L0_oda_2"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 13,
-     "qid": "q13"
+     "n": 11,
+     "qid": "q11"
     },
     {
      "kind": "room",
@@ -25000,8 +25007,8 @@
       "r_L0_oda_6"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 14,
-     "qid": "q14"
+     "n": 12,
+     "qid": "q12"
     },
     {
      "kind": "room",
@@ -25018,8 +25025,8 @@
       "r_L0_oda_3"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 15,
-     "qid": "q15"
+     "n": 13,
+     "qid": "q13"
     },
     {
      "kind": "room",
@@ -25036,8 +25043,8 @@
       "r_L0_oda_12"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 16,
-     "qid": "q16"
+     "n": 14,
+     "qid": "q14"
     },
     {
      "kind": "room",
@@ -25054,8 +25061,8 @@
       "r_L0_antre"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 17,
-     "qid": "q17"
+     "n": 15,
+     "qid": "q15"
     },
     {
      "kind": "room",
@@ -25070,6 +25077,42 @@
      "model_fact": "yes",
      "element_ids": [
       "r_L0_oda_11"
+     ],
+     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
+     "n": 16,
+     "qid": "q16"
+    },
+    {
+     "kind": "room",
+     "at": [
+      11.19,
+      3.34
+     ],
+     "point": [
+      0.5005,
+      0.7008
+     ],
+     "model_fact": "yes",
+     "element_ids": [
+      "r_L0_oda"
+     ],
+     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
+     "n": 17,
+     "qid": "q17"
+    },
+    {
+     "kind": "room",
+     "at": [
+      16.075,
+      9.04
+     ],
+     "point": [
+      0.6762,
+      0.47
+     ],
+     "model_fact": "yes",
+     "element_ids": [
+      "r_L0_oda_4"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
      "n": 18,
@@ -25110,12 +25153,12 @@
     {
      "kind": "angled",
      "at": [
-      11.646,
-      3.856
+      11.125,
+      9.78
      ],
      "point": [
-      0.5169,
-      0.6799
+      0.4982,
+      0.4401
      ],
      "model_fact": "yes",
      "element_ids": [],
@@ -25126,12 +25169,12 @@
     {
      "kind": "angled",
      "at": [
-      10.736,
-      3.856
+      13.096,
+      9.791
      ],
      "point": [
-      0.4842,
-      0.6799
+      0.5691,
+      0.4396
      ],
      "model_fact": "yes",
      "element_ids": [],
@@ -25800,6 +25843,7 @@
        9.272,
        7.779
       ],
+      "type": "shaft",
       "exterior": false
      }
     ],
@@ -27760,7 +27804,8 @@
        5.926,
        9.395
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "SALON",
@@ -27768,6 +27813,7 @@
        2.953,
        8.226
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -27776,6 +27822,7 @@
        8.832,
        6.709
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -27784,6 +27831,7 @@
        5.963,
        6.651
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -27792,6 +27840,7 @@
        13.115,
        6.291
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -27800,7 +27849,8 @@
        15.582,
        6.001
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "ODA",
@@ -27808,6 +27858,7 @@
        2.291,
        5.416
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -27816,6 +27867,7 @@
        12.534,
        4.575
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -27824,6 +27876,7 @@
        10.115,
        3.617
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -27832,6 +27885,7 @@
        3.766,
        3.585
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -27840,6 +27894,7 @@
        5.706,
        3.399
       ],
+      "type": "shaft",
       "exterior": false
      },
      {
@@ -27848,6 +27903,7 @@
        1.182,
        2.626
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -27856,6 +27912,7 @@
        13.435,
        1.808
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -27864,6 +27921,7 @@
        5.138,
        1.22
       ],
+      "type": "wc",
       "exterior": false
      },
      {
@@ -27872,6 +27930,7 @@
        8.456,
        1.173
       ],
+      "type": "wc",
       "exterior": false
      },
      {
@@ -27880,6 +27939,7 @@
        7.045,
        0.511
       ],
+      "type": "shaft",
       "exterior": false
      }
     ],
@@ -28018,22 +28078,6 @@
     {
      "kind": "room",
      "at": [
-      5.926,
-      9.395
-     ],
-     "point": [
-      0.3736,
-      0.2655
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 1,
-     "qid": "q1"
-    },
-    {
-     "kind": "room",
-     "at": [
       2.953,
       8.226
      ],
@@ -28046,8 +28090,8 @@
       "r_L1_salon_2"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 2,
-     "qid": "q2"
+     "n": 1,
+     "qid": "q1"
     },
     {
      "kind": "room",
@@ -28064,8 +28108,8 @@
       "r_L1_oda_5"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 3,
-     "qid": "q3"
+     "n": 2,
+     "qid": "q2"
     },
     {
      "kind": "room",
@@ -28082,8 +28126,8 @@
       "r_L1_mutfak"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 4,
-     "qid": "q4"
+     "n": 3,
+     "qid": "q3"
     },
     {
      "kind": "room",
@@ -28100,24 +28144,8 @@
       "r_L1_mutfak_2"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 5,
-     "qid": "q5"
-    },
-    {
-     "kind": "room",
-     "at": [
-      15.582,
-      6.001
-     ],
-     "point": [
-      0.8832,
-      0.4981
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 6,
-     "qid": "q6"
+     "n": 4,
+     "qid": "q4"
     },
     {
      "kind": "room",
@@ -28134,8 +28162,8 @@
       "r_L1_oda_3"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 7,
-     "qid": "q7"
+     "n": 5,
+     "qid": "q5"
     },
     {
      "kind": "room",
@@ -28152,8 +28180,8 @@
       "r_L1_oda_2"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 8,
-     "qid": "q8"
+     "n": 6,
+     "qid": "q6"
     },
     {
      "kind": "room",
@@ -28170,8 +28198,8 @@
       "r_L1_antre_2"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 9,
-     "qid": "q9"
+     "n": 7,
+     "qid": "q7"
     },
     {
      "kind": "room",
@@ -28188,8 +28216,8 @@
       "r_L1_antre"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 10,
-     "qid": "q10"
+     "n": 8,
+     "qid": "q8"
     },
     {
      "kind": "room",
@@ -28206,8 +28234,8 @@
       "r_L1_oda_4_hall_lift"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 11,
-     "qid": "q11"
+     "n": 9,
+     "qid": "q9"
     },
     {
      "kind": "room",
@@ -28224,8 +28252,8 @@
       "r_L1_oda"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 12,
-     "qid": "q12"
+     "n": 10,
+     "qid": "q10"
     },
     {
      "kind": "room",
@@ -28242,8 +28270,8 @@
       "r_L1_salon"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 13,
-     "qid": "q13"
+     "n": 11,
+     "qid": "q11"
     },
     {
      "kind": "room",
@@ -28260,8 +28288,8 @@
       "r_L1_banyo_wc"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 14,
-     "qid": "q14"
+     "n": 12,
+     "qid": "q12"
     },
     {
      "kind": "room",
@@ -28278,8 +28306,8 @@
       "r_L1_banyo_wc_2"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 15,
-     "qid": "q15"
+     "n": 13,
+     "qid": "q13"
     },
     {
      "kind": "room",
@@ -28294,8 +28322,8 @@
      "model_fact": "no",
      "element_ids": [],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 16,
-     "qid": "q16"
+     "n": 14,
+     "qid": "q14"
     },
     {
      "kind": "room",
@@ -28312,8 +28340,8 @@
       "r_L1_oda_4"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 17,
-     "qid": "q17"
+     "n": 15,
+     "qid": "q15"
     },
     {
      "kind": "angled",
@@ -28328,8 +28356,24 @@
      "model_fact": "no",
      "element_ids": [],
      "ask": "Is this wall drawn at an angle in the drawing? Is it straight (not at that angle) in the model?",
-     "n": 18,
-     "qid": "q18"
+     "n": 16,
+     "qid": "q16"
+    },
+    {
+     "kind": "angled",
+     "at": [
+      5.684,
+      9.784
+     ],
+     "point": [
+      0.3608,
+      0.2389
+     ],
+     "model_fact": "yes",
+     "element_ids": [],
+     "ask": "Is this wall drawn at an angle in the drawing? Is it straight (not at that angle) in the model?",
+     "n": 17,
+     "qid": "q17"
     },
     {
      "kind": "angled",
@@ -28344,8 +28388,8 @@
      "model_fact": "no",
      "element_ids": [],
      "ask": "Is this wall drawn at an angle in the drawing? Is it straight (not at that angle) in the model?",
-     "n": 19,
-     "qid": "q19"
+     "n": 18,
+     "qid": "q18"
     },
     {
      "kind": "angled",
@@ -28360,24 +28404,8 @@
      "model_fact": "no",
      "element_ids": [],
      "ask": "Is this wall drawn at an angle in the drawing? Is it straight (not at that angle) in the model?",
-     "n": 20,
-     "qid": "q20"
-    },
-    {
-     "kind": "angled",
-     "at": [
-      14.062,
-      6.992
-     ],
-     "point": [
-      0.803,
-      0.4302
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is this wall drawn at an angle in the drawing? Is it straight (not at that angle) in the model?",
-     "n": 21,
-     "qid": "q21"
+     "n": 19,
+     "qid": "q19"
     },
     {
      "kind": "balcony",
@@ -28394,8 +28422,8 @@
       "d_L1_009"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 22,
-     "qid": "q22"
+     "n": 20,
+     "qid": "q20"
     },
     {
      "kind": "balcony",
@@ -28412,8 +28440,8 @@
       "d_L1_012"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 23,
-     "qid": "q23"
+     "n": 21,
+     "qid": "q21"
     },
     {
      "kind": "balcony",
@@ -28430,8 +28458,8 @@
       "d_L1_013"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 24,
-     "qid": "q24"
+     "n": 22,
+     "qid": "q22"
     },
     {
      "kind": "balcony",
@@ -28448,8 +28476,8 @@
       "d_L1_016"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 25,
-     "qid": "q25"
+     "n": 23,
+     "qid": "q23"
     },
     {
      "kind": "opening",
@@ -28466,8 +28494,8 @@
       "win_L1_001"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 26,
-     "qid": "q26"
+     "n": 24,
+     "qid": "q24"
     },
     {
      "kind": "opening",
@@ -28484,8 +28512,8 @@
       "win_L1_003"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 27,
-     "qid": "q27"
+     "n": 25,
+     "qid": "q25"
     },
     {
      "kind": "opening",
@@ -28502,8 +28530,8 @@
       "win_L1_005"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 28,
-     "qid": "q28"
+     "n": 26,
+     "qid": "q26"
     },
     {
      "kind": "opening",
@@ -28520,8 +28548,8 @@
       "win_L1_006"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 29,
-     "qid": "q29"
+     "n": 27,
+     "qid": "q27"
     },
     {
      "kind": "opening",
@@ -28538,8 +28566,8 @@
       "win_L1_007"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 30,
-     "qid": "q30"
+     "n": 28,
+     "qid": "q28"
     },
     {
      "kind": "opening",
@@ -28556,8 +28584,8 @@
       "d_r_L1_oda_4_hall_lift_lift"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 31,
-     "qid": "q31"
+     "n": 29,
+     "qid": "q29"
     },
     {
      "kind": "opening",
@@ -28574,8 +28602,8 @@
       "d_L1_001"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 32,
-     "qid": "q32"
+     "n": 30,
+     "qid": "q30"
     },
     {
      "kind": "opening",
@@ -28592,8 +28620,8 @@
       "d_L1_002"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 33,
-     "qid": "q33"
+     "n": 31,
+     "qid": "q31"
     },
     {
      "kind": "opening",
@@ -28610,8 +28638,8 @@
       "d_L1_003"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 34,
-     "qid": "q34"
+     "n": 32,
+     "qid": "q32"
     },
     {
      "kind": "opening",
@@ -28628,8 +28656,8 @@
       "d_L1_004"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 35,
-     "qid": "q35"
+     "n": 33,
+     "qid": "q33"
     }
    ]
   },
@@ -31492,7 +31520,8 @@
        12.892,
        28.306
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "BALKON",
@@ -31500,7 +31529,8 @@
        1.89,
        28.143
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "MUTFAK",
@@ -31508,6 +31538,7 @@
        4.026,
        26.329
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -31516,6 +31547,7 @@
        11.592,
        25.91
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -31524,6 +31556,7 @@
        9.514,
        25.554
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -31532,6 +31565,7 @@
        6.551,
        25.103
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -31540,6 +31574,7 @@
        1.309,
        25.016
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -31548,6 +31583,7 @@
        13.907,
        24.674
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -31556,6 +31592,7 @@
        6.047,
        22.254
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -31564,6 +31601,7 @@
        12.947,
        21.125
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -31572,6 +31610,7 @@
        2.424,
        21.033
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -31580,6 +31619,7 @@
        4.164,
        19.928
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -31588,6 +31628,7 @@
        11.308,
        19.794
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -31596,6 +31637,7 @@
        8.919,
        19.523
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -31604,6 +31646,7 @@
        5.787,
        18.652
       ],
+      "type": "wc",
       "exterior": false
      },
      {
@@ -31612,6 +31655,7 @@
        12.834,
        17.514
       ],
+      "type": "wc",
       "exterior": false
      },
      {
@@ -31620,6 +31664,7 @@
        2.54,
        17.457
       ],
+      "type": "wc",
       "exterior": false
      },
      {
@@ -31628,6 +31673,7 @@
        7.484,
        17.388
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -31636,6 +31682,7 @@
        9.94,
        17.238
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -31644,6 +31691,7 @@
        5.417,
        17.044
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -31652,6 +31700,7 @@
        12.761,
        15.756
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -31660,6 +31709,7 @@
        8.925,
        15.63
       ],
+      "type": "shaft",
       "exterior": false
      },
      {
@@ -31668,6 +31718,7 @@
        2.609,
        15.584
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -31676,6 +31727,7 @@
        8.925,
        13.38
       ],
+      "type": "shaft",
       "exterior": false
      },
      {
@@ -31684,6 +31736,7 @@
        5.48,
        11.341
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -31692,6 +31745,7 @@
        10.12,
        11.313
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -31700,6 +31754,7 @@
        2.664,
        11.294
       ],
+      "type": "wc",
       "exterior": false
      },
      {
@@ -31708,6 +31763,7 @@
        12.834,
        11.294
       ],
+      "type": "wc",
       "exterior": false
      },
      {
@@ -31716,6 +31772,7 @@
        7.446,
        11.07
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -31724,6 +31781,7 @@
        5.787,
        10.156
       ],
+      "type": "wc",
       "exterior": false
      },
      {
@@ -31732,6 +31790,7 @@
        4.19,
        9.013
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -31740,6 +31799,7 @@
        11.308,
        9.013
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -31748,6 +31808,7 @@
        6.047,
        6.554
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -31756,6 +31817,7 @@
        1.59,
        4.134
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -31764,6 +31826,7 @@
        13.907,
        4.134
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -31772,6 +31835,7 @@
        6.551,
        3.705
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -31780,6 +31844,7 @@
        3.906,
        2.898
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -31788,6 +31853,7 @@
        11.592,
        2.898
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -31796,7 +31862,8 @@
        12.892,
        0.834
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "BALKON",
@@ -31804,7 +31871,8 @@
        2.606,
        0.432
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      }
     ],
     "drawn_angled": [
@@ -31830,38 +31898,6 @@
     {
      "kind": "room",
      "at": [
-      12.892,
-      28.306
-     ],
-     "point": [
-      0.8325,
-      0.0248
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 1,
-     "qid": "q1"
-    },
-    {
-     "kind": "room",
-     "at": [
-      1.89,
-      28.143
-     ],
-     "point": [
-      0.1382,
-      0.0304
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 2,
-     "qid": "q2"
-    },
-    {
-     "kind": "room",
-     "at": [
       4.026,
       26.329
      ],
@@ -31874,8 +31910,8 @@
       "r_L1_mutfak_5"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 3,
-     "qid": "q3"
+     "n": 1,
+     "qid": "q1"
     },
     {
      "kind": "room",
@@ -31892,8 +31928,8 @@
       "r_L1_mutfak_6"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 4,
-     "qid": "q4"
+     "n": 2,
+     "qid": "q2"
     },
     {
      "kind": "room",
@@ -31910,8 +31946,8 @@
       "r_L1_oda_19"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 5,
-     "qid": "q5"
+     "n": 3,
+     "qid": "q3"
     },
     {
      "kind": "room",
@@ -31928,8 +31964,8 @@
       "r_L1_salon_4"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 6,
-     "qid": "q6"
+     "n": 4,
+     "qid": "q4"
     },
     {
      "kind": "room",
@@ -31946,8 +31982,8 @@
       "r_L1_salon_5"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 7,
-     "qid": "q7"
+     "n": 5,
+     "qid": "q5"
     },
     {
      "kind": "room",
@@ -31964,8 +32000,8 @@
       "r_L1_salon_6"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 8,
-     "qid": "q8"
+     "n": 6,
+     "qid": "q6"
     },
     {
      "kind": "room",
@@ -31982,8 +32018,8 @@
       "r_L1_mutfak_4"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 9,
-     "qid": "q9"
+     "n": 7,
+     "qid": "q7"
     },
     {
      "kind": "room",
@@ -32000,8 +32036,8 @@
       "r_L1_oda_17"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 10,
-     "qid": "q10"
+     "n": 8,
+     "qid": "q8"
     },
     {
      "kind": "room",
@@ -32018,8 +32054,8 @@
       "r_L1_oda_16"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 11,
-     "qid": "q11"
+     "n": 9,
+     "qid": "q9"
     },
     {
      "kind": "room",
@@ -32036,8 +32072,8 @@
       "r_L1_antre_4"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 12,
-     "qid": "q12"
+     "n": 10,
+     "qid": "q10"
     },
     {
      "kind": "room",
@@ -32054,8 +32090,8 @@
       "r_L1_antre_3"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 13,
-     "qid": "q13"
+     "n": 11,
+     "qid": "q11"
     },
     {
      "kind": "room",
@@ -32072,8 +32108,8 @@
       "r_L1_oda_15"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 14,
-     "qid": "q14"
+     "n": 12,
+     "qid": "q12"
     },
     {
      "kind": "room",
@@ -32090,8 +32126,8 @@
       "r_L1_banyo_wc_6"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 15,
-     "qid": "q15"
+     "n": 13,
+     "qid": "q13"
     },
     {
      "kind": "room",
@@ -32108,8 +32144,8 @@
       "r_L1_banyo_wc_4"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 16,
-     "qid": "q16"
+     "n": 14,
+     "qid": "q14"
     },
     {
      "kind": "room",
@@ -32126,8 +32162,8 @@
       "r_L1_banyo_wc_5"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 17,
-     "qid": "q17"
+     "n": 15,
+     "qid": "q15"
     },
     {
      "kind": "room",
@@ -32138,6 +32174,42 @@
      "point": [
       0.4912,
       0.3984
+     ],
+     "model_fact": "yes",
+     "element_ids": [
+      "r_L1_girisi_2"
+     ],
+     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
+     "n": 16,
+     "qid": "q16"
+    },
+    {
+     "kind": "room",
+     "at": [
+      9.94,
+      17.238
+     ],
+     "point": [
+      0.6462,
+      0.4036
+     ],
+     "model_fact": "yes",
+     "element_ids": [
+      "r_L1_girisi_2"
+     ],
+     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
+     "n": 17,
+     "qid": "q17"
+    },
+    {
+     "kind": "room",
+     "at": [
+      5.417,
+      17.044
+     ],
+     "point": [
+      0.3608,
+      0.4102
      ],
      "model_fact": "yes",
      "element_ids": [
@@ -32258,6 +32330,24 @@
     {
      "kind": "balcony",
      "at": [
+      1.608,
+      27.721
+     ],
+     "point": [
+      0.1204,
+      0.0448
+     ],
+     "model_fact": "yes",
+     "element_ids": [
+      "d_L1_039"
+     ],
+     "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
+     "n": 25,
+     "qid": "q25"
+    },
+    {
+     "kind": "balcony",
+     "at": [
       13.714,
       27.721
      ],
@@ -32270,8 +32360,8 @@
       "d_L1_040"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 25,
-     "qid": "q25"
+     "n": 26,
+     "qid": "q26"
     },
     {
      "kind": "opening",
@@ -32288,8 +32378,8 @@
       "win_L1_001"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 26,
-     "qid": "q26"
+     "n": 27,
+     "qid": "q27"
     },
     {
      "kind": "opening",
@@ -32306,8 +32396,8 @@
       "win_L1_002"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 27,
-     "qid": "q27"
+     "n": 28,
+     "qid": "q28"
     },
     {
      "kind": "opening",
@@ -32324,8 +32414,8 @@
       "win_L1_003"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 28,
-     "qid": "q28"
+     "n": 29,
+     "qid": "q29"
     },
     {
      "kind": "opening",
@@ -32342,8 +32432,8 @@
       "win_L1_004"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 29,
-     "qid": "q29"
+     "n": 30,
+     "qid": "q30"
     },
     {
      "kind": "opening",
@@ -32360,8 +32450,8 @@
       "win_L1_005"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 30,
-     "qid": "q30"
+     "n": 31,
+     "qid": "q31"
     },
     {
      "kind": "opening",
@@ -32378,8 +32468,8 @@
       "win_L1_008"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 31,
-     "qid": "q31"
+     "n": 32,
+     "qid": "q32"
     },
     {
      "kind": "opening",
@@ -32396,8 +32486,8 @@
       "win_L1_010"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 32,
-     "qid": "q32"
+     "n": 33,
+     "qid": "q33"
     },
     {
      "kind": "opening",
@@ -32414,8 +32504,8 @@
       "win_L1_011"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 33,
-     "qid": "q33"
+     "n": 34,
+     "qid": "q34"
     },
     {
      "kind": "opening",
@@ -32432,8 +32522,8 @@
       "win_L1_013"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 34,
-     "qid": "q34"
+     "n": 35,
+     "qid": "q35"
     },
     {
      "kind": "opening",
@@ -32450,8 +32540,8 @@
       "win_L1_014"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 35,
-     "qid": "q35"
+     "n": 36,
+     "qid": "q36"
     }
    ]
   },
@@ -37275,7 +37365,8 @@
        12.811,
        14.681
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "BALKON",
@@ -37283,7 +37374,8 @@
        20.412,
        14.681
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "EBEVEYN ODASI (M.K.A.)",
@@ -37291,6 +37383,7 @@
        14.918,
        13.54
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -37299,6 +37392,7 @@
        18.287,
        13.54
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -37307,7 +37401,8 @@
        1.877,
        12.909
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "BALKON",
@@ -37315,7 +37410,8 @@
        31.331,
        12.909
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "EBEVEYN ODASI",
@@ -37323,6 +37419,7 @@
        4.256,
        11.536
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -37331,6 +37428,7 @@
        28.952,
        11.536
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -37339,6 +37437,7 @@
        21.788,
        10.116
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -37347,6 +37446,7 @@
        11.256,
        10.069
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -37355,6 +37455,7 @@
        24.471,
        10.032
       ],
+      "type": "stair",
       "exterior": false
      },
      {
@@ -37363,6 +37464,7 @@
        8.501,
        10.019
       ],
+      "type": "stair",
       "exterior": false
      },
      {
@@ -37371,6 +37473,7 @@
        3.596,
        9.898
       ],
+      "type": "other",
       "exterior": false
      },
      {
@@ -37379,6 +37482,7 @@
        29.646,
        9.898
       ],
+      "type": "other",
       "exterior": false
      },
      {
@@ -37387,6 +37491,7 @@
        0.856,
        9.81
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -37395,6 +37500,7 @@
        32.177,
        9.789
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -37403,6 +37509,7 @@
        13.533,
        8.899
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -37411,6 +37518,7 @@
        19.63,
        8.796
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -37419,6 +37527,7 @@
        5.814,
        8.729
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -37427,6 +37536,7 @@
        27.386,
        8.708
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -37435,6 +37545,7 @@
        29.085,
        8.66
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -37443,6 +37554,7 @@
        4.127,
        8.559
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -37451,6 +37563,7 @@
        8.55,
        8.455
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -37459,6 +37572,7 @@
        15.054,
        6.394
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -37467,6 +37581,7 @@
        12.935,
        5.44
       ],
+      "type": "shaft",
       "exterior": false
      },
      {
@@ -37475,6 +37590,7 @@
        27.386,
        5.245
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -37483,6 +37599,7 @@
        20.427,
        5.146
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -37491,6 +37608,7 @@
        4.127,
        5.106
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -37499,6 +37617,7 @@
        29.085,
        5.103
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -37507,6 +37626,7 @@
        22.5,
        5.022
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -37515,6 +37635,7 @@
        5.807,
        4.981
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -37523,6 +37644,7 @@
        12.564,
        4.259
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -37531,6 +37653,7 @@
        10.688,
        4.14
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -37539,6 +37662,7 @@
        31.807,
        3.823
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -37547,6 +37671,7 @@
        3.596,
        3.591
       ],
+      "type": "other",
       "exterior": false
      },
      {
@@ -37555,6 +37680,7 @@
        29.646,
        3.591
       ],
+      "type": "other",
       "exterior": false
      },
      {
@@ -37563,6 +37689,7 @@
        21.638,
        3.559
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -37571,6 +37698,7 @@
        1.673,
        3.511
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -37579,6 +37707,7 @@
        18.208,
        3.449
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -37587,6 +37716,7 @@
        24.396,
        2.955
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -37595,6 +37725,7 @@
        4.256,
        2.042
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -37603,6 +37734,7 @@
        28.952,
        2.042
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -37611,6 +37743,7 @@
        22.133,
        1.548
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -37619,6 +37752,7 @@
        14.738,
        1.531
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -37627,6 +37761,7 @@
        8.609,
        1.457
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -37635,6 +37770,7 @@
        11.601,
        1.367
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -37643,7 +37779,8 @@
        1.877,
        0.656
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "BALKON",
@@ -37651,7 +37788,8 @@
        31.331,
        0.656
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "BALKON",
@@ -37659,7 +37797,8 @@
        8.773,
        -0.343
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "BALKON",
@@ -37667,44 +37806,13 @@
        24.435,
        -0.343
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      }
     ],
     "drawn_angled": []
    },
    "compare": [
-    {
-     "kind": "room",
-     "at": [
-      12.811,
-      14.681
-     ],
-     "point": [
-      0.383,
-      0.4426
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 1,
-     "qid": "q1"
-    },
-    {
-     "kind": "room",
-     "at": [
-      20.412,
-      14.681
-     ],
-     "point": [
-      0.5278,
-      0.4426
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 2,
-     "qid": "q2"
-    },
     {
      "kind": "room",
      "at": [
@@ -37720,8 +37828,8 @@
       "r_L0_ebeveyn_odasi_m_k_a"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 3,
-     "qid": "q3"
+     "n": 1,
+     "qid": "q1"
     },
     {
      "kind": "room",
@@ -37738,40 +37846,8 @@
       "r_L0_ebeveyn_odasi_m_k_a_2"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 4,
-     "qid": "q4"
-    },
-    {
-     "kind": "room",
-     "at": [
-      1.877,
-      12.909
-     ],
-     "point": [
-      0.1748,
-      0.476
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 5,
-     "qid": "q5"
-    },
-    {
-     "kind": "room",
-     "at": [
-      31.331,
-      12.909
-     ],
-     "point": [
-      0.7358,
-      0.476
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 6,
-     "qid": "q6"
+     "n": 2,
+     "qid": "q2"
     },
     {
      "kind": "room",
@@ -37788,8 +37864,8 @@
       "r_L0_ebeveyn_odasi_6"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 7,
-     "qid": "q7"
+     "n": 3,
+     "qid": "q3"
     },
     {
      "kind": "room",
@@ -37806,8 +37882,8 @@
       "r_L0_ebeveyn_odasi_5"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 8,
-     "qid": "q8"
+     "n": 4,
+     "qid": "q4"
     },
     {
      "kind": "room",
@@ -37824,8 +37900,8 @@
       "r_L0_yasama_7"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 9,
-     "qid": "q9"
+     "n": 5,
+     "qid": "q5"
     },
     {
      "kind": "room",
@@ -37842,8 +37918,8 @@
       "r_L0_yasama_8"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 10,
-     "qid": "q10"
+     "n": 6,
+     "qid": "q6"
     },
     {
      "kind": "room",
@@ -37860,8 +37936,8 @@
       "r_L0_kat_merdiveni"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 11,
-     "qid": "q11"
+     "n": 7,
+     "qid": "q7"
     },
     {
      "kind": "room",
@@ -37878,8 +37954,8 @@
       "r_L0_yangin_merdiveni"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 12,
-     "qid": "q12"
+     "n": 8,
+     "qid": "q8"
     },
     {
      "kind": "room",
@@ -37896,8 +37972,8 @@
       "r_L0_islik_3"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 13,
-     "qid": "q13"
+     "n": 9,
+     "qid": "q9"
     },
     {
      "kind": "room",
@@ -37914,8 +37990,8 @@
       "r_L0_islik_4"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 14,
-     "qid": "q14"
+     "n": 10,
+     "qid": "q10"
     },
     {
      "kind": "room",
@@ -37932,8 +38008,8 @@
       "r_L0_yasama_5"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 15,
-     "qid": "q15"
+     "n": 11,
+     "qid": "q11"
     },
     {
      "kind": "room",
@@ -37950,8 +38026,8 @@
       "r_L0_yasama_6"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 16,
-     "qid": "q16"
+     "n": 12,
+     "qid": "q12"
     },
     {
      "kind": "room",
@@ -37968,8 +38044,8 @@
       "r_L0_banyo_6"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 17,
-     "qid": "q17"
+     "n": 13,
+     "qid": "q13"
     },
     {
      "kind": "room",
@@ -37984,6 +38060,78 @@
      "model_fact": "yes",
      "element_ids": [
       "r_L0_banyo_8"
+     ],
+     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
+     "n": 14,
+     "qid": "q14"
+    },
+    {
+     "kind": "room",
+     "at": [
+      5.814,
+      8.729
+     ],
+     "point": [
+      0.2498,
+      0.5549
+     ],
+     "model_fact": "yes",
+     "element_ids": [
+      "r_L0_banyo_5"
+     ],
+     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
+     "n": 15,
+     "qid": "q15"
+    },
+    {
+     "kind": "room",
+     "at": [
+      27.386,
+      8.708
+     ],
+     "point": [
+      0.6606,
+      0.5553
+     ],
+     "model_fact": "yes",
+     "element_ids": [
+      "r_L0_banyo_7"
+     ],
+     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
+     "n": 16,
+     "qid": "q16"
+    },
+    {
+     "kind": "room",
+     "at": [
+      29.085,
+      8.66
+     ],
+     "point": [
+      0.693,
+      0.5562
+     ],
+     "model_fact": "yes",
+     "element_ids": [
+      "r_L0_giris_holu_5"
+     ],
+     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
+     "n": 17,
+     "qid": "q17"
+    },
+    {
+     "kind": "room",
+     "at": [
+      4.127,
+      8.559
+     ],
+     "point": [
+      0.2176,
+      0.5581
+     ],
+     "model_fact": "yes",
+     "element_ids": [
+      "r_L0_giris_holu_6"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
      "n": 18,
@@ -39770,6 +39918,7 @@
        13.807,
        7.327
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -39778,6 +39927,7 @@
        17.446,
        6.732
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -39786,6 +39936,7 @@
        17.617,
        4.039
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -39794,6 +39945,7 @@
        14.968,
        3.527
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -39802,6 +39954,7 @@
        12.738,
        3.118
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -39810,7 +39963,8 @@
        20.351,
        1.332
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      }
     ],
     "drawn_angled": []
@@ -39909,22 +40063,6 @@
     {
      "kind": "room",
      "at": [
-      20.351,
-      1.332
-     ],
-     "point": [
-      0.8311,
-      0.6355
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 6,
-     "qid": "q6"
-    },
-    {
-     "kind": "room",
-     "at": [
       4.751,
       3.515
      ],
@@ -39937,8 +40075,8 @@
       "r_L-1_oda_6"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 7,
-     "qid": "q7"
+     "n": 6,
+     "qid": "q6"
     },
     {
      "kind": "room",
@@ -39955,8 +40093,8 @@
       "r_L-1_oda_7"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 8,
-     "qid": "q8"
+     "n": 7,
+     "qid": "q7"
     },
     {
      "kind": "room",
@@ -39973,8 +40111,8 @@
       "r_L-1_oda_5"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 9,
-     "qid": "q9"
+     "n": 8,
+     "qid": "q8"
     },
     {
      "kind": "room",
@@ -39991,8 +40129,8 @@
       "r_L-1_oda_3"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 10,
-     "qid": "q10"
+     "n": 9,
+     "qid": "q9"
     },
     {
      "kind": "room",
@@ -40009,8 +40147,8 @@
       "r_L-1_oda_4"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 11,
-     "qid": "q11"
+     "n": 10,
+     "qid": "q10"
     },
     {
      "kind": "room",
@@ -40027,8 +40165,8 @@
       "r_L-1_oda_2"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 12,
-     "qid": "q12"
+     "n": 11,
+     "qid": "q11"
     },
     {
      "kind": "room",
@@ -40045,8 +40183,8 @@
       "r_L-1_oda_8"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 13,
-     "qid": "q13"
+     "n": 12,
+     "qid": "q12"
     },
     {
      "kind": "room",
@@ -40063,8 +40201,8 @@
       "r_L-1_oda"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 14,
-     "qid": "q14"
+     "n": 13,
+     "qid": "q13"
     },
     {
      "kind": "opening",
@@ -40081,8 +40219,8 @@
       "win_L-1_005"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 15,
-     "qid": "q15"
+     "n": 14,
+     "qid": "q14"
     },
     {
      "kind": "opening",
@@ -40099,8 +40237,8 @@
       "win_L-1_006"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 16,
-     "qid": "q16"
+     "n": 15,
+     "qid": "q15"
     },
     {
      "kind": "opening",
@@ -40117,8 +40255,8 @@
       "win_L-1_007"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 17,
-     "qid": "q17"
+     "n": 16,
+     "qid": "q16"
     },
     {
      "kind": "opening",
@@ -40135,8 +40273,8 @@
       "win_L-1_008"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 18,
-     "qid": "q18"
+     "n": 17,
+     "qid": "q17"
     },
     {
      "kind": "opening",
@@ -40153,8 +40291,8 @@
       "win_L-1_009"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 19,
-     "qid": "q19"
+     "n": 18,
+     "qid": "q18"
     },
     {
      "kind": "opening",
@@ -40171,8 +40309,8 @@
       "win_L-1_010"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 20,
-     "qid": "q20"
+     "n": 19,
+     "qid": "q19"
     },
     {
      "kind": "opening",
@@ -40189,8 +40327,8 @@
       "d_L-1_003"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 21,
-     "qid": "q21"
+     "n": 20,
+     "qid": "q20"
     },
     {
      "kind": "opening",
@@ -40207,8 +40345,8 @@
       "d_L-1_009"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 22,
-     "qid": "q22"
+     "n": 21,
+     "qid": "q21"
     },
     {
      "kind": "opening",
@@ -40225,8 +40363,8 @@
       "d_L-1_010"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 23,
-     "qid": "q23"
+     "n": 22,
+     "qid": "q22"
     },
     {
      "kind": "opening",
@@ -40243,8 +40381,8 @@
       "d_L-1_011"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 24,
-     "qid": "q24"
+     "n": 23,
+     "qid": "q23"
     }
    ]
   },
@@ -41825,6 +41963,7 @@
        15.035,
        7.327
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -41833,6 +41972,7 @@
        18.795,
        6.901
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -41841,6 +41981,7 @@
        14.254,
        6.112
       ],
+      "type": "wc",
       "exterior": false
      },
      {
@@ -41849,6 +41990,7 @@
        14.127,
        5.019
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -41857,6 +41999,7 @@
        18.358,
        3.304
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -41865,6 +42008,7 @@
        12.289,
        2.473
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -41873,6 +42017,7 @@
        15.054,
        2.468
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -41881,7 +42026,8 @@
        20.223,
        0.921
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      }
     ],
     "drawn_angled": []
@@ -42016,22 +42162,6 @@
     {
      "kind": "room",
      "at": [
-      20.223,
-      0.921
-     ],
-     "point": [
-      0.8258,
-      0.6635
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 8,
-     "qid": "q8"
-    },
-    {
-     "kind": "room",
-     "at": [
       2.68,
       6.705
      ],
@@ -42044,8 +42174,8 @@
       "r_L0_oda_5"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 9,
-     "qid": "q9"
+     "n": 8,
+     "qid": "q8"
     },
     {
      "kind": "room",
@@ -42062,8 +42192,8 @@
       "r_L0_oda_2"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 10,
-     "qid": "q10"
+     "n": 9,
+     "qid": "q9"
     },
     {
      "kind": "room",
@@ -42080,8 +42210,8 @@
       "r_L0_oda"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 11,
-     "qid": "q11"
+     "n": 10,
+     "qid": "q10"
     },
     {
      "kind": "room",
@@ -42098,8 +42228,8 @@
       "r_L0_oda_3"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 12,
-     "qid": "q12"
+     "n": 11,
+     "qid": "q11"
     },
     {
      "kind": "room",
@@ -42116,8 +42246,8 @@
       "r_L0_oda_4"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 13,
-     "qid": "q13"
+     "n": 12,
+     "qid": "q12"
     },
     {
      "kind": "room",
@@ -42134,8 +42264,8 @@
       "r_L0_oda_7"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 14,
-     "qid": "q14"
+     "n": 13,
+     "qid": "q13"
     },
     {
      "kind": "opening",
@@ -42152,8 +42282,8 @@
       "win_L0_010"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 15,
-     "qid": "q15"
+     "n": 14,
+     "qid": "q14"
     },
     {
      "kind": "opening",
@@ -42170,8 +42300,8 @@
       "win_L0_011"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 16,
-     "qid": "q16"
+     "n": 15,
+     "qid": "q15"
     },
     {
      "kind": "opening",
@@ -42188,8 +42318,8 @@
       "win_L0_012"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 17,
-     "qid": "q17"
+     "n": 16,
+     "qid": "q16"
     },
     {
      "kind": "opening",
@@ -42206,8 +42336,8 @@
       "d_L0_001"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 18,
-     "qid": "q18"
+     "n": 17,
+     "qid": "q17"
     },
     {
      "kind": "opening",
@@ -42224,8 +42354,8 @@
       "d_L0_002"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 19,
-     "qid": "q19"
+     "n": 18,
+     "qid": "q18"
     },
     {
      "kind": "opening",
@@ -42242,8 +42372,8 @@
       "d_L0_005"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 20,
-     "qid": "q20"
+     "n": 19,
+     "qid": "q19"
     },
     {
      "kind": "opening",
@@ -42260,8 +42390,8 @@
       "d_L0_006"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 21,
-     "qid": "q21"
+     "n": 20,
+     "qid": "q20"
     },
     {
      "kind": "opening",
@@ -42278,8 +42408,8 @@
       "d_L0_007"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 22,
-     "qid": "q22"
+     "n": 21,
+     "qid": "q21"
     },
     {
      "kind": "opening",
@@ -42296,8 +42426,8 @@
       "d_L0_010"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 23,
-     "qid": "q23"
+     "n": 22,
+     "qid": "q22"
     },
     {
      "kind": "opening",
@@ -42314,8 +42444,8 @@
       "d_L0_011"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 24,
-     "qid": "q24"
+     "n": 23,
+     "qid": "q23"
     }
    ]
   },
@@ -43662,6 +43792,7 @@
        15.035,
        7.327
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -43670,6 +43801,7 @@
        18.795,
        6.901
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -43678,6 +43810,7 @@
        6.952,
        5.019
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -43686,6 +43819,7 @@
        14.127,
        5.019
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -43694,6 +43828,7 @@
        18.358,
        3.304
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -43702,6 +43837,7 @@
        12.289,
        2.473
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -43710,6 +43846,7 @@
        15.054,
        2.468
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -43718,7 +43855,8 @@
        20.223,
        0.921
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      }
     ],
     "drawn_angled": []
@@ -43853,22 +43991,6 @@
     {
      "kind": "room",
      "at": [
-      20.223,
-      0.921
-     ],
-     "point": [
-      0.8266,
-      0.6635
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 8,
-     "qid": "q8"
-    },
-    {
-     "kind": "room",
-     "at": [
       2.68,
       6.705
      ],
@@ -43881,8 +44003,8 @@
       "r_L2_oda_2"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 9,
-     "qid": "q9"
+     "n": 8,
+     "qid": "q8"
     },
     {
      "kind": "room",
@@ -43899,8 +44021,8 @@
       "r_L2_oda"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 10,
-     "qid": "q10"
+     "n": 9,
+     "qid": "q9"
     },
     {
      "kind": "room",
@@ -43917,8 +44039,8 @@
       "r_L2_oda_3"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 11,
-     "qid": "q11"
+     "n": 10,
+     "qid": "q10"
     },
     {
      "kind": "room",
@@ -43935,8 +44057,8 @@
       "r_L2_oda_4"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 12,
-     "qid": "q12"
+     "n": 11,
+     "qid": "q11"
     },
     {
      "kind": "balcony",
@@ -43953,8 +44075,8 @@
       "d_L2_006"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 13,
-     "qid": "q13"
+     "n": 12,
+     "qid": "q12"
     },
     {
      "kind": "balcony",
@@ -43971,8 +44093,8 @@
       "d_L2_007"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 14,
-     "qid": "q14"
+     "n": 13,
+     "qid": "q13"
     },
     {
      "kind": "balcony",
@@ -43989,8 +44111,8 @@
       "d_L2_011"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 15,
-     "qid": "q15"
+     "n": 14,
+     "qid": "q14"
     },
     {
      "kind": "balcony",
@@ -44007,8 +44129,8 @@
       "d_L2_012"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 16,
-     "qid": "q16"
+     "n": 15,
+     "qid": "q15"
     },
     {
      "kind": "balcony",
@@ -44025,8 +44147,8 @@
       "win_L2_009"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 17,
-     "qid": "q17"
+     "n": 16,
+     "qid": "q16"
     },
     {
      "kind": "opening",
@@ -44043,8 +44165,8 @@
       "win_L2_007"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 18,
-     "qid": "q18"
+     "n": 17,
+     "qid": "q17"
     },
     {
      "kind": "opening",
@@ -44061,8 +44183,8 @@
       "win_L2_008"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 19,
-     "qid": "q19"
+     "n": 18,
+     "qid": "q18"
     },
     {
      "kind": "opening",
@@ -44079,8 +44201,8 @@
       "d_L2_001"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 20,
-     "qid": "q20"
+     "n": 19,
+     "qid": "q19"
     },
     {
      "kind": "opening",
@@ -44097,8 +44219,8 @@
       "d_L2_002"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 21,
-     "qid": "q21"
+     "n": 20,
+     "qid": "q20"
     },
     {
      "kind": "opening",
@@ -44115,8 +44237,8 @@
       "d_L2_005"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 22,
-     "qid": "q22"
+     "n": 21,
+     "qid": "q21"
     },
     {
      "kind": "opening",
@@ -44133,8 +44255,8 @@
       "d_L2_010"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 23,
-     "qid": "q23"
+     "n": 22,
+     "qid": "q22"
     },
     {
      "kind": "opening",
@@ -44151,8 +44273,8 @@
       "o_L2_004"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 24,
-     "qid": "q24"
+     "n": 23,
+     "qid": "q23"
     },
     {
      "kind": "opening",
@@ -44169,8 +44291,8 @@
       "win_L2_001"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 25,
-     "qid": "q25"
+     "n": 24,
+     "qid": "q24"
     },
     {
      "kind": "opening",
@@ -44187,8 +44309,8 @@
       "win_L2_002"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 26,
-     "qid": "q26"
+     "n": 25,
+     "qid": "q25"
     },
     {
      "kind": "opening",
@@ -44205,8 +44327,8 @@
       "win_L2_003"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 27,
-     "qid": "q27"
+     "n": 26,
+     "qid": "q26"
     }
    ]
   },
@@ -45190,6 +45312,7 @@
        16.89,
        6.079
       ],
+      "type": "storage",
       "exterior": false
      },
      {
@@ -45198,6 +45321,7 @@
        15.766,
        5.816
       ],
+      "type": "shaft",
       "exterior": false
      },
      {
@@ -45206,6 +45330,7 @@
        5.863,
        5.672
       ],
+      "type": "shaft",
       "exterior": false
      },
      {
@@ -45214,6 +45339,7 @@
        8.006,
        4.913
       ],
+      "type": "shaft",
       "exterior": false
      },
      {
@@ -45222,6 +45348,7 @@
        13.656,
        4.87
       ],
+      "type": "shaft",
       "exterior": false
      },
      {
@@ -45230,6 +45357,7 @@
        14.517,
        2.661
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -45238,7 +45366,8 @@
        10.637,
        2.587
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "TERAS",
@@ -45246,7 +45375,8 @@
        18.353,
        2.448
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      }
     ],
     "drawn_angled": [
@@ -45428,38 +45558,6 @@
     {
      "kind": "room",
      "at": [
-      10.637,
-      2.587
-     ],
-     "point": [
-      0.4766,
-      0.4595
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 7,
-     "qid": "q7"
-    },
-    {
-     "kind": "room",
-     "at": [
-      18.353,
-      2.448
-     ],
-     "point": [
-      0.7304,
-      0.4664
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 8,
-     "qid": "q8"
-    },
-    {
-     "kind": "room",
-     "at": [
       6.804,
       2.189
      ],
@@ -45472,8 +45570,8 @@
       "r_L3_oda"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 9,
-     "qid": "q9"
+     "n": 7,
+     "qid": "q7"
     },
     {
      "kind": "room",
@@ -45490,8 +45588,8 @@
       "r_L3_oda_5"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 10,
-     "qid": "q10"
+     "n": 8,
+     "qid": "q8"
     },
     {
      "kind": "room",
@@ -45508,8 +45606,8 @@
       "r_L3_oda_4"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 11,
-     "qid": "q11"
+     "n": 9,
+     "qid": "q9"
     },
     {
      "kind": "room",
@@ -45526,8 +45624,8 @@
       "r_L3_oda_6"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 12,
-     "qid": "q12"
+     "n": 10,
+     "qid": "q10"
     },
     {
      "kind": "room",
@@ -45544,8 +45642,8 @@
       "r_L3_oda_7"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 13,
-     "qid": "q13"
+     "n": 11,
+     "qid": "q11"
     },
     {
      "kind": "room",
@@ -45562,8 +45660,8 @@
       "r_L3_depo_2"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 14,
-     "qid": "q14"
+     "n": 12,
+     "qid": "q12"
     },
     {
      "kind": "room",
@@ -45580,8 +45678,8 @@
       "r_L3_depo_3"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 15,
-     "qid": "q15"
+     "n": 13,
+     "qid": "q13"
     },
     {
      "kind": "angled",
@@ -45596,8 +45694,8 @@
      "model_fact": "yes",
      "element_ids": [],
      "ask": "Is this wall drawn at an angle in the drawing? Is it straight (not at that angle) in the model?",
-     "n": 16,
-     "qid": "q16"
+     "n": 14,
+     "qid": "q14"
     },
     {
      "kind": "angled",
@@ -45612,8 +45710,8 @@
      "model_fact": "yes",
      "element_ids": [],
      "ask": "Is this wall drawn at an angle in the drawing? Is it straight (not at that angle) in the model?",
-     "n": 17,
-     "qid": "q17"
+     "n": 15,
+     "qid": "q15"
     },
     {
      "kind": "angled",
@@ -45628,8 +45726,8 @@
      "model_fact": "yes",
      "element_ids": [],
      "ask": "Is this wall drawn at an angle in the drawing? Is it straight (not at that angle) in the model?",
-     "n": 18,
-     "qid": "q18"
+     "n": 16,
+     "qid": "q16"
     },
     {
      "kind": "balcony",
@@ -45646,8 +45744,8 @@
       "d_L3_001"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 19,
-     "qid": "q19"
+     "n": 17,
+     "qid": "q17"
     },
     {
      "kind": "balcony",
@@ -45664,8 +45762,8 @@
       "d_L3_002"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 20,
-     "qid": "q20"
+     "n": 18,
+     "qid": "q18"
     },
     {
      "kind": "balcony",
@@ -45682,8 +45780,8 @@
       "d_L3_003"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 21,
-     "qid": "q21"
+     "n": 19,
+     "qid": "q19"
     },
     {
      "kind": "balcony",
@@ -45700,8 +45798,8 @@
       "d_L3_004"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 22,
-     "qid": "q22"
+     "n": 20,
+     "qid": "q20"
     },
     {
      "kind": "balcony",
@@ -45718,8 +45816,8 @@
       "d_L3_005"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 23,
-     "qid": "q23"
+     "n": 21,
+     "qid": "q21"
     },
     {
      "kind": "balcony",
@@ -45736,8 +45834,8 @@
       "d_L3_006"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 24,
-     "qid": "q24"
+     "n": 22,
+     "qid": "q22"
     },
     {
      "kind": "balcony",
@@ -45754,8 +45852,8 @@
       "d_L3_009"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 25,
-     "qid": "q25"
+     "n": 23,
+     "qid": "q23"
     },
     {
      "kind": "balcony",
@@ -45772,8 +45870,8 @@
       "d_L3_010"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 26,
-     "qid": "q26"
+     "n": 24,
+     "qid": "q24"
     },
     {
      "kind": "opening",
@@ -45790,8 +45888,8 @@
       "win_L3_002"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 27,
-     "qid": "q27"
+     "n": 25,
+     "qid": "q25"
     },
     {
      "kind": "opening",
@@ -45808,8 +45906,8 @@
       "win_L3_003"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 28,
-     "qid": "q28"
+     "n": 26,
+     "qid": "q26"
     },
     {
      "kind": "opening",
@@ -45826,8 +45924,8 @@
       "win_L3_004"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 29,
-     "qid": "q29"
+     "n": 27,
+     "qid": "q27"
     },
     {
      "kind": "opening",
@@ -45844,8 +45942,8 @@
       "o_L3_001"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 30,
-     "qid": "q30"
+     "n": 28,
+     "qid": "q28"
     },
     {
      "kind": "opening",
@@ -45862,8 +45960,8 @@
       "o_L3_002"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 31,
-     "qid": "q31"
+     "n": 29,
+     "qid": "q29"
     },
     {
      "kind": "opening",
@@ -45880,8 +45978,8 @@
       "win_L3_001"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 32,
-     "qid": "q32"
+     "n": 30,
+     "qid": "q30"
     }
    ]
   },
@@ -48997,7 +49095,8 @@
        3.927,
        17.205
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "çocuk yatak od.",
@@ -49005,6 +49104,7 @@
        4.452,
        14.404
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -49013,6 +49113,7 @@
        8.567,
        13.901
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -49021,6 +49122,7 @@
        8.814,
        11.876
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -49029,6 +49131,7 @@
        3.816,
        10.69
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -49037,6 +49140,7 @@
        7.621,
        9.134
       ],
+      "type": "wc",
       "exterior": false
      },
      {
@@ -49045,6 +49149,7 @@
        9.864,
        9.065
       ],
+      "type": "shaft",
       "exterior": false
      },
      {
@@ -49053,6 +49158,7 @@
        7.4,
        7.716
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -49061,6 +49167,7 @@
        7.966,
        4.851
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -49069,6 +49176,7 @@
        4.27,
        4.717
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -49077,7 +49185,8 @@
        4.132,
        0.711
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      }
     ],
     "drawn_angled": [
@@ -49343,22 +49452,6 @@
     {
      "kind": "room",
      "at": [
-      3.927,
-      17.205
-     ],
-     "point": [
-      0.1949,
-      0.1395
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 1,
-     "qid": "q1"
-    },
-    {
-     "kind": "room",
-     "at": [
       4.452,
       14.404
      ],
@@ -49371,8 +49464,8 @@
       "r_L-1_cocuk_yatak_od"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 2,
-     "qid": "q2"
+     "n": 1,
+     "qid": "q1"
     },
     {
      "kind": "room",
@@ -49389,8 +49482,8 @@
       "r_L-1_e_yatak_od"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 3,
-     "qid": "q3"
+     "n": 2,
+     "qid": "q2"
     },
     {
      "kind": "room",
@@ -49407,8 +49500,8 @@
       "r_L-1_banyo"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 4,
-     "qid": "q4"
+     "n": 3,
+     "qid": "q3"
     },
     {
      "kind": "room",
@@ -49425,8 +49518,8 @@
       "r_L-1_gunluk_oda"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 5,
-     "qid": "q5"
+     "n": 4,
+     "qid": "q4"
     },
     {
      "kind": "room",
@@ -49443,8 +49536,8 @@
       "r_L-1_lav_w_c"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 6,
-     "qid": "q6"
+     "n": 5,
+     "qid": "q5"
     },
     {
      "kind": "room",
@@ -49461,8 +49554,8 @@
       "r_L-1_asansor"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 7,
-     "qid": "q7"
+     "n": 6,
+     "qid": "q6"
     },
     {
      "kind": "room",
@@ -49479,8 +49572,8 @@
       "r_L-1_antre"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 8,
-     "qid": "q8"
+     "n": 7,
+     "qid": "q7"
     },
     {
      "kind": "room",
@@ -49497,8 +49590,8 @@
       "r_L-1_mutfak"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 9,
-     "qid": "q9"
+     "n": 8,
+     "qid": "q8"
     },
     {
      "kind": "room",
@@ -49515,24 +49608,8 @@
       "r_L-1_salon"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 10,
-     "qid": "q10"
-    },
-    {
-     "kind": "room",
-     "at": [
-      4.132,
-      0.711
-     ],
-     "point": [
-      0.203,
-      0.8072
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 11,
-     "qid": "q11"
+     "n": 9,
+     "qid": "q9"
     },
     {
      "kind": "room",
@@ -49549,8 +49626,8 @@
       "r_L-1_oda_2"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 12,
-     "qid": "q12"
+     "n": 10,
+     "qid": "q10"
     },
     {
      "kind": "room",
@@ -49567,8 +49644,8 @@
       "r_L-1_oda_4_hall"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 13,
-     "qid": "q13"
+     "n": 11,
+     "qid": "q11"
     },
     {
      "kind": "room",
@@ -49585,8 +49662,8 @@
       "r_L-1_oda_5"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 14,
-     "qid": "q14"
+     "n": 12,
+     "qid": "q12"
     },
     {
      "kind": "room",
@@ -49603,8 +49680,8 @@
       "r_L-1_oda_8"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 15,
-     "qid": "q15"
+     "n": 13,
+     "qid": "q13"
     },
     {
      "kind": "room",
@@ -49621,8 +49698,8 @@
       "r_L-1_oda_10"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 16,
-     "qid": "q16"
+     "n": 14,
+     "qid": "q14"
     },
     {
      "kind": "room",
@@ -49639,8 +49716,8 @@
       "r_L-1_oda"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 17,
-     "qid": "q17"
+     "n": 15,
+     "qid": "q15"
     },
     {
      "kind": "room",
@@ -49655,6 +49732,42 @@
      "model_fact": "yes",
      "element_ids": [
       "r_L-1_oda_3"
+     ],
+     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
+     "n": 16,
+     "qid": "q16"
+    },
+    {
+     "kind": "room",
+     "at": [
+      6.289,
+      11.255
+     ],
+     "point": [
+      0.2892,
+      0.3804
+     ],
+     "model_fact": "yes",
+     "element_ids": [
+      "r_L-1_antre"
+     ],
+     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
+     "n": 17,
+     "qid": "q17"
+    },
+    {
+     "kind": "room",
+     "at": [
+      12.466,
+      11.005
+     ],
+     "point": [
+      0.5357,
+      0.3905
+     ],
+     "model_fact": "yes",
+     "element_ids": [
+      "r_L-1_oda_7"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
      "n": 18,
@@ -51033,6 +51146,7 @@
        12.629,
        15.128
       ],
+      "type": "wc",
       "exterior": false
      },
      {
@@ -51041,6 +51155,7 @@
        17.766,
        11.895
       ],
+      "type": "storage",
       "exterior": false
      },
      {
@@ -51049,6 +51164,7 @@
        14.967,
        11.536
       ],
+      "type": "technical",
       "exterior": false
      },
      {
@@ -51057,6 +51173,7 @@
        21.682,
        7.684
       ],
+      "type": "hall",
       "exterior": false
      }
     ],
@@ -55189,7 +55306,8 @@
        3.879,
        17.209
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "e. yatak od.",
@@ -55197,6 +55315,7 @@
        7.696,
        15.201
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -55205,6 +55324,7 @@
        4.452,
        14.716
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -55213,6 +55333,7 @@
        8.622,
        12.989
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -55221,6 +55342,7 @@
        8.814,
        11.876
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -55229,6 +55351,7 @@
        3.593,
        10.662
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -55237,6 +55360,7 @@
        7.622,
        9.134
       ],
+      "type": "wc",
       "exterior": false
      },
      {
@@ -55245,6 +55369,7 @@
        9.864,
        9.065
       ],
+      "type": "shaft",
       "exterior": false
      },
      {
@@ -55253,6 +55378,7 @@
        7.4,
        7.716
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -55261,6 +55387,7 @@
        7.862,
        4.39
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -55269,6 +55396,7 @@
        4.423,
        4.36
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -55277,7 +55405,8 @@
        4.216,
        0.711
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      }
     ],
     "drawn_angled": [
@@ -55607,22 +55736,6 @@
     {
      "kind": "room",
      "at": [
-      3.879,
-      17.209
-     ],
-     "point": [
-      0.2375,
-      0.1393
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 1,
-     "qid": "q1"
-    },
-    {
-     "kind": "room",
-     "at": [
       7.696,
       15.201
      ],
@@ -55635,8 +55748,8 @@
       "r_L0_e_yatak_od"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 2,
-     "qid": "q2"
+     "n": 1,
+     "qid": "q1"
     },
     {
      "kind": "room",
@@ -55653,8 +55766,8 @@
       "r_L0_cocuk_yatak_od"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 3,
-     "qid": "q3"
+     "n": 2,
+     "qid": "q2"
     },
     {
      "kind": "room",
@@ -55671,8 +55784,8 @@
       "r_L0_dus"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 4,
-     "qid": "q4"
+     "n": 3,
+     "qid": "q3"
     },
     {
      "kind": "room",
@@ -55689,8 +55802,8 @@
       "r_L0_banyo"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 5,
-     "qid": "q5"
+     "n": 4,
+     "qid": "q4"
     },
     {
      "kind": "room",
@@ -55707,8 +55820,8 @@
       "r_L0_gunluk_oda"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 6,
-     "qid": "q6"
+     "n": 5,
+     "qid": "q5"
     },
     {
      "kind": "room",
@@ -55725,8 +55838,8 @@
       "r_L0_lav_w_c"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 7,
-     "qid": "q7"
+     "n": 6,
+     "qid": "q6"
     },
     {
      "kind": "room",
@@ -55743,8 +55856,8 @@
       "r_L0_asansor"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 8,
-     "qid": "q8"
+     "n": 7,
+     "qid": "q7"
     },
     {
      "kind": "room",
@@ -55761,8 +55874,8 @@
       "r_L0_antre"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 9,
-     "qid": "q9"
+     "n": 8,
+     "qid": "q8"
     },
     {
      "kind": "room",
@@ -55779,8 +55892,8 @@
       "r_L0_mutfak"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 10,
-     "qid": "q10"
+     "n": 9,
+     "qid": "q9"
     },
     {
      "kind": "room",
@@ -55797,24 +55910,8 @@
       "r_L0_salon"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 11,
-     "qid": "q11"
-    },
-    {
-     "kind": "room",
-     "at": [
-      4.216,
-      0.711
-     ],
-     "point": [
-      0.2496,
-      0.8072
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 12,
-     "qid": "q12"
+     "n": 10,
+     "qid": "q10"
     },
     {
      "kind": "room",
@@ -55831,8 +55928,8 @@
       "r_L0_oda_2"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 13,
-     "qid": "q13"
+     "n": 11,
+     "qid": "q11"
     },
     {
      "kind": "room",
@@ -55849,8 +55946,8 @@
       "r_L0_oda_6"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 14,
-     "qid": "q14"
+     "n": 12,
+     "qid": "q12"
     },
     {
      "kind": "room",
@@ -55867,8 +55964,8 @@
       "r_L0_oda_3"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 15,
-     "qid": "q15"
+     "n": 13,
+     "qid": "q13"
     },
     {
      "kind": "room",
@@ -55885,8 +55982,8 @@
       "r_L0_oda_12"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 16,
-     "qid": "q16"
+     "n": 14,
+     "qid": "q14"
     },
     {
      "kind": "room",
@@ -55903,8 +56000,8 @@
       "r_L0_antre"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 17,
-     "qid": "q17"
+     "n": 15,
+     "qid": "q15"
     },
     {
      "kind": "room",
@@ -55919,6 +56016,42 @@
      "model_fact": "yes",
      "element_ids": [
       "r_L0_oda_11"
+     ],
+     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
+     "n": 16,
+     "qid": "q16"
+    },
+    {
+     "kind": "room",
+     "at": [
+      11.19,
+      3.34
+     ],
+     "point": [
+      0.5005,
+      0.7008
+     ],
+     "model_fact": "yes",
+     "element_ids": [
+      "r_L0_oda"
+     ],
+     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
+     "n": 17,
+     "qid": "q17"
+    },
+    {
+     "kind": "room",
+     "at": [
+      16.075,
+      9.04
+     ],
+     "point": [
+      0.6762,
+      0.47
+     ],
+     "model_fact": "yes",
+     "element_ids": [
+      "r_L0_oda_4"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
      "n": 18,
@@ -55959,12 +56092,12 @@
     {
      "kind": "angled",
      "at": [
-      11.646,
-      3.856
+      11.125,
+      9.78
      ],
      "point": [
-      0.5169,
-      0.6799
+      0.4982,
+      0.4401
      ],
      "model_fact": "yes",
      "element_ids": [],
@@ -55975,12 +56108,12 @@
     {
      "kind": "angled",
      "at": [
-      10.736,
-      3.856
+      13.096,
+      9.791
      ],
      "point": [
-      0.4842,
-      0.6799
+      0.5691,
+      0.4396
      ],
      "model_fact": "yes",
      "element_ids": [],
@@ -56575,6 +56708,7 @@
        9.272,
        7.779
       ],
+      "type": "shaft",
       "exterior": false
      }
     ],
@@ -58009,7 +58143,8 @@
        5.926,
        9.395
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "SALON",
@@ -58017,6 +58152,7 @@
        2.953,
        8.226
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -58025,6 +58161,7 @@
        8.832,
        6.709
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -58033,6 +58170,7 @@
        5.963,
        6.651
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -58041,6 +58179,7 @@
        13.115,
        6.291
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -58049,7 +58188,8 @@
        15.582,
        6.001
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "ODA",
@@ -58057,6 +58197,7 @@
        2.291,
        5.416
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -58065,6 +58206,7 @@
        12.534,
        4.575
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -58073,6 +58215,7 @@
        10.115,
        3.617
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -58081,6 +58224,7 @@
        3.766,
        3.585
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -58089,6 +58233,7 @@
        5.706,
        3.399
       ],
+      "type": "shaft",
       "exterior": false
      },
      {
@@ -58097,6 +58242,7 @@
        1.182,
        2.626
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -58105,6 +58251,7 @@
        13.435,
        1.808
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -58113,6 +58260,7 @@
        5.138,
        1.22
       ],
+      "type": "wc",
       "exterior": false
      },
      {
@@ -58121,6 +58269,7 @@
        8.456,
        1.173
       ],
+      "type": "wc",
       "exterior": false
      },
      {
@@ -58129,6 +58278,7 @@
        7.045,
        0.511
       ],
+      "type": "shaft",
       "exterior": false
      }
     ],
@@ -58267,22 +58417,6 @@
     {
      "kind": "room",
      "at": [
-      5.926,
-      9.395
-     ],
-     "point": [
-      0.3736,
-      0.2655
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 1,
-     "qid": "q1"
-    },
-    {
-     "kind": "room",
-     "at": [
       2.953,
       8.226
      ],
@@ -58293,8 +58427,8 @@
      "model_fact": "no",
      "element_ids": [],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 2,
-     "qid": "q2"
+     "n": 1,
+     "qid": "q1"
     },
     {
      "kind": "room",
@@ -58309,8 +58443,8 @@
      "model_fact": "no",
      "element_ids": [],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 3,
-     "qid": "q3"
+     "n": 2,
+     "qid": "q2"
     },
     {
      "kind": "room",
@@ -58327,8 +58461,8 @@
       "r_L1_mutfak"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 4,
-     "qid": "q4"
+     "n": 3,
+     "qid": "q3"
     },
     {
      "kind": "room",
@@ -58343,24 +58477,8 @@
      "model_fact": "no",
      "element_ids": [],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 5,
-     "qid": "q5"
-    },
-    {
-     "kind": "room",
-     "at": [
-      15.582,
-      6.001
-     ],
-     "point": [
-      0.8832,
-      0.4981
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 6,
-     "qid": "q6"
+     "n": 4,
+     "qid": "q4"
     },
     {
      "kind": "room",
@@ -58377,8 +58495,8 @@
       "r_L1_oda_3"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 7,
-     "qid": "q7"
+     "n": 5,
+     "qid": "q5"
     },
     {
      "kind": "room",
@@ -58395,8 +58513,8 @@
       "r_L1_oda_2"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 8,
-     "qid": "q8"
+     "n": 6,
+     "qid": "q6"
     },
     {
      "kind": "room",
@@ -58411,8 +58529,8 @@
      "model_fact": "no",
      "element_ids": [],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 9,
-     "qid": "q9"
+     "n": 7,
+     "qid": "q7"
     },
     {
      "kind": "room",
@@ -58429,8 +58547,8 @@
       "r_L1_antre"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 10,
-     "qid": "q10"
+     "n": 8,
+     "qid": "q8"
     },
     {
      "kind": "room",
@@ -58447,8 +58565,8 @@
       "r_L1_oda_4_hall_lift"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 11,
-     "qid": "q11"
+     "n": 9,
+     "qid": "q9"
     },
     {
      "kind": "room",
@@ -58465,8 +58583,8 @@
       "r_L1_oda"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 12,
-     "qid": "q12"
+     "n": 10,
+     "qid": "q10"
     },
     {
      "kind": "room",
@@ -58483,8 +58601,8 @@
       "r_L1_salon"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 13,
-     "qid": "q13"
+     "n": 11,
+     "qid": "q11"
     },
     {
      "kind": "room",
@@ -58501,8 +58619,8 @@
       "r_L1_banyo_wc"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 14,
-     "qid": "q14"
+     "n": 12,
+     "qid": "q12"
     },
     {
      "kind": "room",
@@ -58519,8 +58637,8 @@
       "r_L1_banyo_wc_2"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 15,
-     "qid": "q15"
+     "n": 13,
+     "qid": "q13"
     },
     {
      "kind": "room",
@@ -58535,8 +58653,8 @@
      "model_fact": "no",
      "element_ids": [],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 16,
-     "qid": "q16"
+     "n": 14,
+     "qid": "q14"
     },
     {
      "kind": "room",
@@ -58553,8 +58671,8 @@
       "r_L1_oda_4"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 17,
-     "qid": "q17"
+     "n": 15,
+     "qid": "q15"
     },
     {
      "kind": "angled",
@@ -58569,8 +58687,24 @@
      "model_fact": "yes",
      "element_ids": [],
      "ask": "Is this wall drawn at an angle in the drawing? Is it straight (not at that angle) in the model?",
-     "n": 18,
-     "qid": "q18"
+     "n": 16,
+     "qid": "q16"
+    },
+    {
+     "kind": "angled",
+     "at": [
+      5.684,
+      9.784
+     ],
+     "point": [
+      0.3608,
+      0.2389
+     ],
+     "model_fact": "yes",
+     "element_ids": [],
+     "ask": "Is this wall drawn at an angle in the drawing? Is it straight (not at that angle) in the model?",
+     "n": 17,
+     "qid": "q17"
     },
     {
      "kind": "angled",
@@ -58585,8 +58719,8 @@
      "model_fact": "yes",
      "element_ids": [],
      "ask": "Is this wall drawn at an angle in the drawing? Is it straight (not at that angle) in the model?",
-     "n": 19,
-     "qid": "q19"
+     "n": 18,
+     "qid": "q18"
     },
     {
      "kind": "angled",
@@ -58601,24 +58735,8 @@
      "model_fact": "yes",
      "element_ids": [],
      "ask": "Is this wall drawn at an angle in the drawing? Is it straight (not at that angle) in the model?",
-     "n": 20,
-     "qid": "q20"
-    },
-    {
-     "kind": "angled",
-     "at": [
-      14.062,
-      6.992
-     ],
-     "point": [
-      0.803,
-      0.4302
-     ],
-     "model_fact": "yes",
-     "element_ids": [],
-     "ask": "Is this wall drawn at an angle in the drawing? Is it straight (not at that angle) in the model?",
-     "n": 21,
-     "qid": "q21"
+     "n": 19,
+     "qid": "q19"
     },
     {
      "kind": "balcony",
@@ -58635,8 +58753,8 @@
       "d_L1_001"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 22,
-     "qid": "q22"
+     "n": 20,
+     "qid": "q20"
     },
     {
      "kind": "balcony",
@@ -58653,8 +58771,8 @@
       "d_L1_005"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 23,
-     "qid": "q23"
+     "n": 21,
+     "qid": "q21"
     },
     {
      "kind": "balcony",
@@ -58671,8 +58789,8 @@
       "d_L1_006"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 24,
-     "qid": "q24"
+     "n": 22,
+     "qid": "q22"
     },
     {
      "kind": "balcony",
@@ -58689,8 +58807,8 @@
       "d_L1_008"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 25,
-     "qid": "q25"
+     "n": 23,
+     "qid": "q23"
     },
     {
      "kind": "balcony",
@@ -58707,8 +58825,8 @@
       "d_L1_009"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 26,
-     "qid": "q26"
+     "n": 24,
+     "qid": "q24"
     },
     {
      "kind": "balcony",
@@ -58725,8 +58843,8 @@
       "d_L1_010"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 27,
-     "qid": "q27"
+     "n": 25,
+     "qid": "q25"
     },
     {
      "kind": "balcony",
@@ -58743,8 +58861,8 @@
       "d_L1_011"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 28,
-     "qid": "q28"
+     "n": 26,
+     "qid": "q26"
     },
     {
      "kind": "balcony",
@@ -58761,8 +58879,8 @@
       "d_L1_012"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 29,
-     "qid": "q29"
+     "n": 27,
+     "qid": "q27"
     },
     {
      "kind": "opening",
@@ -58779,8 +58897,8 @@
       "d_L1_013"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 30,
-     "qid": "q30"
+     "n": 28,
+     "qid": "q28"
     },
     {
      "kind": "opening",
@@ -58797,8 +58915,8 @@
       "d_L1_014"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 31,
-     "qid": "q31"
+     "n": 29,
+     "qid": "q29"
     },
     {
      "kind": "opening",
@@ -58815,8 +58933,8 @@
       "d_L1_015"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 32,
-     "qid": "q32"
+     "n": 30,
+     "qid": "q30"
     },
     {
      "kind": "opening",
@@ -58833,8 +58951,8 @@
       "win_L1_001"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 33,
-     "qid": "q33"
+     "n": 31,
+     "qid": "q31"
     },
     {
      "kind": "opening",
@@ -58851,8 +58969,8 @@
       "win_L1_002"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 34,
-     "qid": "q34"
+     "n": 32,
+     "qid": "q32"
     },
     {
      "kind": "opening",
@@ -58869,8 +58987,8 @@
       "win_L1_003"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 35,
-     "qid": "q35"
+     "n": 33,
+     "qid": "q33"
     },
     {
      "kind": "opening",
@@ -58887,8 +59005,8 @@
       "win_L1_004"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 36,
-     "qid": "q36"
+     "n": 34,
+     "qid": "q34"
     },
     {
      "kind": "opening",
@@ -58905,8 +59023,8 @@
       "d_L1_002"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 37,
-     "qid": "q37"
+     "n": 35,
+     "qid": "q35"
     },
     {
      "kind": "opening",
@@ -58923,8 +59041,8 @@
       "d_L1_003"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 38,
-     "qid": "q38"
+     "n": 36,
+     "qid": "q36"
     },
     {
      "kind": "opening",
@@ -58941,8 +59059,8 @@
       "d_L1_004"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 39,
-     "qid": "q39"
+     "n": 37,
+     "qid": "q37"
     }
    ]
   },
@@ -61797,7 +61915,8 @@
        12.892,
        28.306
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "BALKON",
@@ -61805,7 +61924,8 @@
        1.89,
        28.143
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "MUTFAK",
@@ -61813,6 +61933,7 @@
        4.026,
        26.329
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -61821,6 +61942,7 @@
        11.592,
        25.91
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -61829,6 +61951,7 @@
        9.514,
        25.554
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -61837,6 +61960,7 @@
        6.551,
        25.103
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -61845,6 +61969,7 @@
        1.309,
        25.016
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -61853,6 +61978,7 @@
        13.907,
        24.674
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -61861,6 +61987,7 @@
        6.047,
        22.254
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -61869,6 +61996,7 @@
        12.947,
        21.125
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -61877,6 +62005,7 @@
        2.424,
        21.033
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -61885,6 +62014,7 @@
        4.164,
        19.928
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -61893,6 +62023,7 @@
        11.308,
        19.794
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -61901,6 +62032,7 @@
        8.919,
        19.523
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -61909,6 +62041,7 @@
        5.787,
        18.652
       ],
+      "type": "wc",
       "exterior": false
      },
      {
@@ -61917,6 +62050,7 @@
        12.834,
        17.514
       ],
+      "type": "wc",
       "exterior": false
      },
      {
@@ -61925,6 +62059,7 @@
        2.54,
        17.457
       ],
+      "type": "wc",
       "exterior": false
      },
      {
@@ -61933,6 +62068,7 @@
        7.484,
        17.388
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -61941,6 +62077,7 @@
        9.94,
        17.238
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -61949,6 +62086,7 @@
        5.417,
        17.044
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -61957,6 +62095,7 @@
        12.761,
        15.756
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -61965,6 +62104,7 @@
        8.925,
        15.63
       ],
+      "type": "shaft",
       "exterior": false
      },
      {
@@ -61973,6 +62113,7 @@
        2.609,
        15.584
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -61981,6 +62122,7 @@
        8.925,
        13.38
       ],
+      "type": "shaft",
       "exterior": false
      },
      {
@@ -61989,6 +62131,7 @@
        5.48,
        11.341
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -61997,6 +62140,7 @@
        10.12,
        11.313
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -62005,6 +62149,7 @@
        2.664,
        11.294
       ],
+      "type": "wc",
       "exterior": false
      },
      {
@@ -62013,6 +62158,7 @@
        12.834,
        11.294
       ],
+      "type": "wc",
       "exterior": false
      },
      {
@@ -62021,6 +62167,7 @@
        7.446,
        11.07
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -62029,6 +62176,7 @@
        5.787,
        10.156
       ],
+      "type": "wc",
       "exterior": false
      },
      {
@@ -62037,6 +62185,7 @@
        4.19,
        9.013
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -62045,6 +62194,7 @@
        11.308,
        9.013
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -62053,6 +62203,7 @@
        6.047,
        6.554
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -62061,6 +62212,7 @@
        1.59,
        4.134
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -62069,6 +62221,7 @@
        13.907,
        4.134
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -62077,6 +62230,7 @@
        6.551,
        3.705
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -62085,6 +62239,7 @@
        3.906,
        2.898
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -62093,6 +62248,7 @@
        11.592,
        2.898
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -62101,7 +62257,8 @@
        12.892,
        0.834
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      },
      {
       "text": "BALKON",
@@ -62109,7 +62266,8 @@
        2.606,
        0.432
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      }
     ],
     "drawn_angled": [
@@ -62135,38 +62293,6 @@
     {
      "kind": "room",
      "at": [
-      12.892,
-      28.306
-     ],
-     "point": [
-      0.8325,
-      0.0248
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 1,
-     "qid": "q1"
-    },
-    {
-     "kind": "room",
-     "at": [
-      1.89,
-      28.143
-     ],
-     "point": [
-      0.1382,
-      0.0304
-     ],
-     "model_fact": "no",
-     "element_ids": [],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 2,
-     "qid": "q2"
-    },
-    {
-     "kind": "room",
-     "at": [
       4.026,
       26.329
      ],
@@ -62179,8 +62305,8 @@
       "r_L1_mutfak_5"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 3,
-     "qid": "q3"
+     "n": 1,
+     "qid": "q1"
     },
     {
      "kind": "room",
@@ -62197,8 +62323,8 @@
       "r_L1_mutfak_6"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 4,
-     "qid": "q4"
+     "n": 2,
+     "qid": "q2"
     },
     {
      "kind": "room",
@@ -62215,8 +62341,8 @@
       "r_L1_oda_19"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 5,
-     "qid": "q5"
+     "n": 3,
+     "qid": "q3"
     },
     {
      "kind": "room",
@@ -62233,8 +62359,8 @@
       "r_L1_salon_4"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 6,
-     "qid": "q6"
+     "n": 4,
+     "qid": "q4"
     },
     {
      "kind": "room",
@@ -62251,8 +62377,8 @@
       "r_L1_salon_5"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 7,
-     "qid": "q7"
+     "n": 5,
+     "qid": "q5"
     },
     {
      "kind": "room",
@@ -62269,8 +62395,8 @@
       "r_L1_salon_6"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 8,
-     "qid": "q8"
+     "n": 6,
+     "qid": "q6"
     },
     {
      "kind": "room",
@@ -62287,8 +62413,8 @@
       "r_L1_mutfak_4"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 9,
-     "qid": "q9"
+     "n": 7,
+     "qid": "q7"
     },
     {
      "kind": "room",
@@ -62305,8 +62431,8 @@
       "r_L1_oda_17"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 10,
-     "qid": "q10"
+     "n": 8,
+     "qid": "q8"
     },
     {
      "kind": "room",
@@ -62323,8 +62449,8 @@
       "r_L1_oda_16"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 11,
-     "qid": "q11"
+     "n": 9,
+     "qid": "q9"
     },
     {
      "kind": "room",
@@ -62341,8 +62467,8 @@
       "r_L1_antre_4"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 12,
-     "qid": "q12"
+     "n": 10,
+     "qid": "q10"
     },
     {
      "kind": "room",
@@ -62359,8 +62485,8 @@
       "r_L1_antre_3"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 13,
-     "qid": "q13"
+     "n": 11,
+     "qid": "q11"
     },
     {
      "kind": "room",
@@ -62377,8 +62503,8 @@
       "r_L1_oda_15"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 14,
-     "qid": "q14"
+     "n": 12,
+     "qid": "q12"
     },
     {
      "kind": "room",
@@ -62395,8 +62521,8 @@
       "r_L1_banyo_wc_6"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 15,
-     "qid": "q15"
+     "n": 13,
+     "qid": "q13"
     },
     {
      "kind": "room",
@@ -62413,8 +62539,8 @@
       "r_L1_banyo_wc_4"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 16,
-     "qid": "q16"
+     "n": 14,
+     "qid": "q14"
     },
     {
      "kind": "room",
@@ -62431,8 +62557,8 @@
       "r_L1_banyo_wc_5"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 17,
-     "qid": "q17"
+     "n": 15,
+     "qid": "q15"
     },
     {
      "kind": "room",
@@ -62443,6 +62569,42 @@
      "point": [
       0.4912,
       0.3984
+     ],
+     "model_fact": "yes",
+     "element_ids": [
+      "r_L1_girisi_2"
+     ],
+     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
+     "n": 16,
+     "qid": "q16"
+    },
+    {
+     "kind": "room",
+     "at": [
+      9.94,
+      17.238
+     ],
+     "point": [
+      0.6462,
+      0.4036
+     ],
+     "model_fact": "yes",
+     "element_ids": [
+      "r_L1_girisi_2"
+     ],
+     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
+     "n": 17,
+     "qid": "q17"
+    },
+    {
+     "kind": "room",
+     "at": [
+      5.417,
+      17.044
+     ],
+     "point": [
+      0.3608,
+      0.4102
      ],
      "model_fact": "yes",
      "element_ids": [
@@ -62563,6 +62725,24 @@
     {
      "kind": "balcony",
      "at": [
+      1.608,
+      27.721
+     ],
+     "point": [
+      0.1204,
+      0.0448
+     ],
+     "model_fact": "yes",
+     "element_ids": [
+      "d_L1_039"
+     ],
+     "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
+     "n": 25,
+     "qid": "q25"
+    },
+    {
+     "kind": "balcony",
+     "at": [
       13.714,
       27.721
      ],
@@ -62575,8 +62755,8 @@
       "d_L1_040"
      ],
      "ask": "Does this exterior door above the ground have a balcony or terrace in front of it in the drawing? In the model?",
-     "n": 25,
-     "qid": "q25"
+     "n": 26,
+     "qid": "q26"
     },
     {
      "kind": "opening",
@@ -62593,8 +62773,8 @@
       "win_L1_001"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 26,
-     "qid": "q26"
+     "n": 27,
+     "qid": "q27"
     },
     {
      "kind": "opening",
@@ -62611,8 +62791,8 @@
       "win_L1_002"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 27,
-     "qid": "q27"
+     "n": 28,
+     "qid": "q28"
     },
     {
      "kind": "opening",
@@ -62629,8 +62809,8 @@
       "win_L1_003"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 28,
-     "qid": "q28"
+     "n": 29,
+     "qid": "q29"
     },
     {
      "kind": "opening",
@@ -62647,8 +62827,8 @@
       "win_L1_004"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 29,
-     "qid": "q29"
+     "n": 30,
+     "qid": "q30"
     },
     {
      "kind": "opening",
@@ -62665,8 +62845,8 @@
       "win_L1_005"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 30,
-     "qid": "q30"
+     "n": 31,
+     "qid": "q31"
     },
     {
      "kind": "opening",
@@ -62683,8 +62863,8 @@
       "win_L1_008"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 31,
-     "qid": "q31"
+     "n": 32,
+     "qid": "q32"
     },
     {
      "kind": "opening",
@@ -62701,8 +62881,8 @@
       "win_L1_010"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 32,
-     "qid": "q32"
+     "n": 33,
+     "qid": "q33"
     },
     {
      "kind": "opening",
@@ -62719,8 +62899,8 @@
       "win_L1_011"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 33,
-     "qid": "q33"
+     "n": 34,
+     "qid": "q34"
     },
     {
      "kind": "opening",
@@ -62737,8 +62917,8 @@
       "win_L1_013"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 34,
-     "qid": "q34"
+     "n": 35,
+     "qid": "q35"
     },
     {
      "kind": "opening",
@@ -62755,8 +62935,8 @@
       "win_L1_014"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 35,
-     "qid": "q35"
+     "n": 36,
+     "qid": "q36"
     }
    ]
   },
@@ -64151,6 +64331,7 @@
        2.0,
        7.37
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -64159,6 +64340,7 @@
        5.25,
        7.37
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -64167,6 +64349,7 @@
        9.25,
        7.37
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -64175,6 +64358,7 @@
        5.0,
        5.07
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -64183,6 +64367,7 @@
        9.5,
        2.57
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -64191,6 +64376,7 @@
        3.5,
        2.17
       ],
+      "type": "living",
       "exterior": false
      }
     ],
@@ -65042,6 +65228,7 @@
        2.0,
        7.37
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -65050,6 +65237,7 @@
        5.25,
        7.37
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -65058,6 +65246,7 @@
        9.25,
        7.37
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -65066,6 +65255,7 @@
        5.0,
        5.07
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -65074,6 +65264,7 @@
        9.5,
        2.57
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -65082,6 +65273,7 @@
        3.5,
        2.17
       ],
+      "type": "living",
       "exterior": false
      }
     ],
@@ -66075,6 +66267,7 @@
        2.0,
        7.379
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -66083,6 +66276,7 @@
        5.25,
        7.379
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -66091,6 +66285,7 @@
        9.25,
        7.379
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -66099,6 +66294,7 @@
        5.0,
        5.079
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -66107,6 +66303,7 @@
        9.5,
        2.579
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -66115,6 +66312,7 @@
        3.5,
        2.179
       ],
+      "type": "living",
       "exterior": false
      }
     ],
@@ -67107,6 +67305,7 @@
        2.0,
        7.37
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -67115,6 +67314,7 @@
        5.25,
        7.37
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -67123,6 +67323,7 @@
        9.25,
        7.37
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -67131,6 +67332,7 @@
        5.0,
        5.07
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -67139,6 +67341,7 @@
        9.5,
        2.57
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -67147,6 +67350,7 @@
        3.5,
        2.17
       ],
+      "type": "living",
       "exterior": false
      }
     ],
@@ -68105,6 +68309,7 @@
        6.0,
        7.371
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -68113,6 +68318,7 @@
        1.5,
        6.971
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -68121,6 +68327,7 @@
        4.0,
        6.971
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -68129,6 +68336,7 @@
        3.5,
        2.271
       ],
+      "type": "living",
       "exterior": false
      }
     ],
@@ -69203,6 +69411,7 @@
        2.0,
        7.37
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -69211,6 +69420,7 @@
        5.25,
        7.37
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -69219,6 +69429,7 @@
        7.6,
        7.37
       ],
+      "type": "stair",
       "exterior": false
      },
      {
@@ -69227,6 +69438,7 @@
        5.0,
        5.07
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -69235,6 +69447,7 @@
        9.5,
        2.57
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -69243,6 +69456,7 @@
        3.5,
        2.17
       ],
+      "type": "living",
       "exterior": false
      }
     ],
@@ -70143,6 +70357,7 @@
        2.0,
        7.37
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -70151,6 +70366,7 @@
        5.25,
        7.37
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -70159,6 +70375,7 @@
        7.6,
        7.37
       ],
+      "type": "stair",
       "exterior": false
      },
      {
@@ -70167,6 +70384,7 @@
        5.0,
        5.07
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -70175,6 +70393,7 @@
        9.5,
        2.57
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -70183,6 +70402,7 @@
        3.5,
        2.17
       ],
+      "type": "living",
       "exterior": false
      }
     ],
@@ -71082,6 +71302,7 @@
        2.0,
        23.37
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -71090,6 +71311,7 @@
        5.25,
        23.37
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -71098,6 +71320,7 @@
        7.6,
        23.37
       ],
+      "type": "stair",
       "exterior": false
      },
      {
@@ -71106,6 +71329,7 @@
        5.0,
        21.07
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -71114,6 +71338,7 @@
        9.5,
        18.57
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -71122,6 +71347,7 @@
        3.5,
        18.17
       ],
+      "type": "living",
       "exterior": false
      },
      {
@@ -71130,6 +71356,7 @@
        2.0,
        7.37
       ],
+      "type": "other",
       "exterior": false
      },
      {
@@ -71138,6 +71365,7 @@
        5.25,
        7.37
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -71146,6 +71374,7 @@
        7.6,
        7.37
       ],
+      "type": "stair",
       "exterior": false
      },
      {
@@ -71154,6 +71383,7 @@
        5.0,
        5.07
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -71162,6 +71392,7 @@
        9.5,
        2.57
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -71170,6 +71401,7 @@
        3.5,
        2.17
       ],
+      "type": "bedroom",
       "exterior": false
      }
     ],
@@ -72604,6 +72836,7 @@
        2.0,
        7.37
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -72612,6 +72845,7 @@
        5.25,
        7.37
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -72620,6 +72854,7 @@
        7.6,
        7.37
       ],
+      "type": "stair",
       "exterior": false
      },
      {
@@ -72628,6 +72863,7 @@
        5.0,
        5.07
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -72636,6 +72872,7 @@
        9.5,
        2.57
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -72644,6 +72881,7 @@
        3.5,
        2.17
       ],
+      "type": "living",
       "exterior": false
      }
     ],
@@ -73589,6 +73827,7 @@
        5.1,
        7.376
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -73597,6 +73836,7 @@
        1.8,
        7.37
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -73605,6 +73845,7 @@
        10.1,
        7.37
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -73613,6 +73854,7 @@
        5.0,
        5.07
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -73621,6 +73863,7 @@
        9.5,
        2.57
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -73629,6 +73872,7 @@
        3.5,
        2.17
       ],
+      "type": "living",
       "exterior": false
      }
     ],
@@ -74605,6 +74849,7 @@
        9.25,
        7.57
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -74613,6 +74858,7 @@
        2.0,
        7.37
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -74621,6 +74867,7 @@
        5.25,
        7.37
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -74629,6 +74876,7 @@
        9.4,
        5.379
       ],
+      "type": "shaft",
       "exterior": false
      },
      {
@@ -74637,6 +74885,7 @@
        5.0,
        5.07
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -74645,6 +74894,7 @@
        9.5,
        2.57
       ],
+      "type": "garage",
       "exterior": false
      },
      {
@@ -74653,6 +74903,7 @@
        3.5,
        2.17
       ],
+      "type": "living",
       "exterior": false
      }
     ],
@@ -75619,6 +75870,7 @@
        2.0,
        7.37
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -75627,6 +75879,7 @@
        5.25,
        7.37
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -75635,6 +75888,7 @@
        7.6,
        7.37
       ],
+      "type": "stair",
       "exterior": false
      },
      {
@@ -75643,6 +75897,7 @@
        5.0,
        5.07
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -75651,6 +75906,7 @@
        9.5,
        2.57
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -75659,6 +75915,7 @@
        3.5,
        2.17
       ],
+      "type": "living",
       "exterior": false
      }
     ],
@@ -76553,6 +76810,7 @@
        2.0,
        7.37
       ],
+      "type": "other",
       "exterior": false
      },
      {
@@ -76561,6 +76819,7 @@
        5.25,
        7.37
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -76569,6 +76828,7 @@
        7.6,
        7.37
       ],
+      "type": "stair",
       "exterior": false
      },
      {
@@ -76577,6 +76837,7 @@
        5.0,
        5.07
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -76585,6 +76846,7 @@
        9.5,
        2.57
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -76593,6 +76855,7 @@
        3.5,
        2.17
       ],
+      "type": "bedroom",
       "exterior": false
      }
     ],
@@ -77455,6 +77718,7 @@
        2.0,
        7.37
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -77463,6 +77727,7 @@
        5.25,
        7.37
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -77471,6 +77736,7 @@
        9.25,
        7.37
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -77479,6 +77745,7 @@
        9.8,
        5.07
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -77487,6 +77754,7 @@
        9.5,
        2.57
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -77495,6 +77763,7 @@
        3.5,
        2.17
       ],
+      "type": "living",
       "exterior": false
      }
     ],
@@ -78380,6 +78649,7 @@
        2.0,
        7.369
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -78388,6 +78658,7 @@
        5.25,
        7.369
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -78396,6 +78667,7 @@
        9.25,
        7.369
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -78404,6 +78676,7 @@
        5.0,
        5.069
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -78412,6 +78685,7 @@
        9.5,
        2.569
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -78420,6 +78694,7 @@
        3.5,
        2.169
       ],
+      "type": "living",
       "exterior": false
      }
     ],
@@ -79463,6 +79738,7 @@
        2.0,
        7.37
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -79471,6 +79747,7 @@
        5.25,
        7.37
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -79479,6 +79756,7 @@
        7.6,
        7.37
       ],
+      "type": "stair",
       "exterior": false
      },
      {
@@ -79487,6 +79765,7 @@
        5.0,
        5.07
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -79495,6 +79774,7 @@
        9.5,
        2.57
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -79503,6 +79783,7 @@
        3.5,
        2.17
       ],
+      "type": "living",
       "exterior": false
      }
     ],
@@ -80397,6 +80678,7 @@
        2.0,
        7.37
       ],
+      "type": "other",
       "exterior": false
      },
      {
@@ -80405,6 +80687,7 @@
        5.25,
        7.37
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -80413,6 +80696,7 @@
        7.6,
        7.37
       ],
+      "type": "stair",
       "exterior": false
      },
      {
@@ -80421,6 +80705,7 @@
        5.0,
        5.07
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -80429,6 +80714,7 @@
        9.5,
        2.57
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -80437,6 +80723,7 @@
        3.5,
        2.17
       ],
+      "type": "bedroom",
       "exterior": false
      }
     ],
@@ -80951,6 +81238,7 @@
        7.6,
        7.37
       ],
+      "type": "stair",
       "exterior": false
      },
      {
@@ -80959,7 +81247,8 @@
        3.5,
        2.97
       ],
-      "exterior": false
+      "type": "balcony",
+      "exterior": true
      }
     ],
     "drawn_angled": []
@@ -80986,24 +81275,6 @@
     {
      "kind": "room",
      "at": [
-      3.5,
-      2.97
-     ],
-     "point": [
-      0.2917,
-      0.6701
-     ],
-     "model_fact": "yes",
-     "element_ids": [
-      "r_L2_teras"
-     ],
-     "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 2,
-     "qid": "q2"
-    },
-    {
-     "kind": "room",
-     "at": [
       9.188,
       7.338
      ],
@@ -81016,8 +81287,8 @@
       "r_L2_merdiven"
      ],
      "ask": "Is there a room here in the drawing? Is there a room here in the model?",
-     "n": 3,
-     "qid": "q3"
+     "n": 2,
+     "qid": "q2"
     },
     {
      "kind": "opening",
@@ -81034,8 +81305,8 @@
       "win_L2_001"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 4,
-     "qid": "q4"
+     "n": 3,
+     "qid": "q3"
     },
     {
      "kind": "opening",
@@ -81052,8 +81323,8 @@
       "win_L2_002"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 5,
-     "qid": "q5"
+     "n": 4,
+     "qid": "q4"
     },
     {
      "kind": "opening",
@@ -81070,8 +81341,8 @@
       "d_L2_001"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 6,
-     "qid": "q6"
+     "n": 5,
+     "qid": "q5"
     }
    ],
    "disagreements": []
@@ -81664,6 +81935,7 @@
        2.0,
        7.37
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -81672,6 +81944,7 @@
        5.25,
        7.37
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -81680,6 +81953,7 @@
        7.6,
        7.37
       ],
+      "type": "stair",
       "exterior": false
      },
      {
@@ -81688,6 +81962,7 @@
        5.0,
        5.07
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -81696,6 +81971,7 @@
        9.5,
        2.57
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -81704,6 +81980,7 @@
        3.5,
        2.17
       ],
+      "type": "living",
       "exterior": false
      }
     ],
@@ -82598,6 +82875,7 @@
        2.0,
        7.37
       ],
+      "type": "kitchen",
       "exterior": false
      },
      {
@@ -82606,6 +82884,7 @@
        5.25,
        7.37
       ],
+      "type": "bathroom",
       "exterior": false
      },
      {
@@ -82614,6 +82893,7 @@
        9.25,
        7.37
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -82622,6 +82902,7 @@
        5.0,
        5.07
       ],
+      "type": "hall",
       "exterior": false
      },
      {
@@ -82630,6 +82911,7 @@
        9.5,
        2.57
       ],
+      "type": "bedroom",
       "exterior": false
      },
      {
@@ -82638,6 +82920,7 @@
        3.5,
        2.17
       ],
+      "type": "living",
       "exterior": false
      }
     ],

@@ -23,7 +23,13 @@
 # Env (all optional): CRITIC_MODELS (default "agent qwen"), CRITIC_INPUTS (default results/critic/inputs),
 # CRITIC_SERVER_FLAGS (default "--gpu-memory-utilization 0.90 --max-model-len 16384"), CRITIC_SECOND_MIN_S (default
 # 600), CRITIC_SETS
-# (default all), CRITIC_VLM_URL (preflight: an external server, no setup, no vLLM).
+# (default all), CRITIC_VLM_URL (preflight: an external server, no setup, no vLLM), CRITIC_WHICH (the calls, default
+# "differences,questions"; 20 Nov 2026, checks 1, 2, 4: "plausibility,inventory,compare" with CRITIC_SETS
+# "before,after,synth" and CRITIC_MODELS "agent": 190 calls, about 22 min of asking).
+#
+#   scripts/gpu_run.py run --job scripts/jobs/critic.sh --max-minutes 45 --env CRITIC_MODELS=agent \
+#     --env CRITIC_SETS=before,after,synth --env CRITIC_WHICH=plausibility,inventory,compare \
+#     --purpose "M14 RC15 checks 1, 2, 4: inventory, drawing compare, plausibility"
 set -Eeuo pipefail
 
 WS="${WENART_WS:-/workspace}"
@@ -121,7 +127,7 @@ seconds_left() {
 : > "$START_STAMP"
 cd "$REPO"
 mkdir -p "$RESULTS" "$OUT" "$JOB_DIR"
-log "job $JOB: models [$CRITIC_MODELS], inputs $CRITIC_INPUTS, deadline ${WENART_DEADLINE:-none}, server flags '$CRITIC_SERVER_FLAGS'"
+log "job $JOB: models [$CRITIC_MODELS], inputs $CRITIC_INPUTS, sets ${CRITIC_SETS:-all}, calls ${CRITIC_WHICH:-differences,questions}, deadline ${WENART_DEADLINE:-none}, server flags '$CRITIC_SERVER_FLAGS'"
 nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader 2>/dev/null || log "nvidia-smi failed"
 if [ ! -f "$CRITIC_INPUTS/index.json" ]; then
   log "no $CRITIC_INPUTS/index.json: run 'python -m wenart.reading_check critic prepare' and commit the inputs first"
@@ -148,6 +154,7 @@ for key in "${KEYS[@]}"; do
   ASK_ARGS=(--key "$key" --inputs "$CRITIC_INPUTS" --out "$OUT" --job-dir "$JOB_DIR" --logs-dir "$LOGS")
   if [ -n "${WENART_DEADLINE:-}" ]; then ASK_ARGS+=(--deadline "$WENART_DEADLINE"); fi
   if [ -n "${CRITIC_SETS:-}" ]; then ASK_ARGS+=(--sets "$CRITIC_SETS"); fi
+  if [ -n "${CRITIC_WHICH:-}" ]; then ASK_ARGS+=(--which "$CRITIC_WHICH"); fi
   if [ -n "${CRITIC_VLM_URL:-}" ]; then
     ASK_ARGS+=(--vlm-url "$CRITIC_VLM_URL" --workers 2)
   else

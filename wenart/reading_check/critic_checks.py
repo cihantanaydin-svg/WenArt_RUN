@@ -329,7 +329,12 @@ def drawn_labels(page, tf) -> list:
         if not name or getattr(b, "anchor", None) is None:
             continue
         p = RC._apply(tf, b.anchor)
-        out.append({"text": name[:40], "at": _r(p), "exterior": bool(getattr(b, "exterior", False))})
+        try:
+            rtype, ext = LB.room_type_for(name)
+        except Exception:  # noqa: BLE001 - a name the vocabulary cannot type
+            rtype, ext = None, False
+        out.append({"text": name[:40], "at": _r(p), "type": rtype,
+                    "exterior": bool(getattr(b, "exterior", False)) or ext or rtype in OPEN_AIR_TYPES})
     return out
 
 
@@ -689,13 +694,24 @@ def mark_image(src: Path, chunk: list, dest: Path) -> Path:
     return dest
 
 
+def _first_answers(data: dict, key: str = "id") -> list:
+    """The answers with the first one of each question id only (a model may repeat an id; the schema cannot forbid
+    it: ``uniqueItems`` is not in vLLM's grammar)."""
+    seen, out = set(), []
+    for a in data.get("answers") or []:
+        if isinstance(a, dict) and a.get(key) not in seen:
+            seen.add(a.get(key))
+            out.append(a)
+    return out
+
+
 def compare_findings(data: dict, chunk: list) -> list:
     """The answers of one compare call against what the reading has at each mark (pure). A finding where the drawing
     answer contradicts the reading's own fact (``model_fact``); its confidence is 0.8 when the model's answer about
     image 2 matches the reading (it read image 2 right), 0.4 when it does not."""
     byq = {q["qid"]: q for q in chunk}
     out = []
-    for a in data.get("answers") or []:
+    for a in _first_answers(data):
         q = byq.get(a.get("id"))
         if q is None:
             continue
@@ -735,7 +751,7 @@ def compare_reliability(data: dict, chunk: list) -> dict:
     """How often the model's answer about image 2 matched the reading (pure): ``{asked, right, unclear}``."""
     byq = {q["qid"]: q for q in chunk}
     asked = right = unclear = 0
-    for a in data.get("answers") or []:
+    for a in _first_answers(data):
         q = byq.get(a.get("id"))
         if q is None:
             continue
@@ -984,7 +1000,7 @@ def plausibility_findings(data: dict, item: dict) -> tuple:
                "stair": set(ids.get("stair") or []), "outdoor": set(ids.get("outdoor") or [])}
     points = item.get("points") or {}
     out, invalid = [], []
-    for a in data.get("answers") or []:
+    for a in _first_answers(data, "q"):
         q = qmap.get(a.get("q"))
         if q is None:
             continue
@@ -1561,6 +1577,10 @@ def review_sheets(index: dict, found: list, images_root: Path, dest: Path, *, ju
         bold = ImageFont.truetype("DejaVuSans-Bold.ttf", 14)
     except OSError:
         font = bold = ImageFont.load_default()
+    try:
+        mono = ImageFont.truetype("DejaVuSansMono.ttf", 12)
+    except OSError:
+        mono = font
     written: dict = {}
     cell, pad, cols = 210, 8, 3
     pair_w = cell * 2 + pad
@@ -1610,14 +1630,14 @@ def review_sheets(index: dict, found: list, images_root: Path, dest: Path, *, ju
                 d.text((x0, y0 + 18 + cell + 2), (f.get("level_id") or "") + " " + str(f.get("description") or "")[:58],
                        fill=(0, 0, 0), font=font)
             ty = 40 + grid_h
-            d.text((pad, ty), "#   check         kind                        level   conf  auto   text", fill=(0, 0, 0),
-                   font=bold)
+            head = f"{'#':<4}{'check':<14}{'kind':<26}{'level':<7}{'conf':<6}{'auto':<7}text"
+            d.text((pad, ty), head, fill=(0, 0, 0), font=mono)
             for k, f in enumerate(chunk):
                 jd = judged.get(f["id"]) or {}
                 auto = {True: "right", False: "wrong"}.get(jd.get("right"), "-")
-                line = (f"{start + k + 1:<4}{f['call']:<14}{f['kind']:<28}{str(f.get('level_id') or '-'):<8}"
-                        f"{float(f.get('confidence') or 0):.2f}  {auto:<6} {str(f.get('description') or '')[:110]}")
-                d.text((pad, ty + 22 + 18 * k), line, fill=(0, 0, 0), font=font)
+                line = (f"{start + k + 1:<4}{f['call']:<14}{f['kind'][:25]:<26}{str(f.get('level_id') or '-'):<7}"
+                        f"{float(f.get('confidence') or 0):<6.2f}{auto:<7}{str(f.get('description') or '')[:120]}")
+                d.text((pad, ty + 22 + 18 * k), line, fill=(0, 0, 0), font=mono)
             path = out_dir / f"sheet_{s + 1}.jpg"
             q = 80
             while True:
