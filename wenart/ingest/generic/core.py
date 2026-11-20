@@ -2557,6 +2557,161 @@ def _leaf_distance(c, o, strokes: dict) -> float:
     return best
 
 
+K_TAG_RE = re.compile(r"^\s*K\s*\d{0,2}\s*[:\-]\s*(\d{2,3})\s*/\s*(\d{2,3})\s*$", re.IGNORECASE)   # 'K1: 90/210'
+CUT_SPAN_WIDTH_TOL_M = 0.12     # rule cut_span_door: two jamb lines this close to the tag's width apart frame its door
+CUT_SPAN_BLOCK_W_M = (0.6, 2.4)  # ... (a door block with no tag: jambs this far apart)
+CUT_SPAN_JAMB_DEG = 5.0          # a jamb line runs across the wall within this angle of square
+CUT_SPAN_JAMB_COVER = 0.8        # ... over this share of the wall's thickness
+CUT_SPAN_TAG_SHIFT_M = 0.4       # the jambs' centre within half the width plus this of the tag (along the wall)
+CUT_SPAN_BLOCK_REACH_M = 0.3     # a door block stands this close to the wall band
+CUT_SPAN_BLOCK_MIN_M = 0.5       # a door block this large at least (a door's symbol; a handle or a frame detail is not)
+CUT_SPAN_BLOCK_TOL_M = 0.15      # ... and its jambs this close to its size apart
+CUT_SPAN_OWN_DOOR_M = 0.10       # a door within the tag's reach this close to its width is the tag's own door
+
+
+def _door_evidence(texts_m: list, strokes: list, unit_m: float = 1.0) -> list:
+    """``[(point, width or None, height or None, what, evidence)]``: the door size tags (W/H with H >= 1.80 m on a
+    door layer, a door-high one on a plain text layer, or the 'K:' form) and the door block inserts (a block whose name
+    or layer means door, ``layer_names``) of a page (pure); ``unit_m``: metres per unit of the points (a block's
+    ``size_m`` and its size test are in metres)."""
+    from wenart.ingest.generic import layer_names as LN
+
+    out = []
+    for t in texts_m:
+        text = str(t.text or "")
+        layer = (t.evidence[0].get("layer") if t.evidence else None)
+        role = LN.layer_role(layer)
+        m, k = SIZE_TAG_RE.match(text), K_TAG_RE.match(text)
+        if not (m or k):
+            continue
+        w_cm, h_cm = (int(g) for g in (k or m).groups())
+        if w_cm > DOOR_TAG_MAX_W_CM or h_cm < DOOR_TAG_LOW_H_CM:
+            continue
+        if not (k or role == "door" or (role in DOOR_TAG_TEXT_ROLES and h_cm >= DOOR_TAG_PLAIN_MIN_H_CM)):
+            continue
+        c = ((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0)
+        ev = dict(t.evidence[0]) if t.evidence else {}
+        out.append((c, w_cm / 100.0, h_cm / 100.0, f"the door size tag '{text.strip()}'", ev))
+    groups: dict = {}
+    for st in strokes:
+        if not st.block or "/" not in str(st.id):
+            continue
+        names = [st.layer] + str(st.block).split("/")
+        if any(LN.layer_role(n) == "door" for n in names):
+            groups.setdefault(str(st.id).split("/")[0], []).append(st)
+    for key, sts in sorted(groups.items()):
+        xs = [p[0] for st in sts for p in st.pts]
+        ys = [p[1] for st in sts for p in st.pts]
+        if not xs:
+            continue
+        size = max(max(xs) - min(xs), max(ys) - min(ys)) * float(unit_m)
+        if size < CUT_SPAN_BLOCK_MIN_M:
+            continue                            # a handle or a frame detail, not a door's symbol
+        c = ((min(xs) + max(xs)) / 2.0, (min(ys) + max(ys)) / 2.0)
+        out.append((c, None, None, f"the door block '{sts[0].block}' ({key})",
+                    {"entity": key, "layer": sts[0].layer, "block": sts[0].block, "size_m": round(size, 3)}))
+    return out
+
+
+def doors_in_cut_spans(walls2: list, openings: list, strokes: list, texts_m: list, units_to_m: float) -> Optional[list]:
+    """20 Nov 2026 (rule ``cut_span_door``, ``rule_guards``; real20's kitchen-to-balcony door, tagged '120/210', whose
+    gap the wall's cut lines closed and whose door block carries no swing arc): a door size tag or a door block
+    standing at a wall where no opening is read, between two jamb lines that run square across the wall's whole
+    thickness that far apart (the tag's width, ``CUT_SPAN_WIDTH_TOL_M``; a block: its size), makes the span a door:
+    the lines along it are the wall's section edge at the opening (cut or hatch lines), not a solid wall. The jambs are
+    lines of the wall's drawing (never a door layer's frame profile), so a wall whose faces run on unbroken, with no
+    jamb lines across it, is never opened, whatever text stands beside it. Returns the openings with the new doors added (sized by the jambs, the tag's height), or
+    None when there is none (pure)."""
+    from wenart.ingest import rule_guards as RG
+    from wenart.ingest.generic import layer_names as LN
+
+    if not RG.active("cut_span_door"):
+        return None
+    evidence = _door_evidence(texts_m, strokes)
+    if not evidence:
+        return None
+    segs = []                                   # the straight pieces of the wall drawing (page metres): jamb lines
+    for st in strokes:
+        names = [st.layer] + (str(st.block).split("/") if st.block else [])
+        if st.arc or len(st.pts) < 2 or any(LN.layer_role(n) in ("door", "window") for n in names):
+            continue                            # a door's frame profile or a window's lines are no jamb of the wall
+        segs.extend(zip(st.pts, st.pts[1:]))
+    out = list(openings)
+    added = []
+    for c, width, height, what, ev in evidence:
+        if width is not None and any(
+                not o.virtual and o.kind in ("door", "opening") and abs(float(o.width) - width) <= CUT_SPAN_OWN_DOOR_M
+                and math.dist(o.center, c) <= DOOR_TAG_REACH_M + float(o.width) / 2.0 for o in out + added):
+            continue                            # the tag's own door is read (the size tags step sizes it)
+        best = None
+        for wall in walls2:
+            length = math.dist(wall.start, wall.end)
+            if length <= 1e-9:
+                continue
+            ux, uy = (wall.end[0] - wall.start[0]) / length, (wall.end[1] - wall.start[1]) / length
+            half = float(wall.thickness) / 2.0
+            ca = (c[0] - wall.start[0]) * ux + (c[1] - wall.start[1]) * uy
+            cc = -(c[0] - wall.start[0]) * uy + (c[1] - wall.start[1]) * ux
+            reach = DOOR_TAG_REACH_M if width is not None else half + CUT_SPAN_BLOCK_REACH_M
+            if abs(cc) > reach or not (-0.3 <= ca <= length + 0.3):
+                continue
+            jambs = []
+            for a, b in segs:
+                d = math.dist(a, b)
+                if d <= 1e-9:
+                    continue
+                cos = abs(((b[0] - a[0]) * ux + (b[1] - a[1]) * uy) / d)
+                if cos > math.sin(math.radians(CUT_SPAN_JAMB_DEG)):
+                    continue                    # not square across the wall
+                pa = ((a[0] + b[0]) / 2.0 - wall.start[0]) * ux + ((a[1] + b[1]) / 2.0 - wall.start[1]) * uy
+                c0 = -(a[0] - wall.start[0]) * uy + (a[1] - wall.start[1]) * ux
+                c1 = -(b[0] - wall.start[0]) * uy + (b[1] - wall.start[1]) * ux
+                lo, hi = max(min(c0, c1), -half), min(max(c0, c1), half)
+                if hi - lo >= CUT_SPAN_JAMB_COVER * 2.0 * half and 0.0 <= pa <= length:
+                    jambs.append(pa)
+            jambs = sorted(set(round(j, 3) for j in jambs))
+            for i, a1 in enumerate(jambs):
+                for a2 in jambs[i + 1:]:
+                    span = a2 - a1
+                    if width is not None:
+                        if abs(span - width) > CUT_SPAN_WIDTH_TOL_M or abs((a1 + a2) / 2.0 - ca) > \
+                                width / 2.0 + CUT_SPAN_TAG_SHIFT_M:
+                            continue
+                    elif not (CUT_SPAN_BLOCK_W_M[0] <= span <= CUT_SPAN_BLOCK_W_M[1] and a1 - 0.05 <= ca <= a2 + 0.05
+                              and abs(span - float(ev.get("size_m") or 0.0)) <= CUT_SPAN_BLOCK_TOL_M):
+                        continue
+                    mid = (a1 + a2) / 2.0
+                    centre = (wall.start[0] + ux * mid, wall.start[1] + uy * mid)
+                    # nothing read there yet: no opening on this wall line overlapping the span
+                    if any(not o.virtual and abs(-(o.center[0] - wall.start[0]) * uy + (o.center[1] - wall.start[1])
+                                                 * ux) <= half + 0.05
+                           and abs(((o.center[0] - wall.start[0]) * ux + (o.center[1] - wall.start[1]) * uy) - mid)
+                           < (float(o.width) + span) / 2.0 for o in out + added):
+                        continue
+                    score = abs(mid - ca) + abs(cc) * 0.1
+                    if best is None or score < best[0]:
+                        best = (score, wall, centre, span, ux, uy)
+        if best is None:
+            continue
+        _score, wall, centre, span, ux, uy = best
+        e = dict(ev)
+        e.update(method="vector", confidence=0.8, rule="cut_span_door",
+                 reason=f"{what} at a span of {span:.2f} m between two jamb lines across the wall, the lines along it "
+                        f"the wall's section edge at the opening (no gap read): a door")
+        hw = span / 2.0
+        corners = [(centre[0] - ux * hw, centre[1] - uy * hw), (centre[0] + ux * hw, centre[1] + uy * hw)]
+        box = [min(p[0] for p in corners), min(p[1] for p in corners), max(p[0] for p in corners),
+               max(p[1] for p in corners)]
+        if units_to_m:
+            box = [v / units_to_m for v in box]
+        added.append(OpeningItem(kind="door", width=round(span, 3), center=(round(centre[0], 4), round(centre[1], 4)),
+                                 rotation_deg=round(math.degrees(math.atan2(uy, ux)) % 360.0, 3),
+                                 box=[round(v, 3) for v in box], entity=str(e.get("entity") or "cut_span"),
+                                 evidence=e, height=height, assumed=[] if height else ["height"],
+                                 type_raw=what))
+    return out + added if added else None
+
+
 def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, units_to_m: float,
                keep_width: bool = False, outline=None, strokes=()):
     """4 Nov 2026 (real07, user: "the entrance to the room is wrong door not recognized properly", "where is the
@@ -4221,6 +4376,19 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
             else:
                 ex.notes.append(f"{where}: the doors' parts of the gaps they stand in left as read: the rests would "
                                 f"open the walls")
+        # 20 Nov 2026 (rule ``cut_span_door``, after the size tags took their own doors): a drawn door whose gap the
+        # wall's cut lines close is read as its door
+        spanned = doors_in_cut_spans(walls2, openings, strokes_m, texts_m, s)
+        if spanned is not None:
+            bw_c, site_c, sw_c = TP.split_plot(walls2, spanned, blocks, level_id=level_id)
+            idx = {o["index"] for o in site_c["openings"]}
+            b_open_c = [o for j, o in enumerate(spanned) if j not in idx]
+            prob_c = TP.outer_loop_problem(bw_c, b_open_c)
+            if _unclosed(sw_c) <= _unclosed(site_warnings) and (prob_c is None or problem is not None):
+                openings, bwalls, site, site_warnings, b_openings, problem = spanned, bw_c, site_c, sw_c, b_open_c, \
+                    prob_c
+            else:
+                ex.notes.append(f"{where}: the doors in the cut-line spans left out: they would open the walls")
         tagged = _window_tags(ex, where, walls2, openings, texts_m, s, non_wall)
         if tagged is not None:
             bw_t, site_t, sw_t = TP.split_plot(walls2, tagged, blocks, level_id=level_id)

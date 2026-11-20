@@ -75,6 +75,9 @@ RULES = {
     # 20 Nov 2026 (real20's 16-degree street facade read as axis stubs; the user: "focus on real structural problems")
     "angled_wall": (("R35",), "a wall drawn at an angle off the plan's axes stays at its angle: its face pair is one "
                               "wall at that angle, and the gaps of its line are read in its own frame"),
+    # 20 Nov 2026 (real20's kitchen-to-balcony door: its gap closed by the wall's cut lines, a door block with no arc)
+    "cut_span_door": (("R53",), "a door size tag or door block at a wall span framed by two jamb lines across the wall "
+                                "with door strokes inside is that door: the lines along it are the section edge"),
     # staged rules (``STAGED``): written and tested, off until their review (the coordinator, 13 Nov 2026)
     "exterior_spans": (("R14",), "the exterior flag is read per stretch of a wall before the windows; a level or a "
                                  "stretch that does not qualify takes no inferred window"),

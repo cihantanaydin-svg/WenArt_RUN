@@ -658,6 +658,14 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
                                    f"{type(exc).__name__}: {str(exc)[:200]}", "element_ids": [], "advisory": True})
         else:
             notes.append(f"{lid}: no layer named wall, plaster or column: walls not compared")
+        # 20 Nov 2026 (rule cut_span_door): a drawn door tag or door block with no opening of the model near it (RC17)
+        try:
+            from wenart.reading_check import structure as _SR
+            structural += _SR.doors_without_opening(page, tf, building, lid)
+        except Exception as exc:  # noqa: BLE001 - an advisory check never stops the reading check
+            structural.append({"check": "RC17", "name": "structural integrity", "rule": None, "severity": "info",
+                               "level_id": lid, "message": f"the door-tag check did not run: {type(exc).__name__}: "
+                                                          f"{str(exc)[:200]}", "element_ids": [], "advisory": True})
     ref = reference or next((lid for lid in ("L0", "L1") if lid in anchors), next(iter(anchors), None))
     if ref:
         findings += stacking(anchors, ref, {lv["id"]: lv.get("order") for lv in building.get("levels") or []})

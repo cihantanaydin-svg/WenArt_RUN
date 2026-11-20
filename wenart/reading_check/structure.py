@@ -39,6 +39,7 @@ RULES = {
     "slab_beyond_walls": "a storey's floor slab open to the sky inside the storey's own walls",
     "angled_wall_straight": "a drawn wall at an angle that no model wall at its angle follows (R35)",
     "outdoor_label_lost": "an outdoor label in no outdoor space (inside a wall, beside a tiny room) or naming a room",
+    "door_without_opening": "a drawn door size tag or door block with no door or opening of the model near it",
 }
 PROBE_M = 0.3                 # a door's outside is probed this far past its wall's face
 GROUND_UP_M = 0.5             # a storey this far above the ground floor is an upper storey
@@ -235,7 +236,41 @@ def angled_walls_straight(segs: list, walls: list, level: str) -> list:
                      f"straight (axis stubs) or left out (R35)")]
 
 
-TINY_ROOM_M2 = 1.5            # rule 4: a room this small beside a lost outdoor label is that space read as a room
+DOOR_OPENING_REACH_M = 1.2    # rule 5: an opening of the model this near a door tag (plus half its width) ...
+DOOR_WIDTH_TOL_M = 0.3        # ... and of about its width is its door
+DOOR_BLOCK_REACH_M = 0.3      # an opening this near a door block (plus half its size) is its door
+
+
+def doors_without_opening(page, tf, building: dict, level: str) -> list:
+    """Rule 5 (20 Nov 2026; real20's kitchen-to-balcony door, tagged '120/210', whose gap the wall's cut lines closed):
+    a door size tag (W/H with H >= 1.80 m, or the 'K:' form) or a door block insert (``core._door_evidence``) of the
+    level's drawing with no door or opening of the model within ``DOOR_OPENING_REACH_M`` plus half its width.
+    ``tf`` maps the drawing's units to building metres (``reading_check.level_pages``)."""
+    from wenart.ingest.generic import core as GC
+
+    scale = math.sqrt(abs(tf[0] * tf[4] - tf[1] * tf[3])) or 1.0
+    opens = [o for o in building.get("openings") or [] if o.get("level_id") == level
+             and o.get("type") in ("door", "opening") and isinstance(o.get("center"), (list, tuple))]
+    out = []
+    for c, width, _h, what, ev in GC._door_evidence(page.texts, page.strokes, unit_m=scale):
+        p = (tf[0] * c[0] + tf[1] * c[1] + tf[2], tf[3] * c[0] + tf[4] * c[1] + tf[5])
+        if width is not None:
+            # a tag's door: an opening of about its width (``DOOR_WIDTH_TOL_M``) within reach of the tag
+            near = [o for o in opens if abs(float(o.get("width") or 0) - width) <= DOOR_WIDTH_TOL_M
+                    and math.dist(p, o["center"][:2]) <= DOOR_OPENING_REACH_M + float(o.get("width") or 0) / 2.0]
+        else:
+            w = float(ev.get("size_m") or 0.0)
+            near = [o for o in opens if math.dist(p, o["center"][:2]) <= w / 2.0 + DOOR_BLOCK_REACH_M]
+        if near:
+            continue
+        out.append(_finding("door_without_opening", "major", level,
+                            f"{what} at ({p[0]:.2f}, {p[1]:.2f}) m has no door or opening of the model within "
+                            f"{DOOR_OPENING_REACH_M:.1f} m: a drawn door not read (its gap closed by the wall's lines)",
+                            place=p))
+    return out
+
+
+TINY_ROOM_M2 = 1.5           # rule 4: a room this small beside a lost outdoor label is that space read as a room
 TINY_REACH_M = 1.0
 
 
