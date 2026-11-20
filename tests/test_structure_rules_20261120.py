@@ -261,6 +261,80 @@ def test_r35_a_balcony_recessed_into_an_angled_facade_stays_open_with_its_door()
     assert any(o.kind == "door" and math.dist(o.center, (2.0, 4.1)) < 0.3 for o in openings)
 
 
+def _cut_span_plan(frame=True, jambs=True):
+    """An 8 x 5 m house drawn as face lines on a wall layer; its inner wall (x 3.95-4.05) has a 0.9 m door span at
+    y 1.0-1.9 closed by two lines on the wall's cut layer, framed by jamb lines across the wall, with the door's frame
+    profiles on a door layer (no swing arc) and its size tag '90/210' beside it (synthetic)."""
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).parent))
+    import _real01_page as R
+    from wenart.ingest.generic.model import TextRun
+
+    def on(layer, strokes):
+        for st in strokes:
+            st.layer = layer
+        return strokes
+    faces = [R.stroke([(0, 0), (8, 0), (8, 5), (0, 5)], closed=True),
+             R.stroke([(0.2, 0.2), (3.95, 0.2)]), R.stroke([(4.05, 0.2), (7.8, 0.2)]),
+             R.stroke([(0.2, 4.8), (3.95, 4.8)]), R.stroke([(4.05, 4.8), (7.8, 4.8)]),
+             R.stroke([(0.2, 0.2), (0.2, 4.8)]), R.stroke([(7.8, 0.2), (7.8, 4.8)]),
+             R.stroke([(3.95, 0.2), (3.95, 1.0)]), R.stroke([(4.05, 0.2), (4.05, 1.0)]),
+             R.stroke([(3.95, 1.9), (3.95, 4.8)]), R.stroke([(4.05, 1.9), (4.05, 4.8)])]
+    if jambs:
+        faces += [R.stroke([(3.95, 1.0), (4.05, 1.0)]), R.stroke([(3.95, 1.9), (4.05, 1.9)])]
+    else:
+        faces += [R.stroke([(3.95, 1.0), (3.95, 1.9)]), R.stroke([(4.05, 1.0), (4.05, 1.9)])]   # faces run on
+    cuts = [R.stroke([(3.95, 1.0), (3.95, 1.9)]), R.stroke([(4.05, 1.0), (4.05, 1.9)])] if jambs else []
+    door = [R.stroke([(3.93, 1.0), (3.93, 1.03), (4.07, 1.03), (4.07, 1.0)]),
+            R.stroke([(3.93, 1.9), (3.93, 1.87), (4.07, 1.87), (4.07, 1.9)])] if frame else []
+    strokes = on("DUVAR", faces + cuts) + on("KAPI", door)          # the cut lines pair into wall: the gap is closed
+    runs = [TextRun(id="t1", text="SALON", box=(1.4, 2.4, 2.4, 2.6), height=0.2),
+            TextRun(id="t2", text="YATAK ODASI", box=(5.2, 2.4, 6.8, 2.6), height=0.2),
+            TextRun(id="t3", text="90/210", box=(4.2, 1.35, 4.7, 1.5), height=0.12)]
+    return R.synthetic_page(strokes, runs)
+
+
+def _cut_span_read(page):
+    from wenart.ingest.generic import core as GC
+    from wenart.ingest.generic import openings as O
+    from wenart.ingest.generic import walls as W
+    prims = W.wall_primitives(page, 1.0)
+    prims, _choice = W.face_pair_walls(page, 1.0, prims)
+    mask = W.wall_mask(page, prims, 1.0)
+    ids = {i for p in prims for i in p.stroke_ids}
+    rest = [s for s in page.strokes if s.id not in ids]
+    walls, _info = W.walls_from_mask(mask, rest, "test.pdf", 1)
+    walls2, openings, _, _ = O.gaps_and_openings(walls, rest, "test.pdf", 1)
+    return walls2, openings, GC.doors_in_cut_spans(walls2, openings, page.strokes, page.texts, 1.0)
+
+
+def test_a_door_whose_gap_the_cut_lines_close_is_read_from_its_tag_and_jambs():
+    walls2, openings, spanned = _cut_span_read(_cut_span_plan())
+    assert not any(o.kind == "door" for o in openings)                 # the cut lines closed the gap: no door read
+    new = [o for o in spanned or [] if o.evidence.get("rule") == "cut_span_door"]
+    assert len(new) == 1 and abs(new[0].width - 0.9) < 0.02 and math.dist(new[0].center, (4.0, 1.45)) < 0.05
+    assert abs(new[0].height - 2.1) < 1e-6 and new[0].kind == "door"
+
+
+def test_a_plain_wall_is_never_opened_by_a_tag_alone():
+    _w, _o, spanned = _cut_span_read(_cut_span_plan(frame=False))      # jambs and cut lines: a drawn opening
+    assert spanned is not None and abs(spanned[-1].width - 0.9) < 0.02
+    _w, _o, spanned = _cut_span_read(_cut_span_plan(jambs=False))      # faces run on unbroken (the frame's lines
+    assert spanned is None                                             # across the wall are no jambs)
+
+
+def test_rc17_names_a_door_tag_with_no_opening_near_it():
+    from wenart.reading_check import structure as ST
+    page = _cut_span_plan()
+    tf = (1.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+    b = {"openings": []}
+    found = ST.doors_without_opening(page, tf, b, "L0")
+    assert [f["rule"] for f in found] == ["door_without_opening"] and "90/210" in found[0]["message"]
+    b["openings"] = [{"level_id": "L0", "type": "door", "center": [4.0, 1.45], "width": 0.9}]
+    assert ST.doors_without_opening(page, tf, b, "L0") == []
+
+
 def test_rc17_names_an_outdoor_label_lost_in_a_wall_or_naming_a_room():
     from wenart.reading_check import structure as ST
     b = _tower()
