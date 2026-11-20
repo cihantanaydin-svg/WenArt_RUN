@@ -719,6 +719,20 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
     # 12 Nov 2026 (the architect's audit, second series): shafts, stairs over nothing, balcony doors, exterior flags
     from wenart.ingest import sense_rules as SR
     b["level_inference"]["sense_rules"] = SR.apply(build, texts_by_level, drawn_by_level)
+    _entrance_summary(b)
+
+
+def _entrance_summary(b: dict) -> None:
+    """20 Nov 2026 (pre-pod review R03-05: the levels summary listed doors the completion made windows): the levels
+    summary's entrance list is written again from the final ``site.entrances`` (in place)."""
+    ents = ((b.get("site") or {}).get("entrances") or []) if isinstance(b.get("site"), dict) else []
+    tail = (f"{len(ents)} entrance(s): " + ", ".join(f"{e.get('door_id')} {e.get('solution')}" for e in ents)) \
+        if ents else "no entrance"
+    for k, w in enumerate(b.get("warnings") or []):
+        if isinstance(w, str) and w.startswith("levels: ") and " entrance(s): " in w:
+            head = w.split("; ")
+            keep = [p for p in head if " entrance(s): " not in p]
+            b["warnings"][k] = "; ".join(keep + [tail + " (after the completion)"])
 
 
 LIGHT_WELL_NAMES = {"aydinlik": "Aydınlık", "isiklik": "Işıklık"}

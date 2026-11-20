@@ -446,6 +446,27 @@ def test_a_door_tag_a_read_door_claims_does_not_keep_a_core_gap_open():
     assert "g_bed" in [x["opening"] for x in out["closed"]] and not out["review"]
 
 
+# --------------------------------------------------------------------------- R03-05: the copies' marks and RC12
+def test_a_copys_marks_are_its_own_floors_and_rc12_lists_planned_changes_as_info():
+    from wenart.levels import model as LMOD
+    from wenart.levels import read as LR
+    from wenart.reading_check import crossdoc as CD
+
+    b = {"project": {}, "levels": [{"id": "L0", "order": 0, "elevation": 0.0},
+                                   {"id": "L1", "order": 1, "elevation": 3.2, "typical_of": "L0"}]}
+    texts = [{"text": "+0.00", "point": (1.0, 1.0), "level_id": lid,
+              "evidence": {"file": "x.dwg", "method": "vector", "confidence": 1.0}} for lid in ("L0", "L1")]
+    marks = LR.read_marks(texts, b, LMOD.level_params({}))["marks"]
+    z = {m["level_id"]: m["z"] for m in marks}
+    assert z == {"L0": 0.0, "L1": 3.2} and next(m for m in marks if m["level_id"] == "L1")["copy_of"]["level_id"] == "L0"
+    bb = {"levels": b["levels"], "rooms": [{"id": f"r{k}", "level_id": f"L{k}"} for k in (0, 1)], "walls": [],
+          "openings": [{"id": "d0", "level_id": "L0", "type": "door"},
+                       {"id": "d1", "level_id": "L1", "type": "window", "drawn_type": "door",
+                        "adjusted_by_ai": {"rule": "copy_door_window"}}]}
+    got = [f for f in CD.rc12(bb) if f["check"] == "RC12"]
+    assert got and all(f["severity"] == "info" for f in got) and "the drawn floor" in got[0]["message"]
+
+
 # --------------------------------------------------------------------------- R09-5: no core door into a flat's room
 def test_a_door_from_the_core_into_a_bedroom_with_its_own_flat_door_is_refused():
     from wenart.ingest import core_rules as CR

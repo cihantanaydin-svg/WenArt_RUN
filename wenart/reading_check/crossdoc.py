@@ -1076,12 +1076,29 @@ def size_tags(texts: list[dict]) -> list[dict]:
 
 
 # --------------------------------------------------------------------------------------------------------------- RC12
-def _counts(building: dict, lid: str) -> dict:
+PLANNED_COPY_RULES = ("copy_door_window",)
+
+
+def _planned(o: dict) -> bool:
+    return ((o.get("adjusted_by_ai") or {}).get("rule") in PLANNED_COPY_RULES
+            or (o.get("corrected_by_ai") or {}).get("rule") in PLANNED_COPY_RULES)
+
+
+def _counts(building: dict, lid: str, undo_planned: bool = False) -> dict:
+    """The rooms, walls, doors and windows of a level; ``undo_planned`` (20 Nov 2026, pre-pod review R03-05): with the
+    copy's planned changes undone (a door made a window or removed by ``copy_door_window`` counts as its door)."""
     ops = [o for o in building.get("openings") or [] if o.get("level_id") == lid]
-    return {"rooms": sum(1 for r in building.get("rooms") or [] if r.get("level_id") == lid),
-            "walls": sum(1 for w in building.get("walls") or [] if w.get("level_id") == lid),
-            "doors": sum(1 for o in ops if o.get("type") == "door"),
-            "windows": sum(1 for o in ops if o.get("type") == "window")}
+    out = {"rooms": sum(1 for r in building.get("rooms") or [] if r.get("level_id") == lid),
+           "walls": sum(1 for w in building.get("walls") or [] if w.get("level_id") == lid),
+           "doors": sum(1 for o in ops if o.get("type") == "door"),
+           "windows": sum(1 for o in ops if o.get("type") == "window")}
+    if undo_planned:
+        made = [o for o in ops if o.get("type") == "window" and _planned(o)]
+        gone = [o for o in building.get("openings_merged") or [] if o.get("level_id") == lid and _planned(o)
+                and o.get("type") == "door"]
+        out["doors"] += len(made) + len(gone)
+        out["windows"] -= len(made)
+    return out
 
 
 def room_openings(room: dict, walls: dict, openings: list[dict]) -> dict:
@@ -1141,11 +1158,21 @@ def rc12(building: dict) -> list[dict]:
                                 f"materialised in building.json: not compared", [f"plan of {base}", lv["id"]]))
             continue
         diff = {k: (a[k], b[k]) for k in a if a[k] != b[k]}
-        if diff:
-            sev = "major" if set(diff) - {"walls"} else "minor"
-            out.append(_finding("RC12", sev, lv["id"], f"{lv['id']} (a copy of the typical floor {base}) differs from "
-                                f"it: " + ", ".join(f"{k} {x} on {base} / {y} on {lv['id']}" for k, (x, y) in diff.items()),
-                                [f"typical floor {base}", f"copy {lv['id']}"]))
+        # (20 Nov 2026, pre-pod review R03-05) the copy's planned changes (copy_door_window) are info, not a difference;
+        # a base at the ground floor is the drawn floor
+        bu = _counts(building, lv["id"], undo_planned=True)
+        real = {k: (a[k], bu[k]) for k in a if a[k] != bu[k]}
+        what = "the drawn floor" if (levels[base].get("order") or 0) == 0 else "the typical floor"
+        if diff and not real:
+            out.append(_finding("RC12", "info", lv["id"], f"{lv['id']} (a copy of {what} {base}) differs from it only by "
+                                f"the planned copy changes (copy_door_window): " + ", ".join(
+                                    f"{k} {x} on {base} / {y} on {lv['id']}" for k, (x, y) in diff.items()),
+                                [f"{what} {base}", f"copy {lv['id']}"]))
+        elif real:
+            sev = "major" if set(real) - {"walls"} else "minor"
+            out.append(_finding("RC12", sev, lv["id"], f"{lv['id']} (a copy of {what} {base}) differs from "
+                                f"it: " + ", ".join(f"{k} {x} on {base} / {y} on {lv['id']}" for k, (x, y) in real.items()),
+                                [f"{what} {base}", f"copy {lv['id']}"]))
     rooms = {r["id"]: r for r in building.get("rooms") or []}
     walls = {w["id"]: w for w in building.get("walls") or []}
     openings = [o for o in building.get("openings") or [] if not o.get("virtual")]

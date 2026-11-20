@@ -144,6 +144,19 @@ def read_marks(texts: Sequence[dict], building: dict, params: dict, section: Opt
             m["z"] = m["value"]
         else:
             warnings.append(f"{m['id']}: absolute level {m['raw']!r} and no datum (±0.00 = ?): not used")
+    # 20 Nov 2026 (pre-pod review R03-05: real03's '+0.00 / 93.20' re-read on its copies L1/L2 set their windbreak's
+    # floor at z 0): a typical floor's copy re-reads its plan's marks; they are the copy's own floor marks, moved by the
+    # copy's rise over the floor it copies (``copy_of``; never the ground's or the datum's)
+    levels = {lv["id"]: lv for lv in building.get("levels") or []}
+    for m in marks:
+        lv = levels.get(m.get("level_id"))
+        base = levels.get((lv or {}).get("typical_of"))
+        if base is None or m.get("z") is None or m["placement"] == "section":
+            continue
+        d = float(lv.get("elevation") or 0.0) - float(base.get("elevation") or 0.0)
+        if abs(d) > 0.005:
+            m["z"] = round(m["z"] + d, 4) + 0.0
+            m["copy_of"] = {"level_id": base["id"], "shift_m": round(d, 3)}
     return {"marks": marks, "datum": datum, "conflicts": conflicts, "warnings": warnings}
 
 

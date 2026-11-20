@@ -597,8 +597,8 @@ def _ground(b: dict, marks: list, params: dict, gl: dict, outline, inferred: lis
     file = _file_of(b)
     cand, notes = [], []
     for m in marks:
-        if m.get("kind") not in GROUND_KINDS or m.get("z") is None:
-            continue
+        if m.get("kind") not in GROUND_KINDS or m.get("z") is None or m.get("copy_of"):
+            continue                              # (R03-05) a storey copy's re-read marks are never the ground's
         if m.get("note") or m.get("point") is None:
             notes.append(m)
             continue
