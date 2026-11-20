@@ -394,6 +394,46 @@ def test_a_refused_ground_leaves_no_light_well_or_entrance_at_its_height():
     assert e["ground_z"] == -2.5 and e["rise"] == 2.5 and e["below_ground"] is False
 
 
+# --------------------------------------------------------------------------- R20-05, R20-06
+def test_a_door_the_drawn_storey_keeps_stays_on_its_copies():
+    import copy
+
+    from tests import test_s1fix_20261113 as T1
+
+    b = T1._copy_building()
+    # L0 the inferred ground floor, L1 the drawn storey, L2 its copy (as real20)
+    b["levels"][0]["storey_inference"] = {"rule": "type_default"}
+    b["levels"][1].pop("storey_inference")
+    b["levels"][1]["order"] = 1
+    lv2 = copy.deepcopy(b["levels"][1])
+    lv2.update(id="L2", order=2, elevation=6.0, storey_inference={"rule": "type_default"},
+               reading_places=[{"kind": "unplaced_label", "text": "SALON", "at": [12.6, 1.5]}])
+    b["levels"].append(lv2)
+    for key in ("walls", "rooms", "openings"):
+        b[key] += [dict(copy.deepcopy(x), id=x["id"].replace("L1", "L2"), level_id="L2",
+                        **({"wall_id": x["wall_id"].replace("L1", "L2")} if "wall_id" in x else {}))
+                   for x in b[key] if x["level_id"] == "L1"]
+    rec = CP.copy_doors(b)
+    acts = {x["opening"]: x["action"] for x in rec}
+    assert acts.get("d_L2_air") == "kept"                    # the drawn L1 keeps d_L1_air: one decision per plan
+
+
+def test_the_entrance_hall_closes_a_flats_second_door_into_it():
+    from tests import test_ground_floor_20261113 as TG
+
+    b = TG.building()
+    # the east salon gets its own door from the core hall and a second door into the front room (the future hall)
+    b["walls"].append(TG.wall("w_L0_y6e", (8, 6), (12, 6)))
+    b["openings"].append({"id": "d_L0_fe", "type": "door", "level_id": "L0", "wall_id": "w_L0_x8", "center": [8.0, 8.0],
+                          "width": 0.9, "evidence": [{"method": "vector"}]})
+    out = TG.run(b, TG.drawn(*TG.FOOT))
+    hall = out["entrance_hall"]
+    assert hall["rooms"] == ["r_L0_front"]
+    assert [x["opening"] for x in hall.get("closed") or []] == ["d_L0_fe"]
+    assert all(o["id"] != "d_L0_fe" for o in b["openings"])
+    assert any(x["kind"] == "entrance_hall_rooms" for x in b.get("needs_review") or [])
+
+
 # --------------------------------------------------------------------------- R09-5: no core door into a flat's room
 def test_a_door_from_the_core_into_a_bedroom_with_its_own_flat_door_is_refused():
     from wenart.ingest import core_rules as CR

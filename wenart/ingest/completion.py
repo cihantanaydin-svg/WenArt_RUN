@@ -1102,6 +1102,12 @@ def copy_doors(b: dict) -> list:
             continue
         lost = [p for p in lv.get("reading_places") or [] if p.get("kind") == "unplaced_label" and p.get("at")]
         kept, drop = [], set()
+        # (20 Nov 2026, pre-pod review R20-05: drawn L1 kept three doors its copies L2-L4 removed) one decision per
+        # typical plan: the doors of the drawn storey of the same plan (no storey_inference) are kept on the copy
+        drawn_doors = [o for x in b.get("levels") or [] if x["id"] != lv["id"] and not x.get("storey_inference")
+                       and (x.get("typical_of") == lv["typical_of"] or x["id"] == lv["typical_of"])
+                       and (x.get("order") or 0) > 0
+                       for o in b.get("openings") or [] if o.get("level_id") == x["id"] and o.get("type") == "door"]
         # (20 Nov 2026, pre-pod review R03-03) a windbreak or entrance hall copied from the ground floor onto an upper
         # storey is no entrance there: flagged and asked, never left as an unexplained sealed room
         for r in level.rooms:
@@ -1124,6 +1130,16 @@ def copy_doors(b: dict) -> list:
             near = sorted(((math.dist(q, p["at"][:2]), k, p) for k, p in enumerate(lost)
                            if math.dist(q, p["at"][:2]) <= CR.LABEL_REACH_M + 1.0), key=lambda x: x[:2])
             both_outside = all(k == "outside" for k in kinds)
+            twin = next((d for d in drawn_doors if o.get("center") and d.get("center")
+                         and math.dist(d["center"][:2], o["center"][:2]) <= 0.05
+                         and abs(float(d.get("width") or 0) - float(o.get("width") or 0)) <= 0.05), None)
+            if near and both_outside and twin is not None:
+                kept.append((o, near[0][2]))
+                out.append({"opening": o["id"], "level_id": lv["id"], "action": "kept",
+                            "reason": f"{o['id']} on {lv['id']} stands by the room label '{near[0][2].get('text')}' "
+                                      f"the reading lost, and the drawn storey {twin['level_id']} of the same plan "
+                                      f"keeps it ({twin['id']}): one decision per typical plan, the door stays"})
+                continue
             if near and not both_outside:
                 kept.append((o, near[0][2]))
                 out.append({"opening": o["id"], "level_id": lv["id"], "action": "kept",

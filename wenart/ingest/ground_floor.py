@@ -720,6 +720,43 @@ def entrance_hall(build, b: dict, lid: str, side: list, foot: Optional[dict], wh
     rec["flat_rooms_left"] = sorted({nb for rid in hall_rooms for nb in adj.get(rid) or ()
                                     if nb not in core and nb not in hall_rooms and rooms[nb].get("room_type") in
                                     ("bedroom", "kitchen", "living", "dining", "bathroom", "wc", "hall")})
+    # 20 Nov 2026 (pre-pod review R20-06: the hall took the left flat's kitchen and its kitchen door stayed a second
+    # door from the flat's Antre into the common lobby): a door or opening between the hall and a flat's room is closed
+    # when that room still reaches the core another way (removed into openings_merged, the wall kept); kept and named
+    # the flat's entrance when it is its only way in; the rooms the flat lost are named by their drawn type
+    rec["flat_rooms_lost"] = [{"room": rid, "drawn_type": (rooms[rid].get("adjusted_by_ai") or {}).get(
+        "changed", {}).get("room_type"), "drawn_label": (rooms[rid].get("adjusted_by_ai") or {}).get(
+        "changed", {}).get("label")} for rid in hall_rooms]
+    level = CP.Level(b, lid)
+    hall = set(hall_rooms)
+    closed, why = [], {}
+    for x, y, op in CR._links(level):
+        if op.get("virtual") or op.get("inferred") or op["id"] == o["id"] or not ((x in hall) ^ (y in hall)):
+            continue
+        flat = y if x in hall else x
+        if flat in core or flat in hall:
+            continue
+        reach = CR._reaches(level, set(core), flat, skip={op["id"]} | {d["id"] for d in closed})
+        text = (f"{op['id']} joins the inferred entrance hall to {flat} '{rooms[flat].get('label')}'"
+                + (", which reaches the core another way: closed (the wall kept; the drawn opening values kept in "
+                   "openings_merged)" if reach else ", its flat's only way in: kept as the flat's entrance"))
+        if reach and not RG.blocked("entrance_hall", b, {"level_id": lid, "opening": op["id"], "why": text}):
+            closed.append(op)
+            why[op["id"]] = why_ = text
+            rec.setdefault("closed", []).append({"opening": op["id"], "room": flat, "reason": why_ + " (adjusted_by_ai)"})
+        elif not reach:
+            op["flat_entrance"] = {"by": "code", "rule": "entrance_hall", "reason": text}
+            rec.setdefault("flat_entrances", []).append({"opening": op["id"], "room": flat, "reason": text})
+    if closed:
+        ids = {d["id"] for d in closed}
+        CR._to_merged(b, closed, "entrance_hall", why)
+        b["openings"] = [d for d in b.get("openings") or [] if d["id"] not in ids]
+    lost = [f"{x['drawn_label'] or x['room']} ({x['drawn_type'] or 'room'})" for x in rec["flat_rooms_lost"]]
+    if lost:
+        b.setdefault("needs_review", []).append({
+            "id": f"entrance_hall:{lid}", "kind": "entrance_hall_rooms", "crop": None, "room_id": hall_rooms[0],
+            "level_id": lid, "reason": f"the inferred entrance hall on {lid} takes the flat's {', '.join(lost)}: to "
+                                       f"review (the flat keeps {', '.join(rec['flat_rooms_left']) or 'no other room'})"})
     return rec
 
 
