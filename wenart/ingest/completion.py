@@ -49,6 +49,9 @@ from shapely.prepared import prep
 from wenart import building as B
 
 HABITABLE = ("bedroom", "living", "kitchen", "office", "study", "dining")
+UNTYPED = ("", "unknown", "other")
+UNTYPED_MIN_M2 = 6.0            # an untyped room of a flat this large takes an inferred window (OL-02)
+UNTYPED_NEAR_M = 0.35           # ... when a typed flat room lies this close (across a wall)
 WET = ("bathroom", "wc", "shower", "toilet")
 OPEN_AIR = ("balcony", "terrace", "roof_terrace", "loggia", "veranda", "patio", "porch")
 LIGHT_WELL_RE = re.compile(r"(?<![a-z])(?:aydinlik|isiklik|aydinlatma\s+boslugu|light\s*well|lightwell|lichthof"
@@ -496,6 +499,29 @@ def _new_opening(kind: str, oid: str, level: Level, wall_id: str, t: float, widt
     return o
 
 
+def _untyped_flat_rooms(building: dict, level: "Level") -> set:
+    """20 Nov 2026 (pre-pod review OL-02: real19's L1 flats were read as untyped 'Oda' rooms and its facades stayed
+    blank between windowed storeys): in a building of several flats with a common core, the untyped rooms of a flat
+    (no type, at least ``UNTYPED_MIN_M2``, outside the core, no shaft, stair, hall or light well, a typed flat room
+    within ``UNTYPED_NEAR_M``) (pure)."""
+    from wenart.ingest import core_rules as CR
+
+    untyped = [r for r in level.rooms if str(r.get("room_type") or "") in UNTYPED and r["id"] not in level.wells
+               and level.polys[r["id"]].area >= UNTYPED_MIN_M2 and not is_lift(r)]
+    if not untyped or not CR.flat_core(building):
+        return set()
+    core = CR.core_rooms(building, level)
+    typed = [level.polys[r["id"]] for r in level.rooms if str(r.get("room_type") or "") in HABITABLE + WET]
+    out = set()
+    for r in untyped:
+        if r["id"] in core or CR.FLAT_HALL_RE.search(CR._label(r)) or CR.UNIT_USE_RE.search(CR._label(r)):
+            continue
+        p = level.polys[r["id"]]
+        if any(p.distance(t) <= UNTYPED_NEAR_M for t in typed):
+            out.add(r["id"])
+    return out
+
+
 def infer_level(building: dict, lid: str, party: dict, sizes: dict, size_source: str, next_id: Callable,
                 texts: Optional[list] = None, ev_file: str = "", region: Optional[str] = None) -> list:
     """The inferred openings of one level (pure but for ``next_id(kind, level)``): see the module docstring."""
@@ -512,8 +538,12 @@ def infer_level(building: dict, lid: str, party: dict, sizes: dict, size_source:
     over_drop = isinstance(lv.get("elevation"), (int, float)) and float(lv["elevation"]) > (gz if gz is not None
                                                                                           else 0.0) + OVER_DROP_M
     ceiling = float(lv.get("ceiling_height") or 2.7)
+    flat_rooms = _untyped_flat_rooms(building, level)
     for room in sorted(level.rooms, key=lambda r: r["id"]):
         rtype = str(room.get("room_type") or "")
+        untyped = room["id"] in flat_rooms
+        if untyped:
+            rtype = "bedroom"                   # (OL-02) an untyped room of a flat: sized as a bedroom
         if room["id"] in level.wells or (rtype not in HABITABLE and rtype not in WET):
             continue
         from wenart.ingest import exterior as EX
@@ -577,8 +607,9 @@ def infer_level(building: dict, lid: str, party: dict, sizes: dict, size_source:
         where = {"outside": "the outside", "balcony": "its balcony", "light_well": "a light well"}[f["kind"]]
         for k in range(count):
             t = p0 + span * (2 * k + 1) / (2 * count)
-            reason = (f"{room['id']} '{label}' ({rtype}) faces {where} on {f['wall_id']} and the drawing draws no window "
-                      f"on this plan: an inferred {'small high ' if wet else ''}window"
+            reason = (f"{room['id']} '{label}' ({'an untyped room of a flat' if untyped else rtype}) faces {where} on "
+                      f"{f['wall_id']} and the drawing draws no window on this plan: an inferred "
+                      f"{'small high ' if wet else ''}window"
                       + (f" ({k + 1} of 2 on a long wall)" if count == 2 else ""))
             o = _new_opening("window", next_id("window", lid), level, f["wall_id"], t, width, h, sill,
                              reason + (f"; {sill_note}" if sill_note else ""), room, f, ev_file, region, size_source)

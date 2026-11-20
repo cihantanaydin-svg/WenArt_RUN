@@ -539,6 +539,20 @@ def test_a_light_well_roof_opening_takes_the_walls_along_its_edge_as_parapet():
     assert set(cuts) == {"w0", "w1", "w2", "w3"} and all(c[0]["z_top"] == 13.0 for c in cuts.values())
 
 
+# --------------------------------------------------------------------------- OL-02: an untyped room of a flat
+def test_an_untyped_room_of_a_flat_facing_out_gets_an_inferred_window_the_core_none():
+    from wenart import building as B
+
+    RF = _rf()
+    b = RF.core_building(("L0",))
+    for r in b["rooms"]:
+        if r["id"] == "L0_liv":
+            r.update(room_type="unknown", label="Oda")
+    new = CP.infer_level(b, "L0", {}, dict(CP.DEFAULT_SIZES), "defaults", B.IdCounter().next)
+    mine = [o for o in new if o["type"] == "window" and "untyped room of a flat" in o["inference"]["reason"]]
+    assert mine and all("L0_hall" not in o["inference"]["reason"] for o in new)
+
+
 # --------------------------------------------------------------------------- OL-01: no entrance from misread tags
 def test_a_tagged_gap_with_a_lost_room_behind_or_a_bridged_wide_gap_is_no_entrance():
     from tests import test_entrance_tags_20261113 as TT
