@@ -537,3 +537,21 @@ def test_a_light_well_roof_opening_takes_the_walls_along_its_edge_as_parapet():
                            "parapet_height": 1.0}]}
     cuts = R.parapet_cuts(model, {"walls": walls}, {"id": "L4", "elevation": 12.0})
     assert set(cuts) == {"w0", "w1", "w2", "w3"} and all(c[0]["z_top"] == 13.0 for c in cuts.values())
+
+
+# --------------------------------------------------------------------------- OL-01: no entrance from misread tags
+def test_a_tagged_gap_with_a_lost_room_behind_or_a_bridged_wide_gap_is_no_entrance():
+    from tests import test_entrance_tags_20261113 as TT
+    from wenart.ingest import core_rules as CR
+
+    b = TT.building()
+    b["levels"][0]["reading_places"] = [{"kind": "unplaced_label", "text": "E.YAT.OD.", "at": [2.5, -0.5]}]
+    CR.size_tags(b, TT.TEXTS)
+    assert next(o for o in b["openings"] if o["id"] == "o_gap")["type"] == "opening"
+    b = TT.building()
+    b["openings"][0]["evidence"] = [{"method": "derived", "rule": "wide_gap"}]
+    CR.size_tags(b, TT.TEXTS)
+    assert next(o for o in b["openings"] if o["id"] == "o_gap")["type"] == "opening"
+    b = TT.building()                                   # one 1.0 m tag on a 1.5 m gap: the tag does not give it
+    CR.size_tags(b, {"L0": [{"text": "K:100/210", "x": 3.0, "y": 0.5}]})
+    assert next(o for o in b["openings"] if o["id"] == "o_gap")["type"] == "opening"

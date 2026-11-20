@@ -1180,6 +1180,7 @@ def size_tags(b: dict, texts_by_level: Optional[dict]) -> dict:
         return out
     levels = {lv["id"]: lv for lv in b.get("levels") or []}
     gone = set()
+    entrance_ids = {x["id"] for x, _why in entrance_storeys(b, texts_by_level)}
     for lid, texts in sorted(texts_by_level.items()):
         lv = levels.get(lid)
         if lv is None:
@@ -1254,6 +1255,16 @@ def size_tags(b: dict, texts_by_level: Optional[dict]) -> dict:
                 widths = sorted(int(SIZE_TAG_RE.match(B.fold_ascii(str(t["text"])).lower()).group(2)) / 100.0
                                 for t in pair if SIZE_TAG_RE.match(B.fold_ascii(str(t["text"])).lower()).group(1) == "k")
                 double = len(widths) >= 2 and abs(sum(widths[:2]) - float(o.get("width") or 0)) <= 0.2
+                # (20 Nov 2026, pre-pod review OL-01: real14's reader-bridged 2.8 m gap on the 7th storey, a lost
+                # bedroom behind it and type-coded POZ labels 'K290/210' near it, became the main entrance) never a
+                # bridged wide gap from a tag alone, never a gap the tags' width does not give, never one with a room
+                # label the reading lost behind it
+                if any((e or {}).get("rule") == "wide_gap" for e in o.get("evidence") or []) or \
+                        (not double and abs(tw - float(o.get("width") or 0)) > 0.2):
+                    continue
+                q = next((s[2] for s in sides if s[0] == "outside"), None)
+                if q is not None and lost_behind(lv, {"door_id": o["id"], "face": list(q), "outward": [0.0, 0.0]}):
+                    continue
                 why = (f"the doorless gap {o['id']} ({o.get('width')} m) in the outer wall of {room['id']} "
                        f"'{room.get('label')}' carries the door tag(s) {', '.join(t['text'] for t in pair) or text}: "
                        f"the building's {'double ' if double else ''}entrance door (S1-09b)")
@@ -1264,11 +1275,13 @@ def size_tags(b: dict, texts_by_level: Optional[dict]) -> dict:
                          sill_height=None, door_tags=[t["text"] for t in pair],
                          adjusted_by_ai={"by": "code", "rule": "door_tag", "reason": why,
                                          "changed": {"type": "opening"}})
+                out["doors"].append({"opening": o["id"], "level_id": lid, "reason": why + " (adjusted_by_ai)"})
+                if lid not in entrance_ids:
+                    continue                    # (OL-01) the door, but no entrance record off an entrance storey
                 side = 1 if (sides[0][1] or {}).get("id") == room["id"] else -1
                 ent = _entrance_record(b, o, level, lv, room, {"wall_id": o["wall_id"], "side": side}, why)
                 ent["drawn"] = True
                 site.setdefault("entrances", []).append(ent)
-                out["doors"].append({"opening": o["id"], "level_id": lid, "reason": why + " (adjusted_by_ai)"})
     if gone:
         site["entrances"] = [e for e in site.get("entrances") or [] if e.get("door_id") not in gone]
     return out
