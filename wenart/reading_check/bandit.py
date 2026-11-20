@@ -436,10 +436,18 @@ def log_events(events: list, run: str, path: Path = REWARDS_PATH) -> Path:
 
     path.parent.mkdir(parents=True, exist_ok=True)
     commit, date = TR.git_head(), _dt.date.today().isoformat()
+    have = {_event_key(e) for e in read_events(path)}
     with path.open("a", encoding="utf-8") as fh:
         for ev in events:
+            if _event_key(ev) in have:                          # a reward already logged is not logged again
+                continue
+            have.add(_event_key(ev))
             fh.write(json.dumps(dict(ev, run=run, commit=commit, date=date), ensure_ascii=False) + "\n")
     return path
+
+
+def _event_key(e: dict) -> tuple:
+    return (e.get("key"), e.get("action"), e.get("source"), e.get("reward"), str(e.get("evidence")))
 
 
 def read_events(path: Path = REWARDS_PATH) -> list:
@@ -450,7 +458,7 @@ def read_events(path: Path = REWARDS_PATH) -> list:
         if not line.strip():
             continue
         e = json.loads(line)
-        k = (e.get("key"), e.get("action"), e.get("source"), e.get("reward"), str(e.get("evidence")))
+        k = _event_key(e)
         if k in seen:                                           # one reward counts once, however often logged
             continue
         seen.add(k)
