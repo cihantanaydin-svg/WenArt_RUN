@@ -1183,6 +1183,48 @@ def framed_openings(level_id: str, page, tf, walls: list[dict], openings: list[d
     return out
 
 
+def framed_walls(level_id: str, page, tf, walls: list[dict], openings: list[dict]) -> list[dict]:
+    """20 Nov 2026 (pre-pod check R10-P2, real10: the kitchens' window frames drawn inside the street facade's wall band,
+    no opening read): window or glass frame lines inside an exterior wall's band (``core.framed_spans``, the reader's
+    rule) with no opening of the model over half of them (on that wall or a wall piece beside it) are a window the
+    reading missed."""
+    from wenart.ingest.generic import core as GC
+    from wenart.ingest.generic import layer_names as LN
+    from wenart.reading_check import _apply
+
+    segs = []
+    for st in getattr(page, "strokes", None) or []:
+        if getattr(st, "arc", None) or LN.layer_role(getattr(st, "layer", None)) not in ("window", "glass"):
+            continue
+        pts = [tuple(_apply(tf, tuple(q)[:2])) if tf else tuple(q)[:2] for q in (getattr(st, "pts", None) or [])]
+        segs += list(zip(pts, pts[1:]))
+    if not segs:
+        return []
+    out = []
+    real = [o for o in openings if not o.get("virtual") and o.get("center")]
+    for w in walls:
+        u = _unit(w) if w.get("exterior") else None
+        if u is None:
+            continue
+        (x0, y0), half = tuple(w["start"][:2]), float(w.get("thickness") or 0.1) / 2.0
+        for lo, hi, n in GC.framed_spans(x0, y0, u[0], u[1], half, segs):
+            def covered(o):
+                c = o["center"]
+                t = (c[0] - x0) * u[0] + (c[1] - y0) * u[1]
+                d = abs(-(c[0] - x0) * u[1] + (c[1] - y0) * u[0])
+                hw = float(o.get("width") or 0) / 2.0
+                return d <= half + GC.FRAMED_NEAR_M and min(hi, t + hw) - max(lo, t - hw) >= 0.5 * (hi - lo)
+            if any(covered(o) for o in real):
+                continue
+            m = (lo + hi) / 2.0
+            out.append(_finding("RC11", "major", level_id,
+                                f"{level_id}: window frame lines ({n} lines, {hi - lo:.2f} m) drawn inside the band of "
+                                f"exterior wall {w['id']} and no opening in the model there: a window the reading "
+                                f"missed", [f"window-layer lines on {level_id}", f"wall {w['id']}"],
+                                (x0 + u[0] * m, y0 + u[1] * m), [w["id"]]))
+    return out
+
+
 def size_tags(texts: list[dict]) -> list[dict]:
     """The size tags among a level's texts (``{"text", "x", "y", "layer", "entity"}``): ``W/H`` in cm on a door,
     window, glass or text layer (``wenart.ingest.generic.layer_names``), or on a layer of no known role (marked
@@ -1396,6 +1438,7 @@ def findings(out_dir) -> list[dict]:
         ops = [o for o in building.get("openings") or [] if o.get("level_id") == lid]
         res += rc11(lid, size_tags(texts + paired_texts(page, pg["tf"])), walls, ops)
         res += framed_openings(lid, page, pg["tf"], walls, ops)
+        res += framed_walls(lid, page, pg["tf"], walls, ops)
     site_texts: list[str] = []
     site_region = None
     for r in sheets.get("regions") or []:
