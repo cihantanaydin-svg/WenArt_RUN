@@ -207,10 +207,11 @@ def draw_mark(box: list, size: tuple, point_m: tuple, tf: list, dest: Path, radi
 
 
 def render_level(out_dir, level_id: str, dest_dir, *, max_side: int = MAX_SIDE, building: Optional[dict] = None,
-                 sheets: Optional[dict] = None, docs: Optional[dict] = None) -> Optional[dict]:
+                 sheets: Optional[dict] = None, docs: Optional[dict] = None, model_style: str = "colour") -> Optional[dict]:
     """The two images of one level (``<dest_dir>/<level>_drawing.jpg``, ``<level>_model.jpg``) in the frame of the
     level's region, drawn with ``reading_check.sheets``' own panel functions; the index entry with the frame, or None
-    when the level has no CAD source."""
+    when the level has no CAD source. ``model_style`` ``arch`` (20 Nov 2026, checks 1, 2, 4): the model drawn like an
+    architect's plan (``critic_checks.draw_arch``: black walls, door swings, window symbols, no colour legend)."""
     import ezdxf
 
     from wenart import reading_check as RC
@@ -245,14 +246,19 @@ def render_level(out_dir, level_id: str, dest_dir, *, max_side: int = MAX_SIDE, 
     SH._draw_drawing(ax, doc, ents, box, clean=True)
     drawing = _save(fig, ax, box, size, dest_dir / f"{safe}_drawing.jpg")
     fig, ax = _figure(box, size)
-    SH._draw_model(ax, building, level_id, pg["tf"], box)
+    if model_style == "arch":
+        from wenart.reading_check import critic_checks as CC
+
+        CC.draw_arch(ax, building, level_id, pg["tf"])
+    else:
+        SH._draw_model(ax, building, level_id, pg["tf"], box)
     model = _save(fig, ax, box, size, dest_dir / f"{safe}_model.jpg")
     levels = {lv["id"]: lv for lv in building.get("levels") or []}
     lv = levels.get(level_id) or {}
     title = (((reg or {}).get("title") or {}).get("text") or "").strip()
     rooms = [r for r in building.get("rooms") or [] if r.get("level_id") == level_id]
     return {"level": level_id, "label": lv.get("label"), "title": title, "box": box, "tf": list(pg["tf"]),
-            "size": list(size), "drawing": drawing.name, "model": model.name,
+            "size": list(size), "drawing": drawing.name, "model": model.name, "model_style": model_style,
             "copies": [k for k, v in levels.items() if v.get("typical_of") == level_id],
             "rooms": len(rooms), "walls": sum(1 for w in building.get("walls") or [] if w.get("level_id") == level_id),
             "labels": sorted({str(r.get("label") or "") for r in rooms if r.get("label")})[:40]}
@@ -276,16 +282,39 @@ def prepare(readings: list, dest: Path = INPUTS_DIR, *, max_side: int = MAX_SIDE
         name = rd["project"] + (f"@{rd['tag']}" if rd.get("tag") and rd["tag"] != "current" else "")
         folder = dest / rd["set"] / name
         docs: dict = {}
+        checks = bool(rd.get("checks"))
+        rendered = []
         for lid in RC.level_pages(building):
             if levels and lid not in levels:
                 continue
-            e = render_level(out_dir, lid, folder, max_side=max_side, building=building, sheets=sheets, docs=docs)
+            e = render_level(out_dir, lid, folder, max_side=max_side, building=building, sheets=sheets, docs=docs,
+                             model_style="arch" if checks else "colour")
             if e is None:
                 continue
             e.update({"id": f"{rd['set']}/{name}/{lid}", "set": rd["set"], "project": rd["project"],
                       "tag": rd.get("tag") or "current", "folder": f"{rd['set']}/{name}",
                       "reading_commit": rd.get("commit"), "failure_class": rd.get("failure_class")})
             byid[e["id"]] = e
+            rendered.append(e)
+        if checks:
+            # 20 Nov 2026 (checks 1, 2, 4): the facts, the compare questions, the floor texts and, for a synthetic
+            # project, its exact truth's disagreements, so the pod and the calibration need no reading
+            from wenart.reading_check import critic_checks as CC
+            from wenart.reading_check import truth as TR
+
+            truth = None
+            if rd["project"].startswith("synthetic-"):
+                truth = TR.load_truth(rd["project"])
+                truth = truth if truth is not None and not TR.is_sparse(truth) else None
+            res = CC.prepare_reading(out_dir, building, sheets, rendered, set_name=rd["set"], name=name,
+                                     project=rd["project"], truth=truth)
+            fkey = f"{rd['set']}/{name}"
+            index.setdefault("readings", {})[fkey] = {"bfacts": res["bfacts"], "project": rd["project"],
+                                                      "tag": rd.get("tag") or "current", "commit": rd.get("commit"),
+                                                      "failure_class": rd.get("failure_class"),
+                                                      "exact_truth": truth is not None}
+            index["texts"] = [t for t in index.get("texts") or [] if t["folder"] != fkey] + \
+                [dict(t, tag=rd.get("tag") or "current") for t in res["texts"]]
     index["entries"] = sorted(byid.values(), key=lambda e: e["id"])
     index["made"] = _dt.date.today().isoformat()
     index["max_side"] = max_side
@@ -438,21 +467,77 @@ def _messages(entry: dict, images_root: Path, text: str, max_side: int) -> list:
                             max_side=max_side)]
 
 
+def _check_messages(which: str, item: dict, images_root: Path, part: int, max_side: int,
+                    marked_dir: Optional[Path]) -> tuple:
+    """The messages and schema of one call of checks 1, 2, 4 (``critic_checks``): inventory image 1 only, compare both
+    images with the chunk's numbered marks (drawn now, into ``marked_dir``), plausibility the floor text only."""
+    from wenart.agent import model as AM
+    from wenart.reading_check import critic_checks as CC
+
+    system = {"role": "system", "content": CC.SYSTEM_TEXT}
+    if which == "plausibility":
+        return [system, AM.user_message(CC.plausibility_prompt(item))], CC.PLAUSIBILITY_SCHEMA
+    folder = Path(images_root) / item["folder"]
+    if which == "inventory":
+        return ([system, AM.user_message(CC.inventory_prompt(item), [folder / item["drawing"]],
+                                         labels=["The floor plan:"], max_side=max_side)], CC.INVENTORY_SCHEMA)
+    chunk = CC.compare_chunks(item.get("compare") or [])[part]
+    mdir = Path(marked_dir or folder) / "marked"
+    safe = re.sub(r"[^A-Za-z0-9_.-]", "_", item["id"])
+    d = CC.mark_image(folder / item["drawing"], chunk, mdir / f"{safe}_{part}_drawing.jpg")
+    m = CC.mark_image(folder / item["model"], chunk, mdir / f"{safe}_{part}_model.jpg")
+    return ([system, AM.user_message(CC.compare_prompt(item, chunk), [d, m],
+                                     labels=["Image 1 (the source drawing):", "Image 2 (the computer's model):"],
+                                     max_side=max_side)], CC.compare_schema(chunk))
+
+
 def ask_entry(model, entry: dict, images_root: Path, which: str, questions: Optional[list] = None,
-              max_side: int = MAX_SIDE) -> dict:
-    """One call for one level: ``which`` ``differences`` or ``questions``; the raw answer with the call's log."""
-    if which == "questions":
+              max_side: int = MAX_SIDE, part: int = 0, marked_dir: Optional[Path] = None) -> dict:
+    """One call for one level: ``which`` ``differences`` or ``questions`` (or, 20 Nov 2026, ``inventory``,
+    ``compare`` with its chunk ``part``, ``plausibility`` for a floor text); the raw answer with the call's log."""
+    from wenart.reading_check import critic_checks as CC
+
+    if which in CC.CHECKS:
+        messages, schema = _check_messages(which, entry, images_root, part, max_side, marked_dir)
+        max_tokens = CC.CALL_MAX_TOKENS[which]
+    elif which == "questions":
         questions = questions if questions is not None else reading_questions()
         text, schema = questions_prompt(entry, questions), questions_schema(questions)
+        messages, max_tokens = _messages(entry, images_root, text, max_side), CALL_MAX_TOKENS[which]
     else:
         text, schema = differences_prompt(entry), DIFFERENCES_SCHEMA
-    call_id = f"{which}:{entry['id']}"
+        messages, max_tokens = _messages(entry, images_root, text, max_side), CALL_MAX_TOKENS[which]
+    call_id = f"{which}:{entry['id']}" + (f":{part}" if part else "")
     t0 = time.time()
-    reply = model.structured(_messages(entry, images_root, text, max_side), schema, call_id=call_id,
-                             name=f"critic_{which}", kind="critic", max_tokens=CALL_MAX_TOKENS[which])
-    return {"id": entry["id"], "which": which, "call_id": call_id, "data": reply.data, "errors": list(reply.errors),
-            "raw": reply.raw if reply.data is None else "", "usage": reply.usage, "seconds": round(time.time() - t0, 1),
-            "attempts": reply.attempts, "model": getattr(model, "model", None)}
+    reply = model.structured(messages, schema, call_id=call_id, name=f"critic_{which}", kind="critic",
+                             max_tokens=max_tokens)
+    return {"id": entry["id"], "which": which, "part": part, "call_id": call_id, "data": reply.data,
+            "errors": list(reply.errors), "raw": reply.raw if reply.data is None else "", "usage": reply.usage,
+            "seconds": round(time.time() - t0, 1), "attempts": reply.attempts, "model": getattr(model, "model", None)}
+
+
+def check_jobs(index: dict, which: tuple, sets: Optional[list] = None) -> list:
+    """``[(which, item, part)]`` of every call in ``which`` (pure): the old calls per level entry, ``inventory`` per
+    entry with an architect image, ``compare`` per chunk of an entry's questions, ``plausibility`` per floor text;
+    the sets' order kept (the pod's first sets are asked first), every check of a set before the next set."""
+    from wenart.reading_check import critic_checks as CC
+
+    entries = [e for e in index.get("entries") or [] if not sets or e.get("set") in sets]
+    texts = [t for t in index.get("texts") or [] if not sets or t.get("set") in sets]
+    order = list(sets) if sets else sorted({e.get("set") for e in entries} | {t.get("set") for t in texts})
+    jobs = []
+    for s in order:
+        for w in which:
+            if w == "plausibility":
+                jobs += [(w, t, 0) for t in texts if t.get("set") == s]
+            elif w == "inventory":
+                jobs += [(w, e, 0) for e in entries if e.get("set") == s and e.get("facts") is not None]
+            elif w == "compare":
+                jobs += [(w, e, k) for e in entries if e.get("set") == s and e.get("facts") is not None
+                         for k in range(len(CC.compare_chunks(e.get("compare") or [])))]
+            else:
+                jobs += [(w, e, 0) for e in entries if e.get("set") == s]
+    return jobs
 
 
 def ask(index: dict, model, images_root: Path, out: Path, *, deadline: Optional[float] = None,
@@ -467,9 +552,8 @@ def ask(index: dict, model, images_root: Path, out: Path, *, deadline: Optional[
     out.mkdir(parents=True, exist_ok=True)
     path = out / "answers.json"
     done = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {"answers": []}
-    have = {(a["id"], a["which"]) for a in done["answers"] if a.get("data") is not None}
-    entries = [e for e in index.get("entries") or [] if not sets or e.get("set") in sets]
-    jobs = [(w, e) for w in which for e in entries if (e["id"], w) not in have]
+    have = {(a["id"], a["which"], a.get("part") or 0) for a in done["answers"] if a.get("data") is not None}
+    jobs = [j for j in check_jobs(index, which, sets) if (j[1]["id"], j[0], j[2]) not in have]
     questions = questions if questions is not None else reading_questions()
     lock = threading.Lock()
     stats = {"asked": 0, "answered": 0, "failed": 0, "skipped": 0, "started": time.time()}
@@ -484,28 +568,31 @@ def ask(index: dict, model, images_root: Path, out: Path, *, deadline: Optional[
         os.replace(tmp, path)
 
     def one(job):
-        w, e = job
+        w, e, part = job
         if deadline is not None and time.time() >= deadline:
             with lock:
                 stats["skipped"] += 1
-                done["answers"].append({"id": e["id"], "which": w, "skipped": "deadline", "data": None})
+                done["answers"].append({"id": e["id"], "which": w, "part": part, "skipped": "deadline", "data": None})
                 save()
             return None
         with lock:
             stats["asked"] += 1
         try:
-            a = ask_entry(model, e, images_root, w, questions, max_side)
+            a = ask_entry(model, e, images_root, w, questions, max_side, part=part, marked_dir=out)
         except Exception as exc:  # noqa: BLE001 - one failed call is recorded, the others go on
-            a = {"id": e["id"], "which": w, "data": None, "errors": [f"{type(exc).__name__}: {str(exc)[:300]}"]}
+            a = {"id": e["id"], "which": w, "part": part, "data": None,
+                 "errors": [f"{type(exc).__name__}: {str(exc)[:300]}"]}
         with lock:
             if a.get("data") is not None:
                 stats["answered"] += 1
             else:
                 stats["failed"] += 1
-            done["answers"] = [x for x in done["answers"] if not (x["id"] == e["id"] and x["which"] == w)] + [a]
+            done["answers"] = [x for x in done["answers"] if not (x["id"] == e["id"] and x["which"] == w
+                                                                  and (x.get("part") or 0) == part)] + [a]
             save()
             n = len(a.get("data", {}).get("findings", [])) if a.get("data") and w == "differences" else None
-            log(f"critic {w} {e['id']}: {'ok' if a.get('data') is not None else 'FAILED'}"
+            log(f"critic {w} {e['id']}{f' part {part}' if part else ''}: "
+                f"{'ok' if a.get('data') is not None else 'FAILED'}"
                 + (f", {n} findings" if n is not None else "") + f", {a.get('seconds', '?')} s")
         return a
 
@@ -563,7 +650,11 @@ def _entries_by_id(index: dict) -> dict:
 def answers_to_findings(index: dict, answers: dict, model_key: str = "") -> list:
     """Every difference and every ``problem`` answer as a finding with its place in building metres (pure):
     ``{check, name, kind, level_id, project, tag, set, at, point, description, confidence, lesson, model, call}``."""
+    from wenart.reading_check import critic_checks as CC
+
     byid = _entries_by_id(index)
+    byid.update({t["id"]: t for t in index.get("texts") or []})
+    readings = index.get("readings") or {}
     out = []
     for a in answers.get("answers") or []:
         e, data = byid.get(a.get("id")), a.get("data")
@@ -572,6 +663,17 @@ def answers_to_findings(index: dict, answers: dict, model_key: str = "") -> list
         base = {"check": CHECK, "name": NAME, "level_id": e["level"], "project": e["project"], "tag": e.get("tag"),
                 "set": e.get("set"), "entry": e["id"], "model": a.get("model") or answers.get("model"),
                 "model_key": model_key}
+        if a.get("which") in CC.CHECKS:
+            # 20 Nov 2026 (checks 1, 2, 4): mapped by critic_checks; a stable id per finding (the review sheets'
+            # numbers and the user's marks refer to it)
+            w, part = a["which"], int(a.get("part") or 0)
+            bfacts = (readings.get(e.get("folder")) or {}).get("bfacts")
+            found, _extra = CC.item_findings(w, e, data, part, bfacts)
+            for f in found:
+                out.append(dict(base, **f, call=w, part=part, folder=e.get("folder"), copies=e.get("copies") or [],
+                                image_entry=e.get("page_entry") if w == "plausibility" else e["id"],
+                                id=f"{e['id']}|{w}|{f['key']}"))
+            continue
         if a.get("which") == "differences":
             for k, f in enumerate(data.get("findings") or []):
                 nx, ny = float(f.get("x", 0)) / 1000.0, float(f.get("y", 0)) / 1000.0
@@ -635,6 +737,8 @@ def apply_trust(found: list, trust: Optional[dict]) -> list:
     # 12 Nov 2026 (review F8): a trust file measured against the withdrawn accepted readings is marked ``stale``; its
     # kinds count as not calibrated (every finding info) until it is measured again on the synthetic and sparse truths
     kinds = {} if (trust or {}).get("stale") else ((trust or {}).get("kinds") or {})
+    # 20 Nov 2026: checks 1, 2, 4 have their own kinds per check (``checks``: {check: {kind: ...}})
+    by_check = {} if (trust or {}).get("stale") else ((trust or {}).get("checks") or {})
     threshold = float((trust or {}).get("threshold") or TRUST_MIN)
     for f in found:
         if f.get("check") != CHECK:
@@ -642,7 +746,10 @@ def apply_trust(found: list, trust: Optional[dict]) -> list:
         if "base_message" not in f:
             f["base_message"] = f["message"]
             f["base_severity"] = f["severity"]
-        k = kinds.get(f.get("kind")) or {}
+        k = ((by_check.get(f.get("call")) or {}).get(f.get("kind")) if f.get("call") in by_check
+             else kinds.get(f.get("kind"))) or {}
+        if f.get("call") in by_check and k.get("judged") is not None:
+            k = dict(k, findings=k.get("judged"))
         n, prec = int(k.get("findings") or 0), k.get("precision")
         f["trust"] = {"precision": prec, "findings": n, "threshold": threshold}
         f["severity"] = f["base_severity"]
@@ -669,11 +776,15 @@ def findings(out_dir, trust: Optional[dict] = None) -> list:
     for f in stored.get("findings") or []:
         kind = str(f.get("kind") or "other")
         what = f"lesson {f.get('lesson')}" if kind == "question" else kind
-        msg = (f"{what} at ({f['at'][0]:.2f}, {f['at'][1]:.2f}) m: {f.get('description') or ''}"
+        if f.get("call"):
+            what = f"{f['call']} {what}"
+        where = f"at ({f['at'][0]:.2f}, {f['at'][1]:.2f}) m" if f.get("at") else "(the whole building)"
+        msg = (f"{what} {where}: {f.get('description') or ''}"
                f" (confidence {float(f.get('confidence') or 0):.2f}, {f.get('model') or 'the vision model'})")
         out.append({"check": CHECK, "name": NAME, "kind": kind, "severity": severity_of(f), "level_id": f.get("level_id"),
                     "message": msg, "at": list(f.get("at") or []), "place": list(f.get("at") or []),
-                    "lesson": f.get("lesson"), "confidence": f.get("confidence"), "element_ids": []})
+                    "lesson": f.get("lesson"), "confidence": f.get("confidence"), "call": f.get("call"),
+                    "finding_id": f.get("id"), "element_ids": list(f.get("element_ids") or [])})
     return apply_trust(out, trust if trust is not None else load_trust())
 
 
@@ -1085,7 +1196,11 @@ def read_current(project: str, work: Path) -> Path:
 # ================================================================================================ 8. CLI
 def _add_prepare(sub):
     p = sub.add_parser("prepare", help="render the two images per level of readings into the input set")
-    p.add_argument("--set", required=True, choices=["a", "b", "c"], help="a precision, b recall, c out of sample")
+    p.add_argument("--set", required=True, choices=["a", "b", "c", "before", "after", "synth"],
+                   help="a precision, b recall, c out of sample; before / after / synth: the sets of checks 1, 2, 4")
+    p.add_argument("--checks", action="store_true",
+                   help="also the inputs of checks 1, 2, 4 (architect image, facts, questions, floor texts); "
+                        "default for the sets before, after, synth")
     p.add_argument("--reading", action="append", default=[], metavar="PROJECT[@TAG]=DIR",
                    help="a reading folder (repeatable); TAG the reader's commit (default current)")
     p.add_argument("--read", action="append", default=[], metavar="PROJECT[@COMMIT]",
@@ -1120,16 +1235,23 @@ def _cmd_prepare(args) -> int:
     readings = []
     work = Path(args.work) if args.work else Path(tempfile.mkdtemp(prefix="critic_read_"))
     made = []
+    checks = bool(args.checks) or args.set in ("before", "after", "synth")
     for item in args.reading:
         project, tag, folder = _parse_reading(item)
-        readings.append({"set": args.set, "project": project, "tag": tag, "out_dir": folder,
+        commit = None
+        cp = Path(folder) / "reading_check" / "commit.txt"
+        if cp.is_file():
+            commit = cp.read_text(encoding="utf-8").strip()[:12] or None
+        readings.append({"set": args.set, "project": project, "tag": tag, "out_dir": folder, "checks": checks,
+                         "commit": commit or (tag if tag != "current" else None),
                          "failure_class": _failure_class(project)})
     for item in args.read:
         project, _, commit = item.partition("@")
         folder = read_at_commit(project, commit, work) if commit else read_current(project, work)
         made.append(folder)
         readings.append({"set": args.set, "project": project, "tag": commit[:8] if commit else "current",
-                         "out_dir": folder, "commit": commit or None, "failure_class": _failure_class(project)})
+                         "out_dir": folder, "commit": commit or None, "failure_class": _failure_class(project),
+                         "checks": checks})
     levels = [x for x in (args.levels or "").split(",") if x] or None
     index = prepare(readings, Path(args.dest), max_side=args.max_side, levels=levels)
     n = sum(1 for e in index["entries"] if e["set"] == args.set)
@@ -1143,9 +1265,12 @@ def _cmd_prepare(args) -> int:
 
 
 def _cmd_ask(args) -> int:
+    from wenart.reading_check import critic_checks as CC
+
     index = load_index(Path(args.inputs))
     deadline = float(args.deadline) if args.deadline else None
-    which = tuple(w for w in ("differences", "questions") if w in (args.which or "differences,questions").split(","))
+    known_calls = ("differences", "questions") + CC.CHECKS
+    which = tuple(w for w in (args.which or "differences,questions").split(",") if w in known_calls)
     sets = [s for s in (args.sets or "").split(",") if s] or None
     out = Path(args.out) / args.key
     if args.vlm_url:
@@ -1173,12 +1298,51 @@ def _load_readings(index: dict, folders: list) -> dict:
     return out
 
 
+KNOWN_PATH = REPO / "results" / "critic" / "known_errors.json"
+MARKS_PATH = REPO / "results" / "critic" / "user_marks.json"
+REVIEW_DIR = REPO / "results" / "critic" / "review"
+
+
 def _cmd_calibrate(args) -> int:
-    from wenart.reading_check import truth as TR
+    from wenart.reading_check import critic_checks as CC
 
     index = load_index(Path(args.inputs))
     answers = json.loads(Path(args.answers).read_text(encoding="utf-8"))
-    found = answers_to_findings(index, answers, args.key or "")
+    found_all = answers_to_findings(index, answers, args.key or "")
+    new = [f for f in found_all if f.get("call") in CC.CHECKS]
+    old = [f for f in found_all if f.get("call") not in CC.CHECKS]
+    trust = _calibrate_old(args, index, answers, old) if old or not new else (load_trust() or {})
+    if new:
+        # 20 Nov 2026 (checks 1, 2, 4): judged by the user's marks, the synthetic truth and the known errors; the
+        # review sheets for the user's marks; the trust per check and kind in the same trust file
+        kp, mp = Path(args.known or KNOWN_PATH), Path(args.marks or MARKS_PATH)
+        known = json.loads(kp.read_text(encoding="utf-8")).get("readings") if kp.is_file() else {}
+        marks = json.loads(mp.read_text(encoding="utf-8")).get("marks") if mp.is_file() else {}
+        res = CC.calibrate_checks(index, new, answers, known=known, marks=marks, match_m=MATCH_M)
+        print(CC.checks_summary(res))
+        trust["checks"] = res["checks"]
+        trust["checks_calibration"] = {k: res[k] for k in ("recall", "synthetic", "calls", "judged_by")}
+        trust["checks_calibration"].update(date=_dt.date.today().isoformat(), answers=str(args.answers),
+                                           findings=len(new), known=str(kp), marks=str(mp))
+        trust.setdefault("threshold", TRUST_MIN)
+        trust.setdefault("check", CHECK)
+        if args.json:
+            Path(args.json).write_text(json.dumps(dict(res, findings=new), ensure_ascii=False, indent=1) + "\n",
+                                       encoding="utf-8")
+            print(f"written {args.json}")
+        if not args.no_sheets:
+            sheets = CC.review_sheets(index, new, Path(args.inputs), Path(args.review or REVIEW_DIR),
+                                      judged={j["id"]: j for j in res["judgements"]})
+            print(f"review sheets: {sum(len(v) for v in sheets.values())} in {args.review or REVIEW_DIR}")
+    if args.write:
+        print(f"written {save_trust(trust)}")
+    return 0
+
+
+def _calibrate_old(args, index: dict, answers: dict, found: list) -> dict:
+    """The differences and question-bank calls' calibration (6 Nov 2026), as before."""
+    from wenart.reading_check import truth as TR
+
     readings = _load_readings(index, args.readings)
     if args.readings_root:
         root = Path(args.readings_root)
@@ -1195,11 +1359,73 @@ def _cmd_calibrate(args) -> int:
     trust["answers"] = str(args.answers)
     trust["findings_total"] = len(found)
     print(trust_summary(trust))
-    if args.json:
+    if args.json and found:
         Path(args.json).write_text(json.dumps(trust, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
         print(f"written {args.json}")
-    if args.write:
-        print(f"written {save_trust(trust)}")
+    old = load_trust() or {}
+    for k in ("checks", "checks_calibration"):               # the checks' own calibration is kept
+        if k in old:
+            trust[k] = old[k]
+    return trust
+
+
+def _cmd_known(args) -> int:
+    """``known_errors.json``: per input folder of the sets before and after, the known errors (and, after, the
+    places fixed) of each pod project (``critic_checks.known_errors_for``) and the user's corrections that do not
+    hold (``sparse_known``)."""
+    from wenart.reading_check import critic_checks as CC
+
+    index = load_index(Path(args.inputs))
+    folders = {(r["project"], k.split("/", 1)[0]): k for k, r in (index.get("readings") or {}).items()}
+    path = Path(args.out or KNOWN_PATH)
+    doc = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {"readings": {}}
+    for item in args.pair:
+        project, _, dirs = item.partition("=")
+        bdir, _, adir = dirs.partition(",")
+        before = json.loads((Path(bdir) / "building.json").read_text(encoding="utf-8"))
+        after = json.loads((Path(adir) / "building.json").read_text(encoding="utf-8"))
+        kb, ka = CC.known_errors_for(project, before, after)
+        kb += [dict(x, id=f"{project}-UB{i + 1:02d}", reading="before") for i, x in
+               enumerate(CC.sparse_known(project, before))]
+        ka += [dict(x, id=f"{project}-UA{i + 1:02d}", reading="after") for i, x in
+               enumerate(CC.sparse_known(project, after))]
+        fb, fa = folders.get((project, "before")), folders.get((project, "after"))
+        if fb:
+            doc["readings"][fb] = kb
+        if fa:
+            doc["readings"][fa] = ka
+        print(f"{project}: before {fb} {sum(1 for x in kb if not x.get('fixed'))} known error(s); after {fa} "
+              f"{sum(1 for x in ka if not x.get('fixed'))} error(s), {sum(1 for x in ka if x.get('fixed'))} fixed place(s)")
+    doc["note"] = ("Known errors of the readings of checks 1, 2, 4 (20 Nov 2026): per input folder, each error with its "
+                   "level, place (building metres; null for a building-wide one), the finding kinds that name it, and "
+                   "fixed: true for a place the after reading has fixed (a finding there is a false alarm). From the "
+                   "brief's list (real09's missing left salon, kitchen and balcony and its roof, real20's straight "
+                   "angled wall and doors into the air, real10's missing kitchen windows, real03's storey count), "
+                   "RC17's doors into the air and the user's screenshot corrections (sparse truth).")
+    doc["made"] = _dt.date.today().isoformat()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(doc, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    print(f"written {path}")
+    return 0
+
+
+def _cmd_mark(args) -> int:
+    """The user's marks on a review sheet (numbers right / wrong) as truth for the next calibration
+    (``user_marks.json``, by finding id)."""
+    from wenart.reading_check import critic_checks as CC
+
+    idx = json.loads((Path(args.review or REVIEW_DIR) / args.folder / "findings_index.json").read_text(encoding="utf-8"))
+    nums = lambda s: [int(x) for x in (s or "").split(",") if x.strip()]  # noqa: E731
+    new = CC.marks_from_numbers(idx, args.sheet, nums(args.right), nums(args.wrong))
+    path = Path(args.marks or MARKS_PATH)
+    doc = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {"marks": {}}
+    for fid, m in new.items():
+        doc["marks"][fid] = dict(m, date=_dt.date.today().isoformat())
+    doc["note"] = ("The user's marks on the RC15 review sheets (finding id -> right or wrong); truth for the next "
+                   "calibration of checks 1, 2, 4 (critic calibrate).")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(doc, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    print(f"{len(new)} mark(s) -> {path}")
     return 0
 
 
@@ -1246,6 +1472,22 @@ def main(argv: Optional[list] = None) -> int:
     c.add_argument("--no-records", dest="no_records", action="store_true")
     c.add_argument("--json", default=None, help="write the full table here")
     c.add_argument("--write", action="store_true", help=f"write {TRUST_PATH.name}")
+    c.add_argument("--known", default=None, help=f"checks 1, 2, 4: the known errors (default {KNOWN_PATH.name})")
+    c.add_argument("--marks", default=None, help=f"checks 1, 2, 4: the user's marks (default {MARKS_PATH.name})")
+    c.add_argument("--review", default=None, help="checks 1, 2, 4: where the review sheets go (default "
+                                                  "results/critic/review)")
+    c.add_argument("--no-sheets", dest="no_sheets", action="store_true", help="no review sheets")
+    k = sub.add_parser("known", help="checks 1, 2, 4: the known errors of the before and after readings")
+    k.add_argument("--inputs", default=str(INPUTS_DIR))
+    k.add_argument("--pair", action="append", default=[], metavar="PROJECT=BEFORE_DIR,AFTER_DIR")
+    k.add_argument("--out", default=None)
+    m = sub.add_parser("mark", help="checks 1, 2, 4: the user's right / wrong marks of a review sheet's numbers")
+    m.add_argument("--folder", required=True, help="the sheet's input folder, e.g. before/real09@324c487f")
+    m.add_argument("--sheet", type=int, default=1)
+    m.add_argument("--right", default="", help="numbers marked right, comma separated")
+    m.add_argument("--wrong", default="", help="numbers marked wrong, comma separated")
+    m.add_argument("--review", default=None)
+    m.add_argument("--marks", default=None)
     s = sub.add_parser("store", help="write a reading's reading_check/critic.json from the pod's answers")
     s.add_argument("--inputs", default=str(INPUTS_DIR))
     s.add_argument("--answers", required=True)
@@ -1266,6 +1508,10 @@ def main(argv: Optional[list] = None) -> int:
         return _cmd_calibrate(args)
     if args.cmd == "store":
         return _cmd_store(args)
+    if args.cmd == "known":
+        return _cmd_known(args)
+    if args.cmd == "mark":
+        return _cmd_mark(args)
     return 2
 
 
