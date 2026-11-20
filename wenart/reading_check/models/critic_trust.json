@@ -7029,5 +7029,1767 @@
  "stale": {
   "on": "2026-11-12",
   "reason": "measured against the truths of the accepted readings of real projects, which were withdrawn on 6 Nov 2026 (user: 'Only consider my revision with the screenshot I have given into previous projects others I have not seen'); its kinds count as not calibrated (every finding info) until the file is measured again on the synthetic and the sparse truths (a sparse truth can judge a finding only where it has an entry)"
+ },
+ "checks": {
+  "inventory": {
+   "room_missing": {
+    "findings": 16,
+    "judged": 12,
+    "right": 5,
+    "wrong": 7,
+    "precision": 0.4167,
+    "false_alarms_after": 0,
+    "false_alarms_clean_synthetic": 0,
+    "trusted": false,
+    "small_sample": false
+   },
+   "mirror_twin_missing": {
+    "findings": 5,
+    "judged": 3,
+    "right": 3,
+    "wrong": 0,
+    "precision": 1.0,
+    "false_alarms_after": 0,
+    "false_alarms_clean_synthetic": 0,
+    "trusted": true,
+    "small_sample": true
+   },
+   "stair_missing": {
+    "findings": 0,
+    "judged": 0,
+    "right": 0,
+    "wrong": 0,
+    "precision": null,
+    "false_alarms_after": 0,
+    "false_alarms_clean_synthetic": 0,
+    "trusted": false,
+    "small_sample": true
+   },
+   "lift_missing": {
+    "findings": 0,
+    "judged": 0,
+    "right": 0,
+    "wrong": 0,
+    "precision": null,
+    "false_alarms_after": 0,
+    "false_alarms_clean_synthetic": 0,
+    "trusted": false,
+    "small_sample": true
+   },
+   "balcony_missing": {
+    "findings": 1,
+    "judged": 1,
+    "right": 1,
+    "wrong": 0,
+    "precision": 1.0,
+    "false_alarms_after": 0,
+    "false_alarms_clean_synthetic": 0,
+    "trusted": false,
+    "small_sample": true
+   },
+   "entrance_missing": {
+    "findings": 5,
+    "judged": 1,
+    "right": 0,
+    "wrong": 1,
+    "precision": 0.0,
+    "false_alarms_after": 0,
+    "false_alarms_clean_synthetic": 1,
+    "trusted": false,
+    "small_sample": true
+   },
+   "angled_wall_straight": {
+    "findings": 4,
+    "judged": 0,
+    "right": 0,
+    "wrong": 0,
+    "precision": null,
+    "false_alarms_after": 0,
+    "false_alarms_clean_synthetic": 0,
+    "trusted": false,
+    "small_sample": true
+   },
+   "storey_count_differs": {
+    "findings": 0,
+    "judged": 0,
+    "right": 0,
+    "wrong": 0,
+    "precision": null,
+    "false_alarms_after": 0,
+    "false_alarms_clean_synthetic": 0,
+    "trusted": false,
+    "small_sample": true
+   }
+  },
+  "compare": {
+   "room_missing": {
+    "findings": 16,
+    "judged": 10,
+    "right": 4,
+    "wrong": 6,
+    "precision": 0.4,
+    "false_alarms_after": 0,
+    "false_alarms_clean_synthetic": 0,
+    "trusted": false,
+    "small_sample": false
+   },
+   "room_not_in_drawing": {
+    "findings": 33,
+    "judged": 0,
+    "right": 0,
+    "wrong": 0,
+    "precision": null,
+    "false_alarms_after": 0,
+    "false_alarms_clean_synthetic": 0,
+    "trusted": false,
+    "small_sample": true
+   },
+   "angled_wall_straight": {
+    "findings": 38,
+    "judged": 2,
+    "right": 2,
+    "wrong": 0,
+    "precision": 1.0,
+    "false_alarms_after": 0,
+    "false_alarms_clean_synthetic": 0,
+    "trusted": false,
+    "small_sample": true
+   },
+   "door_into_air": {
+    "findings": 4,
+    "judged": 4,
+    "right": 4,
+    "wrong": 0,
+    "precision": 1.0,
+    "false_alarms_after": 0,
+    "false_alarms_clean_synthetic": 0,
+    "trusted": true,
+    "small_sample": true
+   },
+   "balcony_missing": {
+    "findings": 3,
+    "judged": 1,
+    "right": 1,
+    "wrong": 0,
+    "precision": 1.0,
+    "false_alarms_after": 0,
+    "false_alarms_clean_synthetic": 0,
+    "trusted": false,
+    "small_sample": true
+   },
+   "opening_type_differs": {
+    "findings": 66,
+    "judged": 8,
+    "right": 6,
+    "wrong": 2,
+    "precision": 0.75,
+    "false_alarms_after": 2,
+    "false_alarms_clean_synthetic": 0,
+    "trusted": true,
+    "small_sample": false
+   },
+   "opening_not_in_drawing": {
+    "findings": 25,
+    "judged": 15,
+    "right": 1,
+    "wrong": 14,
+    "precision": 0.0667,
+    "false_alarms_after": 0,
+    "false_alarms_clean_synthetic": 12,
+    "trusted": false,
+    "small_sample": false
+   }
+  },
+  "plausibility": {
+   "habitable_no_window": {
+    "findings": 162,
+    "judged": 12,
+    "right": 12,
+    "wrong": 0,
+    "precision": 1.0,
+    "false_alarms_after": 0,
+    "false_alarms_clean_synthetic": 0,
+    "trusted": true,
+    "small_sample": false
+   },
+   "bedroom_through_bathroom": {
+    "findings": 0,
+    "judged": 0,
+    "right": 0,
+    "wrong": 0,
+    "precision": null,
+    "false_alarms_after": 0,
+    "false_alarms_clean_synthetic": 0,
+    "trusted": false,
+    "small_sample": true
+   },
+   "flat_no_entrance": {
+    "findings": 6,
+    "judged": 0,
+    "right": 0,
+    "wrong": 0,
+    "precision": null,
+    "false_alarms_after": 0,
+    "false_alarms_clean_synthetic": 0,
+    "trusted": false,
+    "small_sample": true
+   },
+   "kitchen_no_window": {
+    "findings": 33,
+    "judged": 8,
+    "right": 8,
+    "wrong": 0,
+    "precision": 1.0,
+    "false_alarms_after": 0,
+    "false_alarms_clean_synthetic": 0,
+    "trusted": true,
+    "small_sample": false
+   },
+   "lift_door_into_flat": {
+    "findings": 33,
+    "judged": 0,
+    "right": 0,
+    "wrong": 0,
+    "precision": null,
+    "false_alarms_after": 0,
+    "false_alarms_clean_synthetic": 0,
+    "trusted": false,
+    "small_sample": true
+   },
+   "stair_no_landing_door": {
+    "findings": 12,
+    "judged": 0,
+    "right": 0,
+    "wrong": 0,
+    "precision": null,
+    "false_alarms_after": 0,
+    "false_alarms_clean_synthetic": 0,
+    "trusted": false,
+    "small_sample": true
+   },
+   "storey_no_stair_access": {
+    "findings": 25,
+    "judged": 10,
+    "right": 0,
+    "wrong": 10,
+    "precision": 0.0,
+    "false_alarms_after": 0,
+    "false_alarms_clean_synthetic": 3,
+    "trusted": false,
+    "small_sample": false
+   },
+   "door_into_air": {
+    "findings": 56,
+    "judged": 21,
+    "right": 21,
+    "wrong": 0,
+    "precision": 1.0,
+    "false_alarms_after": 0,
+    "false_alarms_clean_synthetic": 0,
+    "trusted": true,
+    "small_sample": false
+   },
+   "balcony_no_door": {
+    "findings": 134,
+    "judged": 0,
+    "right": 0,
+    "wrong": 0,
+    "precision": null,
+    "false_alarms_after": 0,
+    "false_alarms_clean_synthetic": 0,
+    "trusted": false,
+    "small_sample": true
+   }
+  }
+ },
+ "checks_calibration": {
+  "recall": {
+   "rows": [
+    {
+     "id": "real09-B01",
+     "folder": "before/real09@324c487f",
+     "level": "L0",
+     "kinds": [
+      "room_missing",
+      "mirror_twin_missing"
+     ],
+     "desc": "Salon (r_L0_oda_5 in the after reading) not read",
+     "found_by": [
+      "inventory"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real09-B02",
+     "folder": "before/real09@324c487f",
+     "level": "L0",
+     "kinds": [
+      "balcony_missing",
+      "room_missing"
+     ],
+     "desc": "BALKON (os_L0_balkon_mirror_1 in the after reading) not read",
+     "found_by": [
+      "inventory"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real09-B03",
+     "folder": "before/real09@324c487f",
+     "level": "L1",
+     "kinds": [
+      "room_missing",
+      "mirror_twin_missing"
+     ],
+     "desc": "Salon (r_L1_oda_5 in the after reading) not read",
+     "found_by": [
+      "inventory"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real09-B04",
+     "folder": "before/real09@324c487f",
+     "level": "L1",
+     "kinds": [
+      "balcony_missing",
+      "room_missing"
+     ],
+     "desc": "BALKON (os_L0_balkon_mirror_2 in the after reading) not read",
+     "found_by": [
+      "inventory"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real09-B05",
+     "folder": "before/real09@324c487f",
+     "level": "L2",
+     "kinds": [
+      "room_missing",
+      "mirror_twin_missing"
+     ],
+     "desc": "Mutfak (r_L2_oda in the after reading) not read",
+     "found_by": [
+      "inventory"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real09-B06",
+     "folder": "before/real09@324c487f",
+     "level": "L2",
+     "kinds": [
+      "room_missing",
+      "mirror_twin_missing"
+     ],
+     "desc": "Salon (r_L2_oda_3 in the after reading) not read",
+     "found_by": [
+      "inventory"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real09-B07",
+     "folder": "before/real09@324c487f",
+     "level": "L2",
+     "kinds": [
+      "balcony_missing",
+      "room_missing"
+     ],
+     "desc": "BALKON (os_L2_balkon_mirror in the after reading) not read",
+     "found_by": [],
+     "targeted": true
+    },
+    {
+     "id": "real09-B08",
+     "folder": "before/real09@324c487f",
+     "level": null,
+     "kinds": [],
+     "desc": "the roof read from the section is wrong (no check of 1, 2, 4 targets roofs)",
+     "found_by": [],
+     "targeted": false
+    },
+    {
+     "id": "real09-B09",
+     "folder": "before/real09@324c487f",
+     "level": "L1",
+     "kinds": [
+      "door_into_air",
+      "balcony_missing"
+     ],
+     "desc": "door d_L1_006 into the air",
+     "found_by": [],
+     "targeted": true
+    },
+    {
+     "id": "real09-B10",
+     "folder": "before/real09@324c487f",
+     "level": "L1",
+     "kinds": [
+      "door_into_air",
+      "balcony_missing"
+     ],
+     "desc": "door d_L1_011 into the air",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real09-B11",
+     "folder": "before/real09@324c487f",
+     "level": "L2",
+     "kinds": [
+      "door_into_air",
+      "balcony_missing"
+     ],
+     "desc": "door d_L2_006 into the air",
+     "found_by": [
+      "compare",
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real09-B12",
+     "folder": "before/real09@324c487f",
+     "level": "L2",
+     "kinds": [
+      "door_into_air",
+      "balcony_missing"
+     ],
+     "desc": "door d_L2_011 into the air",
+     "found_by": [
+      "compare",
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real09-B13",
+     "folder": "before/real09@324c487f",
+     "level": "L3",
+     "kinds": [
+      "door_into_air",
+      "balcony_missing"
+     ],
+     "desc": "door d_L3_004 into the air",
+     "found_by": [
+      "compare",
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real09-UB01",
+     "folder": "before/real09@324c487f",
+     "level": "L0",
+     "kinds": [
+      "balcony_missing"
+     ],
+     "desc": "user correction C0008: outdoor present does not hold",
+     "found_by": [
+      "inventory"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real09-A01",
+     "folder": "after/real09",
+     "level": "L1",
+     "kinds": [
+      "door_into_air",
+      "balcony_missing"
+     ],
+     "desc": "door d_L1_011 into the air",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real09-A02",
+     "folder": "after/real09",
+     "level": "L2",
+     "kinds": [
+      "door_into_air",
+      "balcony_missing"
+     ],
+     "desc": "door d_L2_011 into the air",
+     "found_by": [
+      "compare",
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real09-A03",
+     "folder": "after/real09",
+     "level": "L3",
+     "kinds": [
+      "door_into_air",
+      "balcony_missing"
+     ],
+     "desc": "door d_L3_004 into the air",
+     "found_by": [
+      "compare",
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real09-UA01",
+     "folder": "after/real09",
+     "level": "L0",
+     "kinds": [
+      "balcony_missing"
+     ],
+     "desc": "user correction C0008: outdoor present does not hold",
+     "found_by": [],
+     "targeted": true
+    },
+    {
+     "id": "real20-B01",
+     "folder": "before/real20@324c487f",
+     "level": "L1",
+     "kinds": [
+      "angled_wall_straight"
+     ],
+     "desc": "wall w_L1_003 at 164 deg built straight or left out",
+     "found_by": [
+      "compare"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real20-B02",
+     "folder": "before/real20@324c487f",
+     "level": "L1",
+     "kinds": [
+      "angled_wall_straight"
+     ],
+     "desc": "wall w_L1_046 at 164 deg built straight or left out",
+     "found_by": [
+      "compare"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real20-B03",
+     "folder": "before/real20@324c487f",
+     "level": "L2",
+     "kinds": [
+      "angled_wall_straight"
+     ],
+     "desc": "wall w_L2_003 at 164 deg built straight or left out",
+     "found_by": [],
+     "targeted": true
+    },
+    {
+     "id": "real20-B04",
+     "folder": "before/real20@324c487f",
+     "level": "L2",
+     "kinds": [
+      "angled_wall_straight"
+     ],
+     "desc": "wall w_L2_046 at 164 deg built straight or left out",
+     "found_by": [],
+     "targeted": true
+    },
+    {
+     "id": "real20-B05",
+     "folder": "before/real20@324c487f",
+     "level": "L3",
+     "kinds": [
+      "angled_wall_straight"
+     ],
+     "desc": "wall w_L3_003 at 164 deg built straight or left out",
+     "found_by": [],
+     "targeted": true
+    },
+    {
+     "id": "real20-B06",
+     "folder": "before/real20@324c487f",
+     "level": "L3",
+     "kinds": [
+      "angled_wall_straight"
+     ],
+     "desc": "wall w_L3_046 at 164 deg built straight or left out",
+     "found_by": [],
+     "targeted": true
+    },
+    {
+     "id": "real20-B07",
+     "folder": "before/real20@324c487f",
+     "level": "L4",
+     "kinds": [
+      "angled_wall_straight"
+     ],
+     "desc": "wall w_L4_003 at 164 deg built straight or left out",
+     "found_by": [],
+     "targeted": true
+    },
+    {
+     "id": "real20-B08",
+     "folder": "before/real20@324c487f",
+     "level": "L4",
+     "kinds": [
+      "angled_wall_straight"
+     ],
+     "desc": "wall w_L4_046 at 164 deg built straight or left out",
+     "found_by": [],
+     "targeted": true
+    },
+    {
+     "id": "real20-B09",
+     "folder": "before/real20@324c487f",
+     "level": "L2",
+     "kinds": [
+      "door_into_air",
+      "balcony_missing"
+     ],
+     "desc": "door d_L2_001 into the air",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real20-B10",
+     "folder": "before/real20@324c487f",
+     "level": "L2",
+     "kinds": [
+      "door_into_air",
+      "balcony_missing"
+     ],
+     "desc": "door d_L2_005 into the air",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real20-B11",
+     "folder": "before/real20@324c487f",
+     "level": "L2",
+     "kinds": [
+      "door_into_air",
+      "balcony_missing"
+     ],
+     "desc": "door d_L2_008 into the air",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real20-B12",
+     "folder": "before/real20@324c487f",
+     "level": "L2",
+     "kinds": [
+      "door_into_air",
+      "balcony_missing"
+     ],
+     "desc": "door d_L2_010 into the air",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real20-B13",
+     "folder": "before/real20@324c487f",
+     "level": "L2",
+     "kinds": [
+      "door_into_air",
+      "balcony_missing"
+     ],
+     "desc": "door d_L2_011 into the air",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real20-B14",
+     "folder": "before/real20@324c487f",
+     "level": "L3",
+     "kinds": [
+      "door_into_air",
+      "balcony_missing"
+     ],
+     "desc": "door d_L3_001 into the air",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real20-B15",
+     "folder": "before/real20@324c487f",
+     "level": "L3",
+     "kinds": [
+      "door_into_air",
+      "balcony_missing"
+     ],
+     "desc": "door d_L3_005 into the air",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real20-B16",
+     "folder": "before/real20@324c487f",
+     "level": "L3",
+     "kinds": [
+      "door_into_air",
+      "balcony_missing"
+     ],
+     "desc": "door d_L3_008 into the air",
+     "found_by": [],
+     "targeted": true
+    },
+    {
+     "id": "real20-B17",
+     "folder": "before/real20@324c487f",
+     "level": "L3",
+     "kinds": [
+      "door_into_air",
+      "balcony_missing"
+     ],
+     "desc": "door d_L3_010 into the air",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real20-B18",
+     "folder": "before/real20@324c487f",
+     "level": "L3",
+     "kinds": [
+      "door_into_air",
+      "balcony_missing"
+     ],
+     "desc": "door d_L3_011 into the air",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real20-B19",
+     "folder": "before/real20@324c487f",
+     "level": "L4",
+     "kinds": [
+      "door_into_air",
+      "balcony_missing"
+     ],
+     "desc": "door d_L4_001 into the air",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real20-B20",
+     "folder": "before/real20@324c487f",
+     "level": "L4",
+     "kinds": [
+      "door_into_air",
+      "balcony_missing"
+     ],
+     "desc": "door d_L4_005 into the air",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real20-B21",
+     "folder": "before/real20@324c487f",
+     "level": "L4",
+     "kinds": [
+      "door_into_air",
+      "balcony_missing"
+     ],
+     "desc": "door d_L4_008 into the air",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real20-B22",
+     "folder": "before/real20@324c487f",
+     "level": "L4",
+     "kinds": [
+      "door_into_air",
+      "balcony_missing"
+     ],
+     "desc": "door d_L4_010 into the air",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real20-B23",
+     "folder": "before/real20@324c487f",
+     "level": "L4",
+     "kinds": [
+      "door_into_air",
+      "balcony_missing"
+     ],
+     "desc": "door d_L4_011 into the air",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B01",
+     "folder": "before/real10@324c487f",
+     "level": "L0",
+     "kinds": [
+      "kitchen_no_window",
+      "habitable_no_window"
+     ],
+     "desc": "kitchen r_L0_mutfak without its drawn window",
+     "found_by": [],
+     "targeted": true
+    },
+    {
+     "id": "real10-B02",
+     "folder": "before/real10@324c487f",
+     "level": "L0",
+     "kinds": [
+      "kitchen_no_window",
+      "habitable_no_window"
+     ],
+     "desc": "kitchen r_L0_oda_3 without its drawn window",
+     "found_by": [],
+     "targeted": true
+    },
+    {
+     "id": "real10-B03",
+     "folder": "before/real10@324c487f",
+     "level": "L1",
+     "kinds": [
+      "kitchen_no_window",
+      "habitable_no_window"
+     ],
+     "desc": "kitchen r_L1_mutfak without its drawn window",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B04",
+     "folder": "before/real10@324c487f",
+     "level": "L1",
+     "kinds": [
+      "kitchen_no_window",
+      "habitable_no_window"
+     ],
+     "desc": "kitchen r_L1_oda_3 without its drawn window",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B05",
+     "folder": "before/real10@324c487f",
+     "level": "L2",
+     "kinds": [
+      "kitchen_no_window",
+      "habitable_no_window"
+     ],
+     "desc": "kitchen r_L2_mutfak without its drawn window",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B06",
+     "folder": "before/real10@324c487f",
+     "level": "L2",
+     "kinds": [
+      "kitchen_no_window",
+      "habitable_no_window"
+     ],
+     "desc": "kitchen r_L2_oda_3 without its drawn window",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B07",
+     "folder": "before/real10@324c487f",
+     "level": "L3",
+     "kinds": [
+      "kitchen_no_window",
+      "habitable_no_window"
+     ],
+     "desc": "kitchen r_L3_mutfak without its drawn window",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B08",
+     "folder": "before/real10@324c487f",
+     "level": "L3",
+     "kinds": [
+      "kitchen_no_window",
+      "habitable_no_window"
+     ],
+     "desc": "kitchen r_L3_oda_3 without its drawn window",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B09",
+     "folder": "before/real10@324c487f",
+     "level": "L4",
+     "kinds": [
+      "kitchen_no_window",
+      "habitable_no_window"
+     ],
+     "desc": "kitchen r_L4_mutfak without its drawn window",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B10",
+     "folder": "before/real10@324c487f",
+     "level": "L4",
+     "kinds": [
+      "kitchen_no_window",
+      "habitable_no_window"
+     ],
+     "desc": "kitchen r_L4_oda_3 without its drawn window",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B11",
+     "folder": "before/real10@324c487f",
+     "level": "L5",
+     "kinds": [
+      "kitchen_no_window",
+      "habitable_no_window"
+     ],
+     "desc": "kitchen r_L5_mutfak without its drawn window",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B12",
+     "folder": "before/real10@324c487f",
+     "level": "L5",
+     "kinds": [
+      "kitchen_no_window",
+      "habitable_no_window"
+     ],
+     "desc": "kitchen r_L5_oda_3 without its drawn window",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B13",
+     "folder": "before/real10@324c487f",
+     "level": "L6",
+     "kinds": [
+      "kitchen_no_window",
+      "habitable_no_window"
+     ],
+     "desc": "kitchen r_L6_mutfak without its drawn window",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B14",
+     "folder": "before/real10@324c487f",
+     "level": "L6",
+     "kinds": [
+      "kitchen_no_window",
+      "habitable_no_window"
+     ],
+     "desc": "kitchen r_L6_oda_3 without its drawn window",
+     "found_by": [
+      "plausibility"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B15",
+     "folder": "before/real10@324c487f",
+     "level": "L-1",
+     "kinds": [
+      "opening_type_differs"
+     ],
+     "desc": "d_L-1_008 read as a door; drawn as a window",
+     "found_by": [],
+     "targeted": true
+    },
+    {
+     "id": "real10-B16",
+     "folder": "before/real10@324c487f",
+     "level": "L-1",
+     "kinds": [
+      "opening_type_differs"
+     ],
+     "desc": "o_L-1_012 read as a opening; drawn as a window",
+     "found_by": [
+      "compare"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B17",
+     "folder": "before/real10@324c487f",
+     "level": "L-1",
+     "kinds": [
+      "opening_type_differs"
+     ],
+     "desc": "o_L-1_015 read as a opening; drawn as a window",
+     "found_by": [
+      "compare"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B18",
+     "folder": "before/real10@324c487f",
+     "level": "L-1",
+     "kinds": [
+      "opening_type_differs"
+     ],
+     "desc": "o_L-1_017 read as a opening; drawn as a window",
+     "found_by": [
+      "compare"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B19",
+     "folder": "before/real10@324c487f",
+     "level": "L0",
+     "kinds": [
+      "opening_type_differs"
+     ],
+     "desc": "o_L0_013 read as a opening; drawn as a window",
+     "found_by": [
+      "compare"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B20",
+     "folder": "before/real10@324c487f",
+     "level": "L0",
+     "kinds": [
+      "opening_type_differs"
+     ],
+     "desc": "o_L0_021 read as a opening; drawn as a window",
+     "found_by": [
+      "compare"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B21",
+     "folder": "before/real10@324c487f",
+     "level": "L1",
+     "kinds": [
+      "opening_type_differs"
+     ],
+     "desc": "o_L1_013 read as a opening; drawn as a window",
+     "found_by": [
+      "compare"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B22",
+     "folder": "before/real10@324c487f",
+     "level": "L1",
+     "kinds": [
+      "opening_type_differs"
+     ],
+     "desc": "o_L1_021 read as a opening; drawn as a window",
+     "found_by": [
+      "compare"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B23",
+     "folder": "before/real10@324c487f",
+     "level": "L2",
+     "kinds": [
+      "opening_type_differs"
+     ],
+     "desc": "o_L2_013 read as a opening; drawn as a window",
+     "found_by": [
+      "compare"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B24",
+     "folder": "before/real10@324c487f",
+     "level": "L2",
+     "kinds": [
+      "opening_type_differs"
+     ],
+     "desc": "o_L2_021 read as a opening; drawn as a window",
+     "found_by": [
+      "compare"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B25",
+     "folder": "before/real10@324c487f",
+     "level": "L3",
+     "kinds": [
+      "opening_type_differs"
+     ],
+     "desc": "o_L3_013 read as a opening; drawn as a window",
+     "found_by": [
+      "compare"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B26",
+     "folder": "before/real10@324c487f",
+     "level": "L3",
+     "kinds": [
+      "opening_type_differs"
+     ],
+     "desc": "o_L3_021 read as a opening; drawn as a window",
+     "found_by": [
+      "compare"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B27",
+     "folder": "before/real10@324c487f",
+     "level": "L4",
+     "kinds": [
+      "opening_type_differs"
+     ],
+     "desc": "o_L4_013 read as a opening; drawn as a window",
+     "found_by": [
+      "compare"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B28",
+     "folder": "before/real10@324c487f",
+     "level": "L4",
+     "kinds": [
+      "opening_type_differs"
+     ],
+     "desc": "o_L4_021 read as a opening; drawn as a window",
+     "found_by": [
+      "compare"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B29",
+     "folder": "before/real10@324c487f",
+     "level": "L5",
+     "kinds": [
+      "opening_type_differs"
+     ],
+     "desc": "o_L5_013 read as a opening; drawn as a window",
+     "found_by": [
+      "compare"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B30",
+     "folder": "before/real10@324c487f",
+     "level": "L5",
+     "kinds": [
+      "opening_type_differs"
+     ],
+     "desc": "o_L5_021 read as a opening; drawn as a window",
+     "found_by": [
+      "compare"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B31",
+     "folder": "before/real10@324c487f",
+     "level": "L6",
+     "kinds": [
+      "opening_type_differs"
+     ],
+     "desc": "o_L6_013 read as a opening; drawn as a window",
+     "found_by": [
+      "compare"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B32",
+     "folder": "before/real10@324c487f",
+     "level": "L6",
+     "kinds": [
+      "opening_type_differs"
+     ],
+     "desc": "o_L6_021 read as a opening; drawn as a window",
+     "found_by": [
+      "compare"
+     ],
+     "targeted": true
+    },
+    {
+     "id": "real10-B33",
+     "folder": "before/real10@324c487f",
+     "level": "L7",
+     "kinds": [
+      "opening_type_differs"
+     ],
+     "desc": "o_L7_001 read as a opening; drawn as a window",
+     "found_by": [],
+     "targeted": true
+    },
+    {
+     "id": "real03-B01",
+     "folder": "before/real03@983b7198",
+     "level": null,
+     "kinds": [
+      "storey_count_differs"
+     ],
+     "desc": "3 storeys read; the drawing's texts give 14",
+     "found_by": [],
+     "targeted": true
+    }
+   ],
+   "per_check": {
+    "inventory": {
+     "targeted": 20,
+     "found": 7
+    },
+    "compare": {
+     "targeted": 38,
+     "found": 24
+    },
+    "plausibility": {
+     "targeted": 37,
+     "found": 33
+    }
+   }
+  },
+  "synthetic": [
+   {
+    "folder": "synth/synthetic-08-spaced-labels",
+    "class": "spaced_labels",
+    "check": "inventory",
+    "errors": 4,
+    "findings": 0,
+    "right": 0,
+    "verdict": "missed"
+   },
+   {
+    "folder": "synth/synthetic-08-spaced-labels",
+    "class": "spaced_labels",
+    "check": "compare",
+    "errors": 4,
+    "findings": 2,
+    "right": 0,
+    "verdict": "missed"
+   },
+   {
+    "folder": "synth/synthetic-08-spaced-labels",
+    "class": "spaced_labels",
+    "check": "plausibility",
+    "errors": 4,
+    "findings": 1,
+    "right": 0,
+    "verdict": "missed"
+   },
+   {
+    "folder": "synth/synthetic-09-jamb-stubs",
+    "class": "jamb_stubs",
+    "check": "inventory",
+    "errors": 10,
+    "findings": 0,
+    "right": 0,
+    "verdict": "missed"
+   },
+   {
+    "folder": "synth/synthetic-09-jamb-stubs",
+    "class": "jamb_stubs",
+    "check": "compare",
+    "errors": 10,
+    "findings": 0,
+    "right": 0,
+    "verdict": "missed"
+   },
+   {
+    "folder": "synth/synthetic-09-jamb-stubs",
+    "class": "jamb_stubs",
+    "check": "plausibility",
+    "errors": 10,
+    "findings": 1,
+    "right": 0,
+    "verdict": "missed"
+   },
+   {
+    "folder": "synth/synthetic-10-glazed-facade",
+    "class": "glazed_facade",
+    "check": "inventory",
+    "errors": 16,
+    "findings": 0,
+    "right": 0,
+    "verdict": "missed"
+   },
+   {
+    "folder": "synth/synthetic-10-glazed-facade",
+    "class": "glazed_facade",
+    "check": "compare",
+    "errors": 16,
+    "findings": 0,
+    "right": 0,
+    "verdict": "missed"
+   },
+   {
+    "folder": "synth/synthetic-10-glazed-facade",
+    "class": "glazed_facade",
+    "check": "plausibility",
+    "errors": 16,
+    "findings": 1,
+    "right": 0,
+    "verdict": "missed"
+   },
+   {
+    "folder": "synth/synthetic-11-dimension-chains",
+    "class": "dimension_chains",
+    "check": "inventory",
+    "errors": 0,
+    "findings": 0,
+    "right": 0,
+    "verdict": "clean"
+   },
+   {
+    "folder": "synth/synthetic-11-dimension-chains",
+    "class": "dimension_chains",
+    "check": "compare",
+    "errors": 0,
+    "findings": 0,
+    "right": 0,
+    "verdict": "clean"
+   },
+   {
+    "folder": "synth/synthetic-11-dimension-chains",
+    "class": "dimension_chains",
+    "check": "plausibility",
+    "errors": 0,
+    "findings": 1,
+    "right": 0,
+    "verdict": "false_alarm"
+   },
+   {
+    "folder": "synth/synthetic-12-mirrored-halves",
+    "class": "mirrored_halves",
+    "check": "inventory",
+    "errors": 26,
+    "findings": 0,
+    "right": 0,
+    "verdict": "missed"
+   },
+   {
+    "folder": "synth/synthetic-12-mirrored-halves",
+    "class": "mirrored_halves",
+    "check": "compare",
+    "errors": 26,
+    "findings": 1,
+    "right": 1,
+    "verdict": "caught"
+   },
+   {
+    "folder": "synth/synthetic-12-mirrored-halves",
+    "class": "mirrored_halves",
+    "check": "plausibility",
+    "errors": 26,
+    "findings": 1,
+    "right": 0,
+    "verdict": "missed"
+   },
+   {
+    "folder": "synth/synthetic-13-typical-floor",
+    "class": "typical_floor",
+    "check": "inventory",
+    "errors": 0,
+    "findings": 0,
+    "right": 0,
+    "verdict": "clean"
+   },
+   {
+    "folder": "synth/synthetic-13-typical-floor",
+    "class": "typical_floor",
+    "check": "compare",
+    "errors": 0,
+    "findings": 4,
+    "right": 0,
+    "verdict": "false_alarm"
+   },
+   {
+    "folder": "synth/synthetic-13-typical-floor",
+    "class": "typical_floor",
+    "check": "plausibility",
+    "errors": 0,
+    "findings": 0,
+    "right": 0,
+    "verdict": "clean"
+   },
+   {
+    "folder": "synth/synthetic-14-elevation-title",
+    "class": "elevation_title",
+    "check": "inventory",
+    "errors": 68,
+    "findings": 12,
+    "right": 5,
+    "verdict": "caught"
+   },
+   {
+    "folder": "synth/synthetic-14-elevation-title",
+    "class": "elevation_title",
+    "check": "compare",
+    "errors": 68,
+    "findings": 10,
+    "right": 4,
+    "verdict": "caught"
+   },
+   {
+    "folder": "synth/synthetic-14-elevation-title",
+    "class": "elevation_title",
+    "check": "plausibility",
+    "errors": 68,
+    "findings": 0,
+    "right": 0,
+    "verdict": "missed"
+   },
+   {
+    "folder": "synth/synthetic-15-winder-stair",
+    "class": "winder_stair",
+    "check": "inventory",
+    "errors": 0,
+    "findings": 0,
+    "right": 0,
+    "verdict": "clean"
+   },
+   {
+    "folder": "synth/synthetic-15-winder-stair",
+    "class": "winder_stair",
+    "check": "compare",
+    "errors": 0,
+    "findings": 0,
+    "right": 0,
+    "verdict": "clean"
+   },
+   {
+    "folder": "synth/synthetic-15-winder-stair",
+    "class": "winder_stair",
+    "check": "plausibility",
+    "errors": 0,
+    "findings": 0,
+    "right": 0,
+    "verdict": "clean"
+   },
+   {
+    "folder": "synth/synthetic-16-open-recess",
+    "class": "open_recess",
+    "check": "inventory",
+    "errors": 2,
+    "findings": 0,
+    "right": 0,
+    "verdict": "missed"
+   },
+   {
+    "folder": "synth/synthetic-16-open-recess",
+    "class": "open_recess",
+    "check": "compare",
+    "errors": 2,
+    "findings": 0,
+    "right": 0,
+    "verdict": "missed"
+   },
+   {
+    "folder": "synth/synthetic-16-open-recess",
+    "class": "open_recess",
+    "check": "plausibility",
+    "errors": 2,
+    "findings": 1,
+    "right": 0,
+    "verdict": "missed"
+   },
+   {
+    "folder": "synth/synthetic-17-garage-lift",
+    "class": "garage_lift",
+    "check": "inventory",
+    "errors": 8,
+    "findings": 0,
+    "right": 0,
+    "verdict": "missed"
+   },
+   {
+    "folder": "synth/synthetic-17-garage-lift",
+    "class": "garage_lift",
+    "check": "compare",
+    "errors": 8,
+    "findings": 0,
+    "right": 0,
+    "verdict": "missed"
+   },
+   {
+    "folder": "synth/synthetic-17-garage-lift",
+    "class": "garage_lift",
+    "check": "plausibility",
+    "errors": 8,
+    "findings": 1,
+    "right": 0,
+    "verdict": "missed"
+   },
+   {
+    "folder": "synth/synthetic-18-sheet-frame",
+    "class": "sheet_frame",
+    "check": "inventory",
+    "errors": 0,
+    "findings": 0,
+    "right": 0,
+    "verdict": "clean"
+   },
+   {
+    "folder": "synth/synthetic-18-sheet-frame",
+    "class": "sheet_frame",
+    "check": "compare",
+    "errors": 0,
+    "findings": 4,
+    "right": 0,
+    "verdict": "false_alarm"
+   },
+   {
+    "folder": "synth/synthetic-18-sheet-frame",
+    "class": "sheet_frame",
+    "check": "plausibility",
+    "errors": 0,
+    "findings": 0,
+    "right": 0,
+    "verdict": "clean"
+   },
+   {
+    "folder": "synth/synthetic-19-symmetric-house",
+    "class": "symmetric_single_flat",
+    "check": "inventory",
+    "errors": 0,
+    "findings": 0,
+    "right": 0,
+    "verdict": "clean"
+   },
+   {
+    "folder": "synth/synthetic-19-symmetric-house",
+    "class": "symmetric_single_flat",
+    "check": "compare",
+    "errors": 0,
+    "findings": 0,
+    "right": 0,
+    "verdict": "clean"
+   },
+   {
+    "folder": "synth/synthetic-19-symmetric-house",
+    "class": "symmetric_single_flat",
+    "check": "plausibility",
+    "errors": 0,
+    "findings": 1,
+    "right": 0,
+    "verdict": "false_alarm"
+   },
+   {
+    "folder": "synth/synthetic-20-glazed-corner",
+    "class": "glazed_corner",
+    "check": "inventory",
+    "errors": 22,
+    "findings": 0,
+    "right": 0,
+    "verdict": "missed"
+   },
+   {
+    "folder": "synth/synthetic-20-glazed-corner",
+    "class": "glazed_corner",
+    "check": "compare",
+    "errors": 22,
+    "findings": 1,
+    "right": 1,
+    "verdict": "caught"
+   },
+   {
+    "folder": "synth/synthetic-20-glazed-corner",
+    "class": "glazed_corner",
+    "check": "plausibility",
+    "errors": 22,
+    "findings": 1,
+    "right": 0,
+    "verdict": "missed"
+   },
+   {
+    "folder": "synth/synthetic-21-parapet",
+    "class": "roof_terrace_parapet",
+    "check": "inventory",
+    "errors": 0,
+    "findings": 1,
+    "right": 0,
+    "verdict": "false_alarm"
+   },
+   {
+    "folder": "synth/synthetic-21-parapet",
+    "class": "roof_terrace_parapet",
+    "check": "compare",
+    "errors": 0,
+    "findings": 4,
+    "right": 0,
+    "verdict": "false_alarm"
+   },
+   {
+    "folder": "synth/synthetic-21-parapet",
+    "class": "roof_terrace_parapet",
+    "check": "plausibility",
+    "errors": 0,
+    "findings": 0,
+    "right": 0,
+    "verdict": "clean"
+   },
+   {
+    "folder": "synth/synthetic-22-curved-stair",
+    "class": "curved_stair",
+    "check": "inventory",
+    "errors": 0,
+    "findings": 0,
+    "right": 0,
+    "verdict": "clean"
+   },
+   {
+    "folder": "synth/synthetic-22-curved-stair",
+    "class": "curved_stair",
+    "check": "compare",
+    "errors": 0,
+    "findings": 0,
+    "right": 0,
+    "verdict": "clean"
+   },
+   {
+    "folder": "synth/synthetic-22-curved-stair",
+    "class": "curved_stair",
+    "check": "plausibility",
+    "errors": 0,
+    "findings": 0,
+    "right": 0,
+    "verdict": "clean"
+   },
+   {
+    "folder": "synth/synthetic-23-size-tags",
+    "class": "size_tags",
+    "check": "inventory",
+    "errors": 0,
+    "findings": 0,
+    "right": 0,
+    "verdict": "clean"
+   },
+   {
+    "folder": "synth/synthetic-23-size-tags",
+    "class": "size_tags",
+    "check": "compare",
+    "errors": 0,
+    "findings": 0,
+    "right": 0,
+    "verdict": "clean"
+   },
+   {
+    "folder": "synth/synthetic-23-size-tags",
+    "class": "size_tags",
+    "check": "plausibility",
+    "errors": 0,
+    "findings": 1,
+    "right": 0,
+    "verdict": "false_alarm"
+   }
+  ],
+  "calls": {
+   "inventory": {
+    "answered": 42,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 788.5,
+    "asked_marks": 0,
+    "model_read_right": 0,
+    "unclear": 0,
+    "invalid_ids": 0,
+    "answered_ids": 0
+   },
+   "compare": {
+    "answered": 61,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 1288.7,
+    "asked_marks": 984,
+    "model_read_right": 801,
+    "unclear": 0,
+    "invalid_ids": 0,
+    "answered_ids": 0
+   },
+   "plausibility": {
+    "answered": 87,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 1954.8,
+    "asked_marks": 0,
+    "model_read_right": 0,
+    "unclear": 0,
+    "invalid_ids": 0,
+    "answered_ids": 641
+   }
+  },
+  "judged_by": {
+   "user": 0,
+   "truth": 49,
+   "known": 59,
+   "null": 569
+  },
+  "date": "2026-11-20",
+  "answers": "runs/20261120-153410-critic/results/critic/agent/answers.json",
+  "findings": 677,
+  "known": "/home/user/WenArt_RUN/results/critic/known_errors.json",
+  "marks": "/home/user/WenArt_RUN/results/critic/user_marks.json"
  }
 }
