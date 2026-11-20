@@ -473,7 +473,7 @@ def latest_questions() -> Optional[Path]:
 
 
 # ============================================================================================ 6. questions
-def question_list(labels: dict, top: int = 15) -> list:
+def question_list(labels: dict, top: int = 15, include_findings: bool = True) -> list:
     """Loop A's questions (pure given the labels): every gap disagreement and every unjudged RC15 finding of the
     newest calibration, scored by uncertainty (1 - the decision's margin; for a finding, nearness of its confidence to
     0.5) times impact (``IMPACT``), the highest ``top``."""
@@ -490,7 +490,7 @@ def question_list(labels: dict, top: int = 15) -> list:
                    "ai_answer": sig["drawing"], "reading_answer": rec["final_answer"], "score": round(u * IMPACT[kind], 3),
                    "description": f"is it a {sig['drawing']} (the AI) or a {rec['final_answer']} (the reading)?"})
     cal_p = REPO / "results" / "critic" / "calibration_checks_r2.json"
-    if cal_p.is_file():
+    if include_findings and cal_p.is_file():
         cal = json.loads(cal_p.read_text(encoding="utf-8"))
         found = {f["id"]: f for f in cal.get("findings") or []}
         for j in cal.get("judgements") or []:
