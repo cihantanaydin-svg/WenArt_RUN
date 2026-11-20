@@ -1179,10 +1179,18 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
         # its door is another wall's (real10's 45-degree chamfer took the arc of the door beside it); an angled pass
         # keeps the gaps between its pieces and the symbols drawn on its walls
         ends = {e["opening"] for e in l2 if e.get("kind") == "end" and isinstance(e.get("opening"), int)}
+        # a bare gap of an angled wall with an outdoor label in or just behind it is the mouth of a recessed balcony or
+        # terrace: the wall is cut there (its pieces end at the recess) and no opening spans it (``recess_cut``)
+        recess = {}
+        for j, o in enumerate(o2):
+            if j not in ends:
+                why = recess_cut(o, w2, ang, outdoor_points)
+                if why:
+                    recess[j] = why
         for j, o in enumerate(o2):
             # ... and an opening of an angled pass fits within its angled wall (a symbol of the axis wall beside a short
             # angled piece is that wall's: real10's 0.8 m door swing beside a 0.47 m chamfer)
-            if j not in ends and _fits_angled_host(o, w2, ang) \
+            if j not in ends and j not in recess and _fits_angled_host(o, w2, ang) \
                     and all(math.dist(o.center, q.center) > OPENING_SAME_M for q in openings):
                 index[j] = len(openings)
                 openings = openings + [o]
@@ -1192,11 +1200,74 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
                 if e["opening"] in index:
                     e["opening"] = index[e["opening"]]
                 else:
+                    why = recess.get(e["opening"]) or "an opening read already"
                     e.pop("opening")
-                    e["note"] = ((e.get("note") + "; ") if e.get("note") else "") + "an opening read already"
+                    e["note"] = ((e.get("note") + "; ") if e.get("note") else "") + why
             log.append(e)
         out_walls, owned = w2, owned | set(own2)
     return out_walls, openings, log, owned
+
+
+RECESS_BEHIND_M = 1.0           # R35: an outdoor label this far from an angled wall's face (or in its band) at a gap ...
+
+
+def _host_along(o: OpeningItem, walls: list[WallItem], ang: float):
+    """``(index, along, ux, uy)`` of the wall of the frame ``ang`` carrying the opening ``o`` (its centre within the
+    wall's band and length), or None (pure)."""
+    for k, w in enumerate(walls):
+        length = math.dist(w.start, w.end)
+        if length <= 1e-9:
+            continue
+        a = math.degrees(math.atan2(w.end[1] - w.start[1], w.end[0] - w.start[0])) % 90.0
+        d = (a - ang) % 90.0
+        if min(d, 90.0 - d) > AXIS_TOL_DEG:
+            continue
+        ux, uy = (w.end[0] - w.start[0]) / length, (w.end[1] - w.start[1]) / length
+        rx, ry = o.center[0] - w.start[0], o.center[1] - w.start[1]
+        along, across = rx * ux + ry * uy, abs(-rx * uy + ry * ux)
+        if across <= float(w.thickness) / 2.0 + 0.05 and -0.05 <= along <= length + 0.05:
+            return k, along, ux, uy
+    return None
+
+
+def recess_cut(o: OpeningItem, walls: list[WallItem], ang: float, outdoor_points=()) -> Optional[str]:
+    """R35 (20 Nov 2026; real20's north balcony, recessed into its 16-degree facade, became a 1 m2 room behind a
+    2.5 m window once the facade was one wall): a bare gap (``opening``, no door or window drawn in it) of a wall of
+    the angled frame ``ang`` with an outdoor-space label (``outdoor_points``: balcony, terrace ...) inside its band or
+    within ``RECESS_BEHIND_M`` of it, within the gap's span, is the mouth of that recessed space: its host wall is cut
+    at the gap (``walls`` changed in place: the host keeps the part before the gap, the part after it is appended) and
+    the reason is returned; None leaves the gap as it is."""
+    if getattr(o, "virtual", False) or o.kind != "opening" or not outdoor_points:
+        return None
+    host = _host_along(o, walls, ang)
+    if host is None:
+        return None
+    k, along, ux, uy = host
+    w = walls[k]
+    half = float(o.width) / 2.0
+    a0, a1 = along - half, along + half
+    reach = float(w.thickness) / 2.0 + RECESS_BEHIND_M
+    hit = None
+    for p in outdoor_points:
+        rx, ry = p[0] - w.start[0], p[1] - w.start[1]
+        pa, pc = rx * ux + ry * uy, abs(-rx * uy + ry * ux)
+        if a0 - 0.05 <= pa <= a1 + 0.05 and pc <= reach:
+            hit = p
+            break
+    if hit is None:
+        return None
+    length = math.dist(w.start, w.end)
+    first = (w.start[0] + ux * max(0.0, a0), w.start[1] + uy * max(0.0, a0))
+    second = (w.start[0] + ux * min(length, a1), w.start[1] + uy * min(length, a1))
+    rest = dataclasses.replace(w, start=(round(second[0], 4), round(second[1], 4)))
+    if a0 > 0.05:
+        walls[k] = dataclasses.replace(w, end=(round(first[0], 4), round(first[1], 4)))
+        if length - a1 > 0.05:
+            walls.append(rest)
+    elif length - a1 > 0.05:
+        walls[k] = rest
+    return (f"the mouth of a recessed outdoor space (its label at ({hit[0]:.2f}, {hit[1]:.2f})): the angled wall is cut "
+            f"at the {float(o.width):.2f} m gap, no opening spans it (R35)")
 
 
 def _fits_angled_host(o: OpeningItem, walls: list[WallItem], ang: float, tol: float = 0.1) -> bool:

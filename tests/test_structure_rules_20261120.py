@@ -201,3 +201,79 @@ def test_r35_a_face_drawn_angled_wall_is_read_at_its_angle_and_closes_its_rooms(
     for anchor in ((1.9, 2.5), (6.0, 2.5), (2.0, 5.2), (7.0, 6.6)):      # the last two right under the angled wall
         assert sum(f.contains(Point(anchor)) for f in faces) == 1, anchor
     assert [o.kind for o in openings] == ["door"]
+
+
+def _recessed_balcony_plan():
+    """The slanted house of ``_slanted_face_plan`` with a balcony recessed into its angled facade (x 1.2-2.8, its back
+    wall at y 4.0-4.2 with a 0.9 m door into the living room) and the label BALKON in the recess (synthetic)."""
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).parent))
+    import _real01_page as R
+    from wenart.ingest.generic.model import TextRun
+
+    def on(layer, strokes):
+        for st in strokes:
+            st.layer = layer
+        return strokes
+
+    def top(x):
+        return 4.8078 + (x - 0.0553) * 2.3 / 8.0
+    faces = [R.stroke([(2.45, 4.2), (2.8, 4.2), (2.8, 5.805), (8, 7.3), (8, 0), (0, 0), (0, 5), (1.2, 5.345),
+                       (1.2, 4.2), (1.55, 4.2)]),
+             R.stroke([(0.2, 0.2), (3.95, 0.2)]), R.stroke([(4.05, 0.2), (7.8, 0.2)]),
+             R.stroke([(0.2, top(0.2)), (1.0, top(1.0))]), R.stroke([(3.0, top(3.0)), (3.95, top(3.95))]),
+             R.stroke([(4.05, top(4.05)), (7.8, top(7.8))]),
+             R.stroke([(0.2, 0.2), (0.2, top(0.2))]), R.stroke([(7.8, 0.2), (7.8, top(7.8))]),
+             R.stroke([(1.0, top(1.0)), (1.0, 4.0), (1.55, 4.0)]), R.stroke([(2.45, 4.0), (3.0, 4.0), (3.0, top(3.0))]),
+             R.stroke([(1.55, 4.0), (1.55, 4.2)]), R.stroke([(2.45, 4.0), (2.45, 4.2)]),
+             R.stroke([(3.95, 0.2), (3.95, 1.0), (4.05, 1.0), (4.05, 0.2)]),
+             R.stroke([(3.95, top(3.95)), (3.95, 1.9), (4.05, 1.9), (4.05, top(4.05))])]
+    doors = [R.arc((4.0, 1.0), 0.9, 90, 180, prefix="door"), R.arc((1.55, 4.0), 0.9, 270, 360, prefix="door")]
+    strokes = on("W1", faces) + on("KAPI", doors)
+    runs = [TextRun(id="t1", text="SALON", box=(1.4, 2.4, 2.4, 2.6), height=0.2),
+            TextRun(id="t2", text="YATAK ODASI", box=(5.2, 2.4, 6.8, 2.6), height=0.2),
+            TextRun(id="t3", text="BALKON", box=(1.6, 4.8, 2.4, 5.0), height=0.2)]
+    return R.synthetic_page(strokes, runs), [(2.0, 4.9)]
+
+
+def test_r35_a_balcony_recessed_into_an_angled_facade_stays_open_with_its_door():
+    from shapely.geometry import Point
+
+    from wenart.ingest.generic import openings as O
+    from wenart.ingest.generic import topology as TP
+    from wenart.ingest.generic import walls as W
+    page, outdoor = _recessed_balcony_plan()
+    prims = W.wall_primitives(page, 1.0)
+    prims, _choice = W.face_pair_walls(page, 1.0, prims)
+    mask = W.wall_mask(page, prims, 1.0)
+    ids = {i for p in prims for i in p.stroke_ids}
+    rest = [s for s in page.strokes if s.id not in ids]
+    walls, _info = W.walls_from_mask(mask, rest, "test.pdf", 1)
+    walls2, openings, log, _ = O.gaps_and_openings(walls, rest, "test.pdf", 1, outdoor_points=outdoor)
+    mouth = Point(2.0, 5.575)                                         # the angled line across the recess
+    assert not any(TP.wall_polygon(w).contains(mouth) for w in walls2)
+    assert not any(math.dist(o.center, (2.0, 5.575)) < 0.8 for o in openings)
+    assert any("recessed outdoor space" in str(e.get("note")) for e in log)
+    faces = TP.faces(walls2, openings)
+    assert not any(f.contains(Point(2.0, 4.9)) for f in faces)        # the balcony is outside, no room
+    assert sum(f.contains(Point(0.5, 4.9)) for f in faces) == 1       # the living room under the angled wall
+    assert any(o.kind == "door" and math.dist(o.center, (2.0, 4.1)) < 0.3 for o in openings)
+
+
+def test_rc17_names_an_outdoor_label_lost_in_a_wall_or_naming_a_room():
+    from wenart.reading_check import structure as ST
+    b = _tower()
+    b["walls"].append({"id": "w_f", "level_id": "L2", "start": [0, 5.0], "end": [6, 5.0], "thickness": 0.2})
+    b["levels"][2]["reading_places"] = [{"kind": "unplaced_label", "text": "BALKON", "at": [3.0, 5.02]}]
+    b["rooms"] = [{"id": "r_tiny", "level_id": "L2", "label": "Oda", "room_type": "hall", "area_computed": 1.1,
+                   "polygon": _square(2.5, 4.0, 3.6, 4.9)},
+                  {"id": "r_b", "level_id": "L1", "label": "Balkon", "room_type": "bedroom",
+                   "polygon": _square(0.5, 0.5, 2.0, 2.0)}]
+    found = ST.outdoor_labels_lost(b)
+    assert {f["level_id"] for f in found} == {"L1", "L2"} and all(f["rule"] == "outdoor_label_lost" for f in found)
+    lost = next(f for f in found if f["level_id"] == "L2")
+    assert lost["element_ids"] == ["w_f", "r_tiny"]
+    b["site"]["outdoor_spaces"] = [{"id": "os", "level_id": "L2", "kind": "balcony",
+                                    "polygon": _square(2.0, 4.8, 4.0, 6.0)}]
+    assert [f["level_id"] for f in ST.outdoor_labels_lost(b)] == ["L1"]

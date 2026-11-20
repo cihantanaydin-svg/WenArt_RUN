@@ -18,7 +18,10 @@ reads), each finding ``{"check": "RC17", "rule", "severity", "level_id", "messag
    ``ANGLE_OFF_DEG``), ``ANGLED_MIN_M`` or more of them, that no model wall at their angle follows: the wall was cut
    into axis stubs or left out.
 
-Why: these three errors reached the renders of the 20 Nov 2026 structure pod unseen (doors into the air, slab edges
+4. ``outdoor_label_lost``: an outdoor-space label (balcony, terrace) placed in no face and no outdoor space of its
+   level (inside a wall, beside a tiny room), or a room named by an outdoor word read as an indoor room.
+
+Why: these errors reached the renders of the 20 Nov 2026 structure pod unseen (doors into the air, slab edges
 past the walls, a 16-degree facade built in steps); each is a class of error any project can show.
 
 How: geometry only (shapely; the outlines are ``geom2d.wall_outline`` as the build computes them); no AI, no pod.
@@ -35,6 +38,7 @@ RULES = {
     "door_into_air": "a door in an outer wall above the ground with nothing outside to step onto",
     "slab_beyond_walls": "a storey's floor slab open to the sky inside the storey's own walls",
     "angled_wall_straight": "a drawn wall at an angle that no model wall at its angle follows (R35)",
+    "outdoor_label_lost": "an outdoor label in no outdoor space (inside a wall, beside a tiny room) or naming a room",
 }
 PROBE_M = 0.3                 # a door's outside is probed this far past its wall's face
 GROUND_UP_M = 0.5             # a storey this far above the ground floor is an upper storey
@@ -231,7 +235,54 @@ def angled_walls_straight(segs: list, walls: list, level: str) -> list:
                      f"straight (axis stubs) or left out (R35)")]
 
 
+TINY_ROOM_M2 = 1.5            # rule 4: a room this small beside a lost outdoor label is that space read as a room
+TINY_REACH_M = 1.0
+
+
+def outdoor_labels_lost(building: dict) -> list:
+    """Rule 4 (20 Nov 2026; real20's north balcony, recessed into its angled facade, became a 1 m2 room behind a 2.5 m
+    window with its label inside the facade wall): an outdoor-space label (balcony, terrace ...; ``levels.outdoor``)
+    the reading placed in no face and no outdoor space of its level (named with the wall it lies in and a tiny room
+    beside it), and a room named by an outdoor word whose type is not open-air."""
+    from shapely.geometry import LineString, Point, Polygon
+
+    from wenart.levels import outdoor as OD
+
+    out = []
+    for lv in _levels(building):
+        lid = lv["id"]
+        air = _open_air(building, lid)
+        walls = [w for w in building.get("walls") or [] if w.get("level_id") == lid and w.get("start") and w.get("end")]
+        rooms = [r for r in building.get("rooms") or [] if r.get("level_id") == lid and len(r.get("polygon") or []) >= 3]
+        for p in lv.get("reading_places") or []:
+            if not isinstance(p, dict) or not OD.space_kind(p.get("text")) or not p.get("at"):
+                continue
+            pt = Point(float(p["at"][0]), float(p["at"][1]))
+            if any(a.buffer(0.3).contains(pt) for a in air):
+                continue
+            wall = next((w for w in walls if LineString([tuple(w["start"]), tuple(w["end"])]).buffer(
+                float(w.get("thickness") or 0.2) / 2.0, cap_style=2).contains(pt)), None)
+            tiny = [r for r in rooms if float(r.get("area_computed") or Polygon(r["polygon"]).area) < TINY_ROOM_M2
+                    and Polygon(r["polygon"]).distance(pt) <= TINY_REACH_M]
+            extra = (f"; it lies inside wall {wall.get('id')}" if wall else "") + \
+                (f"; the tiny room(s) {', '.join(r['id'] for r in tiny)} beside it" if tiny else "")
+            out.append(_finding("outdoor_label_lost", "major", lid,
+                                f"the outdoor label '{p.get('text')}' at ({pt.x:.2f}, {pt.y:.2f}) m is in no outdoor "
+                                f"space of {lid}{extra}: the balcony or terrace was lost (a wall across its mouth, its "
+                                f"outline not closed)", place=(pt.x, pt.y),
+                                element_ids=([wall.get("id")] if wall else []) + [r["id"] for r in tiny]))
+        for r in rooms:
+            sk = OD.space_kind(r.get("label") or r.get("label_raw"))
+            if sk and str(r.get("room_type") or "") not in OPEN_AIR_TYPES:
+                c = Polygon(r["polygon"]).representative_point()
+                out.append(_finding("outdoor_label_lost", "major", lid,
+                                    f"room {r['id']} is named '{r.get('label') or r.get('label_raw')}' (an outdoor "
+                                    f"space, {sk['kind']}) but read as an indoor {r.get('room_type')}",
+                                    place=(c.x, c.y), element_ids=[r["id"]]))
+    return out
+
+
 def findings(building: dict) -> list:
-    """Rules 1 and 2 on a building (pure); rule 3 needs the drawing and runs in ``reading_check.check``."""
+    """Rules 1, 2 and 4 on a building (pure); rule 3 needs the drawing and runs in ``reading_check.check``."""
     shapes = outlines(building)
-    return doors_into_air(building, shapes) + slabs_beyond_walls(building, shapes)
+    return doors_into_air(building, shapes) + slabs_beyond_walls(building, shapes) + outdoor_labels_lost(building)
