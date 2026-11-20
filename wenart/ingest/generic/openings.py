@@ -827,10 +827,10 @@ def _apply_ranker(g: Gap, rec: dict) -> None:
         if answer == "door":
             g.cls = "door"
             g.found = {"arcs": [], "arc": [], "hinges": [], "leaves": [], "leaf": False, "swing": 0.0, "radius": None,
-                       "double": False, "content": content, "by_ranker": {"margin": margin, "note": note}}
+                       "double": False, "content": content, "by_ranker": {"margin": max(0.05, margin), "note": note}}
         elif answer == "window":
             g.cls = "window"
-            g.found = {"lines": content, "glass": [], "content": content, "by_ranker": {"margin": margin, "note": note}}
+            g.found = {"lines": content, "glass": [], "content": content, "by_ranker": {"margin": max(0.05, margin), "note": note}}
         rec["ranker_answer"] = answer
     elif scores and rec["rule_confidence"] < RK.RULE_TRUST and len(allowed) > 1 and \
             (margin < RK.MARGIN_MIN or rec.get("ranker_untrusted")):

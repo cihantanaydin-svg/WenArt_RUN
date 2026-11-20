@@ -69,6 +69,7 @@ FLAG_PLACE_M = 1.0             # a code check this near a decision flags it
 # level-wide checks are none
 OPENING_CHECKS = {"RC8": None, "RC11": None, "RC17": ("door_into_air", "door_without_opening")}
 EXPLORE_REACH_M = 1.5          # a code check this near an explored decision is its reward
+SELF_CHECKS = ("RC7", "RC15")  # the reading's own low-confidence places and the AI critic: never a reward
 IMPACT = {"storey_count_differs": 5.0, "plan_not_read": 5.0, "room_missing": 4.0, "mirror_twin_missing": 4.0,
           "entrance_missing": 4.0, "lift_missing": 4.0, "flat_no_entrance": 4.0, "stair_missing": 3.5,
           "storey_no_stair_access": 3.5, "stair_no_landing_door": 3.0, "room_not_in_drawing": 3.0,
@@ -297,6 +298,9 @@ def events_from_exploration(base_records: list, explored_records: list, base_fla
     code findings within ``EXPLORE_REACH_M`` on its level that are new in the explored reading (-1 each for the
     explored answer) or gone from it (+1 each), at least one event per explored decision (reward 0 when nothing
     changed), with the decision's propensity."""
+    # the reading's own doubt (RC7 places) and the AI's findings (RC15) are no verifiable signal: left out
+    base_flags = [f for f in base_flags if f.get("check") not in SELF_CHECKS]
+    explored_flags = [f for f in explored_flags if f.get("check") not in SELF_CHECKS]
     base_keys = {f["key"] for f in base_flags}
     exp_keys = {f["key"] for f in explored_flags}
     out = []
@@ -679,7 +683,7 @@ def _cmd_explore(args) -> int:
     events = []
     os.environ["WENART_RANKER_EXPLORE"] = f"{args.seed}:{args.eps}"
     for p in _projects(args) or []:
-        folder = RG.read_project(p, out)
+        folder = out / p if (out / p / "building.json").is_file() else RG.read_project(p, out)   # a run resumed
         base = Path(args.work) / p
         ev = events_from_exploration(RK.read_decisions(base), RK.read_decisions(folder), code_flags(base),
                                      code_flags(folder), p)
