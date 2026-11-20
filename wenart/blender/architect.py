@@ -1499,7 +1499,7 @@ def outer_gaps(building: dict, prep: dict) -> list[dict]:
     (an open-air room, a site platform, a lower roof, the ground within 0.2 m) or is None; ``drop`` is its bottom
     over the ground outside; ``upper``: its level stands over the ground floor."""
     from wenart.blender import site as S
-    from wenart.blender.architect_actions import OPEN_AIR
+    from wenart.blender import architect_actions as AA
 
     levels = building.get("levels") or []
     if not levels or len(prep.get("ground_outline") or []) < 3:
@@ -1524,7 +1524,7 @@ def outer_gaps(building: dict, prep: dict) -> list[dict]:
         lands = None
         room = next((x for x in rooms if x.get("level_id") == lv["id"] and G.point_in_polygon(probe, x["polygon"])),
                     None)
-        if room is not None and str(room.get("room_type") or "").lower() in OPEN_AIR:
+        if room is not None and AA.is_open_air(room):
             lands = f"the {room.get('room_type')} {room['id']}"
         if lands is None:
             pf = next((p for p in site.get("platforms") or [] if len(p.get("polygon") or []) >= 3
