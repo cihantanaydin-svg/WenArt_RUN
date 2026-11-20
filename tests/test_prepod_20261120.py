@@ -572,6 +572,27 @@ def test_the_same_stair_above_is_told_by_its_flights_not_its_landing_depth():
     assert SR._same_stair_above(b, low, "L7") is None
 
 
+# --------------------------------------------------------------------------- R09-3 / BP-04: W3 raises an assumed sill
+def test_w3_raises_an_assumed_low_sill_and_guards_only_a_drawn_one():
+    from tests import test_tall_windows_20261027 as TW
+    from wenart.blender import architect_actions as AA
+    from wenart.blender import architect_rules as RR
+
+    def w3_of(assumed):
+        b = TW.living(room_type="bedroom")
+        b["levels"][0]["elevation"] = 3.0
+        b["levels"].insert(0, {"id": "Lg", "label": "Lg", "order": -1, "elevation": 0.0, "ceiling_height": 2.7,
+                               "ceiling_height_source": "assumed_default", "evidence": []})
+        for o in b["openings"]:
+            if o["type"] == "window":
+                o["sill_height"], o["assumed"] = 0.8, (["sill_height"] if assumed else [])
+        sides = [{"opening": o, "a": "r_L0_room", "b": None} for o in b["openings"]]
+        return next(q for q in RR.openings_rules(AA.Plan(b), sides) if q["id"] == "W3")
+
+    assert {a.get("default") for a in w3_of(True)["answers"]} == {"raise_sill"}
+    assert {a.get("default") for a in w3_of(False)["answers"]} == {"french_window"}
+
+
 # --------------------------------------------------------------------------- OL-01: no entrance from misread tags
 def test_a_tagged_gap_with_a_lost_room_behind_or_a_bridged_wide_gap_is_no_entrance():
     from tests import test_entrance_tags_20261113 as TT
