@@ -148,9 +148,36 @@ def exterior_flags(b: dict) -> list:
 
 
 # ------------------------------------------------------------------------------------------------------ 2. stairs
+def _flights_of(f: dict) -> Optional[list]:
+    """``[(run, width, lines)]`` of a stair's drawn flights, or None (pure)."""
+    st = f.get("stair") if isinstance(f.get("stair"), dict) else {}
+    fl = st.get("flights") or []
+    if not fl:
+        return None
+    try:
+        return [(G.distance(x["start"][:2], x["end"][:2]), float(x.get("width") or 0), int(x.get("lines") or 0))
+                for x in fl]
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
+def _same_flights(f: dict, g: dict) -> bool:
+    """20 Nov 2026 (pre-pod review OL-03: real14's fire stair on the terrace storey was read 0.61 m shallower, its
+    landing not read, and the stair under it was cut): the same stair by its flights: the same turn and number of
+    flights, each flight's width and run within ``STAIR_SIZE_TOL_M`` and its tread lines within one (pure)."""
+    a, c = _flights_of(f), _flights_of(g)
+    if not a or not c or len(a) != len(c):
+        return False
+    ta, tc = (f.get("stair") or {}).get("turn"), (g.get("stair") or {}).get("turn")
+    if ta and tc and ta != tc:
+        return False
+    return all(abs(x[0] - y[0]) <= STAIR_SIZE_TOL_M and abs(x[1] - y[1]) <= STAIR_SIZE_TOL_M and abs(x[2] - y[2]) <= 1
+               for x, y in zip(sorted(a), sorted(c)))
+
+
 def _same_stair_above(b: dict, f: dict, above: str) -> Optional[tuple]:
-    """``(stair, distance)``: a stair the storey above draws of about ``f``'s size (``STAIR_SIZE_TOL_M``) within
-    ``STAIR_NEAR_M`` (pure)."""
+    """``(stair, distance)``: a stair the storey above draws of about ``f``'s size (``STAIR_SIZE_TOL_M``) or with the
+    same flights (``_same_flights``, OL-03) within ``STAIR_NEAR_M`` (pure)."""
     fp = f["footprint"]
     mine = sorted(float(v) for v in fp["size"])
     best = None
@@ -160,8 +187,8 @@ def _same_stair_above(b: dict, f: dict, above: str) -> Optional[tuple]:
             continue
         other = sorted(float(v) for v in gp["size"])
         d = G.distance(fp["center"][:2], gp["center"][:2])
-        if all(abs(x - y) <= STAIR_SIZE_TOL_M for x, y in zip(mine, other)) and d <= STAIR_NEAR_M and \
-                (best is None or d < best[1]):
+        same = all(abs(x - y) <= STAIR_SIZE_TOL_M for x, y in zip(mine, other)) or _same_flights(f, g)
+        if same and d <= STAIR_NEAR_M and (best is None or d < best[1]):
             best = (g, d)
     return best
 

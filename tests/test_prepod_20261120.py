@@ -553,6 +553,25 @@ def test_an_untyped_room_of_a_flat_facing_out_gets_an_inferred_window_the_core_n
     assert mine and all("L0_hall" not in o["inference"]["reason"] for o in new)
 
 
+# --------------------------------------------------------------------------- OL-03: the same stair by its flights
+def test_the_same_stair_above_is_told_by_its_flights_not_its_landing_depth():
+    from wenart.ingest import sense_rules as SR
+
+    def stair(sid, lid, cx, depth):
+        fl = [{"start": [cx - 0.6, 0.0], "end": [cx - 0.6, 1.89], "width": 1.2, "lines": 8},
+              {"start": [cx + 0.6, 1.89], "end": [cx + 0.6, 0.0], "width": 1.2, "lines": 8}]
+        return {"id": sid, "level_id": lid, "type": "stair", "stair": {"turn": "U", "flights": fl},
+                "footprint": {"center": [cx, depth / 2.0], "size": [2.5, depth], "rotation_deg": 0.0}}
+
+    low, up = stair("f6", "L6", 0.0, 2.4), stair("f7", "L7", 3.0, 1.79)
+    b = {"furniture": [low, up]}
+    got = SR._same_stair_above(b, low, "L7")
+    assert got is not None and got[0]["id"] == "f7"
+    up["stair"]["flights"][0]["lines"] = 14                       # another stair: no match
+    up["stair"]["flights"][1]["lines"] = 14
+    assert SR._same_stair_above(b, low, "L7") is None
+
+
 # --------------------------------------------------------------------------- OL-01: no entrance from misread tags
 def test_a_tagged_gap_with_a_lost_room_behind_or_a_bridged_wide_gap_is_no_entrance():
     from tests import test_entrance_tags_20261113 as TT
