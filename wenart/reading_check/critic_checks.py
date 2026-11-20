@@ -1753,7 +1753,7 @@ def stands_for(index: dict) -> dict:
     by_folder: dict = {}
     for e in index.get("entries") or []:
         by_folder.setdefault(e["folder"], {})[e["level"]] = e["id"]
-        out[e["id"]] = {e["level"]} | set(e.get("copies") or []) | set(e.get("stands_for") or [])
+        out[e["id"]] = {e["level"]} | set(copy_levels(e.get("copies"))) | set(e.get("stands_for") or [])
     text_page = {(t["folder"], t["level"]): t.get("page_entry") for t in index.get("texts") or []}
     for folder, rd in (index.get("readings") or {}).items():
         levels = {lv["id"]: lv for lv in (rd.get("bfacts") or {}).get("levels") or []}
@@ -2240,3 +2240,9 @@ def marks_from_numbers(findings_index: dict, sheet: int, right: list, wrong: lis
                 raise ValueError(f"no finding #{n} on sheet {sheet}")
             out[fid] = {"right": flag, "sheet": sheet, "n": int(n), "folder": findings_index.get("folder")}
     return out
+
+
+def copy_levels(copies) -> list:
+    """The level ids of an entry's ``copies``: plain level ids (a page's typical copies) or, for a floor text folded
+    over identical storeys, ``{level, ids, points}`` records (pod x4vgfcm85u18op crashed on ``set()`` of those)."""
+    return [c.get("level") if isinstance(c, dict) else c for c in (copies or []) if c]

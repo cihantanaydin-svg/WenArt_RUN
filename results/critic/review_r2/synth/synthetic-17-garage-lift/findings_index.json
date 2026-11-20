@@ -1,0 +1,17 @@
+{
+ "folder": "synth/synthetic-17-garage-lift",
+ "sheets": [
+  {
+   "file": "sheet_1.jpg",
+   "numbers": {
+    "1": "synth/synthetic-17-garage-lift/L0|compare|q8"
+   }
+  }
+ ],
+ "findings": {
+  "synth/synthetic-17-garage-lift/L0|compare|q8": {
+   "sheet": 1,
+   "n": 1
+  }
+ }
+}

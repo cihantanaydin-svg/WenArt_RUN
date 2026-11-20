@@ -1,0 +1,22 @@
+{
+ "folder": "synth/synthetic-21-parapet",
+ "sheets": [
+  {
+   "file": "sheet_1.jpg",
+   "numbers": {
+    "1": "synth/synthetic-21-parapet/L2|compare|q1",
+    "2": "synth/synthetic-21-parapet/L2|compare|q2"
+   }
+  }
+ ],
+ "findings": {
+  "synth/synthetic-21-parapet/L2|compare|q1": {
+   "sheet": 1,
+   "n": 1
+  },
+  "synth/synthetic-21-parapet/L2|compare|q2": {
+   "sheet": 1,
+   "n": 2
+  }
+ }
+}
