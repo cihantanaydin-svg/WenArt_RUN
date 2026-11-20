@@ -287,15 +287,16 @@ def _faces(anchor, strokes: list[dict], facade, gap: float) -> list[dict]:
     if facade is not None and not facade.is_empty:
         for poly in getattr(facade, "geoms", [facade]):
             fixed.append(poly.exterior)
-    # 19 Nov 2026 (review A4, A4FC-3: real18's railing corners missed each other by 1e-11 and the ring never closed):
-    # the points on a micrometre grid
-    lines = [LineString([(round(float(q[0]), 6), round(float(q[1]), 6)) for q in s["pts"]]) for s in strokes
-             if len(s["pts"]) >= 2]
+    lines = [LineString(s["pts"]) for s in strokes if len(s["pts"]) >= 2]
     bridges = _bridges(strokes, fixed, gap)
     lines += [LineString([p, q]) for p, q, _ in bridges]
     if not lines:
         return []
-    merged = unary_union(lines + fixed)
+    # 19 Nov 2026 (review A4, A4FC-3: real18's railing corners missed each other by 1e-11 and the ring never closed):
+    # the linework snapped to a micrometre grid, the facade with it (strokes ending on it stay on it)
+    from shapely import set_precision
+
+    merged = set_precision(unary_union(lines + fixed), 1e-6)
     out = []
     for face in polygonize(merged):
         if not face.is_valid or face.area <= 1e-6 or not face.contains(pt):
