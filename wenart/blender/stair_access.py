@@ -1391,6 +1391,43 @@ def is_upper_end(building: dict, piece: dict) -> bool:
         return False
 
 
+_PLAN_CACHE: dict = {}
+PLAN_CACHE_SIZE = 64
+
+
+def _planned_cached(building: dict, level: dict, up: dict) -> list:
+    """``[{"id", "plan"}]`` of ``planned(building, level)``, read only (20 Nov 2026, pre-pod review R10-P8: real10's
+    prepare spent ~28 min re-planning every stair of a level for every architect answer's walk check). Keyed by
+    everything ``shell.plan_stairs`` reads: the levels' heights, the level's walls, the stair pieces of the level and
+    the one below, the slabs over and under it and the roof, so a changed input plans again."""
+    import hashlib
+    import json
+
+    from wenart.blender.parametric import SHELL_TYPES
+
+    lids = {level["id"], up["id"]}
+    below = [lv["id"] for lv in building.get("levels") or [] if isinstance(lv.get("elevation"), (int, float))
+             and float(lv["elevation"]) < float(level.get("elevation") or 0.0)]
+    key_src = {
+        "level": level["id"],
+        "levels": sorted([lv.get("id"), lv.get("elevation"), lv.get("ceiling_height"), lv.get("order"),
+                          lv.get("base_level_id"), lv.get("kind")] for lv in building.get("levels") or []),
+        "walls": [[w.get("id"), w.get("start"), w.get("end"), w.get("thickness"), w.get("height")]
+                  for w in building.get("walls") or [] if w.get("level_id") == level["id"]],
+        "pieces": [p for p in building.get("furniture") or [] if p.get("type") in SHELL_TYPES
+                   and (p.get("level_id") == level["id"] or p.get("level_id") in below)],
+        "slabs": [s for s in building.get("slabs") or [] if isinstance(s, dict)
+                  and (s.get("above_level_id") in lids or s.get("below_level_id") in lids)],
+        "roof": building.get("roof"),
+        "whole": bool(building.get("slabs") or isinstance(building.get("roof"), dict) or building.get("variants"))}
+    key = hashlib.sha1(json.dumps(key_src, sort_keys=True, default=str).encode("utf-8")).hexdigest()
+    if key not in _PLAN_CACHE:
+        _PLAN_CACHE[key] = [{"id": x["piece"].get("id"), "plan": x.get("plan")} for x in planned(building, level)]
+        while len(_PLAN_CACHE) > PLAN_CACHE_SIZE:
+            _PLAN_CACHE.pop(next(iter(_PLAN_CACHE)))
+    return _PLAN_CACHE[key]
+
+
 def stair_rooms(building: dict, piece: dict) -> Optional[dict]:
     """``{"start": room id, "arrival": room id, "level_id", "up_level_id"}``: the room most of a stair's start area
     lies in on its level, and the room most of its arrival floor (outside the floor's openings) lies in on the level
@@ -1399,8 +1436,8 @@ def stair_rooms(building: dict, piece: dict) -> Optional[dict]:
     up = level_above(building, level) if level is not None else None
     if up is None:
         return None
-    items = planned(building, level)
-    it = next((x for x in items if x["piece"].get("id") == piece.get("id")), None)
+    items = _planned_cached(building, level, up)
+    it = next((x for x in items if x["id"] == piece.get("id")), None)
     if it is None or not it.get("plan") or not it["plan"].get("flights"):
         return None
     ends = stair_ends(it["plan"])
