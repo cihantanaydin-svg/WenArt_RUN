@@ -1584,7 +1584,9 @@ def prepare_once(building_all: dict, variant: str = "base", brief: dict | None =
     if site_assumed:          # (slab_thickness: slab_plan lists it on every slab that uses it)
         out["assumed"].append({"object": "brief", "field": "site", "value": site_mode,
                                "reason": "not in the brief: the default of wenart/defaults.yaml"})
-    if building_all.get("slabs"):
+    # 20 Nov 2026 (pre-pod review R03-02 / BP-02): every building of more than one level gets its slabs planned
+    # (slab_plan derives a missing slab from the level's wall outline, assumed, with its stair openings)
+    if building_all.get("slabs") or len(vb.get("levels") or []) > 1:
         out["slabs"] = shell.slab_plan(vb, vb["levels"], float(slab_t), bool(slab_assumed))
         out["warnings"] += out["slabs"]["warnings"]
         out["assumed"] += out["slabs"]["assumed"]
@@ -1631,8 +1633,8 @@ def prepare_once(building_all: dict, variant: str = "base", brief: dict | None =
     out["architect_applied"] = AA.apply_answers(vb, out["architect_answers"], head_limit=head_limit)
     # 27 Oct 2026: an answer that read a stair the other way (``flip_stair``) cut its floor opening again: the slabs are
     # planned again with it (their new notes only; the first plan's are listed already)
-    if building_all.get("slabs") and any(r.get("ok") and r.get("option") == "flip_stair" and r.get("change")
-                                         for r in out["architect_applied"]):
+    if (building_all.get("slabs") or len(vb.get("levels") or []) > 1) and any(
+            r.get("ok") and r.get("option") == "flip_stair" and r.get("change") for r in out["architect_applied"]):
         out["slabs"] = shell.slab_plan(vb, vb["levels"], float(slab_t), bool(slab_assumed))
         out["warnings"] += [w for w in out["slabs"]["warnings"] if w not in out["warnings"]]
         out["assumed"] += [a for a in out["slabs"]["assumed"] if a not in out["assumed"]]

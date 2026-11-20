@@ -90,3 +90,20 @@ def test_a_light_well_is_open_air_and_a_party_wall_takes_no_opening():
     assert ok and "already looks outside" in why and b["openings"][0]["wall_id"] == "w_lw_n"
     AA.act_move_window(plan, "W2", {}, "win_in", "r_bed")
     assert next(o for o in b["openings"] if o["id"] == "win_in")["wall_id"] != "w_party"
+
+
+# --------------------------------------------------------------------------- R03-02 / BP-02: slabs with no closed union
+def test_a_level_with_no_closed_wall_union_gets_its_slab_from_the_walls_outline():
+    from wenart.sheets import to_building as TB
+
+    levels = [{"id": f"L{k}", "order": k, "elevation": 3.0 * k, "evidence": [{"file": "x.dwg"}]} for k in range(3)]
+    furniture = [{"id": "f_st", "level_id": "L0", "type": "stair",
+                  "footprint": {"center": [5.0, 5.0], "size": [1.2, 4.0], "rotation_deg": 0.0}}]
+    warns = []
+    slabs = TB.slabs_block({}, levels, {}, furniture, 0.2, warns.append)        # no union: no slab
+    assert slabs == []
+    sq = [(0.0, 0.0), (12.0, 0.0), (12.0, 10.0), (0.0, 10.0)]
+    slabs = TB.slabs_block({}, levels, {}, furniture, 0.2, warns.append, outline_of=lambda lid: sq)
+    assert [s["id"] for s in slabs] == ["sl_L0", "sl_L1", "sl_L2"]
+    s1 = next(s for s in slabs if s["id"] == "sl_L1")
+    assert s1["inferred"] and s1["status"] == "assumed" and s1["openings"]          # the stair void of L0's stair

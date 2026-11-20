@@ -2726,8 +2726,9 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
     for rec in SA.read_across_levels(b):
         build.warn(f"stair {rec['stair']}: {rec['reason']}")
     slab_default = float(BR.value(BR.load_brief(project_dir), "slab_thickness", 0.20))
+    from wenart.levels import model as LMO        # 20 Nov 2026 (R03-02): the walls' outline when no union closes
     b["slabs"] = TB.slabs_block(sheets, b["levels"], build.unions, b["furniture"], slab_default, build.warn,
-                                b["variants"], b["rooms"], build.voids)
+                                b["variants"], b["rooms"], build.voids, outline_of=lambda lid: LMO.level_outline(b, lid))
     terrace = TB.roof_terrace(b, sheets, build.warn)      # real10: parapets and the stair house of a roof terrace
     b["roof"] = TB.roof_block(sheets, b["levels"], b["rooms"], b["walls"], build.frame_shift, b.get("site"),
                               terrace=terrace)
