@@ -1495,6 +1495,19 @@ LANDING_TOL_M = 0.30            # a platform within this of the door's bottom is
 LANDING_PROBE_M = 0.50          # the landing is looked for this far out of the wall face
 
 
+def lower_roof_landing(levels: list, lv: dict, probe, outlines: dict) -> Optional[dict]:
+    """The level whose roof a door of ``lv`` steps out onto at ``probe`` (pure; 20 Nov 2026), or None: only the storey
+    right under ``lv`` (the highest level more than 0.5 m below it), and only where its outline holds the probe. A
+    roof two or more storeys down is no landing: the door opens into the air (E1). Before, any lower level whose
+    outline held the probe counted, and the upper doors of a block whose ground floor is larger stood in the air."""
+    below = [x for x in levels if float(x["elevation"]) < float(lv["elevation"]) - 0.5]
+    if not below:
+        return None
+    nxt = max(below, key=lambda x: float(x["elevation"]))
+    ol = outlines.get(nxt["id"]) or []
+    return nxt if len(ol) >= 3 and G.point_in_polygon(probe, ol) else None
+
+
 def outer_gaps(building: dict, prep: dict) -> list[dict]:
     """Every door and bare gap (``opening``) in an outer wall with where it lands (pure; 26 Oct 2026):
     ``[{"rec" (site.outer_openings), "drop", "lands", "upper"}]``: ``lands`` names what is outside at its bottom
@@ -1535,9 +1548,9 @@ def outer_gaps(building: dict, prep: dict) -> list[dict]:
             if pf is not None:
                 lands = f"the {pf.get('kind', 'platform')} {pf.get('id')}"
         if lands is None:
-            low = next((x for x in levels if float(x["elevation"]) < float(lv["elevation"]) - 0.5
-                        and len(outlines.get(x["id"]) or []) >= 3 and G.point_in_polygon(probe, outlines[x["id"]])),
-                       None)
+            # 20 Nov 2026 (real20: the doors of storeys 3-5 "landed on the roof of level L0", 3-9 m below them): a lower
+            # roof is a landing only when it is the storey right under the door's own (its top is the door's floor)
+            low = lower_roof_landing(levels, lv, probe, outlines)
             if low is not None:
                 lands = f"the roof of level {low['id']}"
         drop = bottom - gz(*probe)
