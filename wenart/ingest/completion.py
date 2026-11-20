@@ -70,6 +70,12 @@ MIN_FACE_M = 0.80               # a face shorter than this takes no window
 LONG_FACE_M = 5.0               # a habitable room's free face this long takes two windows
 PIER_M = 0.90                   # ... with this much wall between them
 HEAD_M = 2.20                   # an inferred window's head over its floor (the doors' head)
+# 20 Nov 2026 (pre-pod review BP-04: 0.80 m sills under the architect's 0.85 m W3 limit put a balustrade across 32
+# windows): an inferred window over a drop has at least this sill (the build's guard thresholds: architect_rules
+# LIMITS sill_safe_m 0.85, facade KIT guard_sill 0.85, window_order GUARD_SILL_M 0.90 -> the highest)
+SILL_SAFE_M = 0.90
+LINTEL_M = 0.20                 # a window's head stays this far under the ceiling (a lintel)
+OVER_DROP_M = 0.50              # a storey this far over the ground stands over a drop
 PARTY_REACH_M = 3.0             # a party text this far from a facade's outer line names that facade (R46)
 PARTY_ALONG_M = 0.30            # ... when its foot falls within that facade's extent (this much beyond its ends)
 PARTY_FACE_TOL_M = 0.35         # a wall's outer face this close to that side's line lies on it
@@ -501,6 +507,11 @@ def infer_level(building: dict, lid: str, party: dict, sizes: dict, size_source:
     new = []
     outer = [float(w.get("thickness") or 0.0) for w in level.walls.values() if w.get("exterior")]
     outer_t = statistics.median(outer) if outer else 0.0
+    lv = next((x for x in building.get("levels") or [] if x.get("id") == lid), {})
+    gz = _ground_min(building)
+    over_drop = isinstance(lv.get("elevation"), (int, float)) and float(lv["elevation"]) > (gz if gz is not None
+                                                                                          else 0.0) + OVER_DROP_M
+    ceiling = float(lv.get("ceiling_height") or 2.7)
     for room in sorted(level.rooms, key=lambda r: r["id"]):
         rtype = str(room.get("room_type") or "")
         if room["id"] in level.wells or (rtype not in HABITABLE and rtype not in WET):
@@ -555,6 +566,13 @@ def infer_level(building: dict, lid: str, party: dict, sizes: dict, size_source:
         span = p1 - p0
         width = min(w, span)
         sill = max(0.6, HEAD_M - h) if not wet else HEAD_M - h
+        sill_note = None
+        if not wet and over_drop and sill < SILL_SAFE_M:
+            # (BP-04) over a drop the sill is the guard threshold; the head under the ceiling, the window shorter when
+            # it does not fit
+            sill = SILL_SAFE_M
+            h = round(max(0.6, min(h, ceiling - LINTEL_M - sill)), 3)
+            sill_note = f"sill {SILL_SAFE_M:.2f} m over a drop (the guard threshold, assumed)"
         count = 2 if (not wet and span >= 2 * width + PIER_M and f["t1"] - f["t0"] >= LONG_FACE_M) else 1
         where = {"outside": "the outside", "balcony": "its balcony", "light_well": "a light well"}[f["kind"]]
         for k in range(count):
@@ -562,8 +580,8 @@ def infer_level(building: dict, lid: str, party: dict, sizes: dict, size_source:
             reason = (f"{room['id']} '{label}' ({rtype}) faces {where} on {f['wall_id']} and the drawing draws no window "
                       f"on this plan: an inferred {'small high ' if wet else ''}window"
                       + (f" ({k + 1} of 2 on a long wall)" if count == 2 else ""))
-            o = _new_opening("window", next_id("window", lid), level, f["wall_id"], t, width, h, sill, reason, room, f,
-                             ev_file, region, size_source)
+            o = _new_opening("window", next_id("window", lid), level, f["wall_id"], t, width, h, sill,
+                             reason + (f"; {sill_note}" if sill_note else ""), room, f, ev_file, region, size_source)
             new.append(o)
             level.openings.append(o)
     return new

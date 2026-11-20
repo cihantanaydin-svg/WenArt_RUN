@@ -511,3 +511,16 @@ def test_the_reading_check_judges_the_drawn_storey_not_the_inferred_ground_floor
     assert set(both) == {"L0", "L1"} and both["L0"]["inferred_ground"]
     b["level_inference"]["storeys"]["ground_from_typical"] = False
     assert list(RCK.level_pages(b)) == ["L0"]
+
+
+# --------------------------------------------------------------------------- BP-04: no sill under the guard threshold
+def test_an_inferred_window_over_a_drop_has_a_safe_sill_and_its_head_under_the_ceiling():
+    from tests import test_completion_20261106 as TC
+
+    b = TC.building(TC.flat("L1", 1, 3.0))
+    new = TC.infer_windows(b, "L1")
+    wins = [o for o in new if o["type"] == "window"]
+    assert wins and all(o["sill_height"] >= CP.SILL_SAFE_M for o in wins)
+    assert all(o["sill_height"] + o["height"] <= 2.7 - CP.LINTEL_M + 1e-6 for o in wins)
+    b0 = TC.building(TC.flat("L0", 0, 0.0))
+    assert any(o["sill_height"] < CP.SILL_SAFE_M for o in TC.infer_windows(b0, "L0") if o["type"] == "window")
