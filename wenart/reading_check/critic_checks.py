@@ -45,7 +45,7 @@ CHECKS = ("inventory", "compare", "plausibility")
 CALL_MAX_TOKENS = {"inventory": 2048, "compare": 1536, "plausibility": 1024}
 COMPARE_MAX = 40               # questions per level (the brief: about 40 at most)
 COMPARE_CHUNK = 20             # questions (numbered marks) per call
-COMPARE_CAPS = {"room": 18, "angled": 4, "balcony": 8, "opening": 10}
+COMPARE_CAPS = {"room": 18, "angled": 4, "balcony": 8, "opening": 12}
 INVENTORY_MAX_ROOMS = 40
 ROOM_REACH_M = 0.4             # a listed room point this near a reading room counts as that room
 STAIR_REACH_M = 1.5
@@ -480,6 +480,15 @@ def inventory_findings(data: dict, entry: dict, facts: dict, bfacts: Optional[di
             twin = next((j for j, s in enumerate(rooms) if j != i and _norm_label(s["label"]) == _norm_label(r["label"])
                          and math.dist(s["at"], mat) <= MIRROR_TOL_M), None)
             if twin is None:
+                # a drawing that labels one half only (real09): the reading has this room and nothing at its mirror
+                # place inside the reading's extent: the mirrored half's room is missing
+                here = room_at(facts, r["at"])
+                if here is not None and room_at(facts, mat, outdoor=True) is None and _inside_extent(facts, mat) \
+                        and not any(f["kind"] == "mirror_twin_missing" and math.dist(f["at"], mat) < 1.0 for f in out):
+                    out.append({"kind": "mirror_twin_missing", "at": mat, "point": [mx / 1000.0, my / 1000.0],
+                                "description": f"the plan mirrors about the {mirror['axis']} axis; '{r['label']}' "
+                                               f"({here['id']}) has no twin in the reading at its mirror place",
+                                "element_ids": [here["id"]], "confidence": 0.6})
                 continue
             twin_keys.add(i)
             if room_at(facts, r["at"]) is None and room_at(facts, rooms[twin]["at"]) is not None:
@@ -553,6 +562,15 @@ def inventory_findings(data: dict, entry: dict, facts: dict, bfacts: Optional[di
     for k, f in enumerate(out):
         f["key"] = f"{f['kind']}:{k}"
     return out
+
+
+def _inside_extent(facts: dict, p, margin: float = 0.3) -> bool:
+    """Whether ``p`` lies within the bounding box of the reading's rooms and outdoor spaces (less ``margin``)."""
+    pts = [q for r in list(facts.get("rooms") or []) + list(facts.get("outdoor") or []) for q in r.get("poly") or []]
+    if not pts:
+        return False
+    xs, ys = [q[0] for q in pts], [q[1] for q in pts]
+    return min(xs) + margin <= p[0] <= max(xs) - margin and min(ys) + margin <= p[1] <= max(ys) - margin
 
 
 def _nearest(items: list, p) -> Optional[tuple]:
@@ -633,7 +651,9 @@ def compare_questions(entry: dict, facts: dict, cap: int = COMPARE_MAX) -> list:
     n = 0
     op_q = ("Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening "
             "here)? And in the model?")
-    ops = sorted(facts.get("openings") or [], key=lambda o: (not o.get("exterior"), not o.get("inferred"), o["id"]))
+    # exterior first; of those the plain gaps (a window or door read as a hole), then the inferred ones
+    ops = sorted(facts.get("openings") or [], key=lambda o: (not o.get("exterior"), o.get("type") != "opening",
+                                                             not o.get("inferred"), o["id"]))
     for o in ops:
         if n >= COMPARE_CAPS["opening"]:
             break
@@ -1287,9 +1307,14 @@ def calibrate_checks(index: dict, found: list, answers: dict, *, known: Optional
                        "confidence": f.get("confidence"), "description": f.get("description"),
                        "clean_class": clean and j.get("right") is False, **j})
     rows = recall(found, {k: v for k, v in known.items() if any(not x.get("fixed") for x in v)}, match_m)
+    # the image checks see a level only through its plan (the page level and its copies); the floor texts every level
+    seen: dict = {}
+    for e in index.get("entries") or []:
+        seen.setdefault(e["folder"], set()).update([e["level"]] + list(e.get("copies") or []))
     per_check = {}
     for c in CHECKS:
-        tgt = [r for r in rows if set(r.get("kinds") or []) & set(KINDS_BY_CHECK[c])]
+        tgt = [r for r in rows if set(r.get("kinds") or []) & set(KINDS_BY_CHECK[c])
+               and (c == "plausibility" or r.get("level") is None or r.get("level") in seen.get(r["folder"], set()))]
         per_check[c] = {"targeted": len(tgt), "found": sum(1 for r in tgt if c in r["found_by"])}
     synth = []
     for folder, rd in sorted(readings.items()):

@@ -109,6 +109,13 @@ def test_a_listed_mirror_pair_with_one_half_missing_is_a_mirror_twin_finding():
     assert [f["kind"] for f in found] == ["mirror_twin_missing"]
     assert abs(found[0]["at"][0] - 3.0) < 0.05 and abs(found[0]["at"][1] - 2.0) < 0.05
     assert found[0]["element_ids"] == ["r2"]
+    # a drawing that labels one half only (real09): the listed right room's mirror place holds no reading room
+    one = dict(data, rooms=[{"label": "BANYO", "x": 850, "y": 800}])
+    found = CC.inventory_findings(one, _entry(), facts, None)
+    assert [f["kind"] for f in found] == ["mirror_twin_missing"] and abs(found[0]["at"][0] - 3.0) < 0.05
+    # ... but not outside the reading's extent, nor where the reading has the twin
+    assert CC.inventory_findings(dict(one, mirror={"axis": "vertical", "position": 900}), _entry(), facts, None) == []
+    assert CC.inventory_findings(one, _entry(), _facts(), None) == []
 
 
 # =================================================================================================== compare

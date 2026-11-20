@@ -6420,6 +6420,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 28,
      "qid": "q28"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      1.753,
+      1.075
+     ],
+     "point": [
+      0.1724,
+      0.6993
+     ],
+     "model_fact": "window",
+     "element_ids": [
+      "win_L0_010"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 29,
+     "qid": "q29"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      31.453,
+      1.075
+     ],
+     "point": [
+      0.7381,
+      0.6993
+     ],
+     "model_fact": "window",
+     "element_ids": [
+      "win_L0_011"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 30,
+     "qid": "q30"
     }
    ]
   },
@@ -8615,6 +8651,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 23,
      "qid": "q23"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      10.63,
+      2.09
+     ],
+     "point": [
+      0.5005,
+      0.5839
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "o_L-1_001"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 24,
+     "qid": "q24"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      8.33,
+      6.54
+     ],
+     "point": [
+      0.4222,
+      0.2812
+     ],
+     "model_fact": "window",
+     "element_ids": [
+      "win_L-1_001"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 25,
+     "qid": "q25"
     }
    ]
   },
@@ -10982,6 +11054,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 24,
      "qid": "q24"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      5.835,
+      0.79
+     ],
+     "point": [
+      0.3364,
+      0.6724
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_011"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 25,
+     "qid": "q25"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      8.68,
+      4.715
+     ],
+     "point": [
+      0.4332,
+      0.4054
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_016"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 26,
+     "qid": "q26"
     }
    ]
   },
@@ -13171,6 +13279,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 26,
      "qid": "q26"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      6.88,
+      7.74
+     ],
+     "point": [
+      0.3727,
+      0.1996
+     ],
+     "model_fact": "window",
+     "element_ids": [
+      "win_L2_002"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 27,
+     "qid": "q27"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      14.38,
+      7.74
+     ],
+     "point": [
+      0.6278,
+      0.1996
+     ],
+     "model_fact": "window",
+     "element_ids": [
+      "win_L2_003"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 28,
+     "qid": "q28"
     }
    ]
   },
@@ -14702,6 +14846,42 @@
     {
      "kind": "opening",
      "at": [
+      7.555,
+      8.189
+     ],
+     "point": [
+      0.3752,
+      0.1808
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L3_001"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 25,
+     "qid": "q25"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      13.705,
+      8.189
+     ],
+     "point": [
+      0.5775,
+      0.1808
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L3_002"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 26,
+     "qid": "q26"
+    },
+    {
+     "kind": "opening",
+     "at": [
       15.425,
       0.789
      ],
@@ -14714,8 +14894,8 @@
       "win_L3_002"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 25,
-     "qid": "q25"
+     "n": 27,
+     "qid": "q27"
     },
     {
      "kind": "opening",
@@ -14732,8 +14912,8 @@
       "win_L3_003"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 26,
-     "qid": "q26"
+     "n": 28,
+     "qid": "q28"
     },
     {
      "kind": "opening",
@@ -14748,42 +14928,6 @@
      "model_fact": "window",
      "element_ids": [
       "win_L3_004"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 27,
-     "qid": "q27"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      7.555,
-      8.189
-     ],
-     "point": [
-      0.3752,
-      0.1808
-     ],
-     "model_fact": "opening",
-     "element_ids": [
-      "o_L3_001"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 28,
-     "qid": "q28"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      13.705,
-      8.189
-     ],
-     "point": [
-      0.5775,
-      0.1808
-     ],
-     "model_fact": "opening",
-     "element_ids": [
-      "o_L3_002"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 29,
@@ -18646,6 +18790,78 @@
     {
      "kind": "opening",
      "at": [
+      5.69,
+      16.595
+     ],
+     "point": [
+      0.2652,
+      0.1642
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L-1_008"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 23,
+     "qid": "q23"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      16.69,
+      16.595
+     ],
+     "point": [
+      0.7044,
+      0.1642
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L-1_009"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 24,
+     "qid": "q24"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      1.685,
+      7.81
+     ],
+     "point": [
+      0.1054,
+      0.5198
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L-1_010"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 25,
+     "qid": "q25"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      20.695,
+      7.81
+     ],
+     "point": [
+      0.8642,
+      0.5198
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L-1_013"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 26,
+     "qid": "q26"
+    },
+    {
+     "kind": "opening",
+     "at": [
       11.19,
       1.915
      ],
@@ -18658,8 +18874,8 @@
       "d_L-1_001"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 23,
-     "qid": "q23"
+     "n": 27,
+     "qid": "q27"
     },
     {
      "kind": "opening",
@@ -18676,8 +18892,8 @@
       "d_L-1_005"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 24,
-     "qid": "q24"
+     "n": 28,
+     "qid": "q28"
     },
     {
      "kind": "opening",
@@ -18694,8 +18910,8 @@
       "d_L-1_006"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 25,
-     "qid": "q25"
+     "n": 29,
+     "qid": "q29"
     },
     {
      "kind": "opening",
@@ -18712,8 +18928,8 @@
       "d_L-1_007"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 26,
-     "qid": "q26"
+     "n": 30,
+     "qid": "q30"
     },
     {
      "kind": "opening",
@@ -18730,8 +18946,8 @@
       "d_L-1_008"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 27,
-     "qid": "q27"
+     "n": 31,
+     "qid": "q31"
     },
     {
      "kind": "opening",
@@ -18748,8 +18964,8 @@
       "d_L-1_019"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 28,
-     "qid": "q28"
+     "n": 32,
+     "qid": "q32"
     },
     {
      "kind": "opening",
@@ -18766,8 +18982,8 @@
       "d_L-1_025"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 29,
-     "qid": "q29"
+     "n": 33,
+     "qid": "q33"
     },
     {
      "kind": "opening",
@@ -18784,44 +19000,8 @@
       "d_L-1_027"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 30,
-     "qid": "q30"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      4.905,
-      1.91
-     ],
-     "point": [
-      0.2339,
-      0.7587
-     ],
-     "model_fact": "door",
-     "element_ids": [
-      "o_L-1_001"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 31,
-     "qid": "q31"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      17.485,
-      1.91
-     ],
-     "point": [
-      0.7361,
-      0.7587
-     ],
-     "model_fact": "door",
-     "element_ids": [
-      "o_L-1_002"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 32,
-     "qid": "q32"
+     "n": 34,
+     "qid": "q34"
     }
    ]
   },
@@ -20452,24 +20632,6 @@
     {
      "kind": "opening",
      "at": [
-      9.758,
-      8.45
-     ],
-     "point": [
-      0.423,
-      0.4726
-     ],
-     "model_fact": "door",
-     "element_ids": [
-      "o_L-2_001"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 13,
-     "qid": "q13"
-    },
-    {
-     "kind": "opening",
-     "at": [
       12.102,
       8.125
      ],
@@ -20480,6 +20642,24 @@
      "model_fact": "opening",
      "element_ids": [
       "o_r_L-2_oda_hall"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 13,
+     "qid": "q13"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      9.758,
+      8.45
+     ],
+     "point": [
+      0.423,
+      0.4726
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "o_L-2_001"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 14,
@@ -25185,24 +25365,6 @@
     {
      "kind": "opening",
      "at": [
-      20.445,
-      14.74
-     ],
-     "point": [
-      0.8334,
-      0.2393
-     ],
-     "model_fact": "window",
-     "element_ids": [
-      "o_L0_017"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 23,
-     "qid": "q23"
-    },
-    {
-     "kind": "opening",
-     "at": [
       20.44,
       8.185
      ],
@@ -25215,134 +25377,8 @@
       "o_L0_m001"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 24,
-     "qid": "q24"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      4.69,
-      1.91
-     ],
-     "point": [
-      0.2667,
-      0.7587
-     ],
-     "model_fact": "door",
-     "element_ids": [
-      "d_L0_001"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 25,
-     "qid": "q25"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      17.69,
-      1.91
-     ],
-     "point": [
-      0.7343,
-      0.7587
-     ],
-     "model_fact": "door",
-     "element_ids": [
-      "d_L0_002"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 26,
-     "qid": "q26"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      6.89,
-      1.242
-     ],
-     "point": [
-      0.3458,
-      0.7857
-     ],
-     "model_fact": "door",
-     "element_ids": [
-      "d_L0_016"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 27,
-     "qid": "q27"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      15.49,
-      1.242
-     ],
-     "point": [
-      0.6552,
-      0.7857
-     ],
-     "model_fact": "door",
-     "element_ids": [
-      "d_L0_017"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 28,
-     "qid": "q28"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      5.64,
-      17.135
-     ],
-     "point": [
-      0.3009,
-      0.1423
-     ],
-     "model_fact": "door",
-     "element_ids": [
-      "d_L0_024"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 29,
-     "qid": "q29"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      16.74,
-      17.135
-     ],
-     "point": [
-      0.7001,
-      0.1423
-     ],
-     "model_fact": "door",
-     "element_ids": [
-      "d_L0_025"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 30,
-     "qid": "q30"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      11.176,
-      0.455
-     ],
-     "point": [
-      0.5,
-      0.8176
-     ],
-     "model_fact": "window",
-     "element_ids": [
-      "o_L0_001"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 31,
-     "qid": "q31"
+     "n": 23,
+     "qid": "q23"
     },
     {
      "kind": "opening",
@@ -25359,8 +25395,188 @@
       "o_L0_011"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 24,
+     "qid": "q24"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      1.94,
+      8.185
+     ],
+     "point": [
+      0.1678,
+      0.5047
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L0_013"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 25,
+     "qid": "q25"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      20.832,
+      14.74
+     ],
+     "point": [
+      0.8473,
+      0.2393
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L0_018"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 26,
+     "qid": "q26"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      21.938,
+      11.04
+     ],
+     "point": [
+      0.8871,
+      0.3891
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L0_019"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 27,
+     "qid": "q27"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      4.69,
+      1.91
+     ],
+     "point": [
+      0.2667,
+      0.7587
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_001"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 28,
+     "qid": "q28"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      17.69,
+      1.91
+     ],
+     "point": [
+      0.7343,
+      0.7587
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_002"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 29,
+     "qid": "q29"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      6.89,
+      1.242
+     ],
+     "point": [
+      0.3458,
+      0.7857
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_016"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 30,
+     "qid": "q30"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      15.49,
+      1.242
+     ],
+     "point": [
+      0.6552,
+      0.7857
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_017"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 31,
+     "qid": "q31"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      5.64,
+      17.135
+     ],
+     "point": [
+      0.3009,
+      0.1423
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_024"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 32,
      "qid": "q32"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      16.74,
+      17.135
+     ],
+     "point": [
+      0.7001,
+      0.1423
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_025"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 33,
+     "qid": "q33"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      11.176,
+      0.455
+     ],
+     "point": [
+      0.5,
+      0.8176
+     ],
+     "model_fact": "window",
+     "element_ids": [
+      "o_L0_001"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 34,
+     "qid": "q34"
     }
    ]
   },
@@ -28572,6 +28788,24 @@
     {
      "kind": "opening",
      "at": [
+      10.596,
+      6.519
+     ],
+     "point": [
+      0.6201,
+      0.4626
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L1_001"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 29,
+     "qid": "q29"
+    },
+    {
+     "kind": "opening",
+     "at": [
       5.621,
       4.025
      ],
@@ -28584,8 +28818,8 @@
       "d_r_L1_oda_4_hall_lift_lift"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 29,
-     "qid": "q29"
+     "n": 30,
+     "qid": "q30"
     },
     {
      "kind": "opening",
@@ -28602,8 +28836,8 @@
       "d_L1_001"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 30,
-     "qid": "q30"
+     "n": 31,
+     "qid": "q31"
     },
     {
      "kind": "opening",
@@ -28620,8 +28854,8 @@
       "d_L1_002"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 31,
-     "qid": "q31"
+     "n": 32,
+     "qid": "q32"
     },
     {
      "kind": "opening",
@@ -28638,8 +28872,8 @@
       "d_L1_003"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 32,
-     "qid": "q32"
+     "n": 33,
+     "qid": "q33"
     },
     {
      "kind": "opening",
@@ -28656,8 +28890,26 @@
       "d_L1_004"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 33,
-     "qid": "q33"
+     "n": 34,
+     "qid": "q34"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      3.922,
+      6.5
+     ],
+     "point": [
+      0.2678,
+      0.4639
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L1_005"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 35,
+     "qid": "q35"
     }
    ]
   },
@@ -32542,6 +32794,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 36,
      "qid": "q36"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      6.093,
+      0.415
+     ],
+     "point": [
+      0.4034,
+      0.9792
+     ],
+     "model_fact": "window",
+     "element_ids": [
+      "win_L1_017"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 37,
+     "qid": "q37"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      6.093,
+      28.375
+     ],
+     "point": [
+      0.4034,
+      0.0224
+     ],
+     "model_fact": "window",
+     "element_ids": [
+      "win_L1_018"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 38,
+     "qid": "q38"
     }
    ]
   },
@@ -38140,24 +38428,6 @@
     {
      "kind": "opening",
      "at": [
-      15.153,
-      0.225
-     ],
-     "point": [
-      0.4276,
-      0.7153
-     ],
-     "model_fact": "door",
-     "element_ids": [
-      "d_L0_023"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 19,
-     "qid": "q19"
-    },
-    {
-     "kind": "opening",
-     "at": [
       3.204,
       4.475
      ],
@@ -38170,8 +38440,8 @@
       "o_L0_005"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 20,
-     "qid": "q20"
+     "n": 19,
+     "qid": "q19"
     },
     {
      "kind": "opening",
@@ -38188,8 +38458,8 @@
       "o_L0_006"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 21,
-     "qid": "q21"
+     "n": 20,
+     "qid": "q20"
     },
     {
      "kind": "opening",
@@ -38206,8 +38476,8 @@
       "o_L0_011"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 22,
-     "qid": "q22"
+     "n": 21,
+     "qid": "q21"
     },
     {
      "kind": "opening",
@@ -38222,6 +38492,24 @@
      "model_fact": "opening",
      "element_ids": [
       "o_L0_012"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 22,
+     "qid": "q22"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      15.153,
+      0.225
+     ],
+     "point": [
+      0.4276,
+      0.7153
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_023"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 23,
@@ -38316,6 +38604,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 28,
      "qid": "q28"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      18.053,
+      0.075
+     ],
+     "point": [
+      0.4829,
+      0.7181
+     ],
+     "model_fact": "window",
+     "element_ids": [
+      "win_L0_006"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 29,
+     "qid": "q29"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      21.603,
+      0.075
+     ],
+     "point": [
+      0.5505,
+      0.7181
+     ],
+     "model_fact": "window",
+     "element_ids": [
+      "win_L0_007"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 30,
+     "qid": "q30"
     }
    ]
   },
@@ -40383,6 +40707,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 23,
      "qid": "q23"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      10.63,
+      2.09
+     ],
+     "point": [
+      0.5005,
+      0.5839
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "o_L-1_001"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 24,
+     "qid": "q24"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      8.33,
+      6.54
+     ],
+     "point": [
+      0.4222,
+      0.2812
+     ],
+     "model_fact": "window",
+     "element_ids": [
+      "win_L-1_001"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 25,
+     "qid": "q25"
     }
    ]
   },
@@ -42270,6 +42630,42 @@
     {
      "kind": "opening",
      "at": [
+      9.08,
+      0.674
+     ],
+     "point": [
+      0.4468,
+      0.6803
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L0_001"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 14,
+     "qid": "q14"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      12.18,
+      0.674
+     ],
+     "point": [
+      0.5522,
+      0.6803
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L0_002"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 15,
+     "qid": "q15"
+    },
+    {
+     "kind": "opening",
+     "at": [
       17.739,
       0.51
      ],
@@ -42282,8 +42678,8 @@
       "win_L0_010"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 14,
-     "qid": "q14"
+     "n": 16,
+     "qid": "q16"
     },
     {
      "kind": "opening",
@@ -42300,8 +42696,8 @@
       "win_L0_011"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 15,
-     "qid": "q15"
+     "n": 17,
+     "qid": "q17"
     },
     {
      "kind": "opening",
@@ -42316,42 +42712,6 @@
      "model_fact": "door",
      "element_ids": [
       "win_L0_012"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 16,
-     "qid": "q16"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      9.08,
-      0.79
-     ],
-     "point": [
-      0.4468,
-      0.6724
-     ],
-     "model_fact": "window",
-     "element_ids": [
-      "d_L0_001"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 17,
-     "qid": "q17"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      12.18,
-      0.79
-     ],
-     "point": [
-      0.5522,
-      0.6724
-     ],
-     "model_fact": "window",
-     "element_ids": [
-      "d_L0_002"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 18,
@@ -42446,6 +42806,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 23,
      "qid": "q23"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      8.68,
+      4.715
+     ],
+     "point": [
+      0.4332,
+      0.4054
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_016"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 24,
+     "qid": "q24"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      12.58,
+      4.715
+     ],
+     "point": [
+      0.5659,
+      0.4054
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_017"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 25,
+     "qid": "q25"
     }
    ]
   },
@@ -44153,6 +44549,42 @@
     {
      "kind": "opening",
      "at": [
+      9.08,
+      0.674
+     ],
+     "point": [
+      0.4476,
+      0.6803
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L2_001"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 17,
+     "qid": "q17"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      12.18,
+      0.674
+     ],
+     "point": [
+      0.553,
+      0.6803
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L2_002"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 18,
+     "qid": "q18"
+    },
+    {
+     "kind": "opening",
+     "at": [
       17.625,
       0.465
      ],
@@ -44165,8 +44597,8 @@
       "win_L2_007"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 17,
-     "qid": "q17"
+     "n": 19,
+     "qid": "q19"
     },
     {
      "kind": "opening",
@@ -44181,42 +44613,6 @@
      "model_fact": "window",
      "element_ids": [
       "win_L2_008"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 18,
-     "qid": "q18"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      9.08,
-      0.79
-     ],
-     "point": [
-      0.4476,
-      0.6724
-     ],
-     "model_fact": "window",
-     "element_ids": [
-      "d_L2_001"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 19,
-     "qid": "q19"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      12.18,
-      0.79
-     ],
-     "point": [
-      0.553,
-      0.6724
-     ],
-     "model_fact": "window",
-     "element_ids": [
-      "d_L2_002"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 20,
@@ -44329,6 +44725,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 26,
      "qid": "q26"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      16.279,
+      3.725
+     ],
+     "point": [
+      0.6924,
+      0.4727
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L2_003"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 27,
+     "qid": "q27"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      5.53,
+      6.642
+     ],
+     "point": [
+      0.3268,
+      0.2743
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L2_003"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 28,
+     "qid": "q28"
     }
    ]
   },
@@ -45876,6 +46308,42 @@
     {
      "kind": "opening",
      "at": [
+      7.555,
+      8.189
+     ],
+     "point": [
+      0.3752,
+      0.1808
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L3_001"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 25,
+     "qid": "q25"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      13.705,
+      8.189
+     ],
+     "point": [
+      0.5775,
+      0.1808
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L3_002"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 26,
+     "qid": "q26"
+    },
+    {
+     "kind": "opening",
+     "at": [
       15.425,
       0.789
      ],
@@ -45888,8 +46356,8 @@
       "win_L3_002"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 25,
-     "qid": "q25"
+     "n": 27,
+     "qid": "q27"
     },
     {
      "kind": "opening",
@@ -45906,8 +46374,8 @@
       "win_L3_003"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 26,
-     "qid": "q26"
+     "n": 28,
+     "qid": "q28"
     },
     {
      "kind": "opening",
@@ -45922,42 +46390,6 @@
      "model_fact": "window",
      "element_ids": [
       "win_L3_004"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 27,
-     "qid": "q27"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      7.555,
-      8.189
-     ],
-     "point": [
-      0.3752,
-      0.1808
-     ],
-     "model_fact": "opening",
-     "element_ids": [
-      "o_L3_001"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 28,
-     "qid": "q28"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      13.705,
-      8.189
-     ],
-     "point": [
-      0.5775,
-      0.1808
-     ],
-     "model_fact": "opening",
-     "element_ids": [
-      "o_L3_002"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 29,
@@ -49840,6 +50272,132 @@
     {
      "kind": "opening",
      "at": [
+      5.69,
+      16.595
+     ],
+     "point": [
+      0.2652,
+      0.1642
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L-1_008"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 23,
+     "qid": "q23"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      16.69,
+      16.595
+     ],
+     "point": [
+      0.7044,
+      0.1642
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L-1_009"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 24,
+     "qid": "q24"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      1.685,
+      7.81
+     ],
+     "point": [
+      0.1054,
+      0.5198
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L-1_011"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 25,
+     "qid": "q25"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      1.685,
+      11.04
+     ],
+     "point": [
+      0.1054,
+      0.3891
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L-1_012"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 26,
+     "qid": "q26"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      20.695,
+      4.24
+     ],
+     "point": [
+      0.8642,
+      0.6644
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L-1_015"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 27,
+     "qid": "q27"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      20.695,
+      7.81
+     ],
+     "point": [
+      0.8642,
+      0.5198
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L-1_016"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 28,
+     "qid": "q28"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      20.695,
+      11.04
+     ],
+     "point": [
+      0.8642,
+      0.3891
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L-1_017"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 29,
+     "qid": "q29"
+    },
+    {
+     "kind": "opening",
+     "at": [
       1.685,
       4.24
      ],
@@ -49852,8 +50410,8 @@
       "o_L-1_010"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 23,
-     "qid": "q23"
+     "n": 30,
+     "qid": "q30"
     },
     {
      "kind": "opening",
@@ -49870,8 +50428,8 @@
       "d_L-1_001"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 24,
-     "qid": "q24"
+     "n": 31,
+     "qid": "q31"
     },
     {
      "kind": "opening",
@@ -49888,8 +50446,8 @@
       "d_L-1_005"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 25,
-     "qid": "q25"
+     "n": 32,
+     "qid": "q32"
     },
     {
      "kind": "opening",
@@ -49906,8 +50464,8 @@
       "d_L-1_006"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 26,
-     "qid": "q26"
+     "n": 33,
+     "qid": "q33"
     },
     {
      "kind": "opening",
@@ -49924,98 +50482,8 @@
       "d_L-1_007"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 27,
-     "qid": "q27"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      13.79,
-      16.595
-     ],
-     "point": [
-      0.5886,
-      0.1642
-     ],
-     "model_fact": "door",
-     "element_ids": [
-      "d_L-1_008"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 28,
-     "qid": "q28"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      17.865,
-      16.595
-     ],
-     "point": [
-      0.7513,
-      0.1642
-     ],
-     "model_fact": "door",
-     "element_ids": [
-      "d_L-1_009"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 29,
-     "qid": "q29"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      2.139,
-      14.727
-     ],
-     "point": [
-      0.1235,
-      0.2398
-     ],
-     "model_fact": "door",
-     "element_ids": [
-      "d_L-1_010"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 30,
-     "qid": "q30"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      20.245,
-      14.727
-     ],
-     "point": [
-      0.8463,
-      0.2398
-     ],
-     "model_fact": "door",
-     "element_ids": [
-      "d_L-1_021"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 31,
-     "qid": "q31"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      14.488,
-      1.91
-     ],
-     "point": [
-      0.6165,
-      0.7587
-     ],
-     "model_fact": "door",
-     "element_ids": [
-      "d_L-1_029"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 32,
-     "qid": "q32"
+     "n": 34,
+     "qid": "q34"
     }
    ]
   },
@@ -51646,24 +52114,6 @@
     {
      "kind": "opening",
      "at": [
-      9.758,
-      8.45
-     ],
-     "point": [
-      0.423,
-      0.4726
-     ],
-     "model_fact": "door",
-     "element_ids": [
-      "o_L-2_001"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 13,
-     "qid": "q13"
-    },
-    {
-     "kind": "opening",
-     "at": [
       12.102,
       8.125
      ],
@@ -51674,6 +52124,24 @@
      "model_fact": "opening",
      "element_ids": [
       "o_r_L-2_oda_hall"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 13,
+     "qid": "q13"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      9.758,
+      8.45
+     ],
+     "point": [
+      0.423,
+      0.4726
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "o_L-2_001"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 14,
@@ -56124,24 +56592,6 @@
     {
      "kind": "opening",
      "at": [
-      20.23,
-      14.74
-     ],
-     "point": [
-      0.8257,
-      0.2393
-     ],
-     "model_fact": "window",
-     "element_ids": [
-      "o_L0_018"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 23,
-     "qid": "q23"
-    },
-    {
-     "kind": "opening",
-     "at": [
       20.44,
       8.185
      ],
@@ -56154,134 +56604,8 @@
       "o_L0_m001"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 24,
-     "qid": "q24"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      4.69,
-      1.91
-     ],
-     "point": [
-      0.2667,
-      0.7587
-     ],
-     "model_fact": "door",
-     "element_ids": [
-      "d_L0_001"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 25,
-     "qid": "q25"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      17.69,
-      1.91
-     ],
-     "point": [
-      0.7343,
-      0.7587
-     ],
-     "model_fact": "door",
-     "element_ids": [
-      "d_L0_002"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 26,
-     "qid": "q26"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      6.89,
-      1.242
-     ],
-     "point": [
-      0.3458,
-      0.7857
-     ],
-     "model_fact": "door",
-     "element_ids": [
-      "d_L0_016"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 27,
-     "qid": "q27"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      15.49,
-      1.242
-     ],
-     "point": [
-      0.6552,
-      0.7857
-     ],
-     "model_fact": "door",
-     "element_ids": [
-      "d_L0_017"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 28,
-     "qid": "q28"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      5.64,
-      17.135
-     ],
-     "point": [
-      0.3009,
-      0.1423
-     ],
-     "model_fact": "door",
-     "element_ids": [
-      "d_L0_024"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 29,
-     "qid": "q29"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      16.74,
-      17.135
-     ],
-     "point": [
-      0.7001,
-      0.1423
-     ],
-     "model_fact": "door",
-     "element_ids": [
-      "d_L0_025"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 30,
-     "qid": "q30"
-    },
-    {
-     "kind": "opening",
-     "at": [
-      11.176,
-      0.455
-     ],
-     "point": [
-      0.5,
-      0.8176
-     ],
-     "model_fact": "window",
-     "element_ids": [
-      "o_L0_001"
-     ],
-     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
-     "n": 31,
-     "qid": "q31"
+     "n": 23,
+     "qid": "q23"
     },
     {
      "kind": "opening",
@@ -56298,8 +56622,188 @@
       "o_L0_011"
      ],
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 24,
+     "qid": "q24"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      1.94,
+      8.185
+     ],
+     "point": [
+      0.1678,
+      0.5047
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L0_014"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 25,
+     "qid": "q25"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      20.832,
+      14.74
+     ],
+     "point": [
+      0.8473,
+      0.2393
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L0_020"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 26,
+     "qid": "q26"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      21.938,
+      11.04
+     ],
+     "point": [
+      0.8871,
+      0.3891
+     ],
+     "model_fact": "opening",
+     "element_ids": [
+      "o_L0_022"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 27,
+     "qid": "q27"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      20.23,
+      14.74
+     ],
+     "point": [
+      0.8257,
+      0.2393
+     ],
+     "model_fact": "window",
+     "element_ids": [
+      "o_L0_018"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 28,
+     "qid": "q28"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      4.69,
+      1.91
+     ],
+     "point": [
+      0.2667,
+      0.7587
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_001"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 29,
+     "qid": "q29"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      17.69,
+      1.91
+     ],
+     "point": [
+      0.7343,
+      0.7587
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_002"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 30,
+     "qid": "q30"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      6.89,
+      1.242
+     ],
+     "point": [
+      0.3458,
+      0.7857
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_016"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 31,
+     "qid": "q31"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      15.49,
+      1.242
+     ],
+     "point": [
+      0.6552,
+      0.7857
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_017"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 32,
      "qid": "q32"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      5.64,
+      17.135
+     ],
+     "point": [
+      0.3009,
+      0.1423
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_024"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 33,
+     "qid": "q33"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      16.74,
+      17.135
+     ],
+     "point": [
+      0.7001,
+      0.1423
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_025"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 34,
+     "qid": "q34"
     }
    ]
   },
@@ -59061,6 +59565,24 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 37,
      "qid": "q37"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      4.422,
+      4.801
+     ],
+     "point": [
+      0.2942,
+      0.5804
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L1_007"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 38,
+     "qid": "q38"
     }
    ]
   },
@@ -62937,6 +63459,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 36,
      "qid": "q36"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      5.903,
+      0.41
+     ],
+     "point": [
+      0.3914,
+      0.9794
+     ],
+     "model_fact": "window",
+     "element_ids": [
+      "win_L1_017"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 37,
+     "qid": "q37"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      5.903,
+      28.375
+     ],
+     "point": [
+      0.3914,
+      0.0224
+     ],
+     "model_fact": "window",
+     "element_ids": [
+      "win_L1_018"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 38,
+     "qid": "q38"
     }
    ]
   },
@@ -64670,6 +65228,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 16,
      "qid": "q16"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      3.0,
+      4.401
+     ],
+     "point": [
+      0.25,
+      0.5111
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_001"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 17,
+     "qid": "q17"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      7.8,
+      4.401
+     ],
+     "point": [
+      0.65,
+      0.5111
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_002"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 18,
+     "qid": "q18"
     }
    ],
    "disagreements": [
@@ -65567,6 +66161,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 16,
      "qid": "q16"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      3.025,
+      4.401
+     ],
+     "point": [
+      0.2795,
+      0.5092
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_001"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 17,
+     "qid": "q17"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      7.775,
+      4.401
+     ],
+     "point": [
+      0.6243,
+      0.5092
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_002"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 18,
+     "qid": "q18"
     }
    ],
    "disagreements": [
@@ -66606,6 +67236,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 16,
      "qid": "q16"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      7.8,
+      4.41
+     ],
+     "point": [
+      0.6293,
+      0.5087
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_002"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 17,
+     "qid": "q17"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      2.0,
+      5.81
+     ],
+     "point": [
+      0.2126,
+      0.3806
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_003"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 18,
+     "qid": "q18"
     }
    ],
    "disagreements": [
@@ -67644,6 +68310,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 16,
      "qid": "q16"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      3.0,
+      4.401
+     ],
+     "point": [
+      0.2777,
+      0.5092
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_001"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 17,
+     "qid": "q17"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      7.8,
+      4.401
+     ],
+     "point": [
+      0.6261,
+      0.5092
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_002"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 18,
+     "qid": "q18"
     }
    ],
    "disagreements": []
@@ -68666,6 +69368,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 18,
      "qid": "q18"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      0.125,
+      2.302
+     ],
+     "point": [
+      0.069,
+      0.6964
+     ],
+     "model_fact": "window",
+     "element_ids": [
+      "win_L0_009"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 19,
+     "qid": "q19"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      0.125,
+      6.802
+     ],
+     "point": [
+      0.069,
+      0.2947
+     ],
+     "model_fact": "window",
+     "element_ids": [
+      "win_L0_010"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 20,
+     "qid": "q20"
     }
    ],
    "disagreements": [
@@ -69768,6 +70506,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 17,
      "qid": "q17"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      3.0,
+      4.401
+     ],
+     "point": [
+      0.25,
+      0.5111
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_001"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 18,
+     "qid": "q18"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      7.8,
+      4.401
+     ],
+     "point": [
+      0.65,
+      0.5111
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_002"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 19,
+     "qid": "q19"
     }
    ],
    "disagreements": []
@@ -70714,6 +71488,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 17,
      "qid": "q17"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      3.0,
+      4.401
+     ],
+     "point": [
+      0.25,
+      0.5111
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L1_001"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 18,
+     "qid": "q18"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      7.8,
+      4.401
+     ],
+     "point": [
+      0.65,
+      0.5111
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L1_002"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 19,
+     "qid": "q19"
     }
    ],
    "disagreements": []
@@ -71779,6 +72589,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 22,
      "qid": "q22"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      5.25,
+      8.876
+     ],
+     "point": [
+      0.4488,
+      0.625
+     ],
+     "model_fact": "window",
+     "element_ids": [
+      "win_L0_005"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 23,
+     "qid": "q23"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      9.2,
+      8.876
+     ],
+     "point": [
+      0.6976,
+      0.625
+     ],
+     "model_fact": "window",
+     "element_ids": [
+      "win_L0_006"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 24,
+     "qid": "q24"
     }
    ],
    "disagreements": [
@@ -73193,6 +74039,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 17,
      "qid": "q17"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      3.0,
+      4.401
+     ],
+     "point": [
+      0.2777,
+      0.5092
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_001"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 18,
+     "qid": "q18"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      7.8,
+      4.401
+     ],
+     "point": [
+      0.6261,
+      0.5092
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_002"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 19,
+     "qid": "q19"
     }
    ],
    "disagreements": []
@@ -74166,6 +75048,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 16,
      "qid": "q16"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      11.875,
+      2.201
+     ],
+     "point": [
+      0.922,
+      0.711
+     ],
+     "model_fact": "window",
+     "element_ids": [
+      "win_L0_010"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 17,
+     "qid": "q17"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      11.875,
+      6.601
+     ],
+     "point": [
+      0.922,
+      0.3073
+     ],
+     "model_fact": "window",
+     "element_ids": [
+      "win_L0_011"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 18,
+     "qid": "q18"
     }
    ],
    "disagreements": [
@@ -75215,6 +76133,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 17,
      "qid": "q17"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      7.8,
+      4.402
+     ],
+     "point": [
+      0.6261,
+      0.5091
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_002"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 18,
+     "qid": "q18"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      2.0,
+      5.802
+     ],
+     "point": [
+      0.2051,
+      0.3807
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_003"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 19,
+     "qid": "q19"
     }
    ],
    "disagreements": [
@@ -76227,6 +77181,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 17,
      "qid": "q17"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      3.0,
+      4.401
+     ],
+     "point": [
+      0.25,
+      0.5111
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_001"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 18,
+     "qid": "q18"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      7.8,
+      4.401
+     ],
+     "point": [
+      0.65,
+      0.5111
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_002"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 19,
+     "qid": "q19"
     }
    ],
    "disagreements": []
@@ -77167,6 +78157,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 17,
      "qid": "q17"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      3.0,
+      4.401
+     ],
+     "point": [
+      0.25,
+      0.5111
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L1_001"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 18,
+     "qid": "q18"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      7.8,
+      4.401
+     ],
+     "point": [
+      0.65,
+      0.5111
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L1_002"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 19,
+     "qid": "q19"
     }
    ],
    "disagreements": []
@@ -78075,6 +79101,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 17,
      "qid": "q17"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      3.0,
+      4.401
+     ],
+     "point": [
+      0.2777,
+      0.5092
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_001"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 18,
+     "qid": "q18"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      8.5,
+      4.401
+     ],
+     "point": [
+      0.677,
+      0.5092
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_002"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 19,
+     "qid": "q19"
     }
    ],
    "disagreements": []
@@ -78988,6 +80050,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 16,
      "qid": "q16"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      7.8,
+      4.399
+     ],
+     "point": [
+      0.6293,
+      0.5092
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_002"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 17,
+     "qid": "q17"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      2.0,
+      5.8
+     ],
+     "point": [
+      0.2126,
+      0.381
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_003"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 18,
+     "qid": "q18"
     }
    ],
    "disagreements": [
@@ -80095,6 +81193,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 17,
      "qid": "q17"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      3.0,
+      4.401
+     ],
+     "point": [
+      0.25,
+      0.5111
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_001"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 18,
+     "qid": "q18"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      7.8,
+      4.401
+     ],
+     "point": [
+      0.65,
+      0.5111
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_002"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 19,
+     "qid": "q19"
     }
    ],
    "disagreements": []
@@ -81035,6 +82169,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 17,
      "qid": "q17"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      3.0,
+      4.401
+     ],
+     "point": [
+      0.25,
+      0.5111
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L1_001"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 18,
+     "qid": "q18"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      7.8,
+      4.401
+     ],
+     "point": [
+      0.65,
+      0.5111
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L1_002"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 19,
+     "qid": "q19"
     }
    ],
    "disagreements": []
@@ -82292,6 +83462,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 17,
      "qid": "q17"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      3.0,
+      4.401
+     ],
+     "point": [
+      0.2777,
+      0.5092
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_001"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 18,
+     "qid": "q18"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      7.8,
+      4.401
+     ],
+     "point": [
+      0.6261,
+      0.5092
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_002"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 19,
+     "qid": "q19"
     }
    ],
    "disagreements": []
@@ -83214,6 +84420,42 @@
      "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
      "n": 16,
      "qid": "q16"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      3.0,
+      4.401
+     ],
+     "point": [
+      0.2777,
+      0.5092
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_001"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 17,
+     "qid": "q17"
+    },
+    {
+     "kind": "opening",
+     "at": [
+      7.8,
+      4.401
+     ],
+     "point": [
+      0.6261,
+      0.5092
+     ],
+     "model_fact": "door",
+     "element_ids": [
+      "d_L0_002"
+     ],
+     "ask": "Is this opening a door, a window or a plain opening in the drawing (none when the drawing has no opening here)? And in the model?",
+     "n": 18,
+     "qid": "q18"
     }
    ],
    "disagreements": []
