@@ -3998,6 +3998,16 @@
    "request": "20 Nov 2026, user: 'All fixes must be general not just for these projects, future projects should not be making these mistakes.' Every structural fix is a rule keyed on what the drawing shows (geometry, symbols, tags, texts, storey relations), never on a project, coordinates or one office's layer names; it comes with a synthetic test and a machine check that flags the same error class on any project before a pod (doors into the air, slabs outside their walls, angled walls built straight, levels read but not built, missing mirror twins, size tags with no opening, roofs under their storey, sealed entrances).",
    "lesson": "20 Nov 2026, user: 'All fixes must be general not just for these projects, future projects should not be making these mistakes.' Every structural fix is a rule keyed on what the drawing shows (geometry, symbols, tags, texts, storey relations), never on a project, coordinates or one office's layer names; it comes with a synthetic test and a machine check that flags the same error class on any project before a pod (doors into the air, slabs outside their walls, angled walls built straight, levels read but not built, missing mirror twins, size tags with no opening, roofs under their storey, sealed entrances).",
    "question": null
+  },
+  {
+   "id": "UL339",
+   "date": "2026-11-20",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "The structure AI teaches itself (user, 20 Nov 2026: 'A bit RL for AI please it needs to teach itself'): the ranker learns as a contextual bandit from verifiable rewards only (the user's corrections and marks, synthetic exact truth, code checks newly firing or cleared, trusted AI findings, the reading score and section-0 grades), explores only low-margin decisions in exploration runs, and ships a model only when held-out truth, the score gate and the grades back it; questions the code cannot settle go to the user as one numbered sheet whose marks become truth",
+   "lesson": "The structure AI teaches itself (user, 20 Nov 2026: 'A bit RL for AI please it needs to teach itself'): the ranker learns as a contextual bandit from verifiable rewards only (the user's corrections and marks, synthetic exact truth, code checks newly firing or cleared, trusted AI findings, the reading score and section-0 grades), explores only low-margin decisions in exploration runs, and ships a model only when held-out truth, the score gate and the grades back it; questions the code cannot settle go to the user as one numbered sheet whose marks become truth",
+   "question": null
   }
  ]
 }
