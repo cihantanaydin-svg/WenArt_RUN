@@ -197,9 +197,11 @@ def test_real03_reads_the_whole_ground_floor(real03):
     assert b["status"] == "ok", b["warnings"]
     # 13 Nov 2026 (review S1-03a): the eight flats around a stair and a fire stair are a block of several storeys; the
     # drawn floor is L0, the storeys over it its inferred copies (type default, a guess)
-    assert [lv["id"] for lv in b["levels"]] == ["L0", "L1", "L2"]
-    assert [lv.get("typical_of") for lv in b["levels"]] == [None, "L0", "L0"]
-    assert [lv["elevation"] for lv in b["levels"]] == [0.0, 3.0, 6.0]
+    # 20 Nov 2026 (pre-pod R03-01): the DWG's unused blocks of the same building say 1BK+ZK+12K at 3.20 m a storey, so
+    # the inferred basement L-1 at -4.00 and twelve copies of the drawn floor over it (no more the type default's 3)
+    assert [lv["id"] for lv in b["levels"]] == ["L-1"] + [f"L{k}" for k in range(13)]
+    assert [lv.get("typical_of") for lv in b["levels"]][1:] == [None] + ["L0"] * 12
+    assert [lv["elevation"] for lv in b["levels"]] == [-4.0] + [round(3.2 * k, 2) for k in range(13)]
     types = [r["room_type"] for r in b["rooms"] if r["level_id"] == "L0"]
     assert types.count("living") == 8 and types.count("bathroom") == 8 and types.count("stair") == 2
     assert types.count("bedroom") >= 9
@@ -207,7 +209,9 @@ def test_real03_reads_the_whole_ground_floor(real03):
     assert {"KAT HOLÜ", "RÜZGARLIK", "KAT MERDİVENİ", "YANGIN MERDİVENİ"} <= labels
     assert "SUBSTATİON" not in labels                    # a services-layer text, no room name
     # (13 Nov 2026, S1-03b: the one inferred wall is the shaft wall between the twin lifts' cars, ``twins.lift_cars``)
-    assert not [w for w in b["walls"] if w.get("inferred") and "_cars" not in w["id"]]
+    # (20 Nov 2026: the inferred basement's walls are the footprint and core, rule basement_footprint)
+    assert not [w for w in b["walls"] if w.get("inferred") and "_cars" not in w["id"]
+                and (w.get("inference") or {}).get("rule") != "basement_footprint"]
     assert any("ring:" in str(w["evidence"][0].get("entity")) for w in b["walls"])
     # The title block (legend block) gives no walls: every wall lies in the building (33.2 x 14.6 m).
     for w in b["walls"]:
@@ -234,8 +238,9 @@ def test_real03_furniture_is_read_completely(real03):
     assert not [f for f in built if f["type"] == "unknown"]
     assert all(f.get("not_built_reason") or f.get("inferred_reason") for f in b["furniture"] if f.get("build") is False)
     built = [f for f in built if f["level_id"] == "L0"]       # the drawn floor (13 Nov 2026: L1, L2 are its copies)
-    # the symbols of the copies repeat the drawn floor's (a few keep the drawn floor's level id): per storey
-    n = len(b["levels"])
+    # the symbols of the copies repeat the drawn floor's (a few keep the drawn floor's level id): per storey that
+    # copies the drawn floor (20 Nov 2026: the inferred basement is the footprint with the core, no copy of the flats)
+    n = len([lv for lv in b["levels"] if lv["id"] == "L0" or lv.get("typical_of") == "L0"])
     kinds = Counter(s["kind"] for s in b["symbols"])
     assert kinds["room_number"] == 8 * n and kinds["door_arc"] >= 15 * n and kinds["text_frame"] >= 4 * n
     assert kinds["other"] >= 20 * n
