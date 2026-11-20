@@ -93,6 +93,7 @@ RULES = {
     "slab_cover": "a room the storey above does not cover",
     "terrace_support": "a terrace standing on no built storey",
     "door_to_air": "a door in an outer wall above the ground with no balcony, terrace or room behind it",
+    "wall_in_wall": "a wall lying inside the band of thicker parallel walls (a line inside a wall read as a wall)",
 }
 TRUST_PATH = Path(__file__).resolve().parent / "models" / "sense_trust.json"
 TRUST_MIN = 0.7                # a rule judged right on less than this share of its findings writes them as info
@@ -1579,6 +1580,29 @@ def door_to_air(building: dict) -> list:
     return out
 
 
+def wall_in_wall(building: dict) -> list:
+    """Rule 18 (pure; R09-11, real09: a 0.23 m wall from a plaster line inside the 0.46 m front walls carried 2.9 m
+    gaps): a wall whose two faces lie inside the band of thicker parallel walls covering most of it
+    (``twin_walls.in_band``; the reader drops those, so a finding is one it missed). Major when it carries openings."""
+    from wenart.ingest.generic import twin_walls as TWW
+
+    out = []
+    for lv in building.get("levels") or []:
+        walls = _walls_of(building, lv["id"])
+        for w in walls:
+            hosts = TWW.in_band(w, walls)
+            if not hosts:
+                continue
+            ops = [o.get("id") for o in building.get("openings") or [] if o.get("wall_id") == w["id"]]
+            out.append(_finding("wall_in_wall", "major" if ops else "minor", lv["id"],
+                                f"wall {w['id']} ({float(w.get('thickness') or 0):.2f} m) lies inside the band of "
+                                f"{', '.join(c['id'] for c in hosts)}: a line inside a wall read as a wall"
+                                + (f"; its openings {', '.join(ops)} would be cut through the real wall" if ops else ""),
+                                ((w["start"][0] + w["end"][0]) / 2.0, (w["start"][1] + w["end"][1]) / 2.0),
+                                [w["id"]] + ops))
+    return out
+
+
 # --------------------------------------------------------------------------------------------------------- the run
 def run(building: dict, texts_by_level: Optional[dict] = None, trust: Optional[dict] = None,
         apply: bool = True) -> list:
@@ -1600,6 +1624,7 @@ def run(building: dict, texts_by_level: Optional[dict] = None, trust: Optional[d
     out += mass
     out += narrow_landing(building)            # 13 Nov 2026
     out += twin_notch(building) + slab_cover(building) + terrace_support(building) + door_to_air(building)  # R09-1
+    out += wall_in_wall(building)                                                                        # R09-11
     return apply_trust(out, trust if trust is not None else load_trust()) if apply else out
 
 

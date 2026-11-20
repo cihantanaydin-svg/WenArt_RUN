@@ -159,3 +159,93 @@ def test_a_thin_wall_inside_the_band_of_two_thicker_walls_is_not_built_and_its_g
         {"id": "a", "level_id": "L0", "start": [0.0, 0.0], "end": [6.0, 0.0], "thickness": 0.1},
         {"id": "b", "level_id": "L0", "start": [0.0, 0.2], "end": [6.0, 0.2], "thickness": 0.3}], "openings": []}
     assert TWW.merge_twin_walls(b2) == []
+
+
+def test_the_wall_in_wall_check_flags_a_wall_inside_a_thicker_walls_band():
+    """R09-11's machine check (RC14 wall_in_wall): any reading that still holds such a wall is flagged before a pod."""
+    from wenart.reading_check import sense as SN
+
+    b = {"levels": [{"id": "L0"}], "walls": [
+        {"id": "thin", "level_id": "L0", "start": [0.0, 0.67], "end": [8.0, 0.67], "thickness": 0.23},
+        {"id": "thick", "level_id": "L0", "start": [0.0, 0.79], "end": [8.0, 0.79], "thickness": 0.46}],
+        "openings": [{"id": "o1", "level_id": "L0", "type": "opening", "wall_id": "thin", "center": [4.0, 0.67]}]}
+    found = SN.wall_in_wall(b)
+    assert [f["element_ids"] for f in found] == [["thin", "o1"]] and found[0]["severity"] == "major"
+    b["walls"][0]["start"], b["walls"][0]["end"] = [0.0, 0.3], [8.0, 0.3]     # in front of it: no finding
+    assert SN.wall_in_wall(b) == []
+
+
+# --------------------------------------------------------------------------
+# R10-P3 / P1 / P6: window size tags written as two texts; plain-layer tags over window frames
+# --------------------------------------------------------------------------
+
+def _run(text, x, y, rot=0.0, layer="TEXT", h=0.1):
+    from wenart.ingest.generic.model import TextRun
+    return TextRun(id=f"TEXT:{text}@{x},{y}", text=text, box=(x - 0.15, y - h / 2, x + 0.15, y + h / 2), height=h,
+                   rotation_deg=rot, evidence=[{"layer": layer, "entity": f"TEXT:{text}"}])
+
+
+def test_a_size_written_as_two_texts_one_over_the_other_is_one_width_over_height_tag():
+    """A drawing that writes each window size as two texts ('150' over '220', '70' over '150') states width over
+    height: the upper line is the width."""
+    from wenart.ingest.generic import core as GC
+
+    pairs = GC.paired_size_tags([_run("150", 2.0, 1.00), _run("220", 2.0, 1.13), _run("40", 6.0, 3.0, layer="DIM")])
+    assert [t.text for t in pairs] == ["220/150"]
+    # written along a vertical wall (rotated 90 degrees: 'up' is towards -x)
+    pairs = GC.paired_size_tags([_run("165", 4.48, 1.0, rot=90.0), _run("210", 4.61, 1.0, rot=90.0)])
+    assert [t.text for t in pairs] == ["165/210"]
+    # two numbers side by side, or far apart, or on a dimension layer: no tag
+    assert GC.paired_size_tags([_run("150", 2.0, 1.0), _run("150", 2.4, 1.0)]) == []
+    assert GC.paired_size_tags([_run("150", 2.0, 1.0, layer="DIMV"), _run("150", 2.0, 1.13, layer="DIMV")]) == []
+
+
+def test_a_plain_layer_tag_over_window_frames_makes_the_window_the_frame_lines_were_read_as_a_sliding_door():
+    """real10 L-1: a 150/150 window on the window layer, its size as two texts on the text layer, its doubled frame
+    lines read as a 1.44 m sliding door; with no window frames along the wall the same tag makes nothing."""
+    from wenart.ingest.generic import core as GC
+    from wenart.ingest.generic.model import Stroke
+    from wenart.ingest.model import OpeningItem, WallItem
+
+    wall = WallItem(start=(0.0, 0.0), end=(6.0, 0.0), thickness=0.3, box=[0, 0, 0, 0], entity="LINE:1", evidence={})
+    slider = OpeningItem(kind="door", width=1.44, center=(2.75, 0.0), rotation_deg=0.0, box=[0, 0, 0, 0],
+                         entity="LINE:9", evidence={"note": "4 leaf/leaves drawn parallel to the wall without a swing "
+                                                            "arc: a sliding door"}, operation="sliding")
+    frames = [Stroke(id=f"LINE:f{k}", kind="line", layer="PENCERE", pts=[(2.0, y), (3.5, y)])
+              for k, y in enumerate((-0.05, 0.05))]
+    tags = [_run("150", 2.75, 0.45), _run("150", 2.75, 0.58)]
+    ex = SimpleNamespace(notes=[])
+    out = GC._window_tags(ex, "L-1", [wall], [slider], tags, 1.0, frames)
+    assert out is not None and [o.kind for o in out] == ["window"]
+    assert abs(out[0].width - 1.5) < 1e-6 and out[0].height == 1.5
+    # the same tag with no window frames along its wall: not a window's tag
+    ex = SimpleNamespace(notes=[])
+    assert GC._window_tags(ex, "L-1", [wall], [slider], tags, 1.0, []) is None
+    # the tag written across the wall just outside its face (rotated 90 degrees over a horizontal wall)
+    across = [_run("150", 2.69, 0.28, rot=90.0), _run("150", 2.82, 0.28, rot=90.0)]
+    ex = SimpleNamespace(notes=[])
+    out = GC._window_tags(ex, "L-1", [wall], [slider], across, 1.0, frames)
+    assert out is not None and [o.kind for o in out] == ["window"]
+    # a door-high plain-layer tag stays the door tags' (never a window here)
+    ex = SimpleNamespace(notes=[])
+    assert GC._window_tags(ex, "L-1", [wall], [slider], [_run("90", 2.75, 0.58), _run("210", 2.75, 0.45)], 1.0,
+                           frames) is None
+
+
+def test_the_checks_flag_an_untyped_opening_over_window_frames_and_a_two_text_tag_with_no_window():
+    """The machine checks of R10-P1 / P3 (RC11): an untyped opening with window frames drawn across it, and a W/H tag
+    written as two texts with no opening of its width at its gap."""
+    from wenart.reading_check import crossdoc as CD
+
+    walls = [{"id": "w1", "level_id": "L0", "start": [0.0, 0.0], "end": [6.0, 0.0], "thickness": 0.3}]
+    ops = [{"id": "o1", "level_id": "L0", "type": "opening", "width": 2.1, "center": [3.0, 0.0], "wall_id": "w1"}]
+    page = SimpleNamespace(strokes=[SimpleNamespace(pts=[(1.95, y), (4.05, y)], layer="PENCERE", arc=None)
+                                    for y in (-0.05, 0.05)],
+                           texts=[_run("210", 3.0, 0.58), _run("150", 3.0, 0.45)])
+    found = CD.framed_openings("L0", page, None, walls, ops)
+    assert [f["element_ids"] for f in found] == [["o1"]]
+    page.strokes = []
+    assert CD.framed_openings("L0", page, None, walls, ops) == []
+    tags = CD.size_tags(CD.paired_texts(page, None))
+    assert [(t["w"], t["h"]) for t in tags] == [(2.1, 1.5)]
+    assert CD.rc11("L0", tags, walls, []) and not CD.rc11("L0", tags, walls, [dict(ops[0], type="window")])

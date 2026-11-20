@@ -2188,6 +2188,7 @@ def _outline_closure(ex, where: str, walls2: list, openings: list, blocks: list,
 SIZE_TAG_RE = re.compile(r"^\s*(\d{2,3})\s*/\s*(\d{2,3})\s*$")   # a window's size tag: width/height in cm
 TAG_REACH_M = 0.8               # a size tag stands this close to the wall of its window ...
 TAG_ANGLE_DEG = 15.0            # ... written along it
+TAG_ACROSS_FACE_M = 0.3         # 20 Nov 2026 (R10-P3): or written across it this close to its face
 TAG_SHIFT_M = 0.35              # the tagged window moves at most this far to clear a column, a wall end or a door
 TAG_COLLINEAR_M = 0.08          # a wall piece on the host's line (this close to its axis) is the same wall run
 FULL_GLASS_M = 2.0              # a tagged window this high starts at the floor (a shop window: full glass) ...
@@ -2196,7 +2197,98 @@ PARAPET_RE = re.compile(r"PARAPET\s*[:=]?\s*(\d{2,3})\s*CM")   # 19 Nov 2026 (OA
 PARAPET_REACH_M = 1.5           # ... this close to it gives its window's sill
 
 
-def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, units_to_m: float):
+PAIR_TAG_RE = re.compile(r"^\s*(\d{2,3})\s*$")   # 20 Nov 2026 (pre-pod R10-P3): one number of a W/H tag written as two
+PAIR_ALONG = 0.6                # texts: their centres this many text heights apart along the text ...
+PAIR_ACROSS = (0.8, 2.2)        # ... and this many across it (one line over the other: the width over the height)
+PAIR_ANGLE_DEG = 5.0
+PAIR_HEIGHT_TOL = 0.25
+PLAIN_TAG_FRAME_SHARE = 0.5     # a tag on a plain text layer is a window's when window frame lines run along its wall
+PLAIN_TAG_BAND_M = 0.15         # ... (within the wall's band grown by this) for this share of its width
+PLAIN_TAG_MAX_W_CM = 300
+PAIR_MIN_CM = 30                # the two numbers of a size are at least this (a stair's step numbers '15' over '16' are not)
+
+
+def paired_size_tags(texts_m: list) -> list:
+    """20 Nov 2026 (pre-pod check R10-P3 / R10-P6 / R10-P1, real10: every window size is written as two texts, '150'
+    over '150', '70' over '150', '60' over '60', so no tag rule read them and the windows became sliding doors, holes or
+    wall): two number-only texts (``PAIR_TAG_RE``) on one layer that is no dimension or axis layer, of one rotation and
+    height, one over the other (``PAIR_ALONG``, ``PAIR_ACROSS`` text heights) are one 'W/H' tag: the upper line is the
+    width, the lower the height (pure). Each text joins one pair at most (the nearest)."""
+    from wenart.ingest.generic import layer_names as LN
+
+    nums = []
+    for t in texts_m or []:
+        m = PAIR_TAG_RE.match(str(t.text or ""))
+        layer = t.evidence[0].get("layer") if t.evidence else None
+        if m and int(m.group(1)) >= PAIR_MIN_CM and LN.layer_role(layer) not in ("dimension", "axis") \
+                and float(t.height or 0) > 0:
+            nums.append((t, int(m.group(1)), layer))
+    cands = []
+    for i, (a, va, la) in enumerate(nums):
+        for b, vb, lb in nums[i + 1:]:
+            if la != lb or abs(((a.rotation_deg or 0.0) - (b.rotation_deg or 0.0) + 180.0) % 360.0 - 180.0) > PAIR_ANGLE_DEG:
+                continue
+            h = max(float(a.height), float(b.height))
+            if abs(float(a.height) - float(b.height)) > PAIR_HEIGHT_TOL * h:
+                continue
+            r = math.radians(a.rotation_deg or 0.0)
+            ux, uy, nx, ny = math.cos(r), math.sin(r), -math.sin(r), math.cos(r)
+            ca = ((a.box[0] + a.box[2]) / 2.0, (a.box[1] + a.box[3]) / 2.0)
+            cb = ((b.box[0] + b.box[2]) / 2.0, (b.box[1] + b.box[3]) / 2.0)
+            dx, dy = cb[0] - ca[0], cb[1] - ca[1]
+            along, across = dx * ux + dy * uy, dx * nx + dy * ny
+            if abs(along) <= PAIR_ALONG * h and PAIR_ACROSS[0] * h <= abs(across) <= PAIR_ACROSS[1] * h:
+                top, bot = ((b, vb), (a, va)) if across > 0 else ((a, va), (b, vb))
+                cands.append((math.hypot(dx, dy), top, bot))
+    used, out = set(), []
+    for _d, (top, w), (bot, hh) in sorted(cands, key=lambda c: c[0]):
+        if id(top) in used or id(bot) in used:
+            continue
+        used.update((id(top), id(bot)))
+        ev = [dict(top.evidence[0], entity=f"{top.id}+{bot.id}", text=f"{w}/{hh}")] if top.evidence else []
+        out.append(TextRun(id=f"{top.id}+{bot.id}", text=f"{w}/{hh}",
+                           box=(min(top.box[0], bot.box[0]), min(top.box[1], bot.box[1]),
+                                max(top.box[2], bot.box[2]), max(top.box[3], bot.box[3])),
+                           height=float(top.height), rotation_deg=float(top.rotation_deg or 0.0), source=top.source,
+                           evidence=ev))
+    return out
+
+
+def _frame_cover(strokes: list, x0, y0, ux, uy, half: float, lo: float, hi: float) -> float:
+    """The share of [lo, hi] along a wall (origin x0, y0, direction ux, uy, half thickness ``half``) that window or
+    glass layer lines (no arc) run along within its band grown by ``PLAIN_TAG_BAND_M``."""
+    from wenart.ingest.generic import layer_names as LN
+
+    spans = []
+    for st in strokes or []:
+        pts = getattr(st, "pts", None) or []
+        if getattr(st, "arc", None) or len(pts) < 2 or LN.layer_role(getattr(st, "layer", None)) not in ("window",
+                                                                                                          "glass"):
+            continue
+        for (ax, ay), (bx, by) in zip(pts[:-1], pts[1:]):
+            oa = abs(-(ax - x0) * uy + (ay - y0) * ux)
+            ob = abs(-(bx - x0) * uy + (by - y0) * ux)
+            if max(oa, ob) > half + PLAIN_TAG_BAND_M:
+                continue
+            ta, tb = sorted(((ax - x0) * ux + (ay - y0) * uy, (bx - x0) * ux + (by - y0) * uy))
+            if tb - ta < 0.05:
+                continue
+            a, b = max(ta, lo), min(tb, hi)
+            if b > a:
+                spans.append((a, b))
+    covered, end = 0.0, None
+    for a, b in sorted(spans):
+        if end is None or a > end:
+            covered += b - a
+            end = b
+        elif b > end:
+            covered += b - end
+            end = b
+    return covered / (hi - lo) if hi > lo else 0.0
+
+
+def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, units_to_m: float,
+                 strokes: list = ()):
     """4 Nov 2026 (real17 L0, user: "these sections could be full windows glass, check it"): a window size tag ("470/240",
     width/height in cm, on a window text layer) written along a wall within ``TAG_REACH_M`` is that wall's window: one
     window of that width and height, centred at the tag and moved up to ``TAG_SHIFT_M`` to clear the columns, the run's
@@ -2212,7 +2304,8 @@ def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, un
     from wenart.ingest.model import OpeningItem
 
     tags = []
-    for t in texts_m:
+    plain = set()
+    for t in list(texts_m) + paired_size_tags(texts_m):
         m = SIZE_TAG_RE.match(t.text or "")
         layer = (t.evidence[0].get("layer") if t.evidence else None)
         if m and LN.layer_role(layer) in ("window", "glass") \
@@ -2220,6 +2313,14 @@ def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, un
             tags.append((t, int(m.group(1)) / 100.0, int(m.group(2)) / 100.0))
         elif m and LN.layer_role(layer) == "door" and int(m.group(2)) < DOOR_TAG_LOW_H_CM:
             tags.append((t, int(m.group(1)) / 100.0, int(m.group(2)) / 100.0))
+        elif m and LN.layer_role(layer) in DOOR_TAG_TEXT_ROLES and strokes and int(m.group(1)) <= PLAIN_TAG_MAX_W_CM \
+                and int(m.group(2)) < DOOR_TAG_LOW_H_CM:
+            # 20 Nov 2026 (pre-pod R10-P3, real10: '150' over '150' on the text layer TEXT beside a PENCERE window read
+            # as a sliding door): a window-high tag (under a door's height) on a plain text layer is a window's where
+            # window frame lines run along its wall (checked below, ``PLAIN_TAG_FRAME_SHARE``); a door-high one stays
+            # the door tags' (``_door_tags``)
+            tags.append((t, int(m.group(1)) / 100.0, int(m.group(2)) / 100.0))
+            plain.add(id(t))
     if not tags or not walls2:
         return None
     parapets = []
@@ -2235,18 +2336,26 @@ def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, un
         r = math.radians(t.rotation_deg or 0.0)
         td = (math.cos(r), math.sin(r))
         best = None
+        across = None
         for k, w in enumerate(walls2):
             (x0, y0), (x1, y1) = tuple(w.start), tuple(w.end)
             L = math.hypot(x1 - x0, y1 - y0)
             if L < 0.3:
                 continue
             ux, uy = (x1 - x0) / L, (y1 - y0) / L
-            if abs(td[0] * uy - td[1] * ux) > math.sin(math.radians(TAG_ANGLE_DEG)):
-                continue
             s_ = (cx - x0) * ux + (cy - y0) * uy
             d = abs(-(cx - x0) * uy + (cy - y0) * ux)
+            sin_a = abs(td[0] * uy - td[1] * ux)
+            if sin_a > math.sin(math.radians(TAG_ANGLE_DEG)):
+                # 20 Nov 2026 (pre-pod R10-P3, real10: every tag written across its wall, just outside its face): a tag
+                # across the wall within ``TAG_ACROSS_FACE_M`` of its face, when no wall runs along it
+                if sin_a >= math.cos(math.radians(TAG_ANGLE_DEG)) and d <= float(w.thickness) / 2.0 + TAG_ACROSS_FACE_M \
+                        and 0.0 <= s_ <= L and (across is None or d < across[0]):
+                    across = (d, k, (x0, y0), (ux, uy), s_)
+                continue
             if d <= TAG_REACH_M and -0.1 <= s_ <= L + 0.1 and (best is None or d < best[0]):
                 best = (d, k, (x0, y0), (ux, uy), s_)
+        best = best or across
         if best is None:
             skipped.append(f"{t.text}: no wall along it within {TAG_REACH_M:.1f} m")
             continue
@@ -2281,7 +2390,13 @@ def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, un
             ps = [along(c) for gg in getattr(part, "geoms", [part]) if hasattr(gg, "exterior")
                   for c in gg.exterior.coords]
             blocked.append((min(ps), max(ps)))
-        low = height * 100.0 < DOOR_TAG_LOW_H_CM and LN.layer_role(
+        if id(t) in plain and _frame_cover(strokes, x0, y0, ux, uy, h, s_ - width / 2.0,
+                                           s_ + width / 2.0) < PLAIN_TAG_FRAME_SHARE:
+            skipped.append(f"{t.text}: a plain-layer tag with no window frames along its wall")
+            continue
+        # a window's lines read as leaves give way to the tag (19 Nov 2026, OA3-01: a door layer's low tag; 20 Nov
+        # 2026, R10-P3: a plain-layer tag over window frames)
+        low = id(t) in plain or height * 100.0 < DOOR_TAG_LOW_H_CM and LN.layer_role(
             (t.evidence[0].get("layer") if t.evidence else None)) == "door"
         for j, o in enumerate(out):
             if o.kind == "door" and abs(off(o.center)) <= h + 0.05:
@@ -4089,7 +4204,7 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
             else:
                 ex.notes.append(f"{where}: the doors' parts of the gaps they stand in left as read: the rests would "
                                 f"open the walls")
-        tagged = _window_tags(ex, where, walls2, openings, texts_m, s)
+        tagged = _window_tags(ex, where, walls2, openings, texts_m, s, non_wall)
         if tagged is not None:
             bw_t, site_t, sw_t = TP.split_plot(walls2, tagged, blocks, level_id=level_id)
             idx = {o["index"] for o in site_t["openings"]}

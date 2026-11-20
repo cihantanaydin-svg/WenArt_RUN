@@ -1039,11 +1039,23 @@ def rc10(building: dict, sheets: dict, site_texts: list[str], plan_texts: Option
 
 # --------------------------------------------------------------------------------------------------------------- RC11
 def size_tag_re():
+    """20 Nov 2026 (pre-pod check: real09's 'P:150/150' and 'K:80/240' were no tag to RC11): the reader's opening tag,
+    an optional kind letter and number before W/H (``core.OPENING_TAG_RE``)."""
     try:
-        from wenart.ingest.generic.core import SIZE_TAG_RE
-        return SIZE_TAG_RE
+        from wenart.ingest.generic.core import OPENING_TAG_RE
+        return OPENING_TAG_RE
     except ImportError:                                          # pragma: no cover
         return SIZE_TAG_FALLBACK_RE
+
+
+def paired_texts(page, tf=None) -> list[dict]:
+    """20 Nov 2026 (pre-pod check R10-P3: real10 writes every window size as two texts, '150' over '150'): the W/H tags
+    written as two texts (``core.paired_size_tags``) as ``_texts_of`` rows."""
+    from wenart.ingest.generic.core import paired_size_tags
+
+    class _P:
+        texts = paired_size_tags(getattr(page, "texts", None) or [])
+    return _texts_of(_P, tf)
 
 
 def _seg_dist(p, a, b) -> float:
@@ -1103,6 +1115,53 @@ def rc11(level_id: str, tags: list[dict], walls: list[dict], openings: list[dict
                             f"{TAG_REACH_M:.1f} m; {what}", [f"size tag {t.get('entity') or t['text']}",
                                                              f"openings read on {level_id}"],
                             (t["x"], t["y"]), ids))
+    return out
+
+
+FRAMED_SHARE = 0.5             # 20 Nov 2026: window frame lines along this share of an untyped opening's width ...
+FRAMED_MIN_W_M = 0.5           # ... at least this wide
+
+
+def framed_openings(level_id: str, page, tf, walls: list[dict], openings: list[dict]) -> list[dict]:
+    """20 Nov 2026 (pre-pod check R10-P1, real10: the bay windows' and side windows' gaps, their window frames drawn
+    across them, were untyped full-height 'openings'): an untyped opening (not virtual) at least ``FRAMED_MIN_W_M`` wide
+    with window or glass layer lines along ``FRAMED_SHARE`` of its width (``core._frame_cover``) is a window the reading
+    did not type."""
+    from types import SimpleNamespace
+
+    from wenart.ingest.generic import core as GC
+    from wenart.ingest.generic import layer_names as LN
+    from wenart.reading_check import _apply
+
+    frames = []
+    for st in getattr(page, "strokes", None) or []:
+        if getattr(st, "arc", None) or LN.layer_role(getattr(st, "layer", None)) not in ("window", "glass"):
+            continue
+        pts = [tuple(_apply(tf, tuple(q)[:2])) if tf else tuple(q)[:2] for q in (getattr(st, "pts", None) or [])]
+        if len(pts) >= 2:
+            frames.append(SimpleNamespace(pts=pts, layer=st.layer, arc=None))
+    if not frames:
+        return []
+    by_id = {w["id"]: w for w in walls}
+    out = []
+    for o in openings:
+        if o.get("type") != "opening" or o.get("virtual") or float(o.get("width") or 0) < FRAMED_MIN_W_M:
+            continue
+        w = by_id.get(o.get("wall_id"))
+        u = _unit(w) if w else None
+        if u is None or not o.get("center"):
+            continue
+        (x0, y0), half = tuple(w["start"][:2]), float(w.get("thickness") or 0.1) / 2.0
+        t = (o["center"][0] - x0) * u[0] + (o["center"][1] - y0) * u[1]
+        hw = float(o["width"]) / 2.0
+        share = GC._frame_cover(frames, x0, y0, u[0], u[1], half, t - hw, t + hw)
+        if share >= FRAMED_SHARE:
+            out.append(_finding("RC11", "minor", level_id,
+                                f"{level_id}: untyped opening {o['id']} ({float(o['width']):.2f} m) on {w['id']} has "
+                                f"window frames drawn along {share:.0%} of it: a window the reading left untyped (a "
+                                f"full-height hole in the build)", [f"window-layer lines on {level_id}",
+                                                                    f"opening {o['id']}"],
+                                tuple(o["center"][:2]), [o["id"]]))
     return out
 
 
@@ -1268,7 +1327,8 @@ def findings(out_dir) -> list[dict]:
         plan_texts += interleaved_labels([{"text": t.text, "box": t.box} for t in page.texts])
         walls = [w for w in building.get("walls") or [] if w.get("level_id") == lid]
         ops = [o for o in building.get("openings") or [] if o.get("level_id") == lid]
-        res += rc11(lid, size_tags(texts), walls, ops)
+        res += rc11(lid, size_tags(texts + paired_texts(page, pg["tf"])), walls, ops)
+        res += framed_openings(lid, page, pg["tf"], walls, ops)
     site_texts: list[str] = []
     site_region = None
     for r in sheets.get("regions") or []:
