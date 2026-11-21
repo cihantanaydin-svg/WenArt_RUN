@@ -3770,3 +3770,29 @@ calls: B prompts 2.8k-6.7k tokens median (max 10.4k with the answer); the text a
 and shows 33 of 74 known errors. C0008: the score was right, the critic's known errors read the reading without its
 outdoor spaces (now `score.reading_for` for both); round 2 is 71 of 74. Pod plan (not started): 45 min max, worst case
 $1.88 on an RTX PRO 6000. `results/critic/vector_text.md`.
+
+## Reader fix round for the faults RC18 exposed (21 Nov 2026, user OK: "yes put the reader fix round first")
+
+Each fault checked against the drawing first; every fix is a general rule with a synthetic test
+(`tests/test_rc18_fixround_20261121.py`) and a code check; lessons UL341-UL345. Measured on fresh CPU readings of the
+19 section-0 projects at 80c1a446 (before) and with this round (after).
+
+| fault | verdict against the drawing | what changed | code check |
+|---|---|---|---|
+| a. inferred walls inside the drawn facade | real09: confirmed (glazed-facade walls 0.1-0.27 m inside, salon 2.88 m across against about 3.2 m); real20: not a reader fault (the ground floor is the typical plan cut to the drawn footprint, oturum 108 m2 < normal 140 m2); real16: not a reader fault (the south wall is drawn, no window) | frames in a drawn wall's line take its band, a run of frames chained (`facade.facade_bands`); built and tested but shipped OFF (`FACADE_LINE_SNAP`): it moves real09's walls off the places truth record C0001 holds (machine-located on the old walls, 0.18 m inside the facade, off the frames) and the score gate falls. RC18 no longer judges the rooms an inferred ground floor was cut to | RC17 `inferred_wall_off_facade` (133 on 7 readings) |
+| b. band axis and openings | real17: the facade wall was already on its band; a third 1.8 m window stood 0.29 m off it over a double casement | a framed window is never added where the openings read in the band cover the frames together (`core.covered_share`): real17 6 and real15 5 duplicate windows gone | RC17 `opening_off_wall` (53 left: real10's shower glass read as windows in no wall, real14: next round) |
+| c. air shafts typed light wells | confirmed (real17 H.B 50/50, real09 0.85 x 0.90 m shaft) | `room_subtype` air_shaft: an air-shaft word drawn in the face (H.B, HAVA BACASI, havalandırma) or under 1.0 m across and at most 1.5 m2; open-air like a well; RC18 judges it by PAİY 32(3) | RC14 `well_type` |
+| d. thin glazed bands not read | real04: not confirmed (the north face is two wall lines 0.20 m apart like the west wall; the plan's glazed bands carry glass lines and are read) | none | - |
+| e. light-well names on the wrong space | real11: confirmed (YÜKLÜK drawn inside, on the stair layer); real09: fault c | a room word drawn inside a doorless face, any layer, names it before its size makes it a well; yüklük is a closet | RC14 `well_type` |
+| f. inferred party wall in a light well | real21: not confirmed (the party wall is drawn across the well, two lines the building's whole length) | the judged crop missed those lines: `sheets._entities` now draws every line crossing a crop | - |
+
+RC18 on the 19 readings: 98 -> 94 findings (light_well_size 21 -> 19: real11 7 -> 0, real09 2 -> 0, real03 1 -> 8 as its
+'Hava Bacası' faces are now air shafts; room_min_size 19 -> 18, light_air 29 -> 28: real20's cut rooms), reading_suspect
+10 -> 3. Eye-judged: the 7 real breaches all still fire; reading errors firing 6/7 -> 3/7 (left: real16's kitchen and
+real04's bedroom, where no window is drawn, and real09's salon, rule a off). Section-0 grade mean 47.1 -> 47.1 (RC18 is
+not graded; the graded counts did not move). Score gate holds (overall 96.3, synthetic 95.8; the reals as at 80c1a446);
+with rule a on it fell on real09 C0001 (walls 10/10 -> 4/10). Regress (19 real projects, real08 left out; its own
+`numbers`/`compare` on the sweep readings, the command for the synthetic baselines): the same
+pre-existing differences from the old baselines as at 80c1a446 (real03, 06, 07, 10, 12, 15, 19, 21); the only change is
+real15 L0 windows 27 -> 22 (fault b, duplicates); the synthetic baselines ok. Images: `outputs/fixround_rc18/`.
+Open: the user's OK to locate C0001's walls on the drawn facade line (then rule a goes on); real10's shower-glass windows.

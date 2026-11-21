@@ -299,7 +299,8 @@ SENSE_WORDS = (
     ("shaft", r"(?<![a-z])(?:saft|saht|soh|baca|shaft|riser)"),
     # 6 Nov 2026 (calibration): a KİLER is a pantry in a flat and a cellar store in a basement (synthetic-03's 14 m2
     # ones): it is judged as a storage room, not as a closet
-    ("closet", r"(?<![a-z])(?:vestiyer|gardirop|giyinme|soyunma|closet|wardrobe|dressing)"),
+    # 21 Nov 2026 (the RC18 fix round, real11: a YÜKLÜK, a bedding closet, typed a light well): yüklük is a closet
+    ("closet", r"(?<![a-z])(?:vestiyer|gardirop|giyinme|soyunma|yukluk|closet|wardrobe|dressing)"),
     ("shower", r"(?<![a-z])(?:dus|shower)(?![a-z])"),
 )
 SENSE_RE = [(t, re.compile(p)) for t, p in SENSE_WORDS]

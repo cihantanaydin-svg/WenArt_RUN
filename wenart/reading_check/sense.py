@@ -92,6 +92,7 @@ RULES = {
     "storeys_missing": "a single-storey reading of a building whose evidence says more storeys",
     # 6 Nov 2026 (user: "Make sense of the building"): one coherence check over the whole building
     "light_well_room": "a light well read as a room",
+    "well_type": "a light well that is an air shaft by its size or its drawn word, or a room a word drawn in it names",
     "party_wall_openings": "a facade marked attached (a party wall) that carries windows or doors",
     "core_continuity": "a lift core that does not continue through the storeys",
     "no_entrance": "a building without an entrance from outside",
@@ -1622,6 +1623,39 @@ def light_well_room(building: dict, texts_by_level: Optional[dict] = None) -> li
     return out
 
 
+def well_type(building: dict, texts_by_level: Optional[dict] = None) -> list:
+    """Rule ``well_type`` (pure; 21 Nov 2026, the RC18 reader fix round: real17's 'H.B 50/50' and real09's 0.85 x 0.90 m
+    shaft typed light wells, real11's YÜKLÜK closet named 'Işıklık'): a room typed a light well (``room_subtype``
+    light_well, or a light-well name) that ``topology.well_kind`` judges otherwise with the drawing's texts inside it:
+    an air shaft (an air-shaft word, or narrower than ``AIR_SHAFT_MAX_NARROW_M`` and at most ``AIR_SHAFT_MAX_M2``) or
+    the room a word drawn in it names. A light-well word drawn in the face keeps it a light well (an undersized drawn
+    well is the drawing's: RC18 judges it). A typical floor's copies are left out."""
+    from wenart.ingest.generic import topology as TP
+
+    out = []
+    for lv in building.get("levels") or []:
+        if lv.get("typical_of"):
+            continue
+        lid = lv["id"]
+        texts = [(t["text"], (t["x"], t["y"])) for t in (texts_by_level or {}).get(lid) or []]
+        for r in _rooms_of(building, lid):
+            if r.get("room_subtype") != "light_well" and sense_type(r) != "light_well":
+                continue
+            p = _poly(r.get("polygon"))
+            if p is None:
+                continue
+            x0, y0, x1, y1 = p.bounds
+            near = [(t, q) for t, q in texts if x0 - 0.1 <= q[0] <= x1 + 0.1 and y0 - 0.1 <= q[1] <= y1 + 0.1]
+            kind, why, _word = TP.well_kind(p, near)
+            if kind == "light_well":
+                continue
+            what = "an air shaft (hava bacası)" if kind == "air_shaft" else "the room the word names"
+            out.append(_finding("well_type", "major", lid,
+                                f"{r.get('id')} '{_label(r) or '-'}' is typed a light well but is {what}: {why}",
+                                _centre(r), [r.get("id")]))
+    return out
+
+
 def party_wall_openings(building: dict) -> list:
     """Rule 17 (pure): a wall marked as a party wall (``party_wall``, or ``level_inference.windows.party_walls``: a
     'bitişik' / 'komşu' / 'attached' text on that side) carrying a window or a door: the neighbour's building touches
@@ -2210,6 +2244,7 @@ def run(building: dict, texts_by_level: Optional[dict] = None, trust: Optional[d
     out += storeys_missing(building, texts_by_level, false_ids)
     # 6 Nov 2026 (user: "Make sense of the building"): the coherence of the whole building
     out += light_well_room(building, texts_by_level)
+    out += well_type(building, texts_by_level)                                          # 21 Nov 2026 (RC18 round)
     out += party_wall_openings(building)
     out += core_continuity(building)
     out += no_entrance(building)

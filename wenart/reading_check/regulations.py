@@ -13,7 +13,8 @@ are listed there under ``left_out``). Every finding is shaped like ``wenart.read
 2. ``light_air`` (PAİY 32(1)): a bedroom, or every living room of a dwelling, with no window or door straight to the
    outside (a balcony counts, a light well does not); a kitchen with none to the outside or a light well;
 3. ``light_well_size`` (PAİY 32(2)-(3)): a light well under 1.50 m / 4.50 m² (2.00 m / 9.00 m² from 8 storeys), an
-   air shaft under 0.60 m / 0.36 m²;
+   air shaft under 0.60 m / 0.36 m² (21 Nov 2026: ``room_subtype`` air_shaft as the reader types it, or a label naming
+   one: H.B 50/50, HAVA BACASI);
 4. ``stair_width`` (PAİY 31): a storey stair's flight under 1.20 m (the common stair of a building of several
    dwellings; its half landing too) or 1.00 m (the stair inside one dwelling);
 5. ``stair_steps`` (PAİY 31): a common stair's tread under 0.27 m, its riser over 0.18 m (0.16 m with no lift) or
@@ -48,7 +49,8 @@ kitchen or the building has three kitchens. Every distance compared with a limit
 of slack for the reading's own error; where a value depends on cases the reading cannot tell, the bound that holds in
 every case is checked. A window on an outer wall a sliver off a room (``FACADE_OFFSET_M``) is the room's own; a finding
 on a room bounded by a wall the reading inferred says so (``reading_suspect``, ``inferred_walls``): the judged sample
-of 21 Nov 2026 found most misses there. ``python -m wenart.reading_check regulations --out DIR`` prints the findings.
+of 21 Nov 2026 found most misses there. The rooms an undrawn ground floor was cut to (``not_drawn_rooms``) are not
+judged (21 Nov 2026, the fix round). ``python -m wenart.reading_check regulations --out DIR`` prints the findings.
 """
 from __future__ import annotations
 
@@ -97,6 +99,9 @@ SIZE_GROUPS = {"living": ("living",), "bedroom": ("bedroom",), "kitchen": ("kitc
 SIZE_LIMITS = {"living": "paiy29_living", "bedroom": "paiy29_bedroom", "kitchen": "paiy29_kitchen",
                "bathroom": "paiy29_bathroom", "wc": "paiy29_wc"}
 AIR_SHAFT_RE = re.compile(r"(?<![a-z])hava\s*(?:bacasi|baca|boslugu)(?![a-z])")
+# 21 Nov 2026: the reader's air-shaft words (H.B 50/50, havalandırma ...), ``topology._AIR_SHAFT_PATTERN``
+from wenart.ingest.generic.topology import _AIR_SHAFT_PATTERN as _TP_AIR  # noqa: E402
+TP_AIR_RE = re.compile(_TP_AIR)
 COMMON_HALL_RE = re.compile(r"(?<![a-z])(?:kat\s*hol|ortak|floor\s*hall|common|lobby|lobi|apartman\s*hol|bina\s*giris)")
 ENTRANCE_ROOMS = ("hall", "stair", "fire_lobby", "living")
 OPEN_LINK_ROOMS = ("living", "dining")     # a kitchen open to one of these takes its daylight through it
@@ -155,6 +160,14 @@ def _centre(room: dict):
     return SN._centre(room)
 
 
+def not_drawn_rooms(building: dict) -> list:
+    """The ids of the rooms an inferred ground floor was cut to (``level_inference.storeys.ground_floor.cut``:
+    ``rooms_cut``): the drawing draws them only as the typical floor's larger rooms (pure; 21 Nov 2026)."""
+    gf = (((building.get("level_inference") or {}).get("storeys") or {}).get("ground_floor") or {})
+    cut = gf.get("cut") if isinstance(gf, dict) else None
+    return list((cut or {}).get("rooms_cut") or []) if isinstance(cut, dict) else []
+
+
 def _ftf(lv: dict) -> Optional[float]:
     """The storey's drawn floor-to-floor height (a vector reading of a section), else None."""
     v = lv.get("floor_to_floor")
@@ -182,6 +195,13 @@ class Context:
                 self.types[r["id"]] = None if B.is_void_label(SN._label(r)) else SN.sense_type(r, roof=roof)
         self.rooms = {r["id"]: r for r in building.get("rooms") or [] if r.get("id") in self.types
                       and SN._poly(r.get("polygon")) is not None}
+        # 21 Nov 2026 (the RC18 reader fix round; real20's salon judged at 10.4 m2 against the typical plan's 15.2 m2):
+        # the rooms a ground floor the drawing does not draw was cut to (its footprint, ``ground_floor.cut``) have
+        # inferred walls and no drawn windows on that side: their size and daylight are the inference's, not the
+        # drawing's, so they are not judged (``not_judged``); the rest of that storey is the typical plan's own rooms
+        self.not_judged = set(not_drawn_rooms(building))
+        for rid in self.not_judged:
+            self.rooms.pop(rid, None)
         self.layouts = {lv["id"]: self._layout(lv["id"]) for lv in self.room_levels}
         judged = {lv["id"] for lv in self.room_levels}
         kitchens = sum(1 for rid, t in self.types.items() if t == "kitchen" and rid in self.rooms
@@ -469,7 +489,7 @@ def light_air(ctx: Context) -> list:
             continue
         lay = ctx.layouts[lid]
         for room in level.rooms:
-            if ctx.types.get(room["id"]) in HABITABLE and room["id"] not in level.wells:
+            if ctx.types.get(room["id"]) in HABITABLE and room["id"] not in level.wells and room["id"] in ctx.rooms:
                 kinds = lit_kinds(level, room)
                 if not kinds & {"outside", "balcony"} and offset_windows(level, room):
                     kinds.add("outside")
@@ -528,7 +548,10 @@ def light_well_size(ctx: Context) -> list:
             r = ctx.rooms.get(rid)
             if r is None:
                 continue
-            air = bool(AIR_SHAFT_RE.search(SN._fold(SN._label(r))))
+            # 21 Nov 2026 (the RC18 fix round): the reader types air shafts (``room_subtype`` air_shaft: an air-shaft
+            # word such as H.B 50/50, or an unnamed doorless face under 1.0 m across); a label naming one counts too
+            air = r.get("room_subtype") == "air_shaft" or bool(AIR_SHAFT_RE.search(SN._fold(SN._label(r)))) or (
+                r.get("room_subtype") != "light_well" and bool(TP_AIR_RE.search(SN._fold(SN._label(r)))))
             if ctx.types.get(rid) != "light_well" and not air:
                 continue
             lim_id, lim = (as_id, ash) if air else (wl_id, wl)

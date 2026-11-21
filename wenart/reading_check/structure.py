@@ -25,6 +25,10 @@ reads), each finding ``{"check": "RC17", "rule", "severity", "level_id", "messag
 
 4. ``outdoor_label_lost``: an outdoor-space label (balcony, terrace) placed in no face and no outdoor space of its
    level (inside a wall, beside a tiny room), or a room named by an outdoor word read as an indoor room.
+6. ``opening_off_wall`` (21 Nov 2026, the RC18 fix round): a door or window standing more than ``OFF_WALL_TOL_M``
+   beyond its wall's half thickness (a duplicate read off the band, or a wall moved off its openings).
+7. ``inferred_wall_off_facade`` (21 Nov 2026, the RC18 fix round): an inferred exterior wall whose room-side face stands
+   into the room off the face of the drawn exterior wall whose line it continues (rooms shrink, windows fall off).
 
 Why: these errors reached the renders of the 20 Nov 2026 structure pod unseen (doors into the air, slab edges
 past the walls, a 16-degree facade built in steps); each is a class of error any project can show.
@@ -46,6 +50,9 @@ RULES = {
     "outdoor_label_lost": "an outdoor label in no outdoor space (inside a wall, beside a tiny room) or naming a room",
     "door_without_opening": "a drawn door size tag or door block with no door or opening of the model near it",
     "scale_misread": "a floor plan read with no wall or with walls of an implausible size at its scale",
+    # 21 Nov 2026 (the RC18 reader fix round)
+    "opening_off_wall": "a door or window standing off its wall's band",
+    "inferred_wall_off_facade": "an inferred wall beside the drawn facade line it continues, not on it",
 }
 WALL_T_M = (0.03, 1.0)        # scale_misread: the median wall thickness of a level outside this range ...
 EXTENT_M = (2.0, 1000.0)      # ... or its walls' extent outside this range
@@ -364,4 +371,141 @@ def findings(building: dict) -> list:
     """Rules 1, 2, 4 and 5 on a building (pure); rule 3 needs the drawing and runs in ``reading_check.check``."""
     shapes = outlines(building)
     return doors_into_air(building, shapes) + slabs_beyond_walls(building, shapes) + outdoor_labels_lost(building) \
-        + scales_misread(building)
+        + scales_misread(building) + openings_off_wall(building) + inferred_walls_off_facade(building)
+
+
+# ----------------------------------------------------------------------------------------------- 21 Nov 2026
+# The RC18 reader fix round (user OK of 21 Nov 2026: "yes put the reader fix round first"): two classes the regulation
+# checks exposed, each a code check any future reading is held to.
+OFF_WALL_TOL_M = 0.10         # opening_off_wall: an opening's centre this far beyond its wall's half thickness
+FACADE_LINE_REACH_M = 1.6     # inferred_wall_off_facade: a drawn wall whose end is this close along the line ...
+FACADE_LINE_MIN_M = 0.05      # ... and whose axis is offset by more than this from the inferred wall's ...
+FACADE_PARALLEL_SIN = 0.05    # ... while parallel within this, its band overlapping the inferred wall's band
+FACADE_DRAWN_MIN_M = 0.6      # ... a drawn wall at least this long (a shorter piece is a jamb or a pier, often a sub-band)
+
+
+def _wall_axis(w: dict):
+    (x0, y0), (x1, y1) = w["start"][:2], w["end"][:2]
+    L = math.hypot(x1 - x0, y1 - y0)
+    if L < 1e-9:
+        return None
+    return (x0, y0), ((x1 - x0) / L, (y1 - y0) / L), L
+
+
+def _is_inferred(w: dict) -> bool:
+    ev = w.get("evidence")
+    evs = ev if isinstance(ev, list) else [ev]
+    return bool(w.get("inferred")) or any(isinstance(e, dict) and e.get("method") == "inferred" for e in evs)
+
+
+def openings_off_wall(building: dict) -> list:
+    """Rule ``opening_off_wall`` (pure; fault b of the RC18 round, real17 L1: a 1.8 m window read from sill lines drawn
+    0.2 m outside the facade wall, centred 0.29 m off its wall's axis, over the two casement windows read in the band):
+    a door or window whose centre lies more than ``OFF_WALL_TOL_M`` beyond its host wall's half thickness, across or
+    along: a wall band's axis and its openings disagree (a duplicate read off the band, or a wall moved off its
+    openings)."""
+    walls = {w.get("id"): w for w in building.get("walls") or [] if w.get("start") and w.get("end")}
+    by_level: dict = {}
+    for w in walls.values():
+        by_level.setdefault(w.get("level_id"), []).append(w)
+
+    def place(w, cx, cy, width):
+        ax = _wall_axis(w)
+        if ax is None:
+            return None
+        (x0, y0), (ux, uy), L = ax
+        off = abs(-(cx - x0) * uy + (cy - y0) * ux)
+        t = (cx - x0) * ux + (cy - y0) * uy
+        half = float(w.get("thickness") or 0.0) / 2.0
+        beyond = max(0.0, -t, t - L)
+        return off, half, beyond, off > half + OFF_WALL_TOL_M or beyond > OFF_WALL_TOL_M + width / 2.0
+
+    out = []
+    for o in building.get("openings") or []:
+        if o.get("virtual") or o.get("type") not in ("door", "window") or not o.get("center"):
+            continue
+        w = walls.get(o.get("wall_id"))
+        cx, cy = o["center"][:2]
+        width = float(o.get("width") or 0.0)
+        got = place(w, cx, cy, width) if w else None
+        if got is None:
+            continue
+        off, half, beyond, outside = got
+        # an opening standing in another wall's band of its level is only hosted on the wrong piece (real10's framed
+        # windows cut through overlapping wall pieces): not this rule's fault
+        if outside and any((place(v, cx, cy, width) or (0, 0, 0, True))[3] is False
+                           for v in by_level.get(o.get("level_id"), []) if v is not w):
+            outside = False
+        if outside:
+            out.append(_finding("opening_off_wall", "minor", o.get("level_id"),
+                                f"{o.get('type')} {o.get('id')} ({float(o.get('width') or 0):.2f} m) stands "
+                                f"{off:.2f} m off the axis of its wall {w.get('id')} (half thickness {half:.2f} m)"
+                                + (f" and {beyond:.2f} m past its end" if beyond > 0 else "")
+                                + ": the wall's band and its openings disagree (an opening read off the band, or the "
+                                  "wall placed off its openings)", (cx, cy), [o.get("id"), w.get("id")]))
+    return out
+
+
+def inferred_walls_off_facade(building: dict) -> list:
+    """Rule ``inferred_wall_off_facade`` (pure; fault a of the RC18 round, real09 L-1: the walls closing the salon's
+    glazed facade stood 0.08-0.27 m inside the drawn facade, the salon 2.88 m across against about 3.2 m): an inferred
+    exterior wall parallel to a drawn exterior wall (not inferred) that continues its line (its end within
+    ``FACADE_LINE_REACH_M`` along it, their bands overlapping), whose face on the room side stands more than
+    ``FACADE_LINE_MIN_M`` further into the room than the drawn wall's: an inferred closing wall must lie on the drawn
+    facade line where one is drawn (the room side: the side a room of the level lies on)."""
+    from shapely.geometry import Point, Polygon
+
+    by_level: dict = {}
+    for w in building.get("walls") or []:
+        if w.get("start") and w.get("end") and w.get("level_id"):
+            by_level.setdefault(w["level_id"], []).append(w)
+    rooms: dict = {}
+    for r in building.get("rooms") or []:
+        if len(r.get("polygon") or []) >= 3:
+            rooms.setdefault(r.get("level_id"), []).append(Polygon([tuple(q[:2]) for q in r["polygon"]]).buffer(0))
+    out = []
+    for lid, walls in by_level.items():
+        drawn = [(w, _wall_axis(w)) for w in walls if not _is_inferred(w) and w.get("exterior") and _wall_axis(w)
+                 and _wall_axis(w)[2] >= FACADE_DRAWN_MIN_M]
+        polys = rooms.get(lid) or []
+        for w in walls:
+            if not _is_inferred(w) or not w.get("exterior"):
+                continue
+            ax = _wall_axis(w)
+            if ax is None or ax[2] < 0.25:
+                continue
+            (x0, y0), (ux, uy), L = ax
+            h = float(w.get("thickness") or 0.0) / 2.0
+            mid = ((w["start"][0] + w["end"][0]) / 2.0, (w["start"][1] + w["end"][1]) / 2.0)
+            side = 0
+            for sgn in (1.0, -1.0):
+                q = Point(mid[0] - uy * sgn * (h + 0.15), mid[1] + ux * sgn * (h + 0.15))
+                if any(pg.contains(q) for pg in polys):
+                    side = sgn if side == 0 else 2
+            if side not in (1.0, -1.0):
+                continue                                    # rooms on neither side or on both: no facade
+            best = None
+            for d, (a, u, Ld) in drawn:
+                if abs(u[0] * uy - u[1] * ux) > FACADE_PARALLEL_SIN:
+                    continue
+                hd = float(d.get("thickness") or 0.0) / 2.0
+                ends = (w["start"][:2], w["end"][:2])
+                ts = sorted((p[0] - a[0]) * u[0] + (p[1] - a[1]) * u[1] for p in ends)
+                off = sum(-(p[0] - a[0]) * u[1] + (p[1] - a[1]) * u[0] for p in ends) / 2.0
+                gap = max(0.0, ts[0] - Ld, -ts[1])
+                if gap > FACADE_LINE_REACH_M or abs(off) >= h + hd:
+                    continue
+                s = side * (1.0 if u[0] * ux + u[1] * uy >= 0 else -1.0)     # the room side in the drawn wall's frame
+                inward = (off + s * h) * s - hd                  # the room-side face beyond the drawn one, into the room
+                if inward <= FACADE_LINE_MIN_M:
+                    continue
+                if best is None or (gap, -inward) < best[0]:
+                    best = ((gap, -inward), d, inward)
+            if best is not None:
+                _k, d, inward = best
+                out.append(_finding("inferred_wall_off_facade", "minor", lid,
+                                    f"inferred wall {w.get('id')} ({L:.2f} m) stands {inward:.2f} m into the room off "
+                                    f"the face of the drawn wall {d.get('id')} whose line it continues: an inferred "
+                                    f"closing wall must lie on the drawn facade line (the room shrinks, its windows "
+                                    f"fall off)", mid, [w.get("id"), d.get("id")]))
+    return out

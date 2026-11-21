@@ -56,6 +56,11 @@ WET = ("bathroom", "wc", "shower", "toilet")
 OPEN_AIR = ("balcony", "terrace", "roof_terrace", "loggia", "veranda", "patio", "porch")
 LIGHT_WELL_RE = re.compile(r"(?<![a-z])(?:aydinlik|isiklik|aydinlatma\s+boslugu|light\s*well|lightwell|lichthof"
                            r"|lichtschacht|courette|patio\s+de\s+luces)")
+# 21 Nov 2026 (the RC18 reader fix round): an air shaft (HAVA BACASI, H.B 50/50, havalandırma; PAİY 32(3)) is an
+# open-air void through the storeys like a light well (no slab inside it, open at the roof), but its own subtype
+# (``air_shaft``): the regulations' limits for it are 0.60 m / 0.36 m2, a light well's 1.50 m / 4.50 m2
+from wenart.ingest.generic.topology import _AIR_SHAFT_PATTERN  # noqa: E402
+AIR_SHAFT_RE = re.compile(_AIR_SHAFT_PATTERN)
 LIFT_RE = re.compile(r"(?<![a-z])(?:asansor|lift|elevator|aufzug|ascenseur)")
 # R19 guards (the misfire hunters, 12 Nov 2026): a machine room (``wenart.ingest.lift_words.machine_room``, one test
 # for the reader, the storey signals and this module: review MF13, CODE-05; makinesiz, makine dairesiz and MRL are a
@@ -119,18 +124,36 @@ def _fold(text) -> str:
     return " ".join(B.fold_ascii(str(text or "")).lower().split())
 
 
+def _well_word(text) -> bool:
+    folded = _fold(text)
+    return bool(LIGHT_WELL_RE.search(folded) or AIR_SHAFT_RE.search(folded))
+
+
 def is_light_well(room: dict, texts: Optional[list] = None) -> bool:
     """A light or air well (pure): its label names one, or a light-well word stands inside it (real21: an unlabelled
-    face holding 'AYDINLIK')."""
-    if LIGHT_WELL_RE.search(_fold(room.get("label") or room.get("label_raw"))):
+    face holding 'AYDINLIK'); 21 Nov 2026: an air shaft too (``room_subtype`` air_shaft, an air-shaft word): both are
+    open-air voids a window may open onto."""
+    if room.get("room_subtype") in ("light_well", "air_shaft"):
+        return True
+    if _well_word(room.get("label") or room.get("label_raw")):
         return True
     if not texts:
         return False
     p = _poly(room.get("polygon"))
     if p is None:
         return False
-    return any(LIGHT_WELL_RE.search(_fold(t["text"])) and p.buffer(0.05).contains(Point(t["x"], t["y"]))
-               for t in texts)
+    return any(_well_word(t["text"]) and p.buffer(0.05).contains(Point(t["x"], t["y"])) for t in texts)
+
+
+def is_air_shaft(room: dict) -> bool:
+    """An air shaft (pure; 21 Nov 2026): ``room_subtype`` air_shaft, or an air-shaft word (``AIR_SHAFT_RE``) and no
+    light-well word in its label."""
+    if room.get("room_subtype") == "air_shaft":
+        return True
+    if room.get("room_subtype") == "light_well":
+        return False
+    label = _fold(room.get("label") or room.get("label_raw"))
+    return bool(AIR_SHAFT_RE.search(label)) and not LIGHT_WELL_RE.search(label)
 
 
 def is_lift(room: dict) -> bool:
@@ -792,15 +815,18 @@ LIGHT_WELL_MAX_M2 = 40.0        # a face larger than this holding the word is no
 
 def light_well_word(room: dict, texts: Optional[list]) -> Optional[dict]:
     """``{"text", "entity"}`` of the light-well word a room's label is or holds inside it (pure), else None."""
-    for key in ("label_raw", "label"):
-        if LIGHT_WELL_RE.search(_fold(room.get(key))):
-            return {"text": str(room.get(key)), "entity": None}
+    # 21 Nov 2026: a light-well word first (a face holding both is a light well), then an air-shaft word
+    for rx in (LIGHT_WELL_RE, AIR_SHAFT_RE):
+        for key in ("label_raw", "label"):
+            if rx.search(_fold(room.get(key))):
+                return {"text": str(room.get(key)), "entity": None}
     p = _poly(room.get("polygon"))
     if p is None or not texts:
         return None
-    for t in texts:
-        if LIGHT_WELL_RE.search(_fold(t["text"])) and p.buffer(0.05).contains(Point(t["x"], t["y"])):
-            return {"text": str(t["text"]).strip(), "entity": t.get("entity")}
+    for rx in (LIGHT_WELL_RE, AIR_SHAFT_RE):
+        for t in texts:
+            if rx.search(_fold(t["text"])) and p.buffer(0.05).contains(Point(t["x"], t["y"])):
+                return {"text": str(t["text"]).strip(), "entity": t.get("entity")}
     return None
 
 
@@ -837,15 +863,24 @@ def _light_wells(build, texts_by_level: dict) -> dict:
                 continue
             if RG.blocked("light_well", b, {"level_id": lid, "room": r["id"], "why": word["text"]}):
                 continue
-            name = LIGHT_WELL_NAMES.get(_fold(word["text"]), str(word["text"]).strip().capitalize())
-            if r.get("room_type") != "shaft" or r.get("room_subtype") != "light_well":
-                reason = (f"'{word['text']}' labels an open-air void (a light well) that no door reaches: open to the sky "
+            # 21 Nov 2026 (the RC18 fix round): an air shaft keeps its own subtype and name
+            air = bool(AIR_SHAFT_RE.search(_fold(word["text"]))) and not LIGHT_WELL_RE.search(_fold(word["text"]))
+            if air and any(not o.get("virtual") and o.get("type") == "opening" and o.get("center")
+                           and p.distance(Point(o["center"][:2])) <= 0.25 for o in b.get("openings") or []
+                           if o.get("level_id") == lid):
+                continue          # a gap into it is a way in (real10's closets, 'h.b' written inside: C0020)
+            sub, what = ("air_shaft", "an air shaft") if air else ("light_well", "a light well")
+            keep = str(r.get("label") or "").strip()                 # a label naming the air shaft stays
+            name = (keep if AIR_SHAFT_RE.search(_fold(keep)) else "Hava Bacası") if air else \
+                LIGHT_WELL_NAMES.get(_fold(word["text"]), str(word["text"]).strip().capitalize())
+            if r.get("room_type") != "shaft" or r.get("room_subtype") != sub:
+                reason = (f"'{word['text']}' labels an open-air void ({what}) that no door reaches: open to the sky "
                           f"through every storey, never furnished; read as '{r.get('label')}' ({r.get('room_type')})")
                 r["adjusted_by_ai"] = {"by": "code", "rule": "light_well", "reason": reason,
                                        "changed": {"room_type": r.get("room_type"), "label": r.get("label"),
                                                    "room_subtype": r.get("room_subtype")},
                                        "evidence": {"text": word["text"], "entity": word.get("entity")}}
-                r.update(room_type="shaft", room_subtype="light_well", label=name)
+                r.update(room_type="shaft", room_subtype=sub, label=name)
             by_level.setdefault(lid, []).append(r)
     if not by_level:
         return {}

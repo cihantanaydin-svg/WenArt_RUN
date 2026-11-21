@@ -814,6 +814,68 @@ def stair_room_label(face, stairs: list = (), turkish: bool = True) -> Optional[
 
 LIGHT_WELL_MAX_M2 = 12.0           # 3 Nov 2026: a doorless face up to this size that windows of other rooms open onto
 LIGHT_WELL_LABELS = ("Işıklık", "Light well")
+# 21 Nov 2026 (the RC18 reader fix round, user OK; RC18 found real17's 'H.B 50/50' (0.5 x 0.5 m) and real09's 0.85 x
+# 0.90 m shaft typed light wells): a doorless face that windows open onto is an AIR SHAFT (hava bacası, PAİY 32(3):
+# from 0.60 x 0.60 m), not a light well (PAİY 32(2): from 1.50 m), when an air-shaft word stands in it or when it is
+# this narrow (the diameter of its largest inscribed circle) and this small: no light well is drawn under 1.0 m
+AIR_SHAFT_MAX_NARROW_M = 1.0
+AIR_SHAFT_MAX_M2 = 1.5
+AIR_SHAFT_LABELS = ("Hava Bacası", "Air shaft")
+# 'H.B 50/50', 'HB 50x50', 'HAVA BACASI', 'havalandırma boşluğu', 'air shaft' (ASCII-folded lower case); a light-well
+# word (AYDINLIK, IŞIKLIK) keeps the face a light well whatever its size: an undersized drawn light well is the
+# drawing's (RC18 judges it)
+AIR_SHAFT_WORD_RE = None            # compiled below (re is imported lazily by the helpers)
+_AIR_SHAFT_PATTERN = (r"(?<![a-z0-9])(?:h\s*\.\s*b\b\.?|hb\s*\d{2,3}\s*[/x*]\s*\d{2,3}|hava\s*(?:bacasi|baca|boslugu)"
+                      r"|havalandirma|air\s*shaft|vent(?:ilation)?\s*shaft)")
+_LIGHT_WELL_PATTERN = r"(?<![a-z])(?:aydinlik|isiklik|aydinlatma|light\s*well|lightwell|lichthof)"
+
+
+def _well_words():
+    import re
+    global AIR_SHAFT_WORD_RE
+    if AIR_SHAFT_WORD_RE is None:
+        AIR_SHAFT_WORD_RE = re.compile(_AIR_SHAFT_PATTERN)
+    return AIR_SHAFT_WORD_RE, re.compile(_LIGHT_WELL_PATTERN)
+
+
+def narrow_side(poly) -> float:
+    """The diameter of the largest circle inside ``poly`` (the short side of a rectangle; pure)."""
+    import shapely
+    if poly is None or poly.is_empty:
+        return 0.0
+    return 2.0 * shapely.maximum_inscribed_circle(poly, 0.01).length
+
+
+def well_kind(poly, texts: list = ()) -> tuple[str, str, Optional[str]]:
+    """``(kind, reason, word)`` of a doorless face windows open onto (pure; 21 Nov 2026, the RC18 fix round):
+
+    - ``room``: a room word of another type is drawn inside it (``texts``: ``[(text, (x, y))]`` building metres, any
+      layer; real11's 'YUKLUK', a bedding closet, on the stair layer): the face is that room, never a well (a label
+      goes to the space it sits in); ``word`` is the text;
+    - ``light_well``: a light-well word is drawn inside it, or it is too large for an air shaft;
+    - ``air_shaft``: an air-shaft word is drawn inside it, or it is narrower than ``AIR_SHAFT_MAX_NARROW_M`` and at
+      most ``AIR_SHAFT_MAX_M2`` (real17's H.B 50/50, real09's 0.85 x 0.90 m shaft)."""
+    from wenart.ingest.generic import labels as LB
+
+    air_re, well_re = _well_words()
+    inside = [(str(t), q) for t, q in texts or () if poly.buffer(0.05).contains(Point(q))]
+    folded = [(" ".join(B.fold_ascii(t).lower().split()), t) for t, _q in inside]
+    for f, t in folded:
+        if well_re.search(f):
+            return "light_well", f"'{t.strip()}' drawn inside it", t
+    for f, t in folded:
+        if air_re.search(f):
+            return "air_shaft", f"'{t.strip()}' drawn inside it", t
+    for f, t in folded:
+        kind = LB.sense_word(t)
+        rtype, _ext = LB.room_type_for(t)
+        if kind in ("closet", "technical", "lift") or rtype not in ("other", "unknown", "hall", "shaft"):
+            return "room", f"'{t.strip()}' drawn inside it names a {kind or rtype}", t
+    narrow = narrow_side(poly)
+    if narrow < AIR_SHAFT_MAX_NARROW_M and poly.area <= AIR_SHAFT_MAX_M2 + 1e-9:
+        return "air_shaft", (f"{narrow:.2f} m across and {poly.area:.2f} m2: an air shaft's size (no light well is "
+                             f"drawn under {AIR_SHAFT_MAX_NARROW_M:.1f} m across; PAİY 32(2) asks 1.50 m)"), None
+    return "light_well", f"{narrow:.2f} m across", None
 
 
 def _wall_view(w) -> dict:
@@ -851,10 +913,15 @@ def twin_band_window(opening: OpeningItem, walls: list, openings: list) -> bool:
     return False
 
 
-def unlabelled_face_type(face, walls: list, openings: list, stairs: list = (), others: Optional[list] = None
-                         ) -> tuple[str, str]:
+def unlabelled_face_type(face, walls: list, openings: list, stairs: list = (), others: Optional[list] = None,
+                         texts: list = ()) -> tuple[str, str]:
     """``("hall", reason)`` when an unlabelled face holds a stair or touches >= 2 doors/openings, else
     ``("unknown", reason)``. The room stays ``unverified`` either way.
+
+    21 Nov 2026 (the RC18 fix round): a doorless face that windows open onto is judged by ``well_kind`` with the
+    drawing's ``texts`` inside it (``[(text, (x, y))]``, any layer): an air shaft (reason ``air shaft: ...``), a
+    light well (``light well: ...``), or the room a word drawn in it names (``storage``, ``wc`` ...: reason ``named:
+    ...``; ``named_face_label`` gives its label).
 
     Fix round after P6b (23 Oct 2026), review: a gap that lost its window for want of glass (an unverified opening,
     evidence rule ``no_glass``, ``openings._opening``) counts as the window it was read as before, not as a door:
@@ -896,8 +963,20 @@ def unlabelled_face_type(face, walls: list, openings: list, stairs: list = (), o
                                      for g in others):
                 onto += 1
         if onto:
+            kind, why, word = well_kind(poly, texts)
+            if kind == "room":
+                from wenart.ingest.generic import labels as LB
+                rtype, _ext = LB.room_type_for(word)
+                if LB.sense_word(word) == "closet" or rtype in ("other", "unknown", "hall"):
+                    rtype = "storage"
+                return rtype, (f"named: a face of {poly.area:.2f} m2 that no door reaches and {onto} window(s) of "
+                               f"other rooms open onto is no light well: {why} (a label goes to the space it sits in) "
+                               f"|{word.strip()}")
+            if kind == "air_shaft":
+                return "shaft", (f"air shaft: a face of {poly.area:.2f} m2 that no door reaches and {onto} window(s) "
+                                 f"of other rooms open onto, {why} (hava bacası, no light well)")
             return "shaft", (f"light well: a face of {poly.area:.2f} m2 that no door reaches and {onto} window(s) of "
-                             f"other rooms open onto (ışıklık)")
+                             f"other rooms open onto (ışıklık; {why})")
     if touching >= 2:
         return "hall", f"unlabelled face touching {touching} doors/openings{left_out}"
     # 3 Nov 2026 (real10, user: "red sections are small closets (small rooms with a door to store some stuff
@@ -928,7 +1007,18 @@ def closet_label(reason: Optional[str], turkish: bool) -> Optional[str]:
 
 
 def light_well_label(reason: Optional[str], turkish: bool) -> Optional[str]:
-    """The label of a face ``unlabelled_face_type`` found a light well (else None)."""
+    """The label of a face ``unlabelled_face_type`` found a light well, an air shaft (21 Nov 2026) or named by a word
+    drawn inside it (else None)."""
     if reason and reason.startswith("light well"):
         return LIGHT_WELL_LABELS[0] if turkish else LIGHT_WELL_LABELS[1]
+    if reason and reason.startswith("air shaft"):
+        return AIR_SHAFT_LABELS[0] if turkish else AIR_SHAFT_LABELS[1]
+    return named_face_label(reason)
+
+
+def named_face_label(reason: Optional[str]) -> Optional[str]:
+    """The word drawn inside a face ``unlabelled_face_type`` named by it (reason ``named: ... |<word>``), else None."""
+    if reason and reason.startswith("named:") and "|" in reason:
+        word = reason.rsplit("|", 1)[1].strip()
+        return " ".join(w[:1].upper() + w[1:].lower() for w in word.split()) or None
     return None

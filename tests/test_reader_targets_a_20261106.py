@@ -1253,7 +1253,9 @@ def test_a_gap_on_a_wall_read_inside_the_band_of_the_wall_with_the_window_leaves
     well, room = box(0.141, 0.6, 0.8, 1.6), box(-3.0, -2.0, -0.13, 4.0)
     window, vent = gap("window", 0.0, 1.1, 0.9), gap("opening", 0.021, 1.1, 0.98)
     kind, reason = TP.unlabelled_face_type(well, walls, [window, vent], others=[well, room])
-    assert kind == "shaft" and reason.startswith("light well")
+    # 21 Nov 2026 (the RC18 fix round): a doorless face 0.66 m across is an air shaft, not a light well (both open-air
+    # shafts the window opens onto: what this test guards is that the twin-band gap is no door of it)
+    assert kind == "shaft" and reason.startswith(("light well", "air shaft"))
     assert TP.twin_band_window(vent, walls, [window, vent]) is True
     # with no window in the other wall's band the gap is a door of the face, as before
     assert TP.twin_band_window(vent, walls, [vent]) is False

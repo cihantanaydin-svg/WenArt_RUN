@@ -2302,6 +2302,24 @@ FRAMED_RIM_M = 0.30             # the facade's walls: within this of the buildin
 FRAMED_NEAR_M = 0.35            # an opening read this far off the wall's axis (on a wall piece beside it) is its own
 
 
+def covered_share(lo: float, hi: float, spans: list) -> float:
+    """The share of ``[lo, hi]`` the union of ``spans`` (``[(a, b)]``) covers (pure; 21 Nov 2026)."""
+    if hi - lo <= 1e-9:
+        return 0.0
+    parts = sorted((max(lo, a), min(hi, b)) for a, b in spans if min(hi, b) > max(lo, a))
+    total, cur = 0.0, None
+    for a, b in parts:
+        if cur is not None and a <= cur[1]:
+            cur = (cur[0], max(cur[1], b))
+        else:
+            if cur is not None:
+                total += cur[1] - cur[0]
+            cur = (a, b)
+    if cur is not None:
+        total += cur[1] - cur[0]
+    return total / (hi - lo)
+
+
 def framed_spans(x0, y0, ux, uy, half: float, segs: list) -> list:
     """``[(lo, hi, lines)]`` along a wall (origin x0, y0, direction ux, uy, half thickness ``half``): the stretches the
     window or glass layer segments ``segs`` (``[((ax, ay), (bx, by))]``) parallel to the wall and inside its band
@@ -2383,10 +2401,13 @@ def _framed_windows(ex, where: str, walls2: list, openings: list, strokes: list,
 
             def off(q):
                 return -(q[0] - x0) * uy + (q[1] - y0) * ux
-            if any(not o.virtual and abs(off(o.center)) <= half + FRAMED_NEAR_M
-                   and min(hi, along(o.center) + o.width / 2.0) - max(lo, along(o.center) - o.width / 2.0)
-                   >= 0.5 * (hi - lo) for o in out):
-                continue                                   # an opening is read there (or on a wall piece beside it)
+            # 21 Nov 2026 (the RC18 fix round, real17 L1: a double casement window read as two 0.77 m windows in the
+            # band, each covering less than half of the 1.8 m sill lines drawn outside the wall, got a third 1.8 m
+            # window centred 0.29 m off the wall's axis): the openings read there together cover the frames' span
+            if covered_share(lo, hi, [(along(o.center) - o.width / 2.0, along(o.center) + o.width / 2.0)
+                                      for o in out if not o.virtual and abs(off(o.center)) <= half + FRAMED_NEAR_M]) \
+                    >= 0.5:
+                continue                                   # openings are read there (or on a wall piece beside it)
             if any(math.dist(c, (x0 + ux * (lo + hi) / 2.0, y0 + uy * (lo + hi) / 2.0)) <= 0.3 for c in made):
                 continue                                   # the same frames in an overlapping wall piece
             # the jambs: wall lines across the band near the frames' ends
@@ -4133,6 +4154,23 @@ def _glazed_facades(ex, where: str, walls2: list, openings: list, blocks: list, 
 
     new_walls = FC.facade_wall_items(walls2, list(faces.values()), openings, file_rel, page_no, units_to_m=s,
                                      why=told if twins else None)
+    # 21 Nov 2026 (the RC18 fix round; real09 L3: the depot's face, closed on the drawn facade line, met a 3 cm crack
+    # between two drawn walls at its corner that its inferred walls did not seal, and the room stayed open): a face whose
+    # walls leave its label in no closed face is closed again with the frames' own bands (``close_rooms(snap=False)``,
+    # the rule before the facade line): the facade line where it closes the room, the old closure where it does not
+    if new_walls and FC.FACADE_LINE_SNAP:
+        closed = TP.faces(list(walls2) + new_walls, openings)
+        lost = [k for k in faces if not any(f.contains(Point(tried[k])) for f in closed)]
+        if lost:
+            old_faces, old_links = FC.close_rooms(walls2, strokes, [tried[k] for k in lost], snap=False)
+            for j, k in enumerate(lost):
+                if j in old_faces:
+                    faces[k] = old_faces[j]
+            links += old_links
+            ex.notes.append(f"{where}: glazed facade: {len(lost)} face(s) closed on the drawn facade line left their "
+                            f"label open (a crack between drawn walls): closed with the frames' own bands instead")
+            new_walls = FC.facade_wall_items(walls2, list(faces.values()), openings, file_rel, page_no, units_to_m=s,
+                                             why=told if twins else None)
     if not new_walls:
         return None
     taken = set(owned)
