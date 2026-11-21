@@ -385,6 +385,7 @@ def floor_truth(fl: Floor, lid: str) -> dict:
 
 
 TREAD_M = 0.28
+STAIR_JOIN_M = 0.15         # flights closer than twice this (an L or U stair, its eye) are one stair
 
 
 def stair_groups(fl: Floor) -> list:
@@ -392,7 +393,7 @@ def stair_groups(fl: Floor) -> list:
     polys = [g for st, g in fl.features if st == "STAIRS"]
     if not polys:
         return []
-    u = unary_union([p.buffer(0.03) for p in polys])
+    u = unary_union([p.buffer(STAIR_JOIN_M) for p in polys])
     comps = [u] if u.geom_type == "Polygon" else list(u.geoms)
     out = []
     for c in sorted(comps, key=lambda q: (round(q.bounds[1], 3), round(q.bounds[0], 3))):
