@@ -55,3 +55,7 @@ runs/
 /projects-private/
 /results-private/
 /outputs-private/
+
+# Dataset bench: only the manifest, the samples and the report are committed; converted projects and readings stay out
+datasets/*/bench/
+datasets/*/work/

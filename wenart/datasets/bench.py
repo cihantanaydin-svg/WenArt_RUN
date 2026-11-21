@@ -23,6 +23,7 @@ from __future__ import annotations
 import collections
 import csv
 import json
+import math
 import random
 import shutil
 import subprocess
@@ -35,6 +36,7 @@ from wenart.reading_check import score as SC
 from wenart.reading_check import truth as TR
 
 KINDS = ("levels", "rooms", "walls", "doors", "windows", "stairs")
+MIN_ORTHOGONAL = 0.9          # the least share of wall length on the axes (Turkish apartment plans are orthogonal)
 
 
 # --- picking and converting -----------------------------------------------------------------------------------------
@@ -72,7 +74,7 @@ def pick(csv_path: Path, n_floors: int = 200, seed: int = 20261121) -> dict:
     return out
 
 
-def convert(csv_path: Path, picked: dict, bench_dir: Path) -> list[str]:
+def convert(csv_path: Path, picked: dict, bench_dir: Path, target_floors: int = 200) -> list[str]:
     from wenart.datasets import swiss_convert as SCV
     from wenart.datasets import swiss_dwellings as SD
     from wenart.datasets import turkish_profile as TP
@@ -80,16 +82,28 @@ def convert(csv_path: Path, picked: dict, bench_dir: Path) -> list[str]:
     want = {f for fs in picked.values() for f in fs}
     rows = SD.read_rows(csv_path, want)
     profile = TP.load()
-    names = []
-    for bid in sorted(picked, key=lambda b: int(b)):
-        if bid not in rows:
+    names, skipped, projects, floors = [], [], [], 0
+    for bid in picked:                                  # the pick's own (random) order, until ``target_floors``
+        if bid not in rows or floors >= target_floors:
             continue
         name = f"swiss-b{bid}"
         try:
-            SCV.convert_building(rows[bid], bench_dir, name, profile)
-            names.append(name)
+            truth = SCV.convert_building(rows[bid], bench_dir, name, profile, min_orthogonal=MIN_ORTHOGONAL)
+        except SCV.NotOrthogonal as exc:
+            skipped.append({"building_id": bid, "reason": str(exc)})
+            continue
         except Exception as exc:                        # noqa: BLE001 - one bad building never stops the bench
-            print(f"{name}: conversion failed: {exc}")
+            skipped.append({"building_id": bid, "reason": f"conversion failed: {exc}"})
+            continue
+        names.append(name)
+        floors += len(truth["levels"])
+        projects.append({"project": name, "building_id": bid, "floor_ids": truth["dataset"]["floor_ids"],
+                         "levels": len(truth["levels"]), "style_unit": truth["style"]["unit"],
+                         "counts": TR.counts(truth)})
+    manifest = {"dataset": SD.DATASET, "source_file": "geometries.csv", "projects": projects,
+                "floors": floors, "skipped": skipped, "min_orthogonal": MIN_ORTHOGONAL}
+    (Path(bench_dir) / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=1) + "\n",
+                                                  encoding="utf-8")
     return names
 
 
@@ -228,21 +242,93 @@ def errors(project: str, truth: dict, read: dict) -> list[dict]:
     return out
 
 
+def _shift_level(rl: dict, dx: float, dy: float) -> dict:
+    """A level of a truth-shaped reading moved by (-dx, -dy) (every point the matching reads)."""
+    def mv(p):
+        return [p[0] - dx, p[1] - dy] if p else p
+
+    out = {}
+    for kind, items in rl.items():
+        moved = []
+        for e in items:
+            e = dict(e)
+            for key in ("center", "centroid", "start", "end"):
+                if e.get(key):
+                    e[key] = mv(e[key])
+            if e.get("polygon"):
+                e["polygon"] = [mv(q) for q in e["polygon"]]
+            moved.append(e)
+        out[kind] = moved
+    return out
+
+
+def _wall_min(rl: dict) -> Optional[tuple]:
+    pts = [(min(w["start"][0], w["end"][0]) - (w.get("thickness") or 0) / 2,
+            min(w["start"][1], w["end"][1]) - (w.get("thickness") or 0) / 2) for w in rl.get("walls") or []]
+    return (min(p[0] for p in pts), min(p[1] for p in pts)) if pts else None
+
+
+def _matches(tl: dict, rl: dict) -> int:
+    return sum(len(SC.match_kind(k, TR.positives(tl.get(k) or []), rl.get(k) or []))
+               for k in ("walls", "doors", "windows"))
+
+
+def align(truth: dict, read: dict) -> tuple[dict, dict]:
+    """The reading with each level moved onto the truth frame by the shift that matches most walls, doors and windows
+    (candidates: none, the walls' min-corner difference of the level, the first level's shift), and the shifts
+    ``{level: [dx, dy]}`` (only those over 5 cm). The reader's frame is the min corner of the reference level's outer
+    walls; a missed parapet or a level registered elsewhere moves every element of it, which the per-element numbers
+    should not count again (``frame offset`` is its own error class)."""
+    out = dict(read, per_level=dict(read.get("per_level") or {}))
+    shifts, first = {}, None
+    for lid, tl in (truth.get("per_level") or {}).items():
+        rl = out["per_level"].get(lid)
+        if not rl:
+            continue
+        cands = [(0.0, 0.0)]
+        tm, rm = _wall_min(tl), _wall_min(rl)
+        if tm and rm:
+            cands.append((rm[0] - tm[0], rm[1] - tm[1]))
+        if first:
+            cands.append(first)
+        best = max(cands, key=lambda s: (_matches(tl, _shift_level(rl, *s)), -math.hypot(*s)))
+        if math.hypot(*best) > 0.05 and _matches(tl, _shift_level(rl, *best)) > _matches(tl, rl):
+            out["per_level"][lid] = _shift_level(rl, *best)
+            shifts[lid] = [round(best[0], 3), round(best[1], 3)]
+            first = first or best
+        else:
+            first = first or (0.0, 0.0)
+    return out, shifts
+
+
 def score_one(project_dir: Path, read_dir: Path) -> dict:
-    """The numbers of one reading against its truth: ``reading_check.score.match`` per kind, the room types, the
-    errors."""
+    """The numbers of one reading against its truth: ``reading_check.score.match`` per kind after ``align`` (the
+    unaligned total kept), the room types, the errors."""
     name = Path(project_dir).name
     truth = TR.synthetic_truth(name, Path(project_dir) / "truth" / "reading_truth.json")
     b = json.loads((Path(read_dir) / "building.json").read_text(encoding="utf-8"))
-    read = TR.extract(b, project=name)
+    raw = TR.extract(b, project=name)
+    read, shifts = align(truth, raw)
     res = SC.match(truth, read, b)
+    res["total_unaligned"] = SC.match(truth, raw, b)["total"]
+    res["frame_shift_m"] = shifts
     typed = right = 0
     for lid, (tt, rr, m) in _pairs_by_level(truth, read, "rooms").items():
         for i, j in m:
             typed += 1
             right += (tt[i].get("room_type") or "other") == (rr[j].get("room_type") or "other")
     res["room_types"] = {"matched": typed, "right": right, "share": round(right / typed, 4) if typed else None}
-    res["errors"] = errors(name, truth, read)
+    n_walls = sum(len(lv.get("walls") or []) for lv in (read.get("per_level") or {}).values())
+    if not n_walls:
+        res["errors"] = [{"class": "nothing read: drawing scale not found or misread", "kind": "levels",
+                          "level": "-", "project": name,
+                          "example": f"unit {truth.get('style', {}).get('unit')}, $INSUNITS "
+                                     f"{truth.get('style', {}).get('insunits')}, dimensions as entities "
+                                     f"{truth.get('style', {}).get('dims_as_entities')}"}]
+    else:
+        res["errors"] = errors(name, truth, read) + [
+            {"class": "frame offset (a level read in another origin)", "kind": "levels", "level": lid,
+             "project": name, "example": f"shift {s} m"} for lid, s in shifts.items()]
     res["status"] = (b.get("project") or {}).get("status") or b.get("status")
     return res
 

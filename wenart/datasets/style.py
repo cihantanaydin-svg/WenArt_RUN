@@ -139,15 +139,15 @@ def sample_style(profile: dict, rng: random.Random, seed: int = 0) -> Style:
     heights["area"] = min(heights["area"], heights["room_label"])
     sh = profile.get("shapes") or {}
     tag_ok = lambda k: bool(re.fullmatch(r"[A-Z]{0,2}:?\s?9+(\s?[X/]\s?9+){1,2}", k))       # noqa: E731
-    door_tag = _template(_weighted(rng, sh.get("door_tag") or {}, by="share", keep=tag_ok) or "99/999", ("w", "h"))
-    win_tag = _template(_weighted(rng, sh.get("window_tag") or {}, by="share", keep=tag_ok) or "999/999",
+    door_tag = _template(_weighted(rng, sh.get("door_tag") or {}, keep=tag_ok) or "99/999", ("w", "h"))
+    win_tag = _template(_weighted(rng, sh.get("window_tag") or {}, keep=tag_ok) or "999/999",
                         ("w", "h", "s"))
-    area_shape = _weighted(rng, sh.get("area") or {}, by="share",
+    area_shape = _weighted(rng, sh.get("area") or {},
                            keep=lambda k: "M9" in k or "M²" in k) or "A:99.99M9"
     m = re.search(r"9+([.,])(9+)", area_shape)
     area_sep, area_dec = (m.group(1), len(m.group(2))) if m else (".", 2)
     area_tpl = re.sub(r"9+(?:[.,]9+)?", "{a}", area_shape, count=1).replace("M9", "M2")
-    lvl_shape = _weighted(rng, sh.get("level") or {}, by="share") or "+9.99"
+    lvl_shape = _weighted(rng, sh.get("level") or {}) or "+9.99"
     level_sep = "," if "," in lvl_shape else "."
     sign = lvl_shape[0] if lvl_shape[0] in "+±-" else "+"
     level_tpl = ("+" if sign == "-" else sign) + (" " if lvl_shape[1:2] == " " else "") + "{z}"

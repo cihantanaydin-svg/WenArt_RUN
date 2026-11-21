@@ -43,13 +43,13 @@ from wenart import building as B
 from wenart.datasets import style as ST
 from wenart.synthetic import failure_classes as FC
 
-DATASET = {"id": "swiss_dwellings", "name": "Swiss Dwellings", "version": "3.0.0",
+DATASET = {"id": "swiss_dwellings", "name": "Swiss Dwellings", "record": "Zenodo record 7070952",
            "url": "https://zenodo.org/records/7070952", "licence": "CC BY 4.0",
            "licence_url": "https://creativecommons.org/licenses/by/4.0/", "licence_declared_by": "publisher",
            "licence_flag": "none", "commercial_safe": "yes",
-           "attribution": "Swiss Dwellings: An extensive dataset of building geometries (Archilyse AG, 2022), "
-                          "CC BY 4.0; floors redrawn as Turkish-style DXF plans by WenArt (geometry regularised, "
-                          "labels translated, drafting conventions added)."}
+           "attribution": "Swiss Dwellings (Archilyse AG), Zenodo record 7070952, CC BY 4.0; floors redrawn as "
+                          "Turkish-style DXF plans by WenArt (geometry regularised, labels translated, drafting "
+                          "conventions added)."}
 ROUND_M = 0.005
 SNAP_DEG = 2.0
 ROOM_MIN_M2 = 0.5
@@ -173,6 +173,19 @@ def dominant_angle(polys: list) -> float:
                 num += d * L
                 den += L
     return (peak + (num / den if den else 0.0)) % 90
+
+
+def orthogonal_share(polys: list, angle: float) -> float:
+    """The share of the wall length within ``SNAP_DEG`` of the axes once the building is turned by ``angle``
+    (Turkish apartment plans are orthogonal; a building with skewed walls is skipped by the bench)."""
+    num = den = 0.0
+    for p in polys:
+        r = _rect_raw(p)
+        if r:
+            d = (r[0] - angle) % 90
+            den += r[1]
+            num += r[1] if min(d, 90 - d) <= SNAP_DEG else 0.0
+    return num / den if den else 0.0
 
 
 def _rect_raw(p: Polygon):
@@ -403,6 +416,7 @@ def building_layout(floors: dict, profile: dict, style: ST.Style, rng: random.Ra
     first = floors[fids[0]]
     raw = [g for g in (_geom(r) for r in first if r["entity_subtype"] == "WALL") if g is not None]
     angle = dominant_angle(raw)
+    ortho = orthogonal_share(raw, angle)
     ref = build_floor(first, angle, (0.0, 0.0))
     b = unary_union([w.rect() for w in ref.walls]).bounds if ref.walls else (0.0, 0.0, 0.0, 0.0)
     shift = (b[0], b[1])
@@ -413,7 +427,7 @@ def building_layout(floors: dict, profile: dict, style: ST.Style, rng: random.Ra
             label_rooms(fl, profile, style, rng)
             built.append(fl)
             used.append(f)
-    return {"floors": built, "floor_ids": used, "rotation_deg": round(angle, 4),
+    return {"floors": built, "floor_ids": used, "rotation_deg": round(angle, 4), "orthogonal_share": round(ortho, 4),
             "shift_m": [round(shift[0], 4), round(shift[1], 4)],
             "building_id": first[0]["building_id"] if first else None,
             "site_id": first[0].get("site_id") if first else None}

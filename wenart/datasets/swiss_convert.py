@@ -44,6 +44,10 @@ LAYER_COLOURS = {"wall": 7, "hatch": 8, "structure": 1, "door": 2, "window": 4, 
                  "window_tag": 4, "level": 1, "title": 7}
 
 
+class NotOrthogonal(ValueError):
+    """A building the bench does not convert: its walls are not on two orthogonal directions (or it has none)."""
+
+
 @dataclass
 class D:
     """One drawing primitive in building metres; ``role`` is a ``Style.layers`` key."""
@@ -409,9 +413,11 @@ def write_dxf(plans: list, style: ST.Style, path: Path) -> None:
 
 
 def convert_building(floors: dict, out_root: Path, name: str, profile: Optional[dict] = None,
-                     seed: Optional[int] = None, max_floors: int = 4, overrides: Optional[dict] = None) -> dict:
+                     seed: Optional[int] = None, max_floors: int = 4, overrides: Optional[dict] = None,
+                     min_orthogonal: float = 0.0) -> dict:
     """``floors``: {floor_id: [csv rows]} of one building -> the project ``out_root/name``; returns its truth.
-    ``overrides``: style fields set after sampling (a test of one convention, e.g. ``{"unit": "cm"}``)."""
+    ``overrides``: style fields set after sampling (a test of one convention, e.g. ``{"unit": "cm"}``);
+    ``min_orthogonal``: the least share of wall length on the axes (``NotOrthogonal`` below it, nothing written)."""
     profile = profile or TP.load()
     fids = sorted(floors, key=lambda f: int(float(f)))[:max_floors]
     first = floors[fids[0]]
@@ -423,7 +429,11 @@ def convert_building(floors: dict, out_root: Path, name: str, profile: Optional[
     for k, v in (overrides or {}).items():
         setattr(style, k, v)
     layout = SD.building_layout({f: floors[f] for f in fids}, profile, style, rng)
+    if layout["orthogonal_share"] < min_orthogonal:
+        raise NotOrthogonal(f"building {bid}: {layout['orthogonal_share']:.0%} of the wall length on the axes")
     built = layout["floors"]
+    if not built:
+        raise NotOrthogonal(f"building {bid}: no walls")
     axes = axis_lines(built[0]) if built else ([], [])
     bx = [fl.union.bounds for fl in built]
     allb = (min(b[0] for b in bx), min(b[1] for b in bx), max(b[2] for b in bx), max(b[3] for b in bx))
