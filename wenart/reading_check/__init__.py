@@ -31,6 +31,9 @@ CAD document) and returns the findings, each with its check, severity, level and
 - RC17 (20 Nov 2026, ``wenart.reading_check.structure``): the structural checks (a door into the air above the
   ground, a storey's slab open inside its own walls, a drawn angled wall built straight, R35), advisory and never
   demoted; RC1 also names a level the reading has and no variant's build takes (``views.levels_not_built``).
+- RC18 (21 Nov 2026, ``wenart.reading_check.regulations``): the Turkish building and fire regulations (PAİY, BYKHY:
+  room sizes, daylight, light wells, stairs, lift, storey height, escape routes; each limit with its article and
+  sources in ``regulations_tr.json``), advisory and counted apart (``counts["regulations"]``), graded nowhere yet.
 - RC15 (6 Nov 2026, Milestone 14 R6, ``wenart.reading_check.critic``): the vision critic (the agent model compares the
   drawing with the model on the comparison sheet's two panels and answers the reading lessons' question bank, on a
   pod); its stored findings (``reading_check/critic.json``) join as advisory findings, a kind below its judged
@@ -818,10 +821,26 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
     for f in structural:
         f["advisory"] = True
     findings += structural
+    # 21 Nov 2026 (user OK: "Make sense of the building"): the Turkish building and fire regulations RC18
+    # (``wenart.reading_check.regulations``: room sizes, daylight, light wells, stairs, lift, storey height, escape
+    # routes, each limit with its article and sources in regulations_tr.json) join as ADVISORY findings counted apart
+    # (``counts["regulations"]``): not in the verdict, not in ``counts["advisory"]``, so no grade counts them until they
+    # are measured on the projects
+    try:
+        from wenart.reading_check import regulations as RGL
+        regulations = RGL.findings(building)
+    except Exception as exc:  # noqa: BLE001 - an advisory check never stops the reading check
+        regulations = [{"check": "RC18", "name": "Turkish regulations", "rule": None, "severity": "info",
+                        "level_id": None, "message": f"the regulation checks did not run: {type(exc).__name__}: "
+                                                     f"{str(exc)[:200]}", "element_ids": []}]
+    for f in regulations:
+        f["advisory"] = True
+    findings += regulations
     advisory = cross + sense + vision + structural
     counts = {s: sum(1 for f in findings if f["severity"] == s and not f.get("advisory"))
               for s in ("critical", "major", "minor")}
     counts["advisory"] = {s: sum(1 for f in advisory if f["severity"] == s) for s in ("major", "minor", "info")}
+    counts["regulations"] = {s: sum(1 for f in regulations if f["severity"] == s) for s in ("minor", "info")}
     # 6 Nov 2026 (real21, UL331): what the reading inferred where the documents are silent (the storeys, the windows)
     try:
         from wenart.ingest import completion as CP
@@ -932,6 +951,10 @@ def write(out_dir, result: dict) -> Path:
                 f"structural checks RC17, "
                 f"advisory: {adv.get('major', 0)} major, {adv.get('minor', 0)} minor, {adv.get('info', 0)} info (not "
                 f"in the verdict)." if adv else "")
+    reg = (result.get("counts") or {}).get("regulations") or {}
+    if reg:
+        adv_text += (f" Turkish regulation checks RC18 (PAİY, BYKHY), advisory: {reg.get('minor', 0)} minor, "
+                     f"{reg.get('info', 0)} info (not in the verdict, not graded).")
     lines = [f"# Reading check: {result.get('project')}", "",
              f"Verdict: **{result['verdict']}** ({result['counts']['critical']} critical, {result['counts']['major']} "
              f"major, {result['counts']['minor']} minor). Levels checked against the drawing: "

@@ -1,0 +1,197 @@
+{
+  "what": "The limits of the Turkish building and fire regulations that RC18 (wenart.reading_check.regulations) checks a reading against, each with its article, value, Turkish wording and sources (21 Nov 2026, user OK: 'Make sense of the building'). Check every value against the official PDFs before it gains any weight: the official site www.mevzuat.gov.tr did not answer from the cloud session (connection reset), so every value here comes from at least two independent copies or quotations found by web search.",
+  "regulations": {
+    "PAIY": {"name": "Planlı Alanlar İmar Yönetmeliği", "resmi_gazete": "3 Temmuz 2017, sayı 30113 (amended 2018-2026)", "official_pdf": "https://www.mevzuat.gov.tr/mevzuatmetin/yonetmelik/7.5.23722.pdf"},
+    "BYKHY": {"name": "Binaların Yangından Korunması Hakkında Yönetmelik", "resmi_gazete": "19 Aralık 2007, sayı 26735 (amended 2009, 2015)", "official_pdf": "https://www.mevzuat.gov.tr/MevzuatMetin/21.5.200712937.pdf"}
+  },
+  "quote_status_meaning": {
+    "verbatim": "the Turkish words as the sources print them",
+    "near_verbatim": "the Turkish sentence as the search result gave it; the wording may differ slightly from the official text, the values do not",
+    "values_only": "the sources agree on the values; no verbatim Turkish sentence was retrieved (the official site was unreachable)"
+  },
+  "limits": {
+    "paiy29_living": {
+      "regulation": "PAIY", "article": "Madde 29(1)", "rule": "room_min_size", "room": "living",
+      "min_area_m2": 12.0, "min_narrow_side_m": 3.0,
+      "quote_tr": "oturma odası: dar kenarı 3.00 m, net alanı 12.00 m²",
+      "quote_status": "values_only",
+      "applies": "the one living room every dwelling (bağımsız bölüm) must have; both the area and the narrow side must hold",
+      "sources": ["https://www.mimarim.com/mevzuat/y%C3%B6netmelikler/planl%C4%B1-alanlar-imar-y%C3%B6netmeli%C4%9Fi/yap%C4%B1-piyesleri-ve-%C3%B6l%C3%A7%C3%BCleri",
+                  "https://halilbakirci.av.tr/konut-asgari-oda-mutfak-banyo-olculeri-paiy-madde-29-2026/",
+                  "https://mevzuat.mturkoglu.av.tr/belge/23722/madde/29"],
+      "agree": true
+    },
+    "paiy29_bedroom": {
+      "regulation": "PAIY", "article": "Madde 29(1)", "rule": "room_min_size", "room": "bedroom",
+      "min_area_m2": 9.0, "min_narrow_side_m": 2.5,
+      "quote_tr": "yatak odası: dar kenarı 2.50 m, net alanı 9.00 m²",
+      "quote_status": "values_only",
+      "applies": "the one bedroom every dwelling must have (since RG 13.8.2025 up to 20 % of a parcel's units may replace it by a bed niche of 2.50 m x 9 m² in the living room)",
+      "sources": ["https://www.mimarim.com/mevzuat/y%C3%B6netmelikler/planl%C4%B1-alanlar-imar-y%C3%B6netmeli%C4%9Fi/yap%C4%B1-piyesleri-ve-%C3%B6l%C3%A7%C3%BCleri",
+                  "https://halilbakirci.av.tr/konut-asgari-oda-mutfak-banyo-olculeri-paiy-madde-29-2026/"],
+      "agree": true
+    },
+    "paiy29_kitchen": {
+      "regulation": "PAIY", "article": "Madde 29(1)", "rule": "room_min_size", "room": "kitchen",
+      "min_area_m2": 3.3, "min_narrow_side_m": 1.5,
+      "quote_tr": "mutfak veya yemek pişirme yeri: dar kenarı 1.50 m, net alanı 3.30 m²",
+      "quote_status": "values_only",
+      "applies": "the kitchen or cooking place every dwelling must have",
+      "sources": ["https://www.mimarim.com/mevzuat/y%C3%B6netmelikler/planl%C4%B1-alanlar-imar-y%C3%B6netmeli%C4%9Fi/yap%C4%B1-piyesleri-ve-%C3%B6l%C3%A7%C3%BCleri",
+                  "https://halilbakirci.av.tr/konut-asgari-oda-mutfak-banyo-olculeri-paiy-madde-29-2026/"],
+      "agree": true
+    },
+    "paiy29_bathroom": {
+      "regulation": "PAIY", "article": "Madde 29(1)", "rule": "room_min_size", "room": "bathroom",
+      "min_area_m2": 3.0, "min_narrow_side_m": 1.5,
+      "quote_tr": "banyo veya yıkanma yeri: dar kenarı 1.50 m, net alanı 3.00 m²",
+      "quote_status": "values_only",
+      "applies": "the bathroom or washing place every dwelling must have (a shower room counts as a washing place)",
+      "sources": ["https://www.mimarim.com/mevzuat/y%C3%B6netmelikler/planl%C4%B1-alanlar-imar-y%C3%B6netmeli%C4%9Fi/yap%C4%B1-piyesleri-ve-%C3%B6l%C3%A7%C3%BCleri",
+                  "https://halilbakirci.av.tr/konut-asgari-oda-mutfak-banyo-olculeri-paiy-madde-29-2026/"],
+      "agree": true
+    },
+    "paiy29_wc": {
+      "regulation": "PAIY", "article": "Madde 29(1)", "rule": "room_min_size", "room": "wc",
+      "min_area_m2": 1.2, "min_narrow_side_m": 1.0,
+      "quote_tr": "tuvalet: dar kenarı 1.00 m, net alanı 1.20 m²",
+      "quote_status": "values_only",
+      "applies": "the toilet every dwelling must have (Madde 29(2): in dwellings of three rooms or fewer the bathroom and the toilet may share one room)",
+      "sources": ["https://www.mimarim.com/mevzuat/y%C3%B6netmelikler/planl%C4%B1-alanlar-imar-y%C3%B6netmeli%C4%9Fi/yap%C4%B1-piyesleri-ve-%C3%B6l%C3%A7%C3%BCleri",
+                  "https://halilbakirci.av.tr/konut-asgari-oda-mutfak-banyo-olculeri-paiy-madde-29-2026/"],
+      "agree": true
+    },
+    "paiy28_interior_height": {
+      "regulation": "PAIY", "article": "Madde 28(4)", "rule": "storey_height",
+      "min_interior_height_m": 2.6, "min_interior_height_air_obstacle_m": 2.4,
+      "quote_tr": "İskân edilen katların iç yüksekliği, asma katlar hariç 2.60 metreden az olamaz. Ancak hava maniası olup planla kat adedi belirlenen parsellerde bu yükseklik 2.40 metreye düşürülebilir.",
+      "quote_status": "verbatim",
+      "applies": "storeys people live in (mezzanines excluded); 2.40 m only on parcels with an air obstacle whose storey count the plan sets. Madde 28(5): wet rooms, pantries, passages, uninhabited basements may go down to 2.20 m",
+      "sources": ["https://hukukegitim.com/mevzuat/yonetmelik/planli-alanlar-imar-yonetmeligi/madde-28",
+                  "https://www.imarx.com.tr/asgari-ic-yukseklik/",
+                  "https://webdosya.csb.gov.tr/db/tabiat/icerikler/planl-_alanlar_11_03_2020-20200311094122.pdf"],
+      "agree": true
+    },
+    "paiy31_stair_width": {
+      "regulation": "PAIY", "article": "Madde 31", "rule": "stair_width",
+      "common_residential_min_m": 1.2, "other_buildings_min_m": 1.5, "in_unit_min_m": 1.0,
+      "quote_tr": "Konut yapılarında ortak merdiven kolu ve sahanlık genişlikleri, Binaların Yangından Korunması Hakkında Yönetmelik'e göre hesaplanan kaçış genişliğinden az olmamak üzere 1.20 metreden; diğer yapılarda 1.50 metreden; konutlarda bağımsız bölüm içindeki merdivenler ise 1.00 metreden az olamaz.",
+      "quote_status": "near_verbatim",
+      "applies": "flight (kol) and landing (sahanlık) widths; the common stair of a residential building 1.20 m, a stair inside one dwelling 1.00 m",
+      "sources": ["https://www.imarx.com.tr/merdiven-olculeri-ve-hesabi-madde-31/",
+                  "https://www.mimarist.org/include/uploads/2017/10/planli-alanlar-imar-yonetmeligi-2017.pdf",
+                  "https://www.denizlimimarlarodasi.org.tr/uploads/bilgiler/PLANLIALANLARIMARYONETMELIGI.pdf"],
+      "agree": true
+    },
+    "paiy31_steps": {
+      "regulation": "PAIY", "article": "Madde 31", "rule": "stair_steps",
+      "max_riser_no_lift_m": 0.16, "max_riser_with_lift_m": 0.18, "min_tread_m": 0.27, "two_r_plus_g_m": [0.60, 0.64],
+      "quote_tr": "Asansörü olmayan binalarda basamak yüksekliği 0.16 metreden, asansörlü binalarda 0.18 metreden fazla olamaz. Basamak genişliği 2a+b = 60-64 formülüne göre hesaplanır (a: yükseklik, b: genişlik). Ancak bu genişlik 0.27 metreden az olamaz.",
+      "quote_status": "near_verbatim",
+      "applies": "the main (common) stairs; checked only on the common stair of a building of several dwellings",
+      "sources": ["https://www.imarx.com.tr/merdiven-olculeri-ve-hesabi-madde-31/",
+                  "https://www.mimarist.org/include/uploads/2017/10/planli-alanlar-imar-yonetmeligi-2017.pdf"],
+      "agree": true
+    },
+    "paiy32_light_air": {
+      "regulation": "PAIY", "article": "Madde 32(1)", "rule": "light_air",
+      "quote_tr": "Her müstakil ev veya dairede, en az 1 oturma odası ile yatak odalarının doğrudan doğruya hariçten ışık ve hava almaları gerekir. Bu şekilde ışık ve hava almalarına lüzum olmayan diğer odalarla mutfakların ışıklıktan, yıkanma yeri ve tuvaletlerin ışıklık veya hava bacasından faydalanmaları da mümkündür.",
+      "quote_status": "near_verbatim",
+      "applies": "every bedroom and at least one living room of each dwelling: a window or door straight to the outside (a balcony counts); kitchens: the outside or a light well; wet rooms not checked (a light well or an air shaft)",
+      "sources": ["https://www.mimarim.com/mevzuat/y%C3%B6netmelikler/planl%C4%B1-alanlar-imar-y%C3%B6netmeli%C4%9Fi/i%C5%9F%C4%B1kl%C4%B1klar-ve-hava-bacalar%C4%B1",
+                  "https://www.imarx.com.tr/isiklik-ve-hava-bacasi-olculeri-madde-32/",
+                  "https://www.etonet.org.tr/uploads/cf/vd-276-planli-alanlar-imar-yonetmeligi.pdf"],
+      "agree": true
+    },
+    "paiy32_light_well": {
+      "regulation": "PAIY", "article": "Madde 32(2)", "rule": "light_well_size",
+      "low": {"max_storeys": 6, "min_narrow_side_m": 1.5, "min_area_m2": 4.5},
+      "high": {"min_storeys": 7, "min_narrow_side_m": 2.0, "min_area_m2": 9.0},
+      "quote_tr": "1 ila 6 katlı binalarda dar kenarı 1.50 metreden ve alanı 4.50 m²'den az olamaz; 7 ve daha fazla katlı binalarda dar kenarı 2.00 metreden ve alanı 9.00 m²'den az olamaz.",
+      "quote_status": "verbatim",
+      "applies": "every light well (ışıklık). The sources note that some versions split at 1-7 storeys instead of 1-6: the 1.50 m / 4.50 m² floor is applied to every building, the 2.00 m / 9.00 m² one only from 8 storeys up (true in both versions)",
+      "sources": ["https://www.imarx.com.tr/isiklik-ve-hava-bacasi-olculeri-madde-32/",
+                  "https://www.antbilgi.com/planli-alanlar-imar-yonetmeligi-isiklik-ve-hava-bacalari-olculeri/"],
+      "agree": "values agree; the storey split (6 or 7) differs between versions",
+      "high_from_storeys_safe": 8
+    },
+    "paiy32_air_shaft": {
+      "regulation": "PAIY", "article": "Madde 32(3)", "rule": "light_well_size",
+      "min_narrow_side_m": 0.6, "min_area_m2": 0.36,
+      "quote_tr": "Her türlü binada hava bacalarının asgari ölçüsü 0.60x0.60 m²'dir. Bu alan herhangi bir yapı elemanı (baca, kiriş ve benzeri) ile daraltılamaz.",
+      "quote_status": "verbatim",
+      "applies": "every air shaft (hava bacası) in every building",
+      "sources": ["https://www.imarx.com.tr/isiklik-ve-hava-bacasi-olculeri-madde-32/",
+                  "https://www.antbilgi.com/planli-alanlar-imar-yonetmeligi-isiklik-ve-hava-bacalari-olculeri/",
+                  "https://www.mimarim.com/mevzuat/y%C3%B6netmelikler/planl%C4%B1-alanlar-imar-y%C3%B6netmeli%C4%9Fi/i%C5%9F%C4%B1kl%C4%B1klar-ve-hava-bacalar%C4%B1"],
+      "agree": true
+    },
+    "paiy34_lift": {
+      "regulation": "PAIY", "article": "Madde 34(1)", "rule": "lift_required",
+      "min_storeys": 4,
+      "quote_tr": "iskân edilen bodrum katlar dâhil kat adedi 4 ve daha fazla olan binalarda asansör yapılması zorunludur",
+      "quote_status": "verbatim",
+      "applies": "every building of 4 storeys or more, inhabited basements counted (wording of the 2018 amendment; the 2026 amendments keep the 4-storey threshold and add a lift space for 3 storeys, which is not checked)",
+      "sources": ["https://www.resmigazete.gov.tr/eskiler/2018/07/20180728-2.htm",
+                  "https://www.cemka.com.tr/haberduyuru/planli-alanlar-tip-imar-yonetmeliginde-asansor",
+                  "https://www.imarx.com.tr/planli-alanlar-imar-yonetmeligi-degisikligi-2026/"],
+      "agree": true
+    },
+    "bykhy_corridor": {
+      "regulation": "BYKHY", "article": "Üçüncü Kısım, kaçış yolu genişliği (article number not confirmed; one source places it in Madde 48)", "rule": "corridor_width",
+      "min_width_m": 1.1,
+      "quote_tr": "Kaçış yolu, bu özelliği dışında, yapının mekânlarına hizmet veren koridor ve hol olarak kullanılıyor ise, 110 cm'den az genişlikte olamaz.",
+      "quote_status": "verbatim",
+      "applies": "a common corridor or hall that is an escape route and serves the building's spaces (the common floor hall of a building of several dwellings)",
+      "sources": ["https://www.abdurrahmanince.net/bykhy.pdf",
+                  "https://dergipark.org.tr/tr/download/article-file/1582470",
+                  "https://turkpath.org.tr/files/BYKHY.pdf"],
+      "agree": true
+    },
+    "bykhy47_door": {
+      "regulation": "BYKHY", "article": "Madde 47(1)", "rule": "entrance_door_width",
+      "min_clear_width_m": 0.8, "min_clear_width_original_text_m": 0.7, "checked_below_m": 0.7,
+      "quote_tr": "Kaçış yolu kapılarının en az temiz genişliği 80 cm'den ve yüksekliği 200 cm'den az olamaz.",
+      "quote_status": "verbatim",
+      "applies": "escape doors: the building's entrance doors and each dwelling's door onto the common hall. The original 2007 text says 70 cm and 190 cm; the sources disagree by version, so only a door under 0.70 m (a breach in both versions) is reported",
+      "sources": ["https://www.abdurrahmanince.net/bykhy.pdf",
+                  "https://www.abdurrahmanince.net/bykhy_orijinal.pdf",
+                  "https://redfiredoor.com/yangin-merdiveni-kapisi-olculeri/"],
+      "agree": "80 cm in the amended text, 70 cm in the original one: only the safe part (under 0.70 m) is checked"
+    },
+    "bykhy48_stairs_by_height": {
+      "regulation": "BYKHY", "article": "Madde 48", "rule": "escape_stairs",
+      "single_stair_below_m": 21.5, "two_stairs_from_m": 21.5, "both_protected_from_m": 30.5, "fire_lobby_from_m": 51.5,
+      "quote_tr": "Yapı yüksekliği 21.50 m'nin altındaki konutlarda korunumsuz normal merdiven kaçış yolu olarak kabul edilir ve ikinci çıkış aranmaz. [21.50-30.50 m:] en az 2 merdiven düzenlenmesi, merdivenlerden en az birisinin korunumlu olması ve her daireden 2 merdivene de ulaşılması gerekir. [30.50-51.50 m: iki korunumlu kaçış merdiveni, en az birinde yangın güvenlik holü veya basınçlandırma.] [51.50 m üstü: yangın güvenlik holü olan ve basınçlandırılan en az iki kaçış merdiveni.]",
+      "quote_status": "near_verbatim",
+      "applies": "residential buildings by building height (yapı yüksekliği). Checked: two stairs above 21.50 m; a fire lobby (yangın güvenlik holü) above 51.50 m. Not checked: whether a stair is protected (the reading cannot see fire doors and enclosures) and the lobby-or-pressurisation choice between 30.50 and 51.50 m",
+      "sources": ["https://yanginsempozyumu.org/wp-content/uploads/2019/10/2019-022.pdf",
+                  "https://yangin110.wordpress.com/yangin-yonetmeligi/ucuncu-kisim-kacis-yollari-kacis-merdivenleri-ve-ozel-durumlar/453-2/",
+                  "https://yanginmerdivenitr.com/hangi-binalar-kacis-merdiveni-kurmak-zorunda/"],
+      "agree": true
+    },
+    "bykhy48_travel": {
+      "regulation": "BYKHY", "article": "Madde 48(1)-(2)", "rule": "travel_distance",
+      "max_m_no_sprinkler": 20.0, "max_m_sprinkler": 30.0, "checked_over_m": 30.0, "exempt_max_storeys": 4,
+      "quote_tr": "Bodrum katlar dâhil 4 katı geçmeyen konutlar ile tek evler, ikiz evler ve sıra evler gibi konutlarda, kaçış mesafesi aranmaksızın normal merdivenlerle sağlanabilir. Birinci fıkrada belirtilenler dışındaki konutlarda, konut içindeki herhangi bir noktadan konut çıkış kapısına kadar olan uzaklığın 20 m'yi, yağmurlama sistemi olan konutlarda 30 m'yi geçmemesi gerekir.",
+      "quote_status": "verbatim",
+      "applies": "flats of residential buildings over 4 storeys (basements included); whether a building has sprinklers is not in the reading, so only the 30 m bound (a breach with or without sprinklers) is reported",
+      "sources": ["https://www.abdurrahmanince.net/bykhy.pdf",
+                  "https://yangin.org/dosyalar/konutlarda_yangin_kacislari.pdf",
+                  "https://www.normteknik.com.tr/application/files/1516/6816/8027/295201713947.Dosya.pdf"],
+      "agree": true
+    }
+  },
+  "left_out": {
+    "paiy28_max_storey_height": "PAIY Madde 28(1) sets maximum storey heights (floor to floor) by zone and storey; the sources found the article but no residential value two of them agree on.",
+    "dwelling_corridor_width": "No value for a corridor inside a dwelling was found in either regulation.",
+    "building_entrance_door_paiy": "No PAIY value for the building's entrance door was found; only BYKHY Madde 47's escape door width is checked.",
+    "paiy34_second_lift": "The 2018 text asks for two lifts from 10 storeys or more than 20 flats above the ground floor; the sources could not say whether that holds after the 2026 amendments.",
+    "paiy34_lift_space_3_storeys": "The 2026 amendment's lift space for 3-storey buildings: the sources disagree on its date and one copy is a draft.",
+    "bykhy_exits_by_area": "BYKHY sizes exits by occupant load; a residential storey stays far below the load that needs a third exit, and the occupant load factor was not confirmed by two sources. For dwellings Madde 48 decides by height, which is checked.",
+    "bykhy_protected_stair": "A protected stair (korunumlu merdiven) needs fire doors and enclosure walls the reading does not carry; between 30.50 and 51.50 m a fire lobby may be replaced by pressurisation, which the reading cannot see.",
+    "bykhy48_travel_20m": "The 20 m bound holds only without sprinklers, which the reading does not know: only the 30 m bound is checked.",
+    "paiy29_every_room": "Whether every bedroom (not only the one required) must reach 9 m² could not be settled from the sources: only the best room of each required type in a dwelling is checked.",
+    "in_unit_stair_steps": "The riser and tread rules are checked on common stairs only."
+  }
+}

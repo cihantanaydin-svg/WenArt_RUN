@@ -31,6 +31,8 @@ DELEGATED = {"remark": ("wenart.reading_check.remark", "main"), "stability": ("w
              "critic": ("wenart.reading_check.critic", "main"),
              # 13 Nov 2026: the stair integrity check RC16 (``stairs --out DIR``)
              "stairs": ("wenart.reading_check.stairs", "main"),
+             # 21 Nov 2026: the Turkish building and fire regulations RC18 (``regulations --out DIR``)
+             "regulations": ("wenart.reading_check.regulations", "main"),
              # 5 Nov 2026 (Milestone 14 R3): the ranker of the reader's decisions (retrain, train, evaluate, explain,
              # label; ``evaluate`` because the sandbox refuses the word eval)
              "ranker": ("wenart.reading_check.ranker", "main"),
