@@ -1,0 +1,887 @@
+{
+ "projects": 107,
+ "scored": 107,
+ "failed": [],
+ "floors": 201,
+ "mean_total": 73.49,
+ "per_kind": {
+  "levels": {
+   "truth": 201,
+   "read": 220,
+   "matched": 186,
+   "absent_hits": 0,
+   "recall": 0.9254,
+   "precision": 0.8455,
+   "f1": 0.8836
+  },
+  "rooms": {
+   "truth": 3432,
+   "read": 3521,
+   "matched": 2622,
+   "absent_hits": 0,
+   "recall": 0.764,
+   "precision": 0.7447,
+   "f1": 0.7542
+  },
+  "walls": {
+   "truth": 11519,
+   "read": 14405,
+   "matched": 8754,
+   "absent_hits": 0,
+   "recall": 0.76,
+   "precision": 0.6077,
+   "f1": 0.6754
+  },
+  "doors": {
+   "truth": 3707,
+   "read": 3552,
+   "matched": 2954,
+   "absent_hits": 0,
+   "recall": 0.7969,
+   "precision": 0.8316,
+   "f1": 0.8139
+  },
+  "windows": {
+   "truth": 2595,
+   "read": 2966,
+   "matched": 2080,
+   "absent_hits": 0,
+   "recall": 0.8015,
+   "precision": 0.7013,
+   "f1": 0.7481
+  },
+  "stairs": {
+   "truth": 59,
+   "read": 51,
+   "matched": 28,
+   "absent_hits": 0,
+   "recall": 0.4746,
+   "precision": 0.549,
+   "f1": 0.5091
+  },
+  "room_types": {
+   "matched": 2622,
+   "right": 2576,
+   "share": 0.9825
+  },
+  "walls_coverage": {
+   "truth_m": 39473.9,
+   "covered_m": 30866.7,
+   "read_m": 34208.0,
+   "on_truth_m": 30681.0,
+   "recall": 0.782,
+   "precision": 0.8969,
+   "f1": 0.8355
+  }
+ },
+ "error_classes": [
+  {
+   "class": "wall split (a piece of a drawn wall read as a wall of its own)",
+   "count": 1722,
+   "example": {
+    "class": "wall split (a piece of a drawn wall read as a wall of its own)",
+    "kind": "walls",
+    "level": "L0",
+    "example": "[6.493, 10.581]-[6.493, 13.251] t=0.335",
+    "project": "swiss-b1074",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "wall invented (on no drawn wall line)",
+   "count": 1549,
+   "example": {
+    "class": "wall invented (on no drawn wall line)",
+    "kind": "walls",
+    "level": "L0",
+    "example": "[10.22, 9.591]-[10.22, 9.731] t=0.28",
+    "project": "swiss-b1074",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "wall read with another thickness",
+   "count": 783,
+   "example": {
+    "class": "wall read with another thickness",
+    "kind": "walls",
+    "level": "L0",
+    "example": "w_L0_014 [9.96, 0.695]-[13.3, 0.695] t=0.295",
+    "project": "swiss-b1074",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "wall missed",
+   "count": 591,
+   "example": {
+    "class": "wall missed",
+    "kind": "walls",
+    "level": "L0",
+    "example": "w_L0_008 [0.215, 0.005]-[0.215, 11.88] t=0.425",
+    "project": "swiss-b1074",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "door missed",
+   "count": 406,
+   "example": {
+    "class": "door missed",
+    "kind": "doors",
+    "level": "L0",
+    "example": "d_L0_002 0.75 m at [19.655, 3.5]",
+    "project": "swiss-b1128",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "window missed",
+   "count": 328,
+   "example": {
+    "class": "window missed",
+    "kind": "windows",
+    "level": "L1",
+    "example": "win_L1_006 3.35 m at [-1.645, 0.835]",
+    "project": "swiss-b1167",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "window invented",
+   "count": 315,
+   "example": {
+    "class": "window invented",
+    "kind": "windows",
+    "level": "L0",
+    "example": "1.46 m at [7.42, 15.251]",
+    "project": "swiss-b1074",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "angled wall read as axis-aligned steps",
+   "count": 280,
+   "example": {
+    "class": "angled wall read as axis-aligned steps",
+    "kind": "walls",
+    "level": "L1",
+    "example": "[13.88, 11.607]-[13.9, 11.607] t=0.1",
+    "project": "swiss-b15161",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "angled wall missed",
+   "count": 247,
+   "example": {
+    "class": "angled wall missed",
+    "kind": "walls",
+    "level": "L0",
+    "example": "w_L0_044 [11.495, 15.385]-[12.145, 14.735] t=0.04",
+    "project": "swiss-b154",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "thin wall (< 10 cm) missed",
+   "count": 227,
+   "example": {
+    "class": "thin wall (< 10 cm) missed",
+    "kind": "walls",
+    "level": "L1",
+    "example": "w_L1_028 [12.985, 6.105]-[13.335, 6.105] t=0.08",
+    "project": "swiss-b1074",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "room split (one drawn room read as several)",
+   "count": 181,
+   "example": {
+    "class": "room split (one drawn room read as several)",
+    "kind": "rooms",
+    "level": "L1",
+    "example": "Oda at [10.72, 6.813]",
+    "project": "swiss-b1074",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "parapet wall missed",
+   "count": 170,
+   "example": {
+    "class": "parapet wall missed",
+    "kind": "walls",
+    "level": "L0",
+    "example": "w_L0_002 [0.215, 11.87]-[0.215, 13.09] t=0.065",
+    "project": "swiss-b1074",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "rooms merged (two drawn rooms read as one)",
+   "count": 151,
+   "example": {
+    "class": "rooms merged (two drawn rooms read as one)",
+    "kind": "rooms",
+    "level": "L0",
+    "example": "SALON + MUTFAK 88.7655 m2 at [5.152528, 5.558537]",
+    "project": "swiss-b1128",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "door invented",
+   "count": 140,
+   "example": {
+    "class": "door invented",
+    "kind": "doors",
+    "level": "L0",
+    "example": "0.9 m at [9.094, 6.506]",
+    "project": "swiss-b1074",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "room invented",
+   "count": 136,
+   "example": {
+    "class": "room invented",
+    "kind": "rooms",
+    "level": "L0",
+    "example": "Oda at [10.578, 12.236]",
+    "project": "swiss-b1074",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "room invented in a wall cavity or a narrow gap",
+   "count": 122,
+   "example": {
+    "class": "room invented in a wall cavity or a narrow gap",
+    "kind": "rooms",
+    "level": "L0",
+    "example": "Oda at [13.092, 5.798]",
+    "project": "swiss-b1074",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "room missed (balcony)",
+   "count": 108,
+   "example": {
+    "class": "room missed (balcony)",
+    "kind": "rooms",
+    "level": "L0",
+    "example": "TERAS 82.1314 m2 at [54.992932, 5.638961]",
+    "project": "swiss-b1141",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "door read as opening",
+   "count": 78,
+   "example": {
+    "class": "door read as opening",
+    "kind": "doors",
+    "level": "L0",
+    "example": "d_L0_018 0.85 m at [26.16, 11.21]",
+    "project": "swiss-b1128",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "room missed (living)",
+   "count": 66,
+   "example": {
+    "class": "room missed (living)",
+    "kind": "rooms",
+    "level": "L0",
+    "example": "SALON + MUTFAK 42.9542 m2 at [19.983352, 8.043793]",
+    "project": "swiss-b1128",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "room missed (bedroom)",
+   "count": 66,
+   "example": {
+    "class": "room missed (bedroom)",
+    "kind": "rooms",
+    "level": "L0",
+    "example": "ODA 20.7865 m2 at [49.10625, 4.8175]",
+    "project": "swiss-b1141",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "room label wrong",
+   "count": 50,
+   "example": {
+    "class": "room label wrong",
+    "kind": "rooms",
+    "level": "L2",
+    "example": "ANTRE read Oda at [7.195967, 7.190588]",
+    "project": "swiss-b15161",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "room missed (shaft)",
+   "count": 45,
+   "example": {
+    "class": "room missed (shaft)",
+    "kind": "rooms",
+    "level": "L0",
+    "example": "ASANSOR 0.6044 m2 at [23.27625, 10.1625]",
+    "project": "swiss-b1128",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "room missed (bathroom)",
+   "count": 40,
+   "example": {
+    "class": "room missed (bathroom)",
+    "kind": "rooms",
+    "level": "L0",
+    "example": "BANYO 4.6013 m2 at [7.46, 8.2525]",
+    "project": "swiss-b1141",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "frame offset (a level read in another origin or turned)",
+   "count": 37,
+   "example": {
+    "class": "frame offset (a level read in another origin or turned)",
+    "kind": "levels",
+    "level": "L0",
+    "project": "swiss-b1074",
+    "example": "shift [-0.24, 0.0] m, turn 0.0 deg",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "level invented",
+   "count": 34,
+   "example": {
+    "class": "level invented",
+    "kind": "levels",
+    "level": "L1",
+    "example": "L1",
+    "project": "swiss-b1128",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "stair missed",
+   "count": 31,
+   "example": {
+    "class": "stair missed",
+    "kind": "stairs",
+    "level": "L0",
+    "example": "at [31.677422, 7.099676]",
+    "project": "swiss-b1747",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "room missed (hall)",
+   "count": 27,
+   "example": {
+    "class": "room missed (hall)",
+    "kind": "rooms",
+    "level": "L0",
+    "example": "ANTRE 11.3 m2 at [12.563715, 8.054124]",
+    "project": "swiss-b1141",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "room missed (other, unlabelled)",
+   "count": 24,
+   "example": {
+    "class": "room missed (other, unlabelled)",
+    "kind": "rooms",
+    "level": "L2",
+    "example": "- 0.8013 m2 at [1.51625, 5.05375]",
+    "project": "swiss-b1167",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "room missed (kitchen)",
+   "count": 21,
+   "example": {
+    "class": "room missed (kitchen)",
+    "kind": "rooms",
+    "level": "L0",
+    "example": "MUTFAK 13.8626 m2 at [44.630703, 4.822547]",
+    "project": "swiss-b1141",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "window read as opening",
+   "count": 13,
+   "example": {
+    "class": "window read as opening",
+    "kind": "windows",
+    "level": "L3",
+    "example": "win_L3_014 1.45 m at [2.095, 17.685]",
+    "project": "swiss-b1675",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "room missed (storage)",
+   "count": 12,
+   "example": {
+    "class": "room missed (storage)",
+    "kind": "rooms",
+    "level": "L0",
+    "example": "SIGINAK 2.6822 m2 at [3.87125, 10.365]",
+    "project": "swiss-b1141",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "floor not read: drawing scale not found or misread",
+   "count": 12,
+   "example": {
+    "class": "floor not read: drawing scale not found or misread",
+    "kind": "levels",
+    "level": "L0",
+    "project": "swiss-b18207",
+    "example": "unit cm, $INSUNITS 0, dimensions as DIMENSION entities",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "door read as window",
+   "count": 11,
+   "example": {
+    "class": "door read as window",
+    "kind": "doors",
+    "level": "L0",
+    "example": "d_L0_023 1.6 m at [5.01, 7.705]",
+    "project": "swiss-b1747",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "room missed (wc)",
+   "count": 7,
+   "example": {
+    "class": "room missed (wc)",
+    "kind": "rooms",
+    "level": "L0",
+    "example": "WC+BANYO 1.59 m2 at [52.1725, 7.47]",
+    "project": "swiss-b1141",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "window read as door",
+   "count": 6,
+   "example": {
+    "class": "window read as door",
+    "kind": "windows",
+    "level": "L0",
+    "example": "win_L0_007 1.45 m at [31.835, 2.33]",
+    "project": "swiss-b1128",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "level missing",
+   "count": 3,
+   "example": {
+    "class": "level missing",
+    "kind": "levels",
+    "level": "L1",
+    "example": "L1",
+    "project": "swiss-b17105",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "room missed (other)",
+   "count": 2,
+   "example": {
+    "class": "room missed (other)",
+    "kind": "rooms",
+    "level": "L0",
+    "example": "VESTIYER 65.579 m2 at [19.691712, 9.990688]",
+    "project": "swiss-b263",
+    "bench_class": "angled"
+   }
+  },
+  {
+   "class": "stair invented",
+   "count": 1,
+   "example": {
+    "class": "stair invented",
+    "kind": "stairs",
+    "level": "L0",
+    "example": "at [14.787, 7.373]",
+    "project": "swiss-b2485",
+    "bench_class": "orthogonal"
+   }
+  },
+  {
+   "class": "room missed (stair)",
+   "count": 1,
+   "example": {
+    "class": "room missed (stair)",
+    "kind": "rooms",
+    "level": "L0",
+    "example": "MERDİVEN 8.7359 m2 at [7.696248, 3.076989]",
+    "project": "swiss-b2891",
+    "bench_class": "angled"
+   }
+  }
+ ],
+ "scale_read": {
+  "projects": 102,
+  "floors": 189,
+  "mean_total": 77.09,
+  "per_kind": {
+   "levels": {
+    "truth": 189,
+    "read": 220,
+    "matched": 186,
+    "absent_hits": 0,
+    "recall": 0.9841,
+    "precision": 0.8455,
+    "f1": 0.9095
+   },
+   "rooms": {
+    "truth": 3238,
+    "read": 3521,
+    "matched": 2622,
+    "absent_hits": 0,
+    "recall": 0.8098,
+    "precision": 0.7447,
+    "f1": 0.7759
+   },
+   "walls": {
+    "truth": 10903,
+    "read": 14405,
+    "matched": 8754,
+    "absent_hits": 0,
+    "recall": 0.8029,
+    "precision": 0.6077,
+    "f1": 0.6918
+   },
+   "doors": {
+    "truth": 3497,
+    "read": 3552,
+    "matched": 2954,
+    "absent_hits": 0,
+    "recall": 0.8447,
+    "precision": 0.8316,
+    "f1": 0.8381
+   },
+   "windows": {
+    "truth": 2447,
+    "read": 2966,
+    "matched": 2080,
+    "absent_hits": 0,
+    "recall": 0.85,
+    "precision": 0.7013,
+    "f1": 0.7685
+   },
+   "stairs": {
+    "truth": 59,
+    "read": 51,
+    "matched": 28,
+    "absent_hits": 0,
+    "recall": 0.4746,
+    "precision": 0.549,
+    "f1": 0.5091
+   },
+   "room_types": {
+    "matched": 2622,
+    "right": 2576,
+    "share": 0.9825
+   },
+   "walls_coverage": {
+    "truth_m": 37365.7,
+    "covered_m": 30866.7,
+    "read_m": 34208.0,
+    "on_truth_m": 30681.0,
+    "recall": 0.8261,
+    "precision": 0.8969,
+    "f1": 0.86
+   }
+  }
+ },
+ "classes_scale_read": {
+  "orthogonal": {
+   "projects": 72,
+   "floors": 140,
+   "mean_total": 79.76,
+   "per_kind": {
+    "levels": {
+     "truth": 140,
+     "read": 163,
+     "matched": 139,
+     "absent_hits": 0,
+     "recall": 0.9929,
+     "precision": 0.8528,
+     "f1": 0.9175
+    },
+    "rooms": {
+     "truth": 2414,
+     "read": 2710,
+     "matched": 2061,
+     "absent_hits": 0,
+     "recall": 0.8538,
+     "precision": 0.7605,
+     "f1": 0.8044
+    },
+    "walls": {
+     "truth": 7913,
+     "read": 9763,
+     "matched": 6552,
+     "absent_hits": 0,
+     "recall": 0.828,
+     "precision": 0.6711,
+     "f1": 0.7413
+    },
+    "doors": {
+     "truth": 2602,
+     "read": 2685,
+     "matched": 2288,
+     "absent_hits": 0,
+     "recall": 0.8793,
+     "precision": 0.8521,
+     "f1": 0.8655
+    },
+    "windows": {
+     "truth": 1822,
+     "read": 2201,
+     "matched": 1639,
+     "absent_hits": 0,
+     "recall": 0.8996,
+     "precision": 0.7447,
+     "f1": 0.8148
+    },
+    "stairs": {
+     "truth": 41,
+     "read": 42,
+     "matched": 23,
+     "absent_hits": 0,
+     "recall": 0.561,
+     "precision": 0.5476,
+     "f1": 0.5542
+    },
+    "room_types": {
+     "matched": 2061,
+     "right": 2026,
+     "share": 0.983
+    },
+    "walls_coverage": {
+     "truth_m": 28080.9,
+     "covered_m": 24085.6,
+     "read_m": 26268.9,
+     "on_truth_m": 23904.9,
+     "recall": 0.8577,
+     "precision": 0.91,
+     "f1": 0.8831
+    }
+   }
+  },
+  "angled": {
+   "projects": 30,
+   "floors": 49,
+   "mean_total": 70.68,
+   "per_kind": {
+    "levels": {
+     "truth": 49,
+     "read": 57,
+     "matched": 47,
+     "absent_hits": 0,
+     "recall": 0.9592,
+     "precision": 0.8246,
+     "f1": 0.8868
+    },
+    "rooms": {
+     "truth": 824,
+     "read": 811,
+     "matched": 561,
+     "absent_hits": 0,
+     "recall": 0.6808,
+     "precision": 0.6917,
+     "f1": 0.6862
+    },
+    "walls": {
+     "truth": 2990,
+     "read": 4642,
+     "matched": 2202,
+     "absent_hits": 0,
+     "recall": 0.7365,
+     "precision": 0.4744,
+     "f1": 0.577
+    },
+    "doors": {
+     "truth": 895,
+     "read": 867,
+     "matched": 666,
+     "absent_hits": 0,
+     "recall": 0.7441,
+     "precision": 0.7682,
+     "f1": 0.756
+    },
+    "windows": {
+     "truth": 625,
+     "read": 765,
+     "matched": 441,
+     "absent_hits": 0,
+     "recall": 0.7056,
+     "precision": 0.5765,
+     "f1": 0.6345
+    },
+    "stairs": {
+     "truth": 18,
+     "read": 9,
+     "matched": 5,
+     "absent_hits": 0,
+     "recall": 0.2778,
+     "precision": 0.5556,
+     "f1": 0.3704
+    },
+    "room_types": {
+     "matched": 561,
+     "right": 550,
+     "share": 0.9804
+    },
+    "walls_coverage": {
+     "truth_m": 9284.8,
+     "covered_m": 6781.2,
+     "read_m": 7939.1,
+     "on_truth_m": 6776.1,
+     "recall": 0.7304,
+     "precision": 0.8535,
+     "f1": 0.7871
+    }
+   }
+  }
+ },
+ "classes_all": {
+  "orthogonal": 76,
+  "angled": 31
+ },
+ "per_project": {
+  "swiss-b1060": 77.82,
+  "swiss-b1074": 89.17,
+  "swiss-b1118": 71.11,
+  "swiss-b1128": 29.05,
+  "swiss-b1141": 70.61,
+  "swiss-b1167": 68.3,
+  "swiss-b1171": 87.83,
+  "swiss-b1256": 82.4,
+  "swiss-b1322": 99.06,
+  "swiss-b1363": 89.31,
+  "swiss-b1404": 67.68,
+  "swiss-b1415": 50.2,
+  "swiss-b1452": 98.84,
+  "swiss-b1479": 67.73,
+  "swiss-b1480": 92.09,
+  "swiss-b14870": 70.39,
+  "swiss-b15161": 87.03,
+  "swiss-b154": 87.21,
+  "swiss-b1583": 86.74,
+  "swiss-b15885": 81.05,
+  "swiss-b1613": 87.25,
+  "swiss-b1653": 90.3,
+  "swiss-b1664": 86.98,
+  "swiss-b16738": 89.95,
+  "swiss-b1675": 86.84,
+  "swiss-b16820": 67.67,
+  "swiss-b17021": 85.67,
+  "swiss-b17055": 27.68,
+  "swiss-b17068": 81.17,
+  "swiss-b17084": 87.22,
+  "swiss-b17105": 75.85,
+  "swiss-b17190": 35.89,
+  "swiss-b1737": 86.02,
+  "swiss-b1739": 81.98,
+  "swiss-b1747": 65.73,
+  "swiss-b1767": 90.45,
+  "swiss-b18033": 86.75,
+  "swiss-b18041": 89.04,
+  "swiss-b18207": 0.0,
+  "swiss-b1871": 87.2,
+  "swiss-b1898": 98.52,
+  "swiss-b1928": 90.97,
+  "swiss-b1985": 87.07,
+  "swiss-b20": 84.13,
+  "swiss-b2035": 83.0,
+  "swiss-b208": 85.84,
+  "swiss-b2095": 88.65,
+  "swiss-b2102": 87.87,
+  "swiss-b2156": 71.36,
+  "swiss-b2212": 77.08,
+  "swiss-b2219": 88.86,
+  "swiss-b2249": 88.9,
+  "swiss-b2255": 83.09,
+  "swiss-b2294": 87.89,
+  "swiss-b2383": 77.11,
+  "swiss-b2385": 29.27,
+  "swiss-b2401": 85.24,
+  "swiss-b2417": 86.2,
+  "swiss-b2440": 87.74,
+  "swiss-b2461": 48.93,
+  "swiss-b2485": 42.26,
+  "swiss-b2486": 84.58,
+  "swiss-b2549": 90.76,
+  "swiss-b263": 22.45,
+  "swiss-b2828": 88.67,
+  "swiss-b2857": 72.65,
+  "swiss-b2891": 64.15,
+  "swiss-b2912": 28.58,
+  "swiss-b2974": 88.53,
+  "swiss-b2975": 12.82,
+  "swiss-b2983": 79.82,
+  "swiss-b3005": 71.12,
+  "swiss-b3031": 87.93,
+  "swiss-b304": 89.08,
+  "swiss-b3245": 0.0,
+  "swiss-b325": 97.9,
+  "swiss-b3306": 0.0,
+  "swiss-b3431": 87.21,
+  "swiss-b465": 73.21,
+  "swiss-b4858": 75.73,
+  "swiss-b5133": 79.46,
+  "swiss-b534": 85.3,
+  "swiss-b535": 85.92,
+  "swiss-b5422": 61.64,
+  "swiss-b5460": 69.92,
+  "swiss-b5481": 54.95,
+  "swiss-b5490": 0.0,
+  "swiss-b557": 0.0,
+  "swiss-b5664": 66.32,
+  "swiss-b5884": 87.59,
+  "swiss-b5926": 89.63,
+  "swiss-b6316": 89.91,
+  "swiss-b637": 88.36,
+  "swiss-b6529": 26.91,
+  "swiss-b6563": 88.0,
+  "swiss-b6675": 69.56,
+  "swiss-b6708": 68.63,
+  "swiss-b716": 89.59,
+  "swiss-b719": 88.5,
+  "swiss-b7248": 84.72,
+  "swiss-b7276": 87.25,
+  "swiss-b7365": 84.33,
+  "swiss-b745": 86.02,
+  "swiss-b7556": 80.21,
+  "swiss-b787": 75.07,
+  "swiss-b960": 86.39,
+  "swiss-b969": 70.56
+ }
+}
