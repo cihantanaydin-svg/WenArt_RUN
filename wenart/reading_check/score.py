@@ -541,6 +541,15 @@ def _covered_share(poly: list, by: list) -> float:
         return 0.0
 
 
+def reading_for(truth: dict, building: dict, project: Optional[str] = None) -> dict:
+    """The reading as the score matches it against ``truth`` (pure): ``truth.extract`` with the truth's levels left
+    out and, for a sparse truth, the sparse fields (the outdoor spaces, the openings' attributes, the walls' heights).
+    21 Nov 2026: the critic's known errors (``critic_checks.sparse_known``) matched the user's corrections on an extract
+    without the sparse fields, so every outdoor space the user asked for read as missing (C0008, real09's left balcony,
+    'does not hold' on the after reading that has it, while the score said it holds); both read the reading here."""
+    return TR.extract(building, project=project, leave_out=truth.get("levels_left_out") or [], attrs=TR.is_sparse(truth))
+
+
 def match_sparse(truth: dict, read: dict, building: Optional[dict] = None) -> dict:
     """A reading against a sparse truth (pure but for ``attrs_ok``'s main entrance): every entry satisfied or not,
     nothing else judged.
@@ -937,7 +946,7 @@ def score_project(project: str, work: Path, *, fresh: bool = False, truth_dir: P
                 "not_measurable": [x.get("record") for x in truth.get("not_measurable") or []]}
     folder = TR.reading(project, work, fresh)
     b = json.loads((folder / "building.json").read_text(encoding="utf-8"))
-    read = TR.extract(b, project=project, leave_out=truth.get("levels_left_out") or [], attrs=sparse)
+    read = reading_for(truth, b, project)
     res = match(truth, read, b)
     if sparse:
         res["sparse"] = True

@@ -31,6 +31,17 @@
 #   scripts/gpu_run.py run --job scripts/jobs/critic.sh --max-minutes 30 --env CRITIC_MODELS=agent \
 #     --env CRITIC_SETS=before,after,synth --env CRITIC_WHICH=plausibility,inventory,compare,second \
 #     --purpose "M14 RC15 checks 1, 2, 4, round 2: second look, window questions, storey texts"
+#
+# 21 Nov 2026 (Milestone 14 queue item 3, the vector text): CRITIC_ARMS (default empty: CRITIC_VECTOR_TEXT alone, itself
+# 0) asks every call once per arm on the same server, the arms of one call one after the other, temperature 0 and seed
+# 0 in both: "0,1" is the A/B (A the prompts as before, B with the drawing's vector text and the id tags; "text" the
+# text without tags). The answers carry their arm; arm_<a>/answers.json per arm; scored on the CPU by
+# `critic vt-score`. The judge call ("judge", set "judge") asks the vision model for a verdict on each RC18 finding
+# (and the queued RC17 and RC14 ones): real_breach, reading_error or unclear.
+#
+#   scripts/gpu_run.py run --job scripts/jobs/critic.sh --max-minutes 45 --env CRITIC_MODELS=agent \
+#     --env CRITIC_SETS=before,after,synth,judge --env CRITIC_WHICH=plausibility,inventory,compare,judge,second \
+#     --env CRITIC_ARMS=0,1 --purpose "M14 RC15 vector text A/B and the RC18 judge"
 set -Eeuo pipefail
 
 WS="${WENART_WS:-/workspace}"
@@ -128,7 +139,7 @@ seconds_left() {
 : > "$START_STAMP"
 cd "$REPO"
 mkdir -p "$RESULTS" "$OUT" "$JOB_DIR"
-log "job $JOB: models [$CRITIC_MODELS], inputs $CRITIC_INPUTS, sets ${CRITIC_SETS:-all}, calls ${CRITIC_WHICH:-differences,questions}, deadline ${WENART_DEADLINE:-none}, server flags '$CRITIC_SERVER_FLAGS'"
+log "job $JOB: models [$CRITIC_MODELS], inputs $CRITIC_INPUTS, sets ${CRITIC_SETS:-all}, calls ${CRITIC_WHICH:-differences,questions}, arms ${CRITIC_ARMS:-${CRITIC_VECTOR_TEXT:-0}}, deadline ${WENART_DEADLINE:-none}, server flags '$CRITIC_SERVER_FLAGS'"
 nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader 2>/dev/null || log "nvidia-smi failed"
 if [ ! -f "$CRITIC_INPUTS/index.json" ]; then
   log "no $CRITIC_INPUTS/index.json: run 'python -m wenart.reading_check critic prepare' and commit the inputs first"
@@ -156,6 +167,7 @@ for key in "${KEYS[@]}"; do
   if [ -n "${WENART_DEADLINE:-}" ]; then ASK_ARGS+=(--deadline "$WENART_DEADLINE"); fi
   if [ -n "${CRITIC_SETS:-}" ]; then ASK_ARGS+=(--sets "$CRITIC_SETS"); fi
   if [ -n "${CRITIC_WHICH:-}" ]; then ASK_ARGS+=(--which "$CRITIC_WHICH"); fi
+  if [ -n "${CRITIC_ARMS:-}" ]; then ASK_ARGS+=(--arms "$CRITIC_ARMS"); fi
   if [ -n "${CRITIC_VLM_URL:-}" ]; then
     ASK_ARGS+=(--vlm-url "$CRITIC_VLM_URL" --workers 2)
   else

@@ -546,13 +546,14 @@
     "kinds": [
      "balcony_missing"
     ],
-    "fixed": false,
+    "fixed": true,
     "records": [
      "C0008"
     ],
-    "desc": "user correction C0008: outdoor present does not hold",
+    "desc": "user correction C0008: outdoor present holds",
     "id": "real09-UA01",
-    "reading": "after"
+    "reading": "after",
+    "corrected": "21 Nov 2026: was 'does not hold': sparse_known matched on an extract without the outdoor spaces (score.reading_for now); the after reading has os_L0_balkon_mirror_1 here"
    },
    {
     "level": "L0",
@@ -2960,6 +2961,6 @@
    }
   ]
  },
- "note": "Known errors of the readings of checks 1, 2, 4 (20 Nov 2026): per input folder, each error with its level, place (building metres; null for a building-wide one), the finding kinds that name it, and fixed: true for a place the after reading has fixed (a finding there is a false alarm). From the brief's list (real09's missing left salon, kitchen and balcony and its roof, real20's straight angled wall and doors into the air, real10's missing kitchen windows, real03's storey count), RC17's doors into the air and the user's screenshot corrections (sparse truth).",
+ "note": "Known errors of the readings of checks 1, 2, 4 (20 Nov 2026): per input folder, each error with its level, place (building metres; null for a building-wide one), the finding kinds that name it, and fixed: true for a place the after reading has fixed (a finding there is a false alarm). From the brief's list (real09's missing left salon, kitchen and balcony and its roof, real20's straight angled wall and doors into the air, real10's missing kitchen windows, real03's storey count), RC17's doors into the air and the user's screenshot corrections (sparse truth). 21 Nov 2026: real09-UA01 corrected to fixed (C0008 holds on the after reading; the known errors had matched the user's corrections on an extract without outdoor spaces).",
  "made": "2026-11-20"
 }

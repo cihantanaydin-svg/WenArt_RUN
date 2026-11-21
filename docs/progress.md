@@ -3757,3 +3757,16 @@ readings, 90 on the 107 Swiss ones; 15 judged against the drawing: 7 real breach
 (`models/regulations_judged.json`). Most misses come from the reader: walls inferred inside the drawn facade, light-well
 names on the wrong face, air shafts typed light wells; a finding on a room bounded by an inferred wall is marked
 `reading_suspect`.
+
+## RC15 with the drawing's vector data as text (21 Nov 2026, Milestone 14 queue item 3)
+
+`wenart/reading_check/vector_text.py`: beside each image of the AI checks, the drawing file's own items (wall line pairs
+with thickness, door arcs, window symbols, stair lines, labels with their area, size tags, dimensions, level marks)
+and the reading's (rooms with area and size, openings, walls), in metres in the image's frame, the same ids tagged on
+the images; capped at 2400 tokens per question. Behind `CRITIC_VECTOR_TEXT` (default 0: the prompts as round 2); one
+pod asks both arms on the same questions (`CRITIC_ARMS=0,1`). New judge question (`critic_judge.py`): each RC18 finding
+`real_breach | reading_error | unclear`; RC17 and RC14 findings queued; 208 items, 62 labelled. Offline on round 2's
+calls: B prompts 2.8k-6.7k tokens median (max 10.4k with the answer); the text alone answers 810 of 1072 compare marks
+and shows 33 of 74 known errors. C0008: the score was right, the critic's known errors read the reading without its
+outdoor spaces (now `score.reading_for` for both); round 2 is 71 of 74. Pod plan (not started): 45 min max, worst case
+$1.88 on an RTX PRO 6000. `results/critic/vector_text.md`.

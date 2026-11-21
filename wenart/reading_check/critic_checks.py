@@ -523,7 +523,13 @@ def room_at(facts: dict, p, reach: float = ROOM_REACH_M, outdoor: bool = False) 
 
 
 # ================================================================================================= 2. inventory
-def inventory_prompt(entry: dict) -> str:
+def with_vector(prompt: str, vector: Optional[str]) -> str:
+    """A prompt with the question's vector text (``vector_text.block``) after it; the prompt itself unchanged when
+    there is none (``CRITIC_VECTOR_TEXT=0``: the A arm asks exactly what round 2 asked)."""
+    return f"{prompt}\n\n{vector}" if vector else prompt
+
+
+def inventory_prompt(entry: dict, vector: Optional[str] = None) -> str:
     # 20 Nov 2026 (pod 1): the drawing's own room labels as a list (the model listed 6 of real09's 8), the storey
     # texts of the whole drawing file (real03's '1BK+ZK+12K' is in a block, not in the plan image), and what an angled
     # wall looks like (real20's slanted street facade was not listed)
@@ -536,7 +542,8 @@ def inventory_prompt(entry: dict) -> str:
     if storeys:
         extra += (f"Texts of the drawing file that name storeys (titles, notes, blocks): {'; '.join(storeys)}. In Turkish "
                   f"notation BK is a basement, ZK the ground floor, 'nK' n upper floors.\n")
-    return (f"The image is an architect's floor plan ({entry.get('title') or 'a level of a building'}). {extra}"
+    return with_vector(
+           f"The image is an architect's floor plan ({entry.get('title') or 'a level of a building'}). {extra}"
             f"List what the drawing holds, as an architect reading it would:\n"
             f"- rooms: every labelled room or space with its written label exactly as written and a point inside it;\n"
             f"- mirror: whether the plan has two mirrored halves (two flats mirrored about a line); the axis (vertical "
@@ -549,7 +556,7 @@ def inventory_prompt(entry: dict) -> str:
             f"- storeys: the storey names written in titles and texts, and the number of storeys of the building when "
             f"a text says it (0 when no text says it).\n"
             f"Points are x and y in 0-1000 (0,0 the top-left corner, 1000,1000 the bottom-right corner). List only "
-            f"what is drawn; leave a list empty when the drawing has none.")
+            f"what is drawn; leave a list empty when the drawing has none.", vector)
 
 
 STOREY_WORDS = re.compile(r"(\bKAT\b|KATI\b|BODRUM|ZEMIN|NORMAL|CATI|ASMA|\bB\.?K\b|\bZ\.?K\b|\b\d+\s*N?\.?\s*K\b|"
@@ -943,14 +950,15 @@ def compare_schema(chunk: list) -> dict:
                                             "model": {"type": "string", "enum": ANSWER_ENUM}})}})
 
 
-def compare_prompt(entry: dict, chunk: list) -> str:
+def compare_prompt(entry: dict, chunk: list, vector: Optional[str] = None) -> str:
     qs = "\n".join(f"- {q['qid']} (mark {q['n']}): {q['ask']}" for q in chunk)
-    return (f"Image 1 is the architect's source drawing of {entry.get('title') or 'a level'}. Image 2 is a computer's "
+    return with_vector(
+           f"Image 1 is the architect's source drawing of {entry.get('title') or 'a level'}. Image 2 is a computer's "
             f"model of the same level drawn the same way (black walls, door leaves and swings, window symbols, room "
             f"labels) in the same frame. Both images carry the same red numbered marks. Answer each question about "
             f"the place of its mark: 'drawing' for image 1, 'model' for image 2. Answer yes or no; for an opening "
             f"door, window, opening (a plain gap) or none; 'unclear' only when the image cannot show it. Look at "
-            f"each mark itself, not at the rest of the plan.\n{qs}")
+            f"each mark itself, not at the rest of the plan.\n{qs}", vector)
 
 
 def mark_image(src: Path, chunk: list, dest: Path) -> Path:
@@ -1098,19 +1106,23 @@ def second_look_items(index: dict, found: list, below: float = SECOND_LOOK_BELOW
         out.append({"id": f["id"], "kind": f["kind"], "mode": mode, "what": what, "folder": e["folder"],
                     "drawing": e["drawing"], "point": [round(pt[0], 4), round(pt[1], 4)], "set": e.get("set"),
                     "first": (f.get("answer") or {}).get("drawing"), "fact": (f.get("answer") or {}).get("fact")})
+        if e.get("vector"):
+            out[-1].update(vector=e["vector"], size=e.get("size"))   # 21 Nov 2026: the close-up's vector text
         if len(out) >= cap:
             break
     return out
 
 
-def second_prompt(item: dict) -> str:
+def second_prompt(item: dict, vector: Optional[str] = None) -> str:
     if item["mode"] == "type":
-        return ("The image is a close-up of an architect's floor plan. Look only at the red ring. Is the opening in the "
-                "wall at the ring a door (a leaf with a swing arc), a window (thin parallel lines across the wall), a "
-                "plain opening (a gap with nothing drawn in it), or is there no opening (none)? Answer unclear only "
-                "when the close-up cannot show it.")
-    return (f"The image is a close-up of an architect's floor plan. Look only at the red ring. Is there {item['what']} "
-            f"at the ring in this drawing? Answer yes or no; unclear only when the close-up cannot show it.")
+        return with_vector(
+            "The image is a close-up of an architect's floor plan. Look only at the red ring. Is the opening in the "
+            "wall at the ring a door (a leaf with a swing arc), a window (thin parallel lines across the wall), a "
+            "plain opening (a gap with nothing drawn in it), or is there no opening (none)? Answer unclear only "
+            "when the close-up cannot show it.", vector)
+    return with_vector(f"The image is a close-up of an architect's floor plan. Look only at the red ring. Is there "
+                       f"{item['what']} at the ring in this drawing? Answer yes or no; unclear only when the close-up "
+                       f"cannot show it.", vector)
 
 
 def second_schema(item: dict) -> dict:
@@ -1387,8 +1399,15 @@ def floor_summary(building: dict, lid: str, bfacts: dict, facts: Optional[dict] 
             "balcony_doors": balcony_doors, "lift_doors_into_rooms": lift_into, "types": types}
 
 
-def plausibility_prompt(item: dict) -> str:
+def plausibility_prompt(item: dict, vector: Optional[str] = None) -> str:
     qs = "\n".join(f"- {q[0]}: {q[3]}" for q in PLAUSIBILITY_QUESTIONS)
+    if vector:
+        # 21 Nov 2026 (vector text): the drawing's own items per room after the model's list, before the questions
+        return (f"Below is a computer's reading of one storey of a building, as a list, and then what the drawing file "
+                f"holds per room. Check the reading as an architect checks a plan for sense. Answer every question "
+                f"with the ids of the model's elements it asks for, exactly as written in the first list; give no ids "
+                f"when nothing matches. A room the drawing gives a window the model lacks is still a room without a "
+                f"window in the model: answer about the model.\n\n{item['text']}\n\n{vector}\n\nQuestions:\n{qs}")
     return (f"Below is a computer's reading of one storey of a building, as a list. Check it as an architect checks a "
             f"plan for sense. Answer every question with the ids of the elements it asks for, exactly as written in "
             f"the list; give no ids when nothing in the list matches. Use only what the list says.\n\n{item['text']}\n\n"
@@ -1516,10 +1535,13 @@ def page_levels(building: dict, levels: list, drawn: set) -> dict:
 
 
 def prepare_reading(out_dir: Path, building: dict, sheets: dict, rendered: list, *, set_name: str, name: str,
-                    project: str, arch: bool = True, truth: Optional[dict] = None) -> dict:
+                    project: str, arch: bool = True, truth: Optional[dict] = None,
+                    vector_dir: Optional[Path] = None) -> dict:
     """The checks' inputs of one reading (the entries ``rendered`` by ``critic.render_level`` are completed in place):
     per entry ``facts`` and ``compare`` (the questions); the reading's ``bfacts`` and floor ``texts``; with ``truth``
-    (a synthetic project's exact truth) each entry's ``disagreements``."""
+    (a synthetic project's exact truth) each entry's ``disagreements``; with ``vector_dir`` (the entries' image folder,
+    21 Nov 2026) each entry's vector text data (``vector_text.level_vector``: the drawing's items and the reading's,
+    ``<level>_vector.json``), named in the entry and in its floor texts as ``vector``."""
     from wenart import reading_check as RC
     from wenart.reading_check import critic as CR
     from wenart.reading_check import structure as SR
@@ -1534,6 +1556,7 @@ def prepare_reading(out_dir: Path, building: dict, sheets: dict, rendered: list,
     pages = RC.level_pages(building)
     facts_by_level = {}
     by_level = {e["level"]: e for e in rendered}
+    page_of_level = {}
     for lv in levels:
         lid = lv["id"]
         page, tf = None, None
@@ -1544,7 +1567,18 @@ def prepare_reading(out_dir: Path, building: dict, sheets: dict, rendered: list,
             except Exception:  # noqa: BLE001 - no page: no drawn labels
                 page = None
             tf = pg.get("tf")
+            page_of_level[lid] = page
         facts_by_level[lid] = level_facts(building, lid, outline=shapes.get(lid), below=below.get(lid), page=page, tf=tf)
+    if vector_dir is not None:
+        from wenart.reading_check import vector_text as VT
+
+        for e in rendered:
+            walls = [w for w in building.get("walls") or [] if w.get("level_id") == e["level"]]
+            vec = VT.level_vector(page_of_level.get(e["level"]), VT.Frame(e["box"], e["tf"]),
+                                  facts_by_level.get(e["level"]) or {}, walls, RC.model_wall_layers(walls))
+            name_v = re.sub(r"[^A-Za-z0-9_.-]", "_", e["level"]) + "_vector.json"
+            VT.write_vector(Path(vector_dir) / name_v, vec)
+            e["vector"] = name_v
     dis = None
     if truth is not None:
         from wenart.reading_check import truth as TR
@@ -1571,8 +1605,9 @@ def prepare_reading(out_dir: Path, building: dict, sheets: dict, rendered: list,
     page_of = {lid: (by_level[p]["id"] if p in by_level else None) for lid, p in page_lv.items()}
     for s in summaries_for(building, bfacts, facts_by_level):
         lid = s.pop("level")
+        page_e = by_level.get(page_lv.get(lid)) or {}
         texts.append(dict(s, id=f"{set_name}/{name}/{lid}#text", set=set_name, project=project, folder=f"{set_name}/{name}",
-                          level=lid, page_entry=page_of.get(lid),
+                          level=lid, page_entry=page_of.get(lid), vector=page_e.get("vector"),
                           disagreements=[dict(d, seg=[list(x) if x else None for x in d["seg"]] if d.get("seg") else None)
                                          for d in (dis or {}).get(lid) or []] if dis is not None else None))
     return {"bfacts": bfacts, "texts": texts}
@@ -2068,7 +2103,8 @@ def sparse_known(project: str, building: dict) -> list:
     if truth is None or not TR.is_sparse(truth):
         return []
     try:
-        res = SC.match_sparse(truth, TR.extract(building, project=project), building)
+        # 21 Nov 2026: the reading as the score reads it (the outdoor spaces and attributes too): C0008's balcony
+        res = SC.match_sparse(truth, SC.reading_for(truth, building, project), building)
     except Exception:  # noqa: BLE001 - a truth this reading cannot be matched with: none
         return []
     kinds_of = {("rooms", False): ["room_missing", "mirror_twin_missing"], ("rooms", True): ["room_not_in_drawing"],

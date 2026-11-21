@@ -307,7 +307,7 @@ def prepare(readings: list, dest: Path = INPUTS_DIR, *, max_side: int = MAX_SIDE
                 truth = TR.load_truth(rd["project"])
                 truth = truth if truth is not None and not TR.is_sparse(truth) else None
             res = CC.prepare_reading(out_dir, building, sheets, rendered, set_name=rd["set"], name=name,
-                                     project=rd["project"], truth=truth)
+                                     project=rd["project"], truth=truth, vector_dir=folder)
             st: list = []
             for doc in docs.values():                           # the storey texts of the whole drawing file
                 st += [t for t in CC.storey_texts(doc) if t not in st]
@@ -474,44 +474,114 @@ def _messages(entry: dict, images_root: Path, text: str, max_side: int) -> list:
                             max_side=max_side)]
 
 
+def _vector(which: str, item: dict, images_root: Path, base_prompt: str, answer_tokens: int, images: list,
+            vt: str, chunk: Optional[list] = None) -> Optional[dict]:
+    """The vector text of one call (21 Nov 2026, ``vector_text``) under the switch ``vt`` (``0`` none, ``1`` text and
+    id tags, ``text`` text only), cut to what the context leaves after the images, the prompt and the answer; None
+    when off or when the item has no vector file."""
+    from wenart.reading_check import critic_checks as CC
+    from wenart.reading_check import vector_text as VT
+
+    if vt not in ("1", "text"):
+        return None
+    vec = VT.load_vector(images_root, item)
+    if vec is None:
+        return None
+    sizes = [tuple(s) for s in images]
+    cap = VT.cap_for(VT.estimate_tokens(CC.SYSTEM_TEXT + base_prompt), answer_tokens, sizes)
+    blk = VT.question_block(which, item, vec, cap_tokens=cap, tags=(vt == "1"), chunk=chunk,
+                            crop_px=float(CC.SECOND_CROP_PX))
+    if blk is not None:
+        blk["cap"] = cap
+    return blk
+
+
 def _check_messages(which: str, item: dict, images_root: Path, part: int, max_side: int,
-                    marked_dir: Optional[Path]) -> tuple:
+                    marked_dir: Optional[Path], vt: str = "0", meta: Optional[dict] = None) -> tuple:
     """The messages and schema of one call of checks 1, 2, 4 (``critic_checks``): inventory image 1 only, compare both
-    images with the chunk's numbered marks (drawn now, into ``marked_dir``), plausibility the floor text only."""
+    images with the chunk's numbered marks (drawn now, into ``marked_dir``), plausibility the floor text only; the
+    second look a close-up; the judge (``critic_judge``) two close-ups. ``vt`` (21 Nov 2026): the vector text switch
+    of this call (``_vector``); ``meta`` gets its numbers (tokens, items listed and left out, the cap)."""
     from wenart.agent import model as AM
     from wenart.reading_check import critic_checks as CC
+    from wenart.reading_check import critic_judge as CJ
+    from wenart.reading_check import vector_text as VT
 
     system = {"role": "system", "content": CC.SYSTEM_TEXT}
+    meta = meta if meta is not None else {}
+    tags = vt == "1"
+
+    def note(blk):
+        if blk is not None:
+            meta.update({k: blk.get(k) for k in ("tokens", "listed", "left_out", "cap")})
+        return (blk or {}).get("text")
+
     if which == "plausibility":
-        return [system, AM.user_message(CC.plausibility_prompt(item))], CC.PLAUSIBILITY_SCHEMA
+        base = CC.plausibility_prompt(item)
+        text = note(_vector(which, item, images_root, base, CC.CALL_MAX_TOKENS[which], [], vt))
+        return [system, AM.user_message(CC.plausibility_prompt(item, text))], CC.PLAUSIBILITY_SCHEMA
     if which == "second":
         safe = re.sub(r"[^A-Za-z0-9_.-]", "_", item["id"])
         img = CC.second_image(item, images_root, Path(marked_dir or images_root) / "second" / f"{safe}.jpg")
-        return ([system, AM.user_message(CC.second_prompt(item), [img], labels=["The close-up:"], max_side=max_side)],
-                CC.second_schema(item))
+        blk = _vector(which, item, images_root, CC.second_prompt(item), 64, [(CC.SECOND_OUT_PX, CC.SECOND_OUT_PX)], vt)
+        text = note(blk)
+        if tags and blk and blk.get("tags"):
+            img = VT.tag_image(img, blk["tags"], img.with_name(img.stem + "_vt.jpg"), "source")
+        return ([system, AM.user_message(CC.second_prompt(item, text), [img], labels=["The close-up:"],
+                                         max_side=max_side)], CC.second_schema(item))
+    if which == "judge":
+        system = {"role": "system", "content": CJ.SYSTEM_TEXT}
+        d, m = CJ.images(item, images_root, Path(marked_dir or images_root) / "judge")
+        blk = _vector(which, item, images_root, CJ.prompt(item), CJ.MAX_TOKENS, [(CJ.OUT_PX, CJ.OUT_PX)] * 2, vt)
+        text = note(blk)
+        if tags and blk and blk.get("tags"):
+            d = VT.tag_image(d, blk["tags"], d.with_name(d.stem + "_vt.jpg"), "source")
+            m = VT.tag_image(m, blk["tags"], m.with_name(m.stem + "_vt.jpg"), "reading")
+        return ([system, AM.user_message(CJ.prompt(item, text), [d, m],
+                                         labels=["Image 1 (the drawing):", "Image 2 (the computer's model):"],
+                                         max_side=max_side)], CJ.schema())
     folder = Path(images_root) / item["folder"]
+    size = tuple(item.get("size") or (MAX_SIDE, MAX_SIDE))
+    safe = re.sub(r"[^A-Za-z0-9_.-]", "_", item["id"])
     if which == "inventory":
-        return ([system, AM.user_message(CC.inventory_prompt(item), [folder / item["drawing"]],
+        img = folder / item["drawing"]
+        blk = _vector(which, item, images_root, CC.inventory_prompt(item), CC.CALL_MAX_TOKENS[which], [size], vt)
+        text = note(blk)
+        if tags and blk and blk.get("tags"):
+            img = VT.tag_image(img, blk["tags"], Path(marked_dir or folder) / "marked" / f"{safe}_inventory_vt.jpg",
+                               "source")
+        return ([system, AM.user_message(CC.inventory_prompt(item, text), [img],
                                          labels=["The floor plan:"], max_side=max_side)], CC.INVENTORY_SCHEMA)
     chunk = CC.chunks_of(item)[part]
     mdir = Path(marked_dir or folder) / "marked"
-    safe = re.sub(r"[^A-Za-z0-9_.-]", "_", item["id"])
     d = CC.mark_image(folder / item["drawing"], chunk, mdir / f"{safe}_{part}_drawing.jpg")
     m = CC.mark_image(folder / item["model"], chunk, mdir / f"{safe}_{part}_model.jpg")
-    return ([system, AM.user_message(CC.compare_prompt(item, chunk), [d, m],
+    blk = _vector(which, item, images_root, CC.compare_prompt(item, chunk), CC.CALL_MAX_TOKENS["compare"],
+                  [size, size], vt, chunk=chunk)
+    text = note(blk)
+    if tags and blk and blk.get("tags"):
+        d = VT.tag_image(d, blk["tags"], d.with_name(d.stem + "_vt.jpg"), "source")
+        m = VT.tag_image(m, blk["tags"], m.with_name(m.stem + "_vt.jpg"), "reading")
+    return ([system, AM.user_message(CC.compare_prompt(item, chunk, text), [d, m],
                                      labels=["Image 1 (the source drawing):", "Image 2 (the computer's model):"],
                                      max_side=max_side)], CC.compare_schema(chunk))
 
 
 def ask_entry(model, entry: dict, images_root: Path, which: str, questions: Optional[list] = None,
-              max_side: int = MAX_SIDE, part: int = 0, marked_dir: Optional[Path] = None) -> dict:
+              max_side: int = MAX_SIDE, part: int = 0, marked_dir: Optional[Path] = None,
+              arm: Optional[str] = None) -> dict:
     """One call for one level: ``which`` ``differences`` or ``questions`` (or, 20 Nov 2026, ``inventory``,
-    ``compare`` with its chunk ``part``, ``plausibility`` for a floor text); the raw answer with the call's log."""
+    ``compare`` with its chunk ``part``, ``plausibility`` for a floor text; 21 Nov 2026 ``judge`` for a code check's
+    finding); the raw answer with the call's log. ``arm`` (21 Nov 2026): the vector text switch of this call
+    (``CRITIC_VECTOR_TEXT``: ``0``, ``1``, ``text``); recorded on the answer with the text's numbers when given."""
     from wenart.reading_check import critic_checks as CC
+    from wenart.reading_check import critic_judge as CJ
 
-    if which in CC.CHECKS or which == "second":
-        messages, schema = _check_messages(which, entry, images_root, part, max_side, marked_dir)
-        max_tokens = CC.CALL_MAX_TOKENS.get(which, 64)
+    meta: dict = {}
+    vt = arm or "0"
+    if which in CC.CHECKS or which in ("second", "judge"):
+        messages, schema = _check_messages(which, entry, images_root, part, max_side, marked_dir, vt=vt, meta=meta)
+        max_tokens = CJ.MAX_TOKENS if which == "judge" else CC.CALL_MAX_TOKENS.get(which, 64)
     elif which == "questions":
         questions = questions if questions is not None else reading_questions()
         text, schema = questions_prompt(entry, questions), questions_schema(questions)
@@ -519,13 +589,17 @@ def ask_entry(model, entry: dict, images_root: Path, which: str, questions: Opti
     else:
         text, schema = differences_prompt(entry), DIFFERENCES_SCHEMA
         messages, max_tokens = _messages(entry, images_root, text, max_side), CALL_MAX_TOKENS[which]
-    call_id = f"{which}:{entry['id']}" + (f":{part}" if part else "")
+    call_id = f"{which}:{entry['id']}" + (f":{part}" if part else "") + (f"@vt{arm}" if arm else "")
     t0 = time.time()
     reply = model.structured(messages, schema, call_id=call_id, name=f"critic_{which}", kind="critic",
                              max_tokens=max_tokens)
     out = {"id": entry["id"], "which": which, "part": part, "call_id": call_id, "data": reply.data,
            "errors": list(reply.errors), "raw": reply.raw if reply.data is None else "", "usage": reply.usage,
            "seconds": round(time.time() - t0, 1), "attempts": reply.attempts, "model": getattr(model, "model", None)}
+    if arm is not None:
+        out["arm"] = arm
+        if meta:
+            out["vector"] = meta
     if which == "second":
         out["item"] = entry                                     # the second look's own question, kept for the scoring
     return out
@@ -539,7 +613,9 @@ def check_jobs(index: dict, which: tuple, sets: Optional[list] = None) -> list:
 
     entries = [e for e in index.get("entries") or [] if not sets or e.get("set") in sets]
     texts = [t for t in index.get("texts") or [] if not sets or t.get("set") in sets]
-    order = list(sets) if sets else sorted({e.get("set") for e in entries} | {t.get("set") for t in texts})
+    judged = [x for x in index.get("judge") or [] if not sets or x.get("set") in sets]
+    order = list(sets) if sets else sorted({e.get("set") for e in entries} | {t.get("set") for t in texts}
+                                           | {x.get("set") for x in judged})
     jobs = []
     for s in order:
         for w in which:
@@ -547,30 +623,48 @@ def check_jobs(index: dict, which: tuple, sets: Optional[list] = None) -> list:
                 continue                                        # asked after the first pass (ask)
             if w == "plausibility":
                 jobs += [(w, t, 0) for t in texts if t.get("set") == s]
+            elif w == "judge":
+                jobs += [(w, x, 0) for x in judged if x.get("set") == s]   # 21 Nov 2026: a code check's finding
             elif w == "inventory":
-                jobs += [(w, e, 0) for e in entries if e.get("set") == s and e.get("facts") is not None]
+                jobs += [(w, e, 0) for e in entries if e.get("set") == s and e.get("facts") is not None
+                         and not e.get("judge_only")]
             elif w == "compare":
                 jobs += [(w, e, k) for e in entries if e.get("set") == s and e.get("facts") is not None
-                         for k in range(len(CC.chunks_of(e)))]
+                         and not e.get("judge_only") for k in range(len(CC.chunks_of(e)))]
             else:
-                jobs += [(w, e, 0) for e in entries if e.get("set") == s]
+                jobs += [(w, e, 0) for e in entries if e.get("set") == s and not e.get("judge_only")]
     return jobs
+
+
+def split_arms(answers: dict) -> dict:
+    """``{arm: answers}`` of an answers file asked with several arms (``ask(arms=...)``; pure): each arm's answers
+    with the file's other fields, so every reader of one pod's answers reads one arm."""
+    arms = sorted({a.get("arm") for a in answers.get("answers") or [] if a.get("arm") is not None})
+    if not arms:
+        return {None: answers}
+    return {arm: dict(answers, answers=[a for a in answers.get("answers") or [] if a.get("arm") == arm])
+            for arm in arms}
 
 
 def ask(index: dict, model, images_root: Path, out: Path, *, deadline: Optional[float] = None,
         which: tuple = ("differences", "questions"), questions: Optional[list] = None, sets: Optional[list] = None,
-        max_side: int = MAX_SIDE, log=print) -> dict:
+        max_side: int = MAX_SIDE, arms: Optional[tuple] = None, log=print) -> dict:
     """Every call of every entry (the differences of every level first, then the questions), up to the model's
     ``parallel`` at once; ``answers.json`` in ``out`` rewritten after every answer; a call is skipped (recorded as
-    ``skipped: deadline``) once ``deadline`` (epoch seconds) has passed."""
+    ``skipped: deadline``) once ``deadline`` (epoch seconds) has passed. ``arms`` (21 Nov 2026, the vector text A/B):
+    the ``CRITIC_VECTOR_TEXT`` values to ask every call with, the arms of one call one after the other (a deadline
+    cuts both arms at the same question); each answer carries its ``arm``, and ``arm_<value>/answers.json`` holds each
+    arm's answers at the end (``split_arms``). None asks once, as before (no ``arm`` on the answers)."""
     from wenart.agent import model as AM
 
     out = Path(out)
     out.mkdir(parents=True, exist_ok=True)
     path = out / "answers.json"
     done = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {"answers": []}
-    have = {(a["id"], a["which"], a.get("part") or 0) for a in done["answers"] if a.get("data") is not None}
-    jobs = [j for j in check_jobs(index, which, sets) if (j[1]["id"], j[0], j[2]) not in have]
+    arm_list = list(arms) if arms else [None]
+    have = {(a["id"], a["which"], a.get("part") or 0, a.get("arm")) for a in done["answers"] if a.get("data") is not None}
+    jobs = [(w, e, part, arm) for (w, e, part) in check_jobs(index, which, sets) for arm in arm_list
+            if (e["id"], w, part, arm) not in have]
     questions = questions if questions is not None else reading_questions()
     lock = threading.Lock()
     stats = {"asked": 0, "answered": 0, "failed": 0, "skipped": 0, "started": time.time()}
@@ -580,35 +674,40 @@ def ask(index: dict, model, images_root: Path, out: Path, *, deadline: Optional[
         done["revision"] = getattr(model, "revision", None)
         done["questions"] = questions
         done["stats"] = dict(stats, seconds=round(time.time() - stats["started"], 1))
+        if arms:
+            done["arms"] = list(arms)
         tmp = path.with_suffix(".tmp")
         tmp.write_text(json.dumps(done, ensure_ascii=False, indent=1), encoding="utf-8")
         os.replace(tmp, path)
 
     def one(job):
-        w, e, part = job
+        w, e, part, arm = job
         if deadline is not None and time.time() >= deadline:
             with lock:
                 stats["skipped"] += 1
-                done["answers"].append({"id": e["id"], "which": w, "part": part, "skipped": "deadline", "data": None})
+                done["answers"].append(dict({"id": e["id"], "which": w, "part": part, "skipped": "deadline",
+                                             "data": None}, **({"arm": arm} if arm is not None else {})))
                 save()
             return None
         with lock:
             stats["asked"] += 1
         try:
-            a = ask_entry(model, e, images_root, w, questions, max_side, part=part, marked_dir=out)
+            a = ask_entry(model, e, images_root, w, questions, max_side, part=part,
+                          marked_dir=out / f"arm_{arm}" if arm is not None else out, arm=arm)
         except Exception as exc:  # noqa: BLE001 - one failed call is recorded, the others go on
-            a = {"id": e["id"], "which": w, "part": part, "data": None,
-                 "errors": [f"{type(exc).__name__}: {str(exc)[:300]}"]}
+            a = dict({"id": e["id"], "which": w, "part": part, "data": None,
+                      "errors": [f"{type(exc).__name__}: {str(exc)[:300]}"]}, **({"arm": arm} if arm is not None else {}))
         with lock:
             if a.get("data") is not None:
                 stats["answered"] += 1
             else:
                 stats["failed"] += 1
             done["answers"] = [x for x in done["answers"] if not (x["id"] == e["id"] and x["which"] == w
-                                                                  and (x.get("part") or 0) == part)] + [a]
+                                                                  and (x.get("part") or 0) == part
+                                                                  and x.get("arm") == arm)] + [a]
             save()
             n = len(a.get("data", {}).get("findings", [])) if a.get("data") and w == "differences" else None
-            log(f"critic {w} {e['id']}{f' part {part}' if part else ''}: "
+            log(f"critic {w} {e['id']}{f' part {part}' if part else ''}{f' arm {arm}' if arm is not None else ''}: "
                 f"{'ok' if a.get('data') is not None else 'FAILED'}"
                 + (f", {n} findings" if n is not None else "") + f", {a.get('seconds', '?')} s")
         return a
@@ -616,17 +715,25 @@ def ask(index: dict, model, images_root: Path, out: Path, *, deadline: Optional[
     save()
     AM.map_calls(model, one, jobs)
     if "second" in which:
-        # 20 Nov 2026: the second look, once, on the findings of this pass under the confidence threshold
+        # 20 Nov 2026: the second look, once, on the findings of this pass under the confidence threshold (per arm:
+        # each arm looks again at its own findings, with its own switch)
         from wenart.reading_check import critic_checks as CC
 
-        have2 = {a["id"] for a in done["answers"] if a.get("which") == "second" and a.get("data") is not None}
-        items = CC.second_look_items(index, [f for f in answers_to_findings(index, done)
-                                             if not sets or f.get("set") in sets])
-        jobs2 = [("second", it, 0) for it in items if it["id"] not in have2]
+        jobs2 = []
+        for arm, part_answers in split_arms(done).items():
+            have2 = {a["id"] for a in part_answers["answers"] if a.get("which") == "second" and a.get("data") is not None}
+            items = CC.second_look_items(index, [f for f in answers_to_findings(index, part_answers)
+                                                 if not sets or f.get("set") in sets])
+            jobs2 += [("second", it, 0, arm) for it in items if it["id"] not in have2]
         log(f"critic: second look on {len(jobs2)} finding(s)")
         AM.map_calls(model, one, jobs2)
     done["calls"] = list(getattr(model, "calls", []) or [])
     save()
+    if arms:
+        for arm, part_answers in split_arms(done).items():
+            (out / f"arm_{arm}").mkdir(parents=True, exist_ok=True)
+            (out / f"arm_{arm}" / "answers.json").write_text(json.dumps(part_answers, ensure_ascii=False, indent=1),
+                                                            encoding="utf-8")
     log(f"critic: {stats['answered']} answered, {stats['failed']} failed, {stats['skipped']} skipped after the "
         f"deadline, {round(time.time() - stats['started'])} s")
     return done
@@ -644,7 +751,8 @@ def gpu_mem_mib() -> Optional[int]:
 
 def serve_and_ask(key: str, index: dict, images_root: Path, out: Path, *, deadline: Optional[float] = None,
                   server_flags: str = "", job_dir: Optional[Path] = None, logs_dir: Optional[Path] = None,
-                  sets: Optional[list] = None, which: tuple = ("differences", "questions"), log=print) -> dict:
+                  sets: Optional[list] = None, which: tuple = ("differences", "questions"),
+                  arms: Optional[tuple] = None, log=print) -> dict:
     """The pod: serve ``check.yaml models.<key>`` with ``wenart.run.servers`` (the project's launcher; ``server_flags``
     appended, e.g. the memory share of a pod with no renders beside the server) and ask every call; the server's
     stats and the answers in ``out``."""
@@ -666,7 +774,7 @@ def serve_and_ask(key: str, index: dict, images_root: Path, out: Path, *, deadli
         (out / "server.json").write_text(json.dumps(dict(stats[-1], url=url, gpu_mem_mib=mem, key=key),
                                                     indent=1), encoding="utf-8")
         model = AM.from_check_yaml(url, key, timeout_s=900.0, parallel=seqs)
-        return ask(index, model, images_root, out, deadline=deadline, sets=sets, which=which, log=log)
+        return ask(index, model, images_root, out, deadline=deadline, sets=sets, which=which, arms=arms, log=log)
 
 
 # ================================================================================================ 4. findings
@@ -1294,23 +1402,37 @@ def _cmd_prepare(args) -> int:
     return 0
 
 
+def arms_of(text: Optional[str], env: Optional[dict] = None) -> Optional[tuple]:
+    """The arms of an ask (pure): ``--arms`` (``0,1``: the vector text A/B), else ``CRITIC_VECTOR_TEXT`` alone (``1`` or
+    ``text``: every call with it); None (asked as before, no ``arm`` on the answers) for ``0`` or nothing."""
+    from wenart.reading_check import vector_text as VT
+
+    if text:
+        arms = tuple(dict.fromkeys(a.strip().lower() for a in text.split(",") if a.strip().lower() in VT.MODES))
+        return arms or None
+    m = VT.mode(env)
+    return None if m == "0" else (m,)
+
+
 def _cmd_ask(args) -> int:
     from wenart.reading_check import critic_checks as CC
 
     index = load_index(Path(args.inputs))
     deadline = float(args.deadline) if args.deadline else None
-    known_calls = ("differences", "questions") + CC.CHECKS + ("second",)
+    known_calls = ("differences", "questions") + CC.CHECKS + ("second", "judge")
     which = tuple(w for w in (args.which or "differences,questions").split(",") if w in known_calls)
     sets = [s for s in (args.sets or "").split(",") if s] or None
+    arms = arms_of(args.arms)
     out = Path(args.out) / args.key
     if args.vlm_url:
         from wenart.agent import model as AM
         model = AM.from_check_yaml(args.vlm_url, args.key, timeout_s=900.0, parallel=args.workers or 1)
-        res = ask(index, model, Path(args.inputs), out, deadline=deadline, sets=sets, which=which)
+        res = ask(index, model, Path(args.inputs), out, deadline=deadline, sets=sets, which=which, arms=arms)
     else:
         res = serve_and_ask(args.key, index, Path(args.inputs), out, deadline=deadline, server_flags=args.server_flags,
                             job_dir=Path(args.job_dir) if args.job_dir else None,
-                            logs_dir=Path(args.logs_dir) if args.logs_dir else None, sets=sets, which=which)
+                            logs_dir=Path(args.logs_dir) if args.logs_dir else None, sets=sets, which=which,
+                            arms=arms)
     st = res.get("stats") or {}
     print(f"critic ask {args.key}: {st.get('answered', 0)} answered, {st.get('failed', 0)} failed, "
           f"{st.get('skipped', 0)} skipped -> {out / 'answers.json'}")
@@ -1356,6 +1478,11 @@ def _cmd_calibrate(args) -> int:
     # e.g. index_pod1.json; the images stay under --inputs)
     index = json.loads(Path(args.index).read_text(encoding="utf-8")) if args.index else load_index(Path(args.inputs))
     answers = json.loads(Path(args.answers).read_text(encoding="utf-8"))
+    by_arm = split_arms(answers)
+    if len(by_arm) > 1 and getattr(args, "arm", None) is None:
+        print(f"the answers hold the arms {', '.join(str(a) for a in by_arm)}: name one with --arm (or use vt-score)")
+        return 2
+    answers = by_arm.get(getattr(args, "arm", None)) or next(iter(by_arm.values()))
     found_all = answers_to_findings(index, answers, args.key or "")
     new_all = [f for f in found_all if f.get("call") in CC.CHECKS]
     new = [f for f in new_all if not f.get("dropped")]
@@ -1507,6 +1634,32 @@ def main(argv: Optional[list] = None) -> int:
     a.add_argument("--logs-dir", dest="logs_dir", default=None)
     a.add_argument("--sets", default=None, help="only these sets, comma separated (default all)")
     a.add_argument("--which", default=None, help="differences,questions (default both)")
+    a.add_argument("--arms", default=None,
+                   help="the vector text arms, e.g. 0,1 for the A/B on the same questions (default CRITIC_VECTOR_TEXT, "
+                        "itself 0: the prompts as before)")
+    v = sub.add_parser("vector", help="write the vector text data of an input set's levels (for a set already made)")
+    v.add_argument("--inputs", default=str(INPUTS_DIR))
+    v.add_argument("--sets", default=None, help="only these sets, comma separated (default all)")
+    v.add_argument("--reading", action="append", default=[], metavar="FOLDER_OR_PROJECT=DIR",
+                   help="a reading of an input folder (before/real09@324c487f) or of a project: its converted DXF, and "
+                        "its walls where its rooms are the entry's")
+    j = sub.add_parser("judge-prep", help="the judge inputs: RC18 (and RC17, RC14) findings of current readings")
+    j.add_argument("--inputs", default=str(INPUTS_DIR))
+    j.add_argument("--reading", action="append", default=[], metavar="PROJECT=DIR")
+    ms = sub.add_parser("vt-measure", help="the vector text A/B prompt sets of an answered pod, measured on the CPU")
+    ms.add_argument("--inputs", default=str(INPUTS_DIR))
+    ms.add_argument("--index", default=None)
+    ms.add_argument("--answers", required=True, help="the pod's answers.json the A arm repeats")
+    ms.add_argument("--known", default=None)
+    ms.add_argument("--json", default=None)
+    sc = sub.add_parser("vt-score", help="recall, false findings and judge accuracy per arm of an A/B pod's answers")
+    sc.add_argument("--inputs", default=str(INPUTS_DIR))
+    sc.add_argument("--index", default=None)
+    sc.add_argument("--answers", required=True)
+    sc.add_argument("--known", default=None)
+    sc.add_argument("--marks", default=None)
+    sc.add_argument("--by-eye", dest="by_eye", default=None)
+    sc.add_argument("--json", default=None)
     q = sub.add_parser("questions", help="print the question bank")
     c = sub.add_parser("calibrate", help="precision, recall and the out-of-sample table from the pod's answers")
     c.add_argument("--inputs", default=str(INPUTS_DIR))
@@ -1529,6 +1682,7 @@ def main(argv: Optional[list] = None) -> int:
     c.add_argument("--review", default=None, help="checks 1, 2, 4: where the review sheets go (default "
                                                   "results/critic/review)")
     c.add_argument("--no-sheets", dest="no_sheets", action="store_true", help="no review sheets")
+    c.add_argument("--arm", default=None, help="the arm of an A/B answers file (0, 1, text)")
     k = sub.add_parser("known", help="checks 1, 2, 4: the known errors of the before and after readings")
     k.add_argument("--inputs", default=str(INPUTS_DIR))
     k.add_argument("--pair", action="append", default=[], metavar="PROJECT=BEFORE_DIR,AFTER_DIR")
@@ -1564,6 +1718,10 @@ def main(argv: Optional[list] = None) -> int:
         return _cmd_known(args)
     if args.cmd == "mark":
         return _cmd_mark(args)
+    if args.cmd in ("vector", "judge-prep", "vt-measure", "vt-score"):
+        from wenart.reading_check import vector_measure as VM
+
+        return VM.main_cmd(args)
     return 2
 
 
