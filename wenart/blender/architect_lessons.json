@@ -4018,6 +4018,26 @@
    "request": "21 Nov 2026 (user OK, bench fix round): reader fixes driven by the real-plan bench raise its scores with no fall on the user's projects. The drawing unit comes from what the drawing shows (DIMENSIONs printing their own measurement narrow it to cm or mm, door widths, text height and wall thickness choose); a header the drawing contradicts is a reported conflict; when the sources disagree nothing is guessed and the disagreement is reported. A drawn wall split into pieces that build the same solid is representation, not an error: walls are scored one to one and length-weighted. Angled walls are read at their angle in every drawing style (face pairs, hatched or filled wall bodies). Never change the reader only to please a strict matcher.",
    "lesson": "21 Nov 2026 (user OK, bench fix round): reader fixes driven by the real-plan bench raise its scores with no fall on the user's projects. The drawing unit comes from what the drawing shows (DIMENSIONs printing their own measurement narrow it to cm or mm, door widths, text height and wall thickness choose); a header the drawing contradicts is a reported conflict; when the sources disagree nothing is guessed and the disagreement is reported. A drawn wall split into pieces that build the same solid is representation, not an error: walls are scored one to one and length-weighted. Angled walls are read at their angle in every drawing style (face pairs, hatched or filled wall bodies). Never change the reader only to please a strict matcher.",
    "question": null
+  },
+  {
+   "id": "UL341",
+   "date": "2026-11-21",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "A sliding window or sliding door symbol (parallel offset panes in a wall gap) is a window or door of that kind, never an open gap or a plain exterior door; a lift's sliding door is the lift door (user answers of 21 Nov to Q10, Q11, Q12, Q15: 'it is not a door it is sliding window', 'it is a sliding door for the lift', 'it is a sliding window')",
+   "lesson": "A sliding window or sliding door symbol (parallel offset panes in a wall gap) is a window or door of that kind, never an open gap or a plain exterior door; a lift's sliding door is the lift door (user answers of 21 Nov to Q10, Q11, Q12, Q15: 'it is not a door it is sliding window', 'it is a sliding door for the lift', 'it is a sliding window')",
+   "question": null
+  },
+  {
+   "id": "UL342",
+   "date": "2026-11-21",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "The AI plausibility checks 'rooms with no way to a stair', 'flat with no entrance door' and 'lift door into a flat' were wrong on all 7 asked cases (real10, real20, real21, real09): trace access through every door, opening and the common hall before raising them; a gap the user calls a drawing mistake is neither a window nor an opening (user answers of 21 Nov, Q1-Q6, Q8, Q13)",
+   "lesson": "The AI plausibility checks 'rooms with no way to a stair', 'flat with no entrance door' and 'lift door into a flat' were wrong on all 7 asked cases (real10, real20, real21, real09): trace access through every door, opening and the common hall before raising them; a gap the user calls a drawing mistake is neither a window nor an opening (user answers of 21 Nov, Q1-Q6, Q8, Q13)",
+   "question": null
   }
  ]
 }

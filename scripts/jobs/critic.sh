@@ -136,6 +136,10 @@ seconds_left() {
   if [ -n "${WENART_DEADLINE:-}" ]; then echo $(( ${WENART_DEADLINE%.*} - $(date +%s) )); else echo 999999; fi
 }
 
+# 21 Nov 2026, measured on pod mry4qa3n8jaduh (same questions, A/B): the vector text found 66 of 73 known errors
+# against 54 with no more false findings (11 and 11), so the checks take it by default; the judge was worse with it
+# (39 of 62 against 51) and asks with images only unless CRITIC_JUDGE_TEXT=1 (critic.build_call).
+export CRITIC_VECTOR_TEXT="${CRITIC_VECTOR_TEXT:-1}"
 : > "$START_STAMP"
 cd "$REPO"
 mkdir -p "$RESULTS" "$OUT" "$JOB_DIR"

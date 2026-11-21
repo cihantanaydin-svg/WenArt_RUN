@@ -530,6 +530,10 @@ def _check_messages(which: str, item: dict, images_root: Path, part: int, max_si
         return ([system, AM.user_message(CC.second_prompt(item, text), [img], labels=["The close-up:"],
                                          max_side=max_side)], CC.second_schema(item))
     if which == "judge":
+        # 21 Nov 2026 (pod mry4qa3n8jaduh): the judge was right on 51 of 62 labelled items with images only and on 39
+        # with the vector text, so it takes the text only when asked (CRITIC_JUDGE_TEXT=1); the A/B arms still compare.
+        if os.environ.get("CRITIC_JUDGE_TEXT", "0") != "1" and not os.environ.get("CRITIC_ARMS", "").strip():
+            vt, tags = "0", False
         system = {"role": "system", "content": CJ.SYSTEM_TEXT}
         d, m = CJ.images(item, images_root, Path(marked_dir or images_root) / "judge")
         blk = _vector(which, item, images_root, CJ.prompt(item), CJ.MAX_TOKENS, [(CJ.OUT_PX, CJ.OUT_PX)] * 2, vt)

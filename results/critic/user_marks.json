@@ -1,0 +1,89 @@
+{
+ "marks": {
+  "after/real10/L-1#text|plausibility|P8:d_L-1_006": {
+   "right": true,
+   "sheet": 1,
+   "n": 9,
+   "folder": "questions",
+   "date": "2026-11-21"
+  },
+  "after/real10/L-1#text|plausibility|P8:d_L-1_008": {
+   "right": true,
+   "sheet": 1,
+   "n": 10,
+   "folder": "questions",
+   "date": "2026-11-21"
+  },
+  "question|real10|L0|gap_kind|20.8,14.7": {
+   "right": true,
+   "sheet": 1,
+   "n": 12,
+   "folder": "questions",
+   "date": "2026-11-21"
+  },
+  "question|real10|L-1|gap_kind|2.1,14.7": {
+   "right": true,
+   "sheet": 1,
+   "n": 15,
+   "folder": "questions",
+   "date": "2026-11-21"
+  },
+  "after/real10/L-2#text|plausibility|P7:r_L-2_siginak": {
+   "right": false,
+   "sheet": 1,
+   "n": 1,
+   "folder": "questions",
+   "date": "2026-11-21"
+  },
+  "after/real10/L7#text|plausibility|P7:r_L7_asansor_mahali": {
+   "right": false,
+   "sheet": 1,
+   "n": 2,
+   "folder": "questions",
+   "date": "2026-11-21"
+  },
+  "after/real20/L0#text|plausibility|P7:r_L0_oda": {
+   "right": false,
+   "sheet": 1,
+   "n": 3,
+   "folder": "questions",
+   "date": "2026-11-21"
+  },
+  "after/real21/L4#text|plausibility|P7:r_L4_salon": {
+   "right": false,
+   "sheet": 1,
+   "n": 4,
+   "folder": "questions",
+   "date": "2026-11-21"
+  },
+  "after/real09/L1#text|plausibility|P3:r_L1_antre": {
+   "right": false,
+   "sheet": 1,
+   "n": 5,
+   "folder": "questions",
+   "date": "2026-11-21"
+  },
+  "after/real09/L1#text|plausibility|P3:r_L1_oda_3": {
+   "right": false,
+   "sheet": 1,
+   "n": 6,
+   "folder": "questions",
+   "date": "2026-11-21"
+  },
+  "after/real10/L-1#text|plausibility|P5:o_L-1_004": {
+   "right": false,
+   "sheet": 1,
+   "n": 8,
+   "folder": "questions",
+   "date": "2026-11-21"
+  },
+  "question|real10|L-2|gap_kind|9.8,8.4": {
+   "right": false,
+   "sheet": 1,
+   "n": 11,
+   "folder": "questions",
+   "date": "2026-11-21"
+  }
+ },
+ "note": "The user's marks on the RC15 review sheets (finding id -> right or wrong); truth for the next calibration of checks 1, 2, 4 (critic calibrate)."
+}

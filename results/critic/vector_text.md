@@ -71,3 +71,15 @@ scripts/gpu_run.py run --job scripts/jobs/critic.sh --max-minutes 45 --env CRITI
 | after the pod | `python -m wenart.reading_check critic vt-score --answers runs/<job>/results/critic/agent/answers.json` (recall, false findings, judge accuracy per arm); `critic calibrate --arm 0` / `--arm 1` for the review sheets; switch the default only when the B arm finds more known errors with no more false findings |
 
 Measure files: `results/critic/vector_text_measure.json` (every call's sizes and the lower-bound rows).
+
+## Pod result (21 Nov 2026, pod mry4qa3n8jaduh, RTX PRO 6000, 24 min, $1.06)
+
+| arm | answered | findings | known errors found | false findings | right | judge RC18 | judge all labelled |
+|---|---|---|---|---|---|---|---|
+| A: images only | 543 | 609 | 54 / 73 | 11 | 71 | 8 / 14 | 51 / 62 |
+| B: images + vector text | 529 | 725 | 66 / 73 | 11 | 103 | 7 / 14 | 39 / 62 |
+
+B found 13 known errors A missed (real09-B07, real10-B03..B14) and missed 1 A found (real09-UB01); false findings
+equal. Decision: the checks take the vector text by default (`scripts/jobs/critic.sh`, `CRITIC_VECTOR_TEXT=1`); the
+judge asks with images only unless `CRITIC_JUDGE_TEXT=1` (it was worse with the text). Scores in
+`vector_text_pod_score.json`.

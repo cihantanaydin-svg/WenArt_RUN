@@ -84,7 +84,24 @@
  "per_level": {
   "L-2": {
    "rooms": [],
-   "doors": [],
+   "doors": [
+    {
+     "id": "u_C0087_1",
+     "type": "door",
+     "center": [
+      9.758,
+      8.45
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0087",
+     "added_on": "2026-11-21",
+     "corrections": [
+      "C0087"
+     ]
+    }
+   ],
    "windows": [],
    "openings": [],
    "walls": [
@@ -1383,6 +1400,23 @@
      ]
     },
     {
+     "id": "u_C0089_1",
+     "type": "door",
+     "center": [
+      11.19,
+      16.595
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0089",
+     "corrections": [
+      "C0089"
+     ],
+     "absent": true,
+     "removed_on": "2026-11-21"
+    },
+    {
      "id": "u_C0040_2",
      "type": "door",
      "center": [
@@ -1439,7 +1473,24 @@
      ]
     }
    ],
-   "windows": [],
+   "windows": [
+    {
+     "id": "u_C0085_1",
+     "type": "window",
+     "center": [
+      2.139,
+      14.727
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0085",
+     "added_on": "2026-11-21",
+     "corrections": [
+      "C0085"
+     ]
+    }
+   ],
    "openings": [],
    "walls": [],
    "stairs": []
@@ -2577,6 +2628,22 @@
      "reader_id": "o_L0_022",
      "corrections": [
       "C0032"
+     ]
+    },
+    {
+     "id": "u_C0086_1",
+     "type": "window",
+     "center": [
+      20.832,
+      14.74
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0086",
+     "added_on": "2026-11-21",
+     "corrections": [
+      "C0086"
      ]
     }
    ],
@@ -6545,7 +6612,11 @@
   "C0040",
   "C0043",
   "C0068",
-  "C0069"
+  "C0069",
+  "C0085",
+  "C0086",
+  "C0087",
+  "C0089"
  ],
  "not_measurable": [
   {
@@ -6615,7 +6686,11 @@
    "C0040",
    "C0043",
    "C0068",
-   "C0069"
+   "C0069",
+   "C0085",
+   "C0086",
+   "C0087",
+   "C0089"
   ],
   "asserted": []
  },
@@ -8024,6 +8099,54 @@
      9.04
     ],
     "state": "asserted"
+   },
+   {
+    "record": "C0085",
+    "n": 1,
+    "op": "add",
+    "kind": "window",
+    "level": "L-1",
+    "place": [
+     2.139,
+     14.727
+    ],
+    "state": "asserted"
+   },
+   {
+    "record": "C0086",
+    "n": 1,
+    "op": "add",
+    "kind": "window",
+    "level": "L0",
+    "place": [
+     20.832,
+     14.74
+    ],
+    "state": "asserted"
+   },
+   {
+    "record": "C0087",
+    "n": 1,
+    "op": "confirm",
+    "kind": "door",
+    "level": "L-2",
+    "place": [
+     9.758,
+     8.45
+    ],
+    "state": "asserted"
+   },
+   {
+    "record": "C0089",
+    "n": 1,
+    "op": "remove",
+    "kind": "door",
+    "level": "L-1",
+    "place": [
+     11.19,
+     16.595
+    ],
+    "state": "negated"
    }
   ],
   "unmatched": [],

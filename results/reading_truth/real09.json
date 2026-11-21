@@ -863,6 +863,26 @@
      ]
     },
     {
+     "id": "u_C0088_1",
+     "center": [
+      10.631,
+      5.669
+     ],
+     "size": null,
+     "rotation_deg": null,
+     "room_id": null,
+     "turn": null,
+     "flights": [],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0088",
+     "added_on": "2026-11-21",
+     "corrections": [
+      "C0088"
+     ]
+    },
+    {
      "id": "u_C0013_2",
      "center": [
       13.86,
@@ -951,7 +971,25 @@
    ],
    "doors": [],
    "windows": [],
-   "openings": [],
+   "openings": [
+    {
+     "id": "u_C0090_1",
+     "type": "opening",
+     "center": [
+      13.705,
+      8.189
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0090",
+     "corrections": [
+      "C0090"
+     ],
+     "absent": true,
+     "removed_on": "2026-11-21"
+    }
+   ],
    "walls": [],
    "stairs": [
     {
@@ -1038,7 +1076,9 @@
   "C0005",
   "C0006",
   "C0008",
-  "C0013"
+  "C0013",
+  "C0088",
+  "C0090"
  ],
  "not_measurable": [
   {
@@ -1074,7 +1114,9 @@
    "C0003",
    "C0006",
    "C0008",
-   "C0013"
+   "C0013",
+   "C0088",
+   "C0090"
   ],
   "asserted": [
    "C0005"
@@ -1373,6 +1415,30 @@
      5.73
     ],
     "state": "asserted"
+   },
+   {
+    "record": "C0088",
+    "n": 1,
+    "op": "confirm",
+    "kind": "stair",
+    "level": "L2",
+    "place": [
+     10.631,
+     5.669
+    ],
+    "state": "asserted"
+   },
+   {
+    "record": "C0090",
+    "n": 1,
+    "op": "remove",
+    "kind": "opening",
+    "level": "L3",
+    "place": [
+     13.705,
+     8.189
+    ],
+    "state": "negated"
    }
   ],
   "unmatched": [],
