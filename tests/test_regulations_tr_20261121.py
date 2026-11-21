@@ -249,3 +249,19 @@ def test_a_flat_too_deep_for_its_door_is_a_finding_only_over_four_storeys():
     b4["levels"] = b4["levels"][:4]
     b4["rooms"] = [r for r in b4["rooms"] if r["level_id"] != "L4"]
     assert "travel_distance" not in rules(b4)
+
+
+def test_a_window_on_the_facade_a_sliver_off_the_bedroom_is_its_own():
+    """The judged sample (real17): a facade wall read on the band's outer line leaves a sliver between the room and its
+    window; the window still lights the room."""
+    b = block()
+    _set_poly(b, "r_L0_yatak_a", rect(0.1, 6.1, 5.4, 11.6))          # 0.3 m short of the north wall and its window
+    assert "light_air" not in rules(b)
+
+
+def test_a_finding_on_a_room_bounded_by_an_inferred_wall_is_marked_as_a_possible_reading_error():
+    b = block()
+    _set_poly(b, "r_L0_salon_a", rect(0.1, 3.1, 5.4, 5.9))
+    next(w for w in b["walls"] if w["id"] == "w_L0_w")["evidence"] = [{"method": "inferred", "rule": "outline_closure"}]
+    f = rules(b)["room_min_size"][0]
+    assert f["reading_suspect"] and f["inferred_walls"] == ["w_L0_w"] and "inferred wall" in f["message"]

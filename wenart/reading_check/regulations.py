@@ -46,7 +46,9 @@ doors once the core (stair, lift, shaft, fire lobby, light well, technical rooms
 more, the halls at the core are taken out; a building is of several dwellings when a storey has two such groups with a
 kitchen or the building has three kitchens. Every distance compared with a limit gets ``TOL_M`` (areas ``TOL_AREA``)
 of slack for the reading's own error; where a value depends on cases the reading cannot tell, the bound that holds in
-every case is checked. ``python -m wenart.reading_check regulations --out DIR`` prints the findings.
+every case is checked. A window on an outer wall a sliver off a room (``FACADE_OFFSET_M``) is the room's own; a finding
+on a room bounded by a wall the reading inferred says so (``reading_suspect``, ``inferred_walls``): the judged sample
+of 21 Nov 2026 found most misses there. ``python -m wenart.reading_check regulations --out DIR`` prints the findings.
 """
 from __future__ import annotations
 
@@ -102,6 +104,11 @@ ENTRANCE_LEVEL_M = 1.6        # an outer door on a storey this close to the grou
 STAIR_PIECE_REACH_M = 0.5     # a stair piece this close to a shared room is the common stair
 STAIR_IN_HALL_SHARE = 0.3     # a stair piece this much inside a hall stands in it (that hall is the core's)
 MIN_HALL_M2 = 1.0             # halls smaller than this are a door's recess, not a corridor
+# 21 Nov 2026 (the judged sample: real17's salon has its glazed door on a facade wall the reading put on the band's
+# outer line, a sliver away from the room, so no face of the room reached it): a window or door on an outer wall
+# this far beyond the wall's half thickness from a room, nearer to it than to any other room, is the room's own
+FACADE_OFFSET_M = 0.4
+SUSPECT_REACH_M = 0.15        # a room this close beyond an inferred wall's half thickness is bounded by it
 
 
 # --------------------------------------------------------------------------------------------------------- helpers
@@ -342,15 +349,17 @@ def room_min_size(ctx: Context) -> list:
                      f"narrow side {n:.2f} m (min {nmin:.2f})" if n < nmin - TOL_M else None]
             drawn = r.get("area_label")
             suspect = isinstance(drawn, (int, float)) and drawn >= amin * (1.0 - TOL_AREA) and a < amin * (1 - TOL_AREA)
+            sx = _suspect(ctx, r)
             where = "the dwelling" if lid is None else f"the dwelling of {len(members)} rooms on {lid}"
             what = f"no {key} room reaches" if len(cands) > 1 else f"its only {key} room does not reach"
             out.append(_finding("room_min_size", lim_id, lim, r.get("level_id"),
                                 f"{where}: {what} the minimum; the best is {r['id']} "
                                 f"'{SN._label(r) or '-'}': {', '.join(s for s in short if s)}"
                                 + (f"; the drawing's own area text says {drawn:.2f} m²: a reading error?" if suspect
-                                   else ""),
+                                   else "") + _suspect_text(sx),
                                 _centre(r), [r["id"]], room_type=key, area_m2=round(a, 2), narrow_m=round(n, 2),
-                                reading_suspect=bool(suspect)))
+                                reading_suspect=bool(suspect) or sx["reading_suspect"],
+                                inferred_walls=sx["inferred_walls"]))
     return out
 
 
@@ -383,6 +392,60 @@ def lit_kinds(level, room: dict) -> set:
     return kinds
 
 
+def offset_windows(level, room: dict) -> bool:
+    """True when a window, door or opening on an outer wall stands within ``FACADE_OFFSET_M`` beyond the wall's half
+    thickness of ``room`` and no other room is nearer to it (a facade read a sliver off the room)."""
+    poly = level.polys.get(room["id"])
+    if poly is None:
+        return False
+    for o in level.openings:
+        if o.get("type") not in ("window", "door", "opening") or o.get("virtual") or not o.get("center"):
+            continue
+        w = level.walls.get(o.get("wall_id"))
+        if w is None or not w.get("exterior"):
+            continue
+        pt = Point(tuple(o["center"][:2]))
+        d = poly.distance(pt)
+        if d > float(w.get("thickness") or 0.2) / 2.0 + FACADE_OFFSET_M + SN.EPS:
+            continue
+        if all(q.distance(pt) > d + SN.EPS for rid, q in level.polys.items() if rid != room["id"]):
+            return True
+    return False
+
+
+def inferred_walls(ctx: Context, room: dict) -> list:
+    """The ids of the walls the reading inferred (evidence method ``inferred``) along ``room`` (half a metre of its
+    outline within half their thickness plus ``SUSPECT_REACH_M``): a finding on such a room may be the inference's,
+    not the drawing's."""
+    from shapely.geometry import LineString
+
+    poly = SN._poly(room.get("polygon"))
+    if poly is None:
+        return []
+    out = []
+    for w in SN._walls_of(ctx.b, room.get("level_id")):
+        if not (w.get("inferred") or any(isinstance(e, dict) and e.get("method") == "inferred"
+                                         for e in w.get("evidence") or [])):
+            continue
+        reach = float(w.get("thickness") or 0.2) / 2.0 + SUSPECT_REACH_M
+        line = LineString([tuple(w["start"][:2]), tuple(w["end"][:2])])
+        if poly.distance(line) <= reach + SN.EPS and poly.boundary.intersection(line.buffer(reach)).length >= 0.5:
+            out.append(w["id"])
+    return out
+
+
+def _suspect(ctx: Context, room: dict) -> dict:
+    """``{reading_suspect, inferred_walls}`` of a finding on ``room``."""
+    ids = inferred_walls(ctx, room)
+    return {"reading_suspect": bool(ids), "inferred_walls": ids}
+
+
+def _suspect_text(extra: dict) -> str:
+    ids = extra.get("inferred_walls") or []
+    return (f"; bounded by the inferred wall{'s' if len(ids) > 1 else ''} {', '.join(ids[:3])}: a reading error?"
+            if ids else "")
+
+
 def light_air(ctx: Context) -> list:
     """Rule 2 (PAİY 32(1)): every bedroom straight to the outside (a window or door on a face to the outside or a
     balcony); at least one living room of each dwelling so; a kitchen to the outside or a light well unless it is open
@@ -407,7 +470,10 @@ def light_air(ctx: Context) -> list:
         lay = ctx.layouts[lid]
         for room in level.rooms:
             if ctx.types.get(room["id"]) in HABITABLE and room["id"] not in level.wells:
-                lit[room["id"]] = lit_kinds(level, room)
+                kinds = lit_kinds(level, room)
+                if not kinds & {"outside", "balcony"} and offset_windows(level, room):
+                    kinds.add("outside")
+                lit[room["id"]] = kinds
     out = []
     direct = ("outside", "balcony")
     for rid, kinds in lit.items():
@@ -418,8 +484,10 @@ def light_air(ctx: Context) -> list:
         if t == "bedroom" and not kinds & set(direct):
             why = "its only window is onto a light well" if "light_well" in kinds else \
                 "no window or door of it opens to the outside or a balcony"
+            sx = _suspect(ctx, r)
             out.append(_finding("light_air", lim_id, lim, r["level_id"], f"bedroom {rid} '{SN._label(r) or '-'}' gets "
-                                f"no light and air straight from outside: {why}", _centre(r), [rid], part="bedroom"))
+                                f"no light and air straight from outside: {why}{_suspect_text(sx)}", _centre(r), [rid],
+                                part="bedroom", **sx))
         elif t == "kitchen" and not kinds & {"outside", "balcony", "light_well"}:
             lay = ctx.layouts.get(r["level_id"]) or {}
             open_to = any(o.get("virtual") or o.get("type") == "opening"
@@ -427,17 +495,21 @@ def light_air(ctx: Context) -> list:
                           and ctx.types.get(c if a == rid else a) in OPEN_LINK_ROOMS)
             if open_to:
                 continue
+            sx = _suspect(ctx, r)
             out.append(_finding("light_air", lim_id, lim, r["level_id"], f"kitchen {rid} '{SN._label(r) or '-'}' has no "
-                                f"window to the outside or onto a light well", _centre(r), [rid], part="kitchen"))
+                                f"window to the outside or onto a light well{_suspect_text(sx)}", _centre(r), [rid],
+                                part="kitchen", **sx))
     for lid, members, _doors in ctx.flats():
         livings = [m for m in members if ctx.types.get(m) == "living" and m in lit]
         if not livings or any(lit[m] & set(direct) for m in livings):
             continue
         big = max(livings, key=lambda m: SN._area(ctx.rooms[m]) or 0.0)
         r = ctx.rooms[big]
+        sx = _suspect(ctx, r)
         out.append(_finding("light_air", lim_id, lim, r["level_id"],
                             f"no living room of the dwelling ({', '.join(livings[:4])}) gets light and air straight "
-                            f"from outside (at least one must)", _centre(r), livings, part="living"))
+                            f"from outside (at least one must){_suspect_text(sx)}", _centre(r), livings, part="living",
+                            **sx))
     return out
 
 
@@ -466,11 +538,12 @@ def light_well_size(ctx: Context) -> list:
             if _fits(a, n, amin, nmin):
                 continue
             what = "air shaft" if air else "light well"
+            sx = _suspect(ctx, r)
             out.append(_finding("light_well_size", lim_id, lim, lv["id"],
                                 f"{what} {rid} '{SN._label(r) or '-'}' is {a:.2f} m² with a narrow side of {n:.2f} m; "
                                 f"the minimum is {amin:.2f} m² and {nmin:.2f} m"
-                                + ("" if air else f" ({len(ctx.storeys)} storeys)"),
-                                _centre(r), [rid], area_m2=round(a, 2), narrow_m=round(n, 2)))
+                                + ("" if air else f" ({len(ctx.storeys)} storeys)") + _suspect_text(sx),
+                                _centre(r), [rid], area_m2=round(a, 2), narrow_m=round(n, 2), **sx))
     return out
 
 

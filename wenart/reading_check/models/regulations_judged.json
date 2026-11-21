@@ -1,0 +1,31 @@
+{
+  "what": "RC18 (Turkish regulations) measured on the section-0 readings of the 19 real projects (read before dd36b230) and the 107 Swiss bench readings, 21 Nov 2026; and 15 findings of the top 3 rules judged one by one against the drawing (crop of the source DXF with the model over it). verdict: real = the drawing breaks the limit; reading = the model, not the drawing, breaks it; strict = the check cannot settle the case. The severity stays advisory until more findings are judged.",
+  "commit_measured": "745b170d (first run); the facade-offset tolerance and the reading_suspect marker came after this sample",
+  "counts_first_run": {
+    "real": {"light_air": 34, "light_well_size": 21, "room_min_size": 19, "stair_width": 15, "stair_steps": 9, "lift_required": 2, "corridor_width": 2, "entrance_door_width": 1, "storey_height": 0, "escape_stairs": 0, "travel_distance": 0},
+    "swiss": {"room_min_size": 38, "light_air": 35, "lift_required": 10, "entrance_door_width": 4, "stair_width": 2, "light_well_size": 1}
+  },
+  "counts_after_fixes": {
+    "real": {"light_air": 29, "light_well_size": 21, "room_min_size": 19, "stair_width": 15, "stair_steps": 9, "lift_required": 2, "corridor_width": 2, "entrance_door_width": 1, "storey_height": 0, "escape_stairs": 0, "travel_distance": 0},
+    "swiss": {"room_min_size": 38, "light_air": 28, "lift_required": 10, "entrance_door_width": 4, "stair_width": 2, "light_well_size": 1}
+  },
+  "judged": [
+    {"project": "real21", "level": "L0", "id": "r_L0_oda_3", "rule": "light_air", "verdict": "real", "why": "bedroom between the party wall (no opening possible) and a light well: its only window can be on the light well"},
+    {"project": "real16", "level": "L1", "id": "r_L1_y_oda", "rule": "light_air", "verdict": "real", "why": "no window drawn on the bedroom's facade (the bedroom beside it has a tagged 150/130 window): true of the drawing, likely a drafting omission"},
+    {"project": "real16", "level": "L1", "id": "r_L1_mutfak", "rule": "light_air", "verdict": "reading", "why": "the south facade is not drawn (the plan stops at the title block); the outline closure built a wall with no window"},
+    {"project": "real04", "level": "L0", "id": "r_L0_yatak_odasi_3", "rule": "light_air", "verdict": "reading", "why": "the north face is a thin double line (a glazed band, thinner than the 22 cm walls) not read as a window (probable)"},
+    {"project": "real17", "level": "L1", "id": "r_L1_salon", "rule": "light_air", "verdict": "reading", "why": "glazed door drawn and read, but the facade wall sits on the band's outer line, a sliver off the room: fixed by FACADE_OFFSET_M"},
+    {"project": "real11", "level": "L0", "id": "r_L0_isiklik", "rule": "light_well_size", "verdict": "reading", "why": "the drawing's YUKLUK (a bedding closet, 0.85 m) carries the light-well name"},
+    {"project": "real21", "level": "L0", "id": "r_L0_oda_7", "rule": "light_well_size", "verdict": "strict", "why": "the drawn well (about 1.6 x 2.4 m) opens onto the party line, likely shared with the neighbour's; the model is narrower (1.41 m) by an inferred party wall inside it"},
+    {"project": "real09", "level": "L-1", "id": "r_L-1_isiklik", "rule": "light_well_size", "verdict": "reading", "why": "a 0.85 x 0.90 m shaft beside the electrical riser, no light-well name in the drawing there"},
+    {"project": "real17", "level": "L1", "id": "r_L1_isiklik", "rule": "light_well_size", "verdict": "real", "why": "the drawing's H.B 50/50, an air shaft under 0.60 x 0.60 m (PAIY 32(3)); typed a light well by the reader"},
+    {"project": "real03", "level": "L0", "id": "r_L0_hava_bacasi", "rule": "light_well_size", "verdict": "real", "why": "drawn 'Hava Bacasi 50*65 cm': 0.50 m under 0.60 m"},
+    {"project": "real14", "level": "L0", "id": "r_L0_c_yat_od", "rule": "room_min_size", "verdict": "real", "why": "the drawing's own area texts: bedrooms of 7.81 and 6.34 m2, none 9 m2"},
+    {"project": "real09", "level": "L-1", "id": "r_L-1_oda_6", "rule": "room_min_size", "verdict": "reading", "why": "the facade side was closed by inferred walls 0.25 m inside the drawn facade: 2.88 m instead of about 3.2 m (now marked reading_suspect)"},
+    {"project": "real13", "level": "L0", "id": "r_L0_banyo_2", "rule": "room_min_size", "verdict": "real", "why": "drawn bathroom about 1.22 x 3.2 m (4.00 m2 text); the flat's other bathroom 2.80 m2"},
+    {"project": "real17", "level": "L1", "id": "r_L1_banyo", "rule": "room_min_size", "verdict": "real", "why": "dimensioned 215 x 145 cm: narrow side 1.45 m (borderline at the 5 cm tolerance)"},
+    {"project": "real20", "level": "L0", "id": "r_L0_salon", "rule": "room_min_size", "verdict": "reading", "why": "an inferred wall about 1.5 m inside the drawn east facade: 10.44 m2 against the drawn 15.2 m2 (marked by the area text and the inferred wall)"}
+  ],
+  "precision": {"light_air": "2/5", "light_well_size": "2/5", "room_min_size": "3/5", "all": "7/15",
+                "after_fixes_unmarked": "7/11 (the facade-offset fix removes real17's salon; reading_suspect marks real09's salon, real11's well and real20's salon and no real breach)"}
+}
