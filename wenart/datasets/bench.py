@@ -6,6 +6,7 @@ What:
 - ``convert <geometries.csv> <pick.json> <bench_dir>``: every picked building -> a project (``swiss_convert``);
 - ``run <bench_dir> <work_dir> [--timeout S]``: each project read on the CPU (``ingest.pipeline.run_project``, no AI)
   in its own process, one at a time, and scored (``score_one``); the debug images are deleted, ``score.json`` kept;
+- ``rescore <bench_dir> <work_dir>``: the stored readings scored again;
 - ``report <bench_dir> <work_dir> <out_stem>``: the bench score per element kind (recall, precision, F1 over all
   projects; rooms also the share of matched rooms with the right type; levels by id), the mean project total
   (``reading_check.score.total``) and the error classes, most frequent first, each with an example
@@ -320,11 +321,13 @@ def score_one(project_dir: Path, read_dir: Path) -> dict:
     res["room_types"] = {"matched": typed, "right": right, "share": round(right / typed, 4) if typed else None}
     n_walls = sum(len(lv.get("walls") or []) for lv in (read.get("per_level") or {}).values())
     if not n_walls:
-        res["errors"] = [{"class": "nothing read: drawing scale not found or misread", "kind": "levels",
-                          "level": "-", "project": name,
-                          "example": f"unit {truth.get('style', {}).get('unit')}, $INSUNITS "
-                                     f"{truth.get('style', {}).get('insunits')}, dimensions as entities "
-                                     f"{truth.get('style', {}).get('dims_as_entities')}"}]
+        st = truth.get("style") or {}
+        res["errors"] = [{"class": "floor not read: drawing scale not found or misread", "kind": "levels",
+                          "level": lv["id"], "project": name,
+                          "example": f"unit {st.get('unit')}, $INSUNITS {st.get('insunits')}, dimensions "
+                                     f"{'as DIMENSION entities' if st.get('dims_as_entities') else 'exploded'}"}
+                         for lv in truth.get("levels") or []]
+        res["nothing_read"] = True
     else:
         res["errors"] = errors(name, truth, read) + [
             {"class": "frame offset (a level read in another origin)", "kind": "levels", "level": lid,
@@ -395,19 +398,24 @@ def report(bench_dir: Path, work: Path, out_stem: Path) -> dict:
         if f.is_file():
             results[p.name] = json.loads(f.read_text(encoding="utf-8"))
     agg = aggregate(results)
+    read = aggregate({n: r for n, r in results.items() if "error" not in r and not r.get("nothing_read")})
+    agg["scale_read"] = {k: read[k] for k in ("projects", "floors", "mean_total", "per_kind")}
     agg["per_project"] = {n: (r.get("total") if "error" not in r else None) for n, r in results.items()}
     out_stem.parent.mkdir(parents=True, exist_ok=True)
     out_stem.with_suffix(".json").write_text(json.dumps(agg, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-    lines = [f"# Dataset bench: Swiss Dwellings in a Turkish drafting style",
-             "", f"{agg['projects']} projects, {agg['floors']} floors, {agg['scored']} scored, "
-                 f"{len(agg['failed'])} failed; mean project total {agg['mean_total']}.", "",
-             "| kind | truth | read | matched | recall | precision | F1 |", "|---|---|---|---|---|---|---|"]
+    lines = ["# Dataset bench: Swiss Dwellings in a Turkish drafting style", "",
+             f"{agg['projects']} projects, {agg['floors']} floors, {agg['scored']} scored, {len(agg['failed'])} "
+             f"failed; mean project total {agg['mean_total']} (all), {read['mean_total']} on the "
+             f"{read['projects']} projects ({read['floors']} floors) whose drawing scale was read.", "",
+             "| kind | truth | read | matched | recall | precision | F1 | F1 where the scale was read |",
+             "|---|---|---|---|---|---|---|---|"]
     for k in KINDS:
-        s = agg["per_kind"][k]
+        s, s2 = agg["per_kind"][k], read["per_kind"][k]
         lines.append(f"| {k} | {s['truth']} | {s['read']} | {s['matched']} | {s['recall']:.3f} | "
-                     f"{s['precision']:.3f} | {s['f1']:.3f} |")
-    rt = agg["per_kind"]["room_types"]
-    lines += [f"| room types (of matched rooms) | {rt['matched']} | | {rt['right']} | | | {rt['share']} |", "",
+                     f"{s['precision']:.3f} | {s['f1']:.3f} | {s2['f1']:.3f} |")
+    rt, rt2 = agg["per_kind"]["room_types"], read["per_kind"]["room_types"]
+    lines += [f"| room types (of matched rooms) | {rt['matched']} | | {rt['right']} | | | {rt['share']} | "
+              f"{rt2['share']} |", "",
               "## Error classes", "", "| class | count | example |", "|---|---|---|"]
     for e in agg["error_classes"][:25]:
         ex = e["example"]
@@ -436,6 +444,14 @@ def main(argv: list[str]) -> int:
         timeout = int(argv[argv.index("--timeout") + 1]) if "--timeout" in argv else 900
         only = argv[argv.index("--only") + 1].split(",") if "--only" in argv else None
         run(Path(argv[1]), Path(argv[2]), timeout, only)
+    elif cmd == "rescore":                              # the stored readings scored again (a scoring change)
+        for f in sorted(Path(argv[2]).glob("*/bench_score.json")):
+            old = json.loads(f.read_text(encoding="utf-8"))
+            if "error" in old or not (f.parent / "building.json").is_file():
+                continue
+            res = score_one(Path(argv[1]) / f.parent.name, f.parent)
+            res["seconds"] = old.get("seconds")
+            f.write_text(json.dumps(res, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     elif cmd == "report":
         agg = report(Path(argv[1]), Path(argv[2]), Path(argv[3]))
         print(json.dumps({k: agg[k] for k in ("projects", "floors", "mean_total")}))

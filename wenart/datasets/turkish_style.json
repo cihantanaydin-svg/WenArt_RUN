@@ -11,6 +11,31 @@
   "5": 2,
   "0": 9
  },
+ "insunits_by_unit": {
+  "1 unit = 50 m": {
+   "0": 3,
+   "4": 2
+  },
+  "cm": {
+   "4": 4,
+   "5": 2,
+   "0": 6
+  },
+  "mm": {
+   "4": 1
+  }
+ },
+ "dimension_form_by_unit": {
+  "1 unit = 50 m": {
+   "exploded": 5
+  },
+  "cm": {
+   "entities": 12
+  },
+  "mm": {
+   "exploded": 1
+  }
+ },
  "layers": {
   "wall": {
    "DUVAR": {

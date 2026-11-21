@@ -16,7 +16,7 @@
    "rooms": [
     {
      "id": "r_L0_001",
-     "label": "ÇOCUK ODASI",
+     "label": "COCUK ODASI",
      "room_type": "bedroom",
      "area": 14.8186,
      "centroid": [
@@ -260,7 +260,7 @@
     },
     {
      "id": "r_L0_006",
-     "label": "ÇOCUK ODASI",
+     "label": "COCUK ODASI",
      "room_type": "bedroom",
      "area": 9.8448,
      "centroid": [
@@ -946,13 +946,13 @@
   "title_level": false,
   "scale_text": "1/50",
   "scale_inline": false,
-  "turkish_letters": true,
+  "turkish_letters": false,
   "title_case_labels": false,
   "hatch_pattern": "ANSI37",
   "hatch_on_wall_layer": false,
   "window_lines": 4,
   "window_sill": false,
-  "dims_as_entities": false,
+  "dims_as_entities": true,
   "axes": true,
   "unit": "cm",
   "insunits": 0,
@@ -970,7 +970,7 @@
      10.0,
      9.998
     ],
-    "title": "ZEMİN KAT PLANI",
+    "title": "ZEMIN KAT PLANI",
     "levels": [
      "L0"
     ]

@@ -237,6 +237,12 @@ def build(measure_dir: Path, readings: Optional[Path] = None) -> dict:
                     "number of projects it occurs in. Built by python -m wenart.datasets.turkish_profile build.",
             "projects": len(ms), "units": dict(collections.Counter(m["unit"] for m in ms)),
             "insunits": dict(collections.Counter(str(m["insunits"]) for m in ms)),
+            # the conventions go together: the header and the dimension form per drawing unit, in projects
+            "insunits_by_unit": {u: dict(collections.Counter(str(m["insunits"]) for m in ms if m["unit"] == u))
+                                 for u in sorted({m["unit"] for m in ms})},
+            "dimension_form_by_unit": {u: dict(collections.Counter(
+                "entities" if sum(m["dimensions"].values()) >= sum((m["shapes"].get("dimension") or {}).values())
+                else "exploded" for m in ms if m["unit"] == u)) for u in sorted({m["unit"] for m in ms})},
             # xref-bound copies ('<xref>$0$<layer>') carry a file name, not a convention: left out
             "layers": {r: _merge([m["layers"].get(r) for m in ms], 10, keep=lambda k: "$" not in k) for r in roles},
             "text_layers": {k: _merge([m["text_layers"].get(k) for m in ms], 8) for k in TEXT_KINDS},

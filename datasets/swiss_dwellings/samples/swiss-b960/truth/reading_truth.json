@@ -22,7 +22,7 @@
    "rooms": [
     {
      "id": "r_L0_001",
-     "label": "ASANSOR",
+     "label": "ASANSÖR",
      "room_type": "shaft",
      "area": 0.8644,
      "centroid": [
@@ -58,7 +58,7 @@
     },
     {
      "id": "r_L0_002",
-     "label": "ASANSOR",
+     "label": "ASANSÖR",
      "room_type": "shaft",
      "area": 0.9478,
      "centroid": [
@@ -919,7 +919,7 @@
    "rooms": [
     {
      "id": "r_L1_001",
-     "label": "ASANSOR",
+     "label": "ASANSÖR",
      "room_type": "shaft",
      "area": 0.7347,
      "centroid": [
@@ -955,7 +955,7 @@
     },
     {
      "id": "r_L1_002",
-     "label": "ASANSOR KULESI",
+     "label": "ASANSÖR KULESI",
      "room_type": "shaft",
      "area": 0.9912,
      "centroid": [
@@ -1039,7 +1039,7 @@
     },
     {
      "id": "r_L1_005",
-     "label": "DUS",
+     "label": "DUŞ",
      "room_type": "bathroom",
      "area": 7.1719,
      "centroid": [
@@ -1611,21 +1611,21 @@
   "area_tpl": "{a}M2",
   "area_decimals": 2,
   "area_sep": ".",
-  "area_lower": false,
+  "area_lower": true,
   "level_tpl": "+{z}",
   "level_sep": ".",
   "ground_mark": "±0.00",
   "title_upper": "{n}.KAT PLANI",
   "title_level": false,
   "scale_text": "Ö:1/50",
-  "scale_inline": true,
-  "turkish_letters": false,
+  "scale_inline": false,
+  "turkish_letters": true,
   "title_case_labels": false,
   "hatch_pattern": "ANSI33",
-  "hatch_on_wall_layer": false,
+  "hatch_on_wall_layer": true,
   "window_lines": 3,
   "window_sill": false,
-  "dims_as_entities": false,
+  "dims_as_entities": true,
   "axes": true,
   "unit": "cm",
   "insunits": 0,
@@ -1643,7 +1643,7 @@
      10.0,
      10.025
     ],
-    "title": "ZEMIN KAT PLANI O:1/50",
+    "title": "ZEMİN KAT PLANI",
     "levels": [
      "L0"
     ]
@@ -1654,7 +1654,7 @@
      49.41,
      10.025
     ],
-    "title": "1.KAT PLANI O:1/50",
+    "title": "1.KAT PLANI",
     "levels": [
      "L1"
     ]

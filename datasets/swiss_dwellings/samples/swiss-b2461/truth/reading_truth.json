@@ -236,7 +236,7 @@
     },
     {
      "id": "r_L0_006",
-     "label": "GIRIS",
+     "label": "GİRİŞ",
      "room_type": "hall",
      "area": 10.8455,
      "centroid": [
@@ -520,7 +520,7 @@
     },
     {
      "id": "r_L0_011",
-     "label": "KAT HOLU",
+     "label": "KAT HOLÜ",
      "room_type": "hall",
      "area": 10.9755,
      "centroid": [
@@ -1623,22 +1623,22 @@
   "area_lower": false,
   "level_tpl": "+{z}",
   "level_sep": ".",
-  "ground_mark": "+0.00",
+  "ground_mark": "±0.00",
   "title_upper": "{n}. KAT PLANI",
   "title_level": false,
   "scale_text": "ÖLÇEK:1/50",
   "scale_inline": false,
-  "turkish_letters": false,
+  "turkish_letters": true,
   "title_case_labels": false,
   "hatch_pattern": "SOLID",
-  "hatch_on_wall_layer": false,
+  "hatch_on_wall_layer": true,
   "window_lines": 4,
-  "window_sill": false,
+  "window_sill": true,
   "dims_as_entities": true,
   "axes": true,
   "unit": "cm",
   "insunits": 5,
-  "storey_m": 2.85,
+  "storey_m": 3.06,
   "seed": 2461
  },
  "drawing": {
@@ -1652,7 +1652,7 @@
      10.0,
      10.0
     ],
-    "title": "ZEMIN KAT PLANI",
+    "title": "ZEMİN KAT PLANI",
     "levels": [
      "L0"
     ]

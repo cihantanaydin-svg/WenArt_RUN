@@ -16,7 +16,7 @@
    "rooms": [
     {
      "id": "r_L0_001",
-     "label": "ASANSOR",
+     "label": "ASANSÖR",
      "room_type": "shaft",
      "area": 0.5451,
      "centroid": [
@@ -44,7 +44,7 @@
     },
     {
      "id": "r_L0_002",
-     "label": "SAFT",
+     "label": "ŞAFT",
      "room_type": "shaft",
      "area": 0.9009,
      "centroid": [
@@ -72,7 +72,7 @@
     },
     {
      "id": "r_L0_003",
-     "label": "DUS",
+     "label": "DUŞ",
      "room_type": "bathroom",
      "area": 6.9123,
      "centroid": [
@@ -952,30 +952,30 @@
   "area_tpl": "A:{a}M2",
   "area_decimals": 2,
   "area_sep": ".",
-  "area_lower": true,
+  "area_lower": false,
   "level_tpl": "+{z}",
   "level_sep": ".",
-  "ground_mark": "+0.00",
+  "ground_mark": "±0.00",
   "title_upper": "{n}.NORMAL KAT PLANI",
-  "title_level": false,
+  "title_level": true,
   "scale_text": "ÖLÇEK : 1/50",
-  "scale_inline": true,
-  "turkish_letters": false,
+  "scale_inline": false,
+  "turkish_letters": true,
   "title_case_labels": false,
   "hatch_pattern": "ANSI35",
   "hatch_on_wall_layer": true,
-  "window_lines": 3,
-  "window_sill": false,
-  "dims_as_entities": true,
+  "window_lines": 4,
+  "window_sill": true,
+  "dims_as_entities": false,
   "axes": false,
   "unit": "paper50",
-  "insunits": 4,
+  "insunits": 0,
   "storey_m": 3.0,
   "seed": 963
  },
  "drawing": {
   "file": "plan.dxf",
-  "insunits": 4,
+  "insunits": 0,
   "units_per_metre": 0.02,
   "plans": [
    {
@@ -984,7 +984,7 @@
      10.0,
      10.0
     ],
-    "title": "ZEMIN KAT PLANI OLCEK : 1/50",
+    "title": "(±0.00) ZEMİN KAT PLANI",
     "levels": [
      "L0"
     ]

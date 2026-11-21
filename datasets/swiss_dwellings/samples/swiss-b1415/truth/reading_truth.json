@@ -13,13 +13,13 @@
   {
    "id": "L1",
    "label": "1. Kat",
-   "elevation": 2.85,
+   "elevation": 3.0,
    "order": 1
   },
   {
    "id": "L2",
    "label": "2. Kat",
-   "elevation": 5.7,
+   "elevation": 6.0,
    "order": 2
   }
  ],
@@ -276,7 +276,7 @@
     },
     {
      "id": "r_L0_007",
-     "label": "COCUK ODASI",
+     "label": "ÇOCUK ODASI",
      "room_type": "bedroom",
      "area": 12.7206,
      "centroid": [
@@ -412,7 +412,7 @@
     },
     {
      "id": "r_L0_011",
-     "label": "DUS",
+     "label": "DUŞ",
      "room_type": "bathroom",
      "area": 4.1406,
      "centroid": [
@@ -2933,7 +2933,7 @@
     },
     {
      "id": "r_L2_009",
-     "label": "COCUK ODASI",
+     "label": "ÇOCUK ODASI",
      "room_type": "bedroom",
      "area": 21.1993,
      "centroid": [
@@ -4358,10 +4358,10 @@
   "level_sep": ".",
   "ground_mark": "±0.00",
   "title_upper": "{n}.KAT PLANI",
-  "title_level": true,
+  "title_level": false,
   "scale_text": "ÖLÇEK : 1/50",
   "scale_inline": false,
-  "turkish_letters": false,
+  "turkish_letters": true,
   "title_case_labels": false,
   "hatch_pattern": "SOLID",
   "hatch_on_wall_layer": true,
@@ -4371,7 +4371,7 @@
   "axes": false,
   "unit": "cm",
   "insunits": 4,
-  "storey_m": 2.85,
+  "storey_m": 3.0,
   "seed": 1415
  },
  "drawing": {
@@ -4385,7 +4385,7 @@
      10.0,
      10.0
     ],
-    "title": "(±0.00) ZEMIN KAT PLANI",
+    "title": "ZEMİN KAT PLANI",
     "levels": [
      "L0"
     ]
@@ -4396,7 +4396,7 @@
      42.47,
      10.0
     ],
-    "title": "(+ 2.85) 1.KAT PLANI",
+    "title": "1.KAT PLANI",
     "levels": [
      "L1"
     ]
@@ -4407,7 +4407,7 @@
      74.94,
      10.0
     ],
-    "title": "(+ 5.70) 2.KAT PLANI",
+    "title": "2.KAT PLANI",
     "levels": [
      "L2"
     ]

@@ -1323,9 +1323,9 @@ ISM
   0
 CLASS
   1
-LAYOUT
+ACDBPLACEHOLDER
   2
-AcDbLayout
+AcDbPlaceHolder
   3
 ObjectDBX Classes
  90
@@ -1339,9 +1339,9 @@ ObjectDBX Classes
   0
 CLASS
   1
-ACDBPLACEHOLDER
+LAYOUT
   2
-AcDbPlaceHolder
+AcDbLayout
   3
 ObjectDBX Classes
  90
@@ -12701,7 +12701,7 @@ AcDbText
  40
 17.5
   1
-COCUK ODASI
+ÇOCUK ODASI
  72
 1
  11
@@ -12905,7 +12905,7 @@ AcDbText
  40
 17.5
   1
-DUS
+DUŞ
  72
 1
  11
@@ -13569,7 +13569,7 @@ AcDbText
  40
 26.5
   1
-(±0.00) ZEMIN KAT PLANI
+ZEMİN KAT PLANI
  72
 1
  11
@@ -13595,13 +13595,13 @@ AcDbEntity
 100
 AcDbLine
  10
-1646.475
+1741.875
  20
 689.65
  30
 0.0
  11
-2195.025
+2099.625
  21
 689.65
  31
@@ -13627,7 +13627,7 @@ AcDbText
  40
 15.9
   1
-OLCEK : 1/50
+ÖLÇEK : 1/50
  72
 1
  11
@@ -20985,7 +20985,7 @@ AcDbText
  40
 11.0
   1
-+ 2.85
++ 3.00
  11
 4843.95
  21
@@ -21393,7 +21393,7 @@ AcDbText
  40
 26.5
   1
-(+ 2.85) 1.KAT PLANI
+1.KAT PLANI
  72
 1
  11
@@ -21419,13 +21419,13 @@ AcDbEntity
 100
 AcDbLine
  10
-4934.75
+5042.075
  20
 710.15
  30
 0.0
  11
-5411.75
+5304.425
  21
 710.15
  31
@@ -21451,7 +21451,7 @@ AcDbText
  40
 15.9
   1
-OLCEK : 1/50
+ÖLÇEK : 1/50
  72
 1
  11
@@ -27763,7 +27763,7 @@ AcDbText
  40
 17.5
   1
-COCUK ODASI
+ÇOCUK ODASI
  72
 1
  11
@@ -28359,7 +28359,7 @@ AcDbText
  40
 11.0
   1
-+ 5.70
++ 6.00
  11
 8781.0686
  21
@@ -28767,7 +28767,7 @@ AcDbText
  40
 26.5
   1
-(+ 5.70) 2.KAT PLANI
+2.KAT PLANI
  72
 1
  11
@@ -28793,13 +28793,13 @@ AcDbEntity
 100
 AcDbLine
  10
-8193.75
+8301.075
  20
 721.15
  30
 0.0
  11
-8670.75
+8563.425
  21
 721.15
  31
@@ -28825,7 +28825,7 @@ AcDbText
  40
 15.9
   1
-OLCEK : 1/50
+ÖLÇEK : 1/50
  72
 1
  11

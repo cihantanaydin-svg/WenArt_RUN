@@ -164,7 +164,7 @@
     },
     {
      "id": "r_L0_004",
-     "label": "ODA",
+     "label": "EB.YATAK ODASI",
      "room_type": "bedroom",
      "area": 14.2466,
      "centroid": [
@@ -360,7 +360,7 @@
     },
     {
      "id": "r_L0_009",
-     "label": "DUŞ",
+     "label": "BANYO",
      "room_type": "bathroom",
      "area": 3.7608,
      "centroid": [
@@ -396,7 +396,7 @@
     },
     {
      "id": "r_L0_010",
-     "label": "ŞAFT",
+     "label": "ASANSOR",
      "room_type": "shaft",
      "area": 0.5002,
      "centroid": [
@@ -652,7 +652,7 @@
     },
     {
      "id": "r_L0_014",
-     "label": "ODA",
+     "label": "C.ODA",
      "room_type": "bedroom",
      "area": 9.8362,
      "centroid": [
@@ -680,7 +680,7 @@
     },
     {
      "id": "r_L0_015",
-     "label": "ODA",
+     "label": "C.ODA",
      "room_type": "bedroom",
      "area": 15.3339,
      "centroid": [
@@ -716,7 +716,7 @@
     },
     {
      "id": "r_L0_016",
-     "label": "ODA",
+     "label": "YATAK OD.",
      "room_type": "bedroom",
      "area": 14.0225,
      "centroid": [
@@ -788,7 +788,7 @@
     },
     {
      "id": "r_L0_018",
-     "label": "Y.BANYO",
+     "label": "BANYO",
      "room_type": "bathroom",
      "area": 3.7016,
      "centroid": [
@@ -816,7 +816,7 @@
     },
     {
      "id": "r_L0_019",
-     "label": "DUŞ",
+     "label": "DUS",
      "room_type": "bathroom",
      "area": 3.5264,
      "centroid": [
@@ -1869,19 +1869,19 @@
   },
   "door_tag": "{w}/{h}",
   "window_tag": "{w}/{h}",
-  "two_text_tags": false,
+  "two_text_tags": true,
   "area_tpl": "{a}M2",
   "area_decimals": 2,
   "area_sep": ",",
   "area_lower": true,
   "level_tpl": "+{z}",
   "level_sep": ".",
-  "ground_mark": "±0.00",
+  "ground_mark": "+0.00",
   "title_upper": "{n}. NORMAL KAT PLANI",
   "title_level": false,
   "scale_text": "Ö:1/50",
   "scale_inline": false,
-  "turkish_letters": true,
+  "turkish_letters": false,
   "title_case_labels": false,
   "hatch_pattern": "AR-CONC",
   "hatch_on_wall_layer": false,
@@ -1890,13 +1890,13 @@
   "dims_as_entities": false,
   "axes": true,
   "unit": "paper50",
-  "insunits": 0,
+  "insunits": 4,
   "storey_m": 3.0,
   "seed": 2385
  },
  "drawing": {
   "file": "plan.dxf",
-  "insunits": 0,
+  "insunits": 4,
   "units_per_metre": 0.02,
   "plans": [
    {
@@ -1905,7 +1905,7 @@
      10.0,
      10.0
     ],
-    "title": "ZEMİN KAT PLANI",
+    "title": "ZEMIN KAT PLANI",
     "levels": [
      "L0"
     ]

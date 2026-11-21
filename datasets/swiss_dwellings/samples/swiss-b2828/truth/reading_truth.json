@@ -344,7 +344,7 @@
     },
     {
      "id": "r_L0_007",
-     "label": "DUS",
+     "label": "DUŞ",
      "room_type": "bathroom",
      "area": 5.0665,
      "centroid": [
@@ -404,7 +404,7 @@
     },
     {
      "id": "r_L0_008",
-     "label": "COCUK ODASI",
+     "label": "ÇOCUK ODASI",
      "room_type": "bedroom",
      "area": 16.1453,
      "centroid": [
@@ -1576,30 +1576,30 @@
   "area_tpl": "BRÜT:{a}M2",
   "area_decimals": 2,
   "area_sep": ".",
-  "area_lower": false,
+  "area_lower": true,
   "level_tpl": "+{z}",
   "level_sep": ".",
   "ground_mark": "±0.00",
   "title_upper": "{n}.NORMAL KAT PLANI",
-  "title_level": true,
+  "title_level": false,
   "scale_text": "1/50",
   "scale_inline": false,
-  "turkish_letters": false,
+  "turkish_letters": true,
   "title_case_labels": false,
   "hatch_pattern": "ANSI37",
   "hatch_on_wall_layer": true,
-  "window_lines": 3,
+  "window_lines": 4,
   "window_sill": false,
   "dims_as_entities": false,
   "axes": true,
   "unit": "mm",
-  "insunits": 0,
-  "storey_m": 2.85,
+  "insunits": 4,
+  "storey_m": 3.0,
   "seed": 2828
  },
  "drawing": {
   "file": "plan.dxf",
-  "insunits": 0,
+  "insunits": 4,
   "units_per_metre": 1000.0,
   "plans": [
    {
@@ -1608,7 +1608,7 @@
      9.998,
      10.002
     ],
-    "title": "(±0.00) ZEMIN KAT PLANI",
+    "title": "ZEMİN KAT PLANI",
     "levels": [
      "L0"
     ]

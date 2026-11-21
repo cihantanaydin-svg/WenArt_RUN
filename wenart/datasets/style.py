@@ -164,10 +164,13 @@ def sample_style(profile: dict, rng: random.Random, seed: int = 0) -> Style:
     unit_tbl = {"cm": units.get("cm", 0), "mm": units.get("mm", 0),
                 "paper50": sum(v for k, v in units.items() if "50" in k)}
     unit = _weighted(rng, {k: {"projects": v} for k, v in unit_tbl.items()}) or "cm"
-    ins = profile.get("insunits") or {"5": 1}
+    # the header and the dimension form go with the unit (the user's paper-scale drawings all explode their
+    # dimensions; most centimetre drawings keep DIMENSION entities)
+    pname = {"cm": "cm", "mm": "mm", "paper50": next((k for k in units if "50" in k), "")}[unit]
+    ins = (profile.get("insunits_by_unit") or {}).get(pname) or profile.get("insunits") or {"5": 1}
     insunits = int(_weighted(rng, {k: {"projects": v} for k, v in ins.items()}) or 5)
-    if unit == "cm" and insunits not in (0, 4, 5):
-        insunits = 5
+    forms = (profile.get("dimension_form_by_unit") or {}).get(pname) or {"entities": 1, "exploded": 1}
+    dims_as_entities = _weighted(rng, {k: {"projects": v} for k, v in forms.items()}) == "entities"
     storeys = (profile.get("assumed") or {}).get("storey_height_m") or {"3.00": 1.0}
     storey = float(_weighted(rng, {k: {"share": v} for k, v in storeys.items()}, by="share") or 3.0)
     axis_projects = sum((v or {}).get("projects", 0) for v in (lay.get("axis") or {}).values())
@@ -179,7 +182,7 @@ def sample_style(profile: dict, rng: random.Random, seed: int = 0) -> Style:
                  scale_inline=rng.random() < 0.3, turkish_letters=rng.random() < max(0.2, tr_share),
                  title_case_labels=rng.random() < 0.05, hatch_pattern=pattern.split(",")[0],
                  hatch_on_wall_layer=rng.random() < 0.5, window_lines=rng.choice([3, 4, 4]),
-                 window_sill=rng.random() < 0.4, dims_as_entities=rng.random() < 0.5,
+                 window_sill=rng.random() < 0.4, dims_as_entities=dims_as_entities,
                  axes=rng.random() < min(0.8, axis_projects / max(1, profile.get("projects", 1))),
                  unit=unit, insunits=insunits, storey_m=storey, seed=seed)
 

@@ -13,7 +13,7 @@
   {
    "id": "L1",
    "label": "1. Kat",
-   "elevation": 3.0,
+   "elevation": 3.06,
    "order": 1
   }
  ],
@@ -1942,7 +1942,7 @@
     },
     {
      "id": "r_L1_009",
-     "label": "ÇOCUK ODASI",
+     "label": "COCUK ODASI",
      "room_type": "bedroom",
      "area": 10.2475,
      "centroid": [
@@ -3133,19 +3133,19 @@
   },
   "door_tag": "{w}/{h}",
   "window_tag": "{w}/{h}",
-  "two_text_tags": false,
+  "two_text_tags": true,
   "area_tpl": "BRÜT:{a}M2",
   "area_decimals": 2,
   "area_sep": ".",
-  "area_lower": true,
+  "area_lower": false,
   "level_tpl": "+ {z}",
   "level_sep": ".",
   "ground_mark": "+0.00",
   "title_upper": "{n}.NORMAL KAT PLANI",
   "title_level": false,
   "scale_text": "ÖLÇEK 1/50",
-  "scale_inline": false,
-  "turkish_letters": true,
+  "scale_inline": true,
+  "turkish_letters": false,
   "title_case_labels": false,
   "hatch_pattern": "ANSI37",
   "hatch_on_wall_layer": true,
@@ -3154,13 +3154,13 @@
   "dims_as_entities": false,
   "axes": false,
   "unit": "mm",
-  "insunits": 0,
-  "storey_m": 3.0,
+  "insunits": 4,
+  "storey_m": 3.06,
   "seed": 719
  },
  "drawing": {
   "file": "plan.dxf",
-  "insunits": 0,
+  "insunits": 4,
   "units_per_metre": 1000.0,
   "plans": [
    {
@@ -3169,7 +3169,7 @@
      10.002,
      10.004
     ],
-    "title": "ZEMİN KAT PLANI",
+    "title": "ZEMIN KAT PLANI OLCEK 1/50",
     "levels": [
      "L0"
     ]
@@ -3180,7 +3180,7 @@
      40.021,
      10.004
     ],
-    "title": "1.NORMAL KAT PLANI",
+    "title": "1.NORMAL KAT PLANI OLCEK 1/50",
     "levels": [
      "L1"
     ]

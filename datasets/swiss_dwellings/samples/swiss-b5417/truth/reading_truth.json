@@ -106,7 +106,7 @@
     },
     {
      "id": "r_L0_003",
-     "label": "Y.ODA",
+     "label": "ODA",
      "room_type": "bedroom",
      "area": 13.8812,
      "centroid": [
@@ -142,7 +142,7 @@
     },
     {
      "id": "r_L0_004",
-     "label": "SAFT",
+     "label": "ASANSOR KULESI",
      "room_type": "shaft",
      "area": 0.5959,
      "centroid": [
@@ -322,7 +322,7 @@
     },
     {
      "id": "r_L0_007",
-     "label": "BANYO",
+     "label": "Y.BANYO",
      "room_type": "bathroom",
      "area": 3.853,
      "centroid": [
@@ -490,7 +490,7 @@
     },
     {
      "id": "r_L0_009",
-     "label": "ODA",
+     "label": "Y.ODA",
      "room_type": "bedroom",
      "area": 18.716,
      "centroid": [
@@ -518,7 +518,7 @@
     },
     {
      "id": "r_L0_010",
-     "label": "ODA",
+     "label": "YATAK O.",
      "room_type": "bedroom",
      "area": 14.5925,
      "centroid": [
@@ -546,7 +546,7 @@
     },
     {
      "id": "r_L0_011",
-     "label": "Y.ODA",
+     "label": "ODA",
      "room_type": "bedroom",
      "area": 7.7875,
      "centroid": [
@@ -1424,7 +1424,7 @@
    "rooms": [
     {
      "id": "r_L1_001",
-     "label": "YATAK O.",
+     "label": "COCUK ODASI",
      "room_type": "bedroom",
      "area": 10.1235,
      "centroid": [
@@ -1520,7 +1520,7 @@
     },
     {
      "id": "r_L1_003",
-     "label": "COCUK ODASI",
+     "label": "ODA",
      "room_type": "bedroom",
      "area": 16.4696,
      "centroid": [
@@ -2925,7 +2925,7 @@
   },
   "door_tag": "{w}/{h}",
   "window_tag": "{w}/{h}",
-  "two_text_tags": false,
+  "two_text_tags": true,
   "area_tpl": "A:{a}M2",
   "area_decimals": 2,
   "area_sep": ".",
@@ -2941,10 +2941,10 @@
   "title_case_labels": false,
   "hatch_pattern": "ANSI33",
   "hatch_on_wall_layer": true,
-  "window_lines": 3,
+  "window_lines": 4,
   "window_sill": true,
-  "dims_as_entities": false,
-  "axes": false,
+  "dims_as_entities": true,
+  "axes": true,
   "unit": "cm",
   "insunits": 0,
   "storey_m": 3.0,
