@@ -18,6 +18,12 @@ dormer boxes beside the roof, was read as the ground (+11.11 m): four storeys wi
 buried, 11 m deep front courts inferred and an entrance said to lie 11.11 m under the ground. The line at the first
 basement's floor beyond both outer walls, where the basement's doors open at grade, is the ground.
 
+21 Nov 2026 (the kitchen-window fix: real09's 1.45 m kitchen windows and 1.50 m living-room windows, drawn as panes
+end to end, had been read as sliding doors, and those false doors were all the evidence this rule had against the
++11.11 m line): a drawn window to the outside on a storey that is no basement, its head more than ``DOOR_UNDER_M``
+under the ground, opens into the earth as a door does; it refutes the ground too (``windows`` in the record). Where the
+ground goes is still decided by the storeys whose doors stand at grade.
+
 How: pure Python on the building JSON (the walls' exterior flags, the levels, the openings); called first in
 ``wenart.ingest.completion.complete``, before any rule reads the ground.
 """
@@ -31,6 +37,7 @@ LINE_ABOVE_M = 0.50      # ... and at most this far over it (R04: "about 0.5 m a
 PAIR_M = 0.05            # lines of the two sides this close in height are one ground beyond both outer walls
 STEP_M = 0.15            # an assumed ground lies one step under the door storey's floor
 DOOR_H_M = 2.10
+WINDOW_SILL_M, WINDOW_H_M = 0.90, 1.20     # a window without its sill or height read (the reader's defaults)
 
 
 def _storeys(b: dict) -> list:
@@ -42,9 +49,9 @@ def _basement(lv: dict) -> bool:
     return lv.get("kind") == "basement" or (lv.get("order") or 0) < 0
 
 
-def outside_doors(b: dict, lid: str) -> list:
+def outside_doors(b: dict, lid: str, kind: str = "door") -> list:
     """The drawn doors of level ``lid`` in an outer wall with the outside beyond them (pure): no inferred or derived
-    opening, no door onto a balcony, a light well or a room."""
+    opening, no door onto a balcony, a light well or a room. ``kind="window"``: the drawn windows the same way."""
     from wenart.ingest import completion as CP
     from wenart.ingest import core_rules as CR
 
@@ -52,7 +59,7 @@ def outside_doors(b: dict, lid: str) -> list:
     level = None
     out = []
     for o in b.get("openings") or []:
-        if o.get("level_id") != lid or o.get("type") != "door" or CR.derived(o) or not o.get("center"):
+        if o.get("level_id") != lid or o.get("type") != kind or CR.derived(o) or not o.get("center"):
             continue
         w = walls.get(o.get("wall_id"))
         if w is None or w.get("exterior") is not True or w.get("party"):
@@ -105,7 +112,7 @@ def apply(build) -> Optional[dict]:
     gz = min(float(x["z"]["value"]) for x in levels)
     storeys = _storeys(b)
     doors = {lv["id"]: outside_doors(b, lv["id"]) for lv in storeys}
-    buried = []
+    buried, buried_windows = [], []
     for lv in storeys:
         if _basement(lv):
             continue
@@ -113,8 +120,17 @@ def apply(build) -> Optional[dict]:
             head = float(lv["elevation"]) + float(o.get("sill_height") or 0.0) + float(o.get("height") or DOOR_H_M)
             if head < gz - DOOR_UNDER_M:
                 buried.append((lv, o))
-    if not buried:
+        # 21 Nov 2026: a drawn window to the outside under the ground opens into the earth too
+        for o in outside_doors(b, lv["id"], "window"):
+            sill = o.get("sill_height")
+            head = float(lv["elevation"]) + float(WINDOW_SILL_M if sill is None else sill) + \
+                float(o.get("height") or WINDOW_H_M)
+            if head < gz - DOOR_UNDER_M:
+                buried_windows.append((lv, o))
+    if not buried and not buried_windows:
         return None
+    n_doors = len(buried)
+    buried += buried_windows
     lids = sorted({lv["id"] for lv, _o in buried})
     if RG.blocked("ground_doors", b, {"level_id": lids[0], "why": f"ground {gz:+.2f} m buries the doors of "
                                                                      f"{', '.join(lids)}"}):
@@ -124,6 +140,10 @@ def apply(build) -> Optional[dict]:
     # the storeys whose doors may stand at grade: up to the lowest storey with a door to the outside that is no
     # basement (a ground over it would bury that door again)
     top = next((float(lv["elevation"]) for lv in storeys if doors[lv["id"]] and not _basement(lv)), None)
+    # 21 Nov 2026: nor over a storey whose windows it buried (with doors alone this changes nothing: their lowest
+    # storey is ``top``)
+    low = min(float(lv["elevation"]) for lv, _o in buried)
+    top = low if top is None else min(top, low)
     for lv in storeys:
         if not doors[lv["id"]] or (top is not None and float(lv["elevation"]) > top + 1e-6):
             continue
@@ -131,24 +151,36 @@ def apply(build) -> Optional[dict]:
         if chosen is not None:
             at = lv
             break
+    if chosen is None and storeys and float(storeys[0]["elevation"]) <= top + 1e-6:
+        # 21 Nov 2026: no drawn door to the outside up to the buried storeys (real09: every 'door' there was a window
+        # read as a sliding door): a line the section reads on both sides, beyond both outer walls, at the floor of the
+        # lowest storey is the ground the building stands on (it buries none of its storeys)
+        base = choose(lines, float(storeys[0]["elevation"]))
+        if base is not None and base["both_sides"]:
+            chosen, at = base, storeys[0]
     old = [dict(x["z"], side=x.get("side")) for x in levels]
     for z in old:
         z.pop("lines", None)
+    what = f"{n_doors} drawn door(s)" if not buried_windows else (
+        f"{n_doors} drawn door(s) and {len(buried_windows)} drawn window(s)" if n_doors else
+        f"{len(buried_windows)} drawn window(s)")
     why = (f"the section's ground ({gz:+.2f} m) lies more than {DOOR_UNDER_M:.2f} m over the head of "
-           f"{len(buried)} drawn door(s) to the outside on {', '.join(lids)} (e.g. {buried[0][1]['id']}): a ground that "
-           f"buries storeys with doors at grade is refused (R04)")
+           f"{what} to the outside on {', '.join(lids)} (e.g. {buried[0][1]['id']}): a ground that "
+           f"buries storeys with doors{' or windows' if buried_windows else ''} at grade is refused (R04)")
     ev0 = dict(((levels[0]["z"].get("evidence") or [{}])[0]) or {})
     if chosen is not None:
         z = chosen["z"]
+        where = (f"beside the doors at grade of {at['id']}" if doors[at["id"]] else
+                 f"at the floor of the lowest storey {at['id']}, no drawn door to the outside up to the buried storeys")
         how = (f"the line{'s' if len(chosen['entities']) > 1 else ''} {', '.join(chosen['entities'])} at {z:+.2f} m "
-               f"{'beyond both outer walls ' if chosen['both_sides'] else ''}beside the doors at grade of {at['id']} "
+               f"{'beyond both outer walls ' if chosen['both_sides'] else ''}{where} "
                f"(floor {float(at['elevation']):+.2f} m) is the ground")
         value = {"value": z, "method": "vector", "confidence": 0.7,
                  "evidence": [dict(ev0, entity=e, rule="ground_line") for e in chosen["entities"]][:4],
                  "note": f"{why}; {how}"}
     else:
-        floor = next((float(lv["elevation"]) for lv in storeys if doors[lv["id"]] and not _basement(lv)),
-                     float(buried[0][0]["elevation"]))
+        floor = next((float(lv["elevation"]) for lv in storeys if doors[lv["id"]] and not _basement(lv)
+                      and float(lv["elevation"]) <= top + 1e-6), low)
         z = round(floor - STEP_M, 3)
         how = (f"no line the section read lies beside a storey's doors at grade: the ground is assumed one step "
                f"({STEP_M:.2f} m) under the lowest storey with a door to the outside ({z:+.2f} m); asked")
@@ -161,7 +193,9 @@ def apply(build) -> Optional[dict]:
         surface.update(flat_z=z, kind="flat" if len(g["levels"]) == 1 else surface.get("kind"),
                        reason=f"{surface.get('reason') or ''}; ground_doors: {how}".lstrip("; "))
     rec = {"refused": old, "z": z, "chosen": chosen, "at": at["id"] if at else None,
-           "doors": [o["id"] for _lv, o in buried][:20], "storeys": lids, "reason": f"{why}; {how}"}
+           "doors": [o["id"] for _lv, o in buried[:n_doors]][:20], "storeys": lids, "reason": f"{why}; {how}"}
+    if buried_windows:
+        rec["windows"] = [o["id"] for _lv, o in buried_windows][:20]
     li = b.setdefault("level_inference", {})
     li["ground_doors"] = rec
     if callable(getattr(build, "conflict", None)):
@@ -174,6 +208,33 @@ def apply(build) -> Optional[dict]:
                                                  "crop": None, "room_id": None, "level_id": lids[0]})
     rec["refreshed"] = refresh(b, [float(x["value"]) for x in old if isinstance(x.get("value"), (int, float))], z)
     return rec
+
+
+FACADE_GAP_KEYS = ("type", "drawn_type", "height", "sill_height", "drawn_sill_height", "drawn_height", "type_inferred")
+
+
+def facade_gap_types(b: dict, new: dict) -> int:
+    """21 Nov 2026 (real09: its right-hand living-room windows stayed open gaps once the ground under them moved): the
+    levels model types an outside wall's unreadable gap by the ground beyond it (``levels.model.facade_gaps``: a window
+    over a drop); over a refused ground it typed none. Each gap still untyped here that the re-run on the new ground
+    (``new``) typed takes that type, its heights and its reason (in place). Returns how many."""
+    import copy
+
+    by_id = {o.get("id"): o for o in new.get("openings") or [] if isinstance(o, dict)}
+    n = 0
+    for o in b.get("openings") or []:
+        q = by_id.get(o.get("id"))
+        if q is None or o.get("type") != "opening" or o.get("drawn_type") \
+                or (q.get("type_inferred") or {}).get("method") != "facade_gap":
+            continue
+        for k in FACADE_GAP_KEYS:
+            if k in q:
+                o[k] = copy.deepcopy(q[k])
+        for k in ("swing_side", "operation", "operation_source", "threshold_z"):
+            if k not in q:
+                o.pop(k, None)
+        n += 1
+    return n
 
 
 def refresh(b: dict, refused: list, z: float) -> str:
@@ -200,7 +261,9 @@ def refresh(b: dict, refused: list, z: float) -> str:
         site["entrances"] = copy.deepcopy((new.get("site") or {}).get("entrances") or [])
         li = b.setdefault("level_inference", {})
         li["basements"] = copy.deepcopy(((new.get("level_inference") or {}).get("basements")) or [])
-        return "light wells, entrances and basements derived again from the new ground (levels model)"
+        typed = facade_gap_types(b, new)
+        return "light wells, entrances and basements derived again from the new ground (levels model)" + (
+            f"; {typed} facade gap(s) typed over the new ground" if typed else "")
 
     def stale(v) -> bool:
         return isinstance(v, (int, float)) and any(abs(float(v) - r) <= 0.05 for r in refused)

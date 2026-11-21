@@ -3,9 +3,9 @@ the RC18 regulation checks exposed. Each fix is a general rule of the reader wit
 that raises the fault on any future reading. CPU only, pure, no project data.
 
 - (a) a glazed facade's inferred walls lie on the drawn facade line (``facade.facade_band``), not ``BAND_M / 2`` inside
-  the frames (shipped off, ``FACADE_LINE_SNAP``: the truth record C0001 holds real09's walls where the old rule put
-  them; the tests switch it on); RC17 ``inferred_wall_off_facade`` raises an inferred wall standing into the room off
-  the drawn face;
+  the frames (built off, ``FACADE_LINE_SNAP``; switched on the same day with the user's OK once the truth record C0001
+  had its walls moved onto the drawn facade line, ``tests/test_facade_on_20261121.py``); RC17
+  ``inferred_wall_off_facade`` raises an inferred wall standing into the room off the drawn face;
 - (b) a framed window is never added where the openings read in the band together cover the frames
   (``core.covered_share``); RC17 ``opening_off_wall`` raises an opening off its wall's band;
 - (c) an air shaft (H.B 50/50, a doorless face under 1.0 m across) is no light well (``topology.well_kind``,
@@ -78,9 +78,8 @@ def test_the_glazed_facade_wall_lies_on_the_drawn_facade_line():
     assert west
     for w in west:                                                      # the inferred wall in the drawn band
         assert w.start[0] + float(w.thickness) / 2.0 == pytest.approx(0.0, abs=0.02)
-    # the rule as shipped (off): the frames' own bands, the room's face inside the frames (the fault RC17 names)
-    assert not FC.FACADE_LINE_SNAP
-    old, _ = FC.close_rooms(walls, strokes, [(2.0, 2.0)])
+    # the rule as shipped before (off): the frames' own bands, the room's face inside the frames (the fault RC17 names)
+    old, _ = FC.close_rooms(walls, strokes, [(2.0, 2.0)], snap=False)
     from shapely.geometry import LineString
     assert old[0].intersection(LineString([(-1, 2.0), (5, 2.0)])).bounds[0] > 0.1
     assert face.intersection(LineString([(-1, 2.0), (5, 2.0)])).bounds[0] == pytest.approx(0.0, abs=0.02)

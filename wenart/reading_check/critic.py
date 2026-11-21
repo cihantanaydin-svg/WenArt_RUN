@@ -878,9 +878,15 @@ def apply_trust(found: list, trust: Optional[dict]) -> list:
     never judged, is written with severity ``info`` (``base_severity`` kept) and says so (in place)."""
     # 12 Nov 2026 (review F8): a trust file measured against the withdrawn accepted readings is marked ``stale``; its
     # kinds count as not calibrated (every finding info) until it is measured again on the synthetic and sparse truths
-    kinds = {} if (trust or {}).get("stale") else ((trust or {}).get("kinds") or {})
-    # 20 Nov 2026: checks 1, 2, 4 have their own kinds per check (``checks``: {check: {kind: ...}})
-    by_check = {} if (trust or {}).get("stale") else ((trust or {}).get("checks") or {})
+    stale = (trust or {}).get("stale")
+    kinds = {} if stale else ((trust or {}).get("kinds") or {})
+    # 20 Nov 2026: checks 1, 2, 4 have their own kinds per check (``checks``: {check: {kind: ...}}). 21 Nov 2026: their
+    # calibration (the user's marks, the synthetic truth, the known errors) made after the stale mark is not stale: the
+    # mark is about the kinds measured against the withdrawn readings
+    cal_on = str(((trust or {}).get("checks_calibration") or {}).get("date") or "")
+    stale_on = str(stale.get("on") or "") if isinstance(stale, dict) else ""
+    checks_stale = bool(stale) and not (cal_on and stale_on and cal_on > stale_on)
+    by_check = {} if checks_stale else ((trust or {}).get("checks") or {})
     threshold = float((trust or {}).get("threshold") or TRUST_MIN)
     for f in found:
         if f.get("check") != CHECK:
@@ -1475,8 +1481,37 @@ def run_review_dir(answers_path, base: Path = REVIEW_DIR) -> Path:
     return dest
 
 
+def folder_project(folder: Optional[str]) -> Optional[str]:
+    """The project of an input folder (``after/real09``, ``before/real09@324c487f`` -> ``real09``; pure)."""
+    return str(folder).rstrip("/").split("/")[-1].split("@")[0] if folder else None
+
+
+def skip_excluded(found: list, excluded: dict) -> tuple[list, list]:
+    """``(kept, [(project, level)] of the findings left out)`` (pure): a finding on a level the user excluded
+    (``truth.excluded_levels``) is no evidence of the check's trust either way."""
+    from wenart.reading_check import truth as TR
+
+    kept, out = [], []
+    for f in found:
+        p = f.get("project") or folder_project(f.get("folder"))
+        if TR.is_excluded(excluded, p, f.get("level_id")):
+            out.append((p, f.get("level_id")))
+        else:
+            kept.append(f)
+    return kept, out
+
+
+def known_without_excluded(known: dict, excluded: dict) -> dict:
+    """The known errors per input folder less those on levels the user excluded (pure)."""
+    from wenart.reading_check import truth as TR
+
+    return {folder: [k for k in v if not TR.is_excluded(excluded, folder_project(folder), k.get("level"))]
+            for folder, v in (known or {}).items()}
+
+
 def _cmd_calibrate(args) -> int:
     from wenart.reading_check import critic_checks as CC
+    from wenart.reading_check import truth as TR
 
     # 20 Nov 2026: a pod's answers are scored against the index it was asked with (``--index``: the frozen copy,
     # e.g. index_pod1.json; the images stay under --inputs)
@@ -1488,6 +1523,13 @@ def _cmd_calibrate(args) -> int:
         return 2
     answers = by_arm.get(getattr(args, "arm", None)) or next(iter(by_arm.values()))
     found_all = answers_to_findings(index, answers, args.key or "")
+    # 21 Nov 2026 (real09 L3, the user: "this drawing is not good we can ignore this drawing"): the levels the user
+    # excluded (``truth.excluded_levels``) are left out of the calibration, their findings and their known errors
+    excluded = TR.excluded_levels()
+    found_all, skipped = skip_excluded(found_all, excluded)
+    if skipped:
+        print(f"left out: {len(skipped)} finding(s) on levels the user excluded "
+              f"({', '.join(sorted({f'{p} {lv}' for p, lv in skipped}))})")
     new_all = [f for f in found_all if f.get("call") in CC.CHECKS]
     new = [f for f in new_all if not f.get("dropped")]
     dropped = [f for f in new_all if f.get("dropped")]
@@ -1498,6 +1540,7 @@ def _cmd_calibrate(args) -> int:
         # review sheets for the user's marks; the trust per check and kind in the same trust file
         kp, mp = Path(args.known or KNOWN_PATH), Path(args.marks or MARKS_PATH)
         known = json.loads(kp.read_text(encoding="utf-8")).get("readings") if kp.is_file() else {}
+        known = known_without_excluded(known or {}, excluded)
         marks = json.loads(mp.read_text(encoding="utf-8")).get("marks") if mp.is_file() else {}
         res = CC.calibrate_checks(index, new, answers, known=known, marks=marks, match_m=MATCH_M, dropped=dropped)
         print(CC.checks_summary(res))

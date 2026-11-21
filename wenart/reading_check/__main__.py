@@ -65,8 +65,11 @@ def main(argv=None) -> int:
                                      "synthetic project's from its exact truth and the records (a replay by place); "
                                      "`truth accept` stores a reading the user explicitly accepted after looking at it "
                                      "(results/reading_accepted/; none now); `truth add` / `truth remove` record a "
-                                     "user correction and rebuild")
-    t.add_argument("action", choices=["accept", "build", "add", "remove"])
+                                     "user correction and rebuild; `truth move --correction C --reading DIR --id a,b "
+                                     "--text ... --why ...` moves a record's machine-located geometry with the user's "
+                                     "OK (logged in the record); `truth exclude --project p --level L --text ...` keeps "
+                                     "the user's word that a level's drawing is ignored (a brief input)")
+    t.add_argument("action", choices=["accept", "build", "add", "remove", "move", "exclude"])
     t.add_argument("--projects", default=None, help="accept/build: comma separated (build's default: every synthetic "
                                                     "project with a truth, every real project with an applicable "
                                                     "correction record; the full build also removes a real truth "
@@ -86,7 +89,8 @@ def main(argv=None) -> int:
                    help="add/remove: the element's source (only user_correction)")
     t.add_argument("--correction", default=None, help="add/remove: the record the operation joins (C0012: accepted, "
                                                       "with the user's words, of the same project)")
-    t.add_argument("--text", default=None, help="add/remove without --correction: the user's own words (a new record)")
+    t.add_argument("--text", default=None, help="add/remove without --correction: the user's own words (a new record); "
+                                                "move: the user's words of the OK; exclude: the user's words")
     t.add_argument("--lesson", default=None, help="add/remove with --text: the lesson id the record states")
     t.add_argument("--reader-answer", dest="reader_answer", default=None, help="add/remove with --text")
     t.add_argument("--right-answer", dest="right_answer", default=None, help="add/remove with --text")
@@ -95,8 +99,10 @@ def main(argv=None) -> int:
                                                          "keeping its geometry")
     t.add_argument("--date", default=None, help="add/remove: the date of the correction (default today)")
     t.add_argument("--id", default=None, help="add/remove: an element by id, turned into its place: the reader's id "
-                                             "in --reading, or a truth id of the current truth file")
-    t.add_argument("--reading", default=None, help="add/remove: the reading (folder or building.json) --id is from")
+                                             "in --reading, or a truth id of the current truth file; move: the "
+                                             "reading's element ids at the new place, comma separated")
+    t.add_argument("--reading", default=None, help="add/remove/move: the reading (folder or building.json) --id is "
+                                                   "from; the place is also stored in the drawing's frame from it")
     t.add_argument("--center", default=None, help="x,y in building metres (door, window, opening, stair, room)")
     t.add_argument("--width", default=None, help="door / window / opening width in metres")
     t.add_argument("--wall-id", dest="wall_id", default=None)
@@ -111,6 +117,10 @@ def main(argv=None) -> int:
     t.add_argument("--turn", default=None, help="stair turn: straight, U, other")
     t.add_argument("--elevation", default=None, help="level elevation (with --kind level)")
     t.add_argument("--order", default=None, help="level order (with --kind level)")
+    t.add_argument("--why", default=None, help="move: the reason logged in the record; exclude: the brief input's "
+                                               "reason")
+    t.add_argument("--ops", default=None, help="move: the record's operation numbers to move (default: every "
+                                               "operation of --kind on --level)")
     s = sub.add_parser("score", help="score the readings against the truth (results/reading_truth/)")
     s.add_argument("--projects", default=None, help="comma separated (default: every project with a truth file)")
     s.add_argument("--work", default=None, help="work folder for the readings (a reading already there is used again)")

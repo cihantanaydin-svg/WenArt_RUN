@@ -241,14 +241,14 @@
      "removed_on": "2026-11-03"
     },
     {
-     "id": "u_C0001_3",
+     "id": "u_C0001_5",
      "start": [
       14.68,
-      1.01
+      0.83
      ],
      "end": [
       16.15,
-      1.01
+      0.83
      ],
      "source": "user_correction",
      "confidence": null,
@@ -261,11 +261,11 @@
       "region": "r3",
       "start": [
        9538.44972,
-       -1431.59228
+       -1431.59468
       ],
       "end": [
        9538.47912,
-       -1431.59228
+       -1431.59468
       ]
      },
      "corrections": [
@@ -273,14 +273,14 @@
      ]
     },
     {
-     "id": "u_C0001_6",
+     "id": "u_C0001_13",
      "start": [
       16.36,
-      5.04
+      5.18
      ],
      "end": [
       17.25,
-      5.04
+      5.18
      ],
      "source": "user_correction",
      "confidence": null,
@@ -293,11 +293,11 @@
       "region": "r3",
       "start": [
        9538.48332,
-       -1431.51168
+       -1431.50768
       ],
       "end": [
        9538.50112,
-       -1431.51168
+       -1431.50768
       ]
      },
      "corrections": [
@@ -305,45 +305,13 @@
      ]
     },
     {
-     "id": "u_C0001_2",
+     "id": "u_C0001_1",
      "start": [
       16.98,
-      0.51
+      0.38
      ],
      "end": [
-      18.58,
-      0.51
-     ],
-     "source": "user_correction",
-     "confidence": null,
-     "method": "user",
-     "correction": "C0001",
-     "added_on": "2026-11-03",
-     "frame": {
-      "file": "real09.dwg",
-      "page": 1,
-      "region": "r3",
-      "start": [
-       9538.49572,
-       -1431.60228
-      ],
-      "end": [
-       9538.52772,
-       -1431.60228
-      ]
-     },
-     "corrections": [
-      "C0001"
-     ]
-    },
-    {
-     "id": "u_C0001_8",
-     "start": [
-      18.46,
-      0.26
-     ],
-     "end": [
-      18.46,
+      19.22,
       0.38
      ],
      "source": "user_correction",
@@ -356,12 +324,12 @@
       "page": 1,
       "region": "r3",
       "start": [
-       9538.52532,
-       -1431.60728
+       9538.49572,
+       -1431.60368
       ],
       "end": [
-       9538.52532,
-       -1431.60488
+       9538.54052,
+       -1431.60368
       ]
      },
      "corrections": [
@@ -369,46 +337,14 @@
      ]
     },
     {
-     "id": "u_C0001_1",
-     "start": [
-      18.34,
-      0.13
-     ],
-     "end": [
-      19.06,
-      0.13
-     ],
-     "source": "user_correction",
-     "confidence": null,
-     "method": "user",
-     "correction": "C0001",
-     "added_on": "2026-11-03",
-     "frame": {
-      "file": "real09.dwg",
-      "page": 1,
-      "region": "r3",
-      "start": [
-       9538.52292,
-       -1431.60988
-      ],
-      "end": [
-       9538.53732,
-       -1431.60988
-      ]
-     },
-     "corrections": [
-      "C0001"
-     ]
-    },
-    {
-     "id": "u_C0001_7",
+     "id": "u_C0001_8",
      "start": [
       19.14,
-      0.0
+      0.46
      ],
      "end": [
       19.14,
-      1.76
+      1.7
      ],
      "source": "user_correction",
      "confidence": null,
@@ -421,7 +357,7 @@
       "region": "r3",
       "start": [
        9538.53892,
-       -1431.61248
+       -1431.60208
       ],
       "end": [
        9538.53892,
@@ -433,14 +369,14 @@
      ]
     },
     {
-     "id": "u_C0001_4",
+     "id": "u_C0001_6",
      "start": [
       19.32,
-      1.63
+      1.57
      ],
      "end": [
-      19.66,
-      1.63
+      19.87,
+      1.57
      ],
      "source": "user_correction",
      "confidence": null,
@@ -456,7 +392,7 @@
        -1431.57988
       ],
       "end": [
-       9538.54932,
+       9538.55352,
        -1431.57988
       ]
      },
@@ -467,12 +403,12 @@
     {
      "id": "u_C0001_12",
      "start": [
-      19.765,
-      1.5
+      19.74,
+      1.7
      ],
      "end": [
-      19.765,
-      2.1
+      19.74,
+      1.87
      ],
      "source": "user_correction",
      "confidence": null,
@@ -484,12 +420,12 @@
       "page": 1,
       "region": "r3",
       "start": [
-       9538.55142,
-       -1431.58248
+       9538.55092,
+       -1431.57728
       ],
       "end": [
-       9538.55142,
-       -1431.57048
+       9538.55092,
+       -1431.57388
       ]
      },
      "corrections": [
@@ -497,14 +433,14 @@
      ]
     },
     {
-     "id": "u_C0001_5",
+     "id": "u_C0001_7",
      "start": [
-      19.66,
-      2.23
+      19.61,
+      2.0
      ],
      "end": [
       20.58,
-      2.23
+      2.0
      ],
      "source": "user_correction",
      "confidence": null,
@@ -516,12 +452,12 @@
       "page": 1,
       "region": "r3",
       "start": [
-       9538.54932,
-       -1431.56788
+       9538.54832,
+       -1431.57128
       ],
       "end": [
        9538.56772,
-       -1431.56788
+       -1431.57128
       ]
      },
      "corrections": [
@@ -835,7 +771,33 @@
     }
    ],
    "doors": [],
-   "windows": [],
+   "windows": [
+    {
+     "id": "u_C0096_1",
+     "type": "window",
+     "center": [
+      15.429,
+      0.73
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0096",
+     "added_on": "2026-11-21",
+     "frame": {
+      "file": "real09.dwg",
+      "page": 1,
+      "region": "r4",
+      "center": [
+       9539.101142,
+       -1431.59668
+      ]
+     },
+     "corrections": [
+      "C0096"
+     ]
+    }
+   ],
    "openings": [],
    "walls": [],
    "stairs": [
@@ -1078,7 +1040,8 @@
   "C0008",
   "C0013",
   "C0088",
-  "C0090"
+  "C0090",
+  "C0096"
  ],
  "not_measurable": [
   {
@@ -1116,7 +1079,8 @@
    "C0008",
    "C0013",
    "C0088",
-   "C0090"
+   "C0090",
+   "C0096"
   ],
   "asserted": [
    "C0005"
@@ -1131,8 +1095,8 @@
     "kind": "wall",
     "level": "L0",
     "place": [
-     18.34,
-     0.13
+     16.98,
+     0.38
     ],
     "state": "asserted"
    },
@@ -1142,11 +1106,7 @@
     "op": "add",
     "kind": "wall",
     "level": "L0",
-    "place": [
-     16.98,
-     0.51
-    ],
-    "state": "asserted"
+    "state": "merged into the wall run of operation 1"
    },
    {
     "record": "C0001",
@@ -1154,11 +1114,7 @@
     "op": "add",
     "kind": "wall",
     "level": "L0",
-    "place": [
-     14.68,
-     1.01
-    ],
-    "state": "asserted"
+    "state": "merged into the wall run of operation 1"
    },
    {
     "record": "C0001",
@@ -1166,11 +1122,7 @@
     "op": "add",
     "kind": "wall",
     "level": "L0",
-    "place": [
-     19.32,
-     1.63
-    ],
-    "state": "asserted"
+    "state": "merged into the wall run of operation 1"
    },
    {
     "record": "C0001",
@@ -1179,8 +1131,8 @@
     "kind": "wall",
     "level": "L0",
     "place": [
-     19.66,
-     2.23
+     14.68,
+     0.83
     ],
     "state": "asserted"
    },
@@ -1191,8 +1143,8 @@
     "kind": "wall",
     "level": "L0",
     "place": [
-     16.36,
-     5.04
+     19.32,
+     1.57
     ],
     "state": "asserted"
    },
@@ -1203,8 +1155,8 @@
     "kind": "wall",
     "level": "L0",
     "place": [
-     19.14,
-     0.0
+     19.61,
+     2.0
     ],
     "state": "asserted"
    },
@@ -1215,8 +1167,8 @@
     "kind": "wall",
     "level": "L0",
     "place": [
-     18.46,
-     0.26
+     19.14,
+     0.46
     ],
     "state": "asserted"
    },
@@ -1226,7 +1178,7 @@
     "op": "add",
     "kind": "wall",
     "level": "L0",
-    "state": "merged into the wall run of operation 7"
+    "state": "merged into the wall run of operation 8"
    },
    {
     "record": "C0001",
@@ -1234,7 +1186,7 @@
     "op": "add",
     "kind": "wall",
     "level": "L0",
-    "state": "merged into the wall run of operation 7"
+    "state": "merged into the wall run of operation 8"
    },
    {
     "record": "C0001",
@@ -1242,7 +1194,7 @@
     "op": "add",
     "kind": "wall",
     "level": "L0",
-    "state": "merged into the wall run of operation 7"
+    "state": "merged into the wall run of operation 8"
    },
    {
     "record": "C0001",
@@ -1251,8 +1203,8 @@
     "kind": "wall",
     "level": "L0",
     "place": [
-     19.765,
-     1.5
+     19.74,
+     1.7
     ],
     "state": "asserted"
    },
@@ -1262,15 +1214,11 @@
     "op": "add",
     "kind": "wall",
     "level": "L0",
-    "state": "merged into the wall run of operation 12"
-   },
-   {
-    "record": "C0001",
-    "n": 14,
-    "op": "add",
-    "kind": "wall",
-    "level": "L0",
-    "state": "merged into the wall run of operation 12"
+    "place": [
+     16.36,
+     5.18
+    ],
+    "state": "asserted"
    },
    {
     "record": "C0003",
@@ -1439,6 +1387,18 @@
      8.189
     ],
     "state": "negated"
+   },
+   {
+    "record": "C0096",
+    "n": 1,
+    "op": "add",
+    "kind": "window",
+    "level": "L2",
+    "place": [
+     15.429,
+     0.73
+    ],
+    "state": "asserted"
    }
   ],
   "unmatched": [],
@@ -1490,6 +1450,10 @@
    {
     "record": "C0081",
     "why": "status 'proposed': waits for the user's confirmation"
+   },
+   {
+    "record": "C0095",
+    "why": "a brief input, not a revision of a reading the user looked at: the user's word that the L3 drawing of real09 is not to be used: a brief input (which drawings count), not a revision of a reading the user looked at"
    }
   ]
  }

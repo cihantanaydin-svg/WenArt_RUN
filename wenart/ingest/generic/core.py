@@ -2153,7 +2153,9 @@ def _outline_closure(ex, where: str, walls2: list, openings: list, blocks: list,
     new_walls = _closure_walls(chosen, thickness, file_rel, page_no, problem)
     # the door and window symbols drawn across the bridges, and the frames running along them (nothing invented)
     taken = set(owned) if owned is not None else set()
-    read = O.openings_on_walls(new_walls, list(strokes), file_rel, page_no, units_to_m=units_to_m, owned=taken)
+    read = FC.swing_doors(new_walls, list(strokes),
+                          O.openings_on_walls(new_walls, list(strokes), file_rel, page_no, units_to_m=units_to_m,
+                                              owned=taken))
     framed = FC.frame_windows(new_walls, list(strokes), read, walls2)
     if owned is not None:
         owned.update(taken)
@@ -4174,7 +4176,8 @@ def _glazed_facades(ex, where: str, walls2: list, openings: list, blocks: list, 
     if not new_walls:
         return None
     taken = set(owned)
-    read = O.openings_on_walls(new_walls, strokes, file_rel, page_no, units_to_m=s, owned=taken)
+    read = FC.swing_doors(new_walls, strokes,
+                          O.openings_on_walls(new_walls, strokes, file_rel, page_no, units_to_m=s, owned=taken))
     framed = FC.frame_windows(new_walls, strokes, read, walls2)
     w4, o4 = list(walls2) + new_walls, list(openings) + read + framed
     bw4, site4, sw4 = TP.split_plot(w4, o4, [b for b in blocks], level_id=level_id)
@@ -4253,7 +4256,8 @@ def _open_room_outlines(ex, where: str, walls2: list, openings: list, blocks: li
     if not new_walls:
         return None
     taken = set(owned)
-    read = O.openings_on_walls(new_walls, strokes, file_rel, page_no, units_to_m=s, owned=taken)
+    read = FC.swing_doors(new_walls, strokes,
+                          O.openings_on_walls(new_walls, strokes, file_rel, page_no, units_to_m=s, owned=taken))
     framed = FC.frame_windows(new_walls, strokes, read, walls2)
     w4, o4 = list(walls2) + new_walls, list(openings) + read + framed
     bw4, site4, sw4 = TP.split_plot(w4, o4, [b for b in blocks], level_id=level_id)
