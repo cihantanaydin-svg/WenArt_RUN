@@ -3743,3 +3743,17 @@ User OK of 21 Nov 2026: open floor-plan datasets as a real-geometry test bench f
   folder, so RC4/RC5/RC17 run outside `projects/`.
 - Bench mean 56.9 -> 73.5 (rescored base -> fix), floors read 166 -> 189 of 201, walls F1 0.53 -> 0.68, length-weighted
   0.74 -> 0.84, angled walls 0.36 -> 0.58: `results/dataset_bench/swiss_20261121_rescored.md`, `..._fix.md`.
+
+## RC18: the Turkish building and fire regulations as checks of the reading (21 Nov 2026, user OK)
+
+User: "Make sense of the building". `wenart/reading_check/regulations.py` (RC18, advisory, counted apart in
+`counts["regulations"]`, graded nowhere): 11 rules on the building model, each limit with its article, value, Turkish
+wording and two sources or more in `wenart/reading_check/regulations_tr.json` (the official site did not answer from
+the cloud session: check the values against the official PDFs). PAİY 28(4) interior height, 29(1) room sizes, 31 stair
+width / riser / tread / 2r+g, 32 daylight, light wells, air shafts, 34(1) lift; BYKHY corridor 1.10 m, 47(1) door,
+48 escape stairs by height, fire lobby, travel distance. Left out (sources unsettled): maximum storey height, corridor
+inside a dwelling, the second lift, protected stairs, the 20 m travel bound. First count: 103 findings on the 19 real
+readings, 90 on the 107 Swiss ones; 15 judged against the drawing: 7 real breaches, 7 reading errors, 1 unsettled
+(`models/regulations_judged.json`). Most misses come from the reader: walls inferred inside the drawn facade, light-well
+names on the wrong face, air shafts typed light wells; a finding on a room bounded by an inferred wall is marked
+`reading_suspect`.
