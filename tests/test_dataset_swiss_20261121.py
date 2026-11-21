@@ -7,6 +7,7 @@ drawing's conventions (layer names, tag forms).
 from __future__ import annotations
 
 import copy
+import math
 import json
 import random
 import re
@@ -150,6 +151,51 @@ def test_styles_vary_within_the_profile():
     for field in ("door_tag", "window_tag", "area_tpl", "unit"):
         assert len({getattr(s, field) for s in styles}) >= 2, field
     assert len({s.layers["door"] for s in styles}) >= 3
+
+
+def _angled_rows() -> list:
+    """The flat of ``_flat_rows`` with its right-hand side cut by a wall at 30 degrees, a window in that wall (user, 21
+    Nov 2026: "include slanted walls in the bench too")."""
+    t = 0.25
+    slant = LineString([(6.0, 0.0), (8.0, 3.4641)])                  # 60 degrees from the x axis
+    slanted = slant.buffer(t / 2, cap_style=2)
+    walls = [box(0, 0, 6.0, t), box(0, 5 - t, 8, 5), box(0, 0, t, 5), box(8 - t, 3.4641, 8, 5),
+             box(3.94, t, 4.06, 5 - t), slanted]
+    rows = [_row("WALL", "separator", w) for w in walls]
+    mid = slant.interpolate(0.5, normalized=True)
+    win = affinity.rotate(box(mid.x - 0.6, mid.y - t / 2, mid.x + 0.6, mid.y + t / 2), 60.0, origin=mid)
+    rows.append(_row("WINDOW", "opening", win))
+    rows.append(_row("DOOR", "opening", box(3.94, 2.05, 4.06, 2.95)))
+    rows.append(_row("LIVING_ROOM", "area", box(t, t, 3.94, 5 - t), "1"))
+    rows.append(_row("BEDROOM", "area", box(4.3, 0.5, 6.5, 4.5), "2"))
+    return rows
+
+
+def test_angled_walls_are_drawn_at_their_angle(tmp_path):
+    truth = SCV.convert_building({"9001": _angled_rows()}, tmp_path, "swiss-angled", seed=3,
+                                 overrides={"unit": "cm", "insunits": 5})
+    lv = truth["per_level"]["L0"]
+    assert truth["dataset"]["bench_class"] == "angled" and truth["dataset"]["angled_share"] > 0.1
+    angles = [math.degrees(math.atan2(w["end"][1] - w["start"][1], w["end"][0] - w["start"][0])) % 180 for w in
+              lv["walls"]]
+    assert any(abs(a - 60.0) < 1.0 for a in angles)
+    assert len(lv["windows"]) == 1 and len(lv["rooms"]) == 2
+    win = lv["windows"][0]
+    slanted = next(w for w, a in zip(lv["walls"], angles) if abs(a - 60.0) < 1.0)
+    assert LineString([slanted["start"], slanted["end"]]).distance(Point(win["center"])) < 0.01
+    doc = ezdxf.readfile(str(tmp_path / "swiss-angled" / "plan.dxf"))
+    tag_layer = truth["style"]["layers"]["window_tag"]
+    rots = [e.dxf.rotation for e in doc.modelspace().query("TEXT") if e.dxf.layer == tag_layer
+            and re.fullmatch(r"[A-Z:]*\s?120.*|120", e.dxf.text)]
+    assert rots and all(abs(r - 60.0) < 1.0 for r in rots)          # the tag runs along its slanted wall
+    # the bench aligns a reading that is turned and moved back onto the truth frame
+    from wenart.datasets import bench as BE
+    t2 = TR.synthetic_truth("swiss-angled", tmp_path / "swiss-angled" / "truth" / "reading_truth.json")
+    moved = copy.deepcopy(t2)
+    moved["per_level"]["L0"] = BE._shift_level(t2["per_level"]["L0"], 0.4, -0.3, 0.0)
+    back, moves = BE.align(t2, moved)
+    assert moves["L0"]["shift_m"] == pytest.approx([-0.4, 0.3], abs=0.01)
+    assert SC.match(t2, back)["total"] == 100.0
 
 
 @pytest.mark.parametrize("text,kind", [("K:90/210", "door_tag"), ("90/210", "door_tag"), ("P:150/150", "window_tag"),

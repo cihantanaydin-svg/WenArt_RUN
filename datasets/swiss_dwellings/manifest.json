@@ -31,7 +31,9 @@
     "openings": 0,
     "walls": 133,
     "stairs": 0
-   }
+   },
+   "bench_class": "angled",
+   "angled_share": 0.0332
   },
   {
    "project": "swiss-b1664",
@@ -49,7 +51,9 @@
     "openings": 0,
     "walls": 63,
     "stairs": 0
-   }
+   },
+   "bench_class": "angled",
+   "angled_share": 0.0435
   },
   {
    "project": "swiss-b18041",
@@ -67,7 +71,51 @@
     "openings": 0,
     "walls": 60,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
+  },
+  {
+   "project": "swiss-b4858",
+   "building_id": "4858",
+   "floor_ids": [
+    "22342",
+    "22343"
+   ],
+   "levels": 2,
+   "style_unit": "cm",
+   "counts": {
+    "levels": 2,
+    "rooms": 25,
+    "doors": 27,
+    "windows": 23,
+    "openings": 0,
+    "walls": 75,
+    "stairs": 0
+   },
+   "bench_class": "angled",
+   "angled_share": 0.431
+  },
+  {
+   "project": "swiss-b2857",
+   "building_id": "2857",
+   "floor_ids": [
+    "13151",
+    "13152"
+   ],
+   "levels": 2,
+   "style_unit": "paper50",
+   "counts": {
+    "levels": 2,
+    "rooms": 20,
+    "doors": 22,
+    "windows": 18,
+    "openings": 0,
+    "walls": 104,
+    "stairs": 0
+   },
+   "bench_class": "angled",
+   "angled_share": 0.3948
   },
   {
    "project": "swiss-b7365",
@@ -86,7 +134,9 @@
     "openings": 0,
     "walls": 90,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b745",
@@ -104,7 +154,9 @@
     "openings": 0,
     "walls": 48,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0068
   },
   {
    "project": "swiss-b716",
@@ -122,7 +174,9 @@
     "openings": 0,
     "walls": 54,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b465",
@@ -142,7 +196,9 @@
     "openings": 0,
     "walls": 240,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b17190",
@@ -160,7 +216,9 @@
     "openings": 0,
     "walls": 84,
     "stairs": 1
-   }
+   },
+   "bench_class": "angled",
+   "angled_share": 0.0481
   },
   {
    "project": "swiss-b2156",
@@ -179,7 +237,9 @@
     "openings": 0,
     "walls": 46,
     "stairs": 4
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b2485",
@@ -197,7 +257,9 @@
     "openings": 0,
     "walls": 68,
     "stairs": 4
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0236
   },
   {
    "project": "swiss-b960",
@@ -216,7 +278,9 @@
     "openings": 0,
     "walls": 55,
     "stairs": 1
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b2095",
@@ -234,7 +298,9 @@
     "openings": 0,
     "walls": 83,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b1767",
@@ -252,7 +318,29 @@
     "openings": 0,
     "walls": 58,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
+  },
+  {
+   "project": "swiss-b5481",
+   "building_id": "5481",
+   "floor_ids": [
+    "23849"
+   ],
+   "levels": 1,
+   "style_unit": "cm",
+   "counts": {
+    "levels": 1,
+    "rooms": 6,
+    "doors": 8,
+    "windows": 6,
+    "openings": 0,
+    "walls": 22,
+    "stairs": 1
+   },
+   "bench_class": "angled",
+   "angled_share": 0.5107
   },
   {
    "project": "swiss-b14870",
@@ -270,7 +358,9 @@
     "openings": 0,
     "walls": 37,
     "stairs": 1
-   }
+   },
+   "bench_class": "angled",
+   "angled_share": 0.1228
   },
   {
    "project": "swiss-b2401",
@@ -290,7 +380,9 @@
     "openings": 0,
     "walls": 363,
     "stairs": 0
-   }
+   },
+   "bench_class": "angled",
+   "angled_share": 0.0723
   },
   {
    "project": "swiss-b6675",
@@ -308,7 +400,9 @@
     "openings": 0,
     "walls": 70,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b2417",
@@ -326,7 +420,9 @@
     "openings": 0,
     "walls": 71,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b5926",
@@ -346,7 +442,9 @@
     "openings": 0,
     "walls": 170,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b2385",
@@ -364,7 +462,9 @@
     "openings": 0,
     "walls": 57,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b2440",
@@ -384,7 +484,9 @@
     "openings": 0,
     "walls": 222,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b6316",
@@ -404,7 +506,9 @@
     "openings": 0,
     "walls": 120,
     "stairs": 0
-   }
+   },
+   "bench_class": "angled",
+   "angled_share": 0.087
   },
   {
    "project": "swiss-b1141",
@@ -422,7 +526,9 @@
     "openings": 0,
     "walls": 127,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b6563",
@@ -440,7 +546,9 @@
     "openings": 0,
     "walls": 28,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b2974",
@@ -461,7 +569,9 @@
     "openings": 0,
     "walls": 191,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b1583",
@@ -481,7 +591,29 @@
     "openings": 0,
     "walls": 335,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
+  },
+  {
+   "project": "swiss-b2249",
+   "building_id": "2249",
+   "floor_ids": [
+    "10311"
+   ],
+   "levels": 1,
+   "style_unit": "cm",
+   "counts": {
+    "levels": 1,
+    "rooms": 24,
+    "doors": 25,
+    "windows": 14,
+    "openings": 0,
+    "walls": 69,
+    "stairs": 0
+   },
+   "bench_class": "angled",
+   "angled_share": 0.1555
   },
   {
    "project": "swiss-b7248",
@@ -500,7 +632,9 @@
     "openings": 0,
     "walls": 72,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b2212",
@@ -518,7 +652,9 @@
     "openings": 0,
     "walls": 40,
     "stairs": 0
-   }
+   },
+   "bench_class": "angled",
+   "angled_share": 0.0801
   },
   {
    "project": "swiss-b7556",
@@ -538,7 +674,9 @@
     "openings": 0,
     "walls": 82,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0235
   },
   {
    "project": "swiss-b1452",
@@ -556,7 +694,9 @@
     "openings": 0,
     "walls": 36,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b719",
@@ -575,7 +715,9 @@
     "openings": 0,
     "walls": 92,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.004
   },
   {
    "project": "swiss-b1074",
@@ -594,7 +736,9 @@
     "openings": 0,
     "walls": 111,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b7276",
@@ -614,7 +758,9 @@
     "openings": 0,
     "walls": 150,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b787",
@@ -633,7 +779,9 @@
     "openings": 0,
     "walls": 81,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b1363",
@@ -652,7 +800,9 @@
     "openings": 0,
     "walls": 172,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b1985",
@@ -673,7 +823,9 @@
     "openings": 0,
     "walls": 397,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b2975",
@@ -691,7 +843,9 @@
     "openings": 0,
     "walls": 70,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b1747",
@@ -710,7 +864,9 @@
     "openings": 0,
     "walls": 225,
     "stairs": 4
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0248
   },
   {
    "project": "swiss-b17055",
@@ -728,7 +884,9 @@
     "openings": 0,
     "walls": 33,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b2549",
@@ -747,7 +905,9 @@
     "openings": 0,
     "walls": 119,
     "stairs": 2
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0082
   },
   {
    "project": "swiss-b1128",
@@ -765,7 +925,9 @@
     "openings": 0,
     "walls": 80,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b2912",
@@ -783,7 +945,9 @@
     "openings": 0,
     "walls": 111,
     "stairs": 0
-   }
+   },
+   "bench_class": "angled",
+   "angled_share": 0.0932
   },
   {
    "project": "swiss-b2486",
@@ -803,7 +967,9 @@
     "openings": 0,
     "walls": 178,
     "stairs": 4
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0033
   },
   {
    "project": "swiss-b17084",
@@ -822,7 +988,9 @@
     "openings": 0,
     "walls": 82,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b557",
@@ -841,7 +1009,9 @@
     "openings": 0,
     "walls": 79,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b6529",
@@ -859,7 +1029,9 @@
     "openings": 0,
     "walls": 36,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b3306",
@@ -879,7 +1051,9 @@
     "openings": 0,
     "walls": 201,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b2219",
@@ -897,7 +1071,9 @@
     "openings": 0,
     "walls": 49,
     "stairs": 0
-   }
+   },
+   "bench_class": "angled",
+   "angled_share": 0.0464
   },
   {
    "project": "swiss-b208",
@@ -916,7 +1092,30 @@
     "openings": 0,
     "walls": 184,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
+  },
+  {
+   "project": "swiss-b1060",
+   "building_id": "1060",
+   "floor_ids": [
+    "4634",
+    "4635"
+   ],
+   "levels": 2,
+   "style_unit": "cm",
+   "counts": {
+    "levels": 2,
+    "rooms": 32,
+    "doors": 39,
+    "windows": 24,
+    "openings": 0,
+    "walls": 128,
+    "stairs": 0
+   },
+   "bench_class": "angled",
+   "angled_share": 0.454
   },
   {
    "project": "swiss-b17068",
@@ -936,7 +1135,9 @@
     "openings": 0,
     "walls": 117,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b325",
@@ -954,7 +1155,9 @@
     "openings": 0,
     "walls": 53,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b17105",
@@ -974,7 +1177,29 @@
     "openings": 0,
     "walls": 129,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
+  },
+  {
+   "project": "swiss-b5422",
+   "building_id": "5422",
+   "floor_ids": [
+    "23772"
+   ],
+   "levels": 1,
+   "style_unit": "paper50",
+   "counts": {
+    "levels": 1,
+    "rooms": 6,
+    "doors": 8,
+    "windows": 5,
+    "openings": 0,
+    "walls": 26,
+    "stairs": 0
+   },
+   "bench_class": "angled",
+   "angled_share": 0.2873
   },
   {
    "project": "swiss-b1737",
@@ -995,7 +1220,9 @@
     "openings": 0,
     "walls": 189,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0038
   },
   {
    "project": "swiss-b154",
@@ -1016,7 +1243,29 @@
     "openings": 0,
     "walls": 238,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0012
+  },
+  {
+   "project": "swiss-b263",
+   "building_id": "263",
+   "floor_ids": [
+    "1032"
+   ],
+   "levels": 1,
+   "style_unit": "cm",
+   "counts": {
+    "levels": 1,
+    "rooms": 23,
+    "doors": 24,
+    "windows": 22,
+    "openings": 0,
+    "walls": 72,
+    "stairs": 3
+   },
+   "bench_class": "angled",
+   "angled_share": 0.4249
   },
   {
    "project": "swiss-b1613",
@@ -1034,7 +1283,32 @@
     "openings": 0,
     "walls": 81,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
+  },
+  {
+   "project": "swiss-b2891",
+   "building_id": "2891",
+   "floor_ids": [
+    "13252",
+    "13402",
+    "48314",
+    "48316"
+   ],
+   "levels": 4,
+   "style_unit": "paper50",
+   "counts": {
+    "levels": 4,
+    "rooms": 45,
+    "doors": 51,
+    "windows": 47,
+    "openings": 0,
+    "walls": 225,
+    "stairs": 8
+   },
+   "bench_class": "angled",
+   "angled_share": 0.3386
   },
   {
    "project": "swiss-b1404",
@@ -1052,7 +1326,9 @@
     "openings": 0,
     "walls": 67,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b2828",
@@ -1070,7 +1346,9 @@
     "openings": 0,
     "walls": 61,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b969",
@@ -1089,7 +1367,9 @@
     "openings": 0,
     "walls": 72,
     "stairs": 1
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b2035",
@@ -1107,7 +1387,9 @@
     "openings": 0,
     "walls": 30,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b1322",
@@ -1125,7 +1407,29 @@
     "openings": 0,
     "walls": 29,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
+  },
+  {
+   "project": "swiss-b5133",
+   "building_id": "5133",
+   "floor_ids": [
+    "23091"
+   ],
+   "levels": 1,
+   "style_unit": "cm",
+   "counts": {
+    "levels": 1,
+    "rooms": 15,
+    "doors": 15,
+    "windows": 10,
+    "openings": 0,
+    "walls": 51,
+    "stairs": 0
+   },
+   "bench_class": "angled",
+   "angled_share": 0.1245
   },
   {
    "project": "swiss-b17021",
@@ -1144,7 +1448,9 @@
     "openings": 0,
     "walls": 58,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b1167",
@@ -1164,7 +1470,9 @@
     "openings": 0,
     "walls": 200,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b1898",
@@ -1183,7 +1491,29 @@
     "openings": 0,
     "walls": 100,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
+  },
+  {
+   "project": "swiss-b5664",
+   "building_id": "5664",
+   "floor_ids": [
+    "24363"
+   ],
+   "levels": 1,
+   "style_unit": "cm",
+   "counts": {
+    "levels": 1,
+    "rooms": 13,
+    "doors": 16,
+    "windows": 29,
+    "openings": 0,
+    "walls": 36,
+    "stairs": 0
+   },
+   "bench_class": "angled",
+   "angled_share": 0.1453
   },
   {
    "project": "swiss-b304",
@@ -1202,7 +1532,9 @@
     "openings": 0,
     "walls": 138,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0105
   },
   {
    "project": "swiss-b2294",
@@ -1220,7 +1552,9 @@
     "openings": 0,
     "walls": 44,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b2461",
@@ -1238,7 +1572,29 @@
     "openings": 0,
     "walls": 42,
     "stairs": 4
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
+  },
+  {
+   "project": "swiss-b5460",
+   "building_id": "5460",
+   "floor_ids": [
+    "23814"
+   ],
+   "levels": 1,
+   "style_unit": "cm",
+   "counts": {
+    "levels": 1,
+    "rooms": 11,
+    "doors": 12,
+    "windows": 9,
+    "openings": 0,
+    "walls": 27,
+    "stairs": 1
+   },
+   "bench_class": "angled",
+   "angled_share": 0.1259
   },
   {
    "project": "swiss-b534",
@@ -1258,7 +1614,9 @@
     "openings": 0,
     "walls": 101,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b15885",
@@ -1277,7 +1635,9 @@
     "openings": 0,
     "walls": 105,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b20",
@@ -1295,7 +1655,9 @@
     "openings": 0,
     "walls": 65,
     "stairs": 0
-   }
+   },
+   "bench_class": "angled",
+   "angled_share": 0.0531
   },
   {
    "project": "swiss-b535",
@@ -1314,7 +1676,9 @@
     "openings": 0,
     "walls": 177,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b5884",
@@ -1332,7 +1696,9 @@
     "openings": 0,
     "walls": 61,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b18033",
@@ -1350,7 +1716,9 @@
     "openings": 0,
     "walls": 50,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b1171",
@@ -1368,7 +1736,9 @@
     "openings": 0,
     "walls": 56,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b3031",
@@ -1387,7 +1757,9 @@
     "openings": 0,
     "walls": 118,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b2983",
@@ -1407,7 +1779,31 @@
     "openings": 0,
     "walls": 164,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
+  },
+  {
+   "project": "swiss-b1479",
+   "building_id": "1479",
+   "floor_ids": [
+    "6470",
+    "6471",
+    "6472"
+   ],
+   "levels": 3,
+   "style_unit": "cm",
+   "counts": {
+    "levels": 3,
+    "rooms": 69,
+    "doors": 66,
+    "windows": 65,
+    "openings": 0,
+    "walls": 211,
+    "stairs": 0
+   },
+   "bench_class": "angled",
+   "angled_share": 0.6
   },
   {
    "project": "swiss-b3431",
@@ -1426,7 +1822,9 @@
     "openings": 0,
     "walls": 150,
     "stairs": 8
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b1480",
@@ -1445,7 +1843,9 @@
     "openings": 0,
     "walls": 92,
     "stairs": 4
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0053
   },
   {
    "project": "swiss-b16738",
@@ -1465,7 +1865,9 @@
     "openings": 0,
     "walls": 111,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b1256",
@@ -1483,7 +1885,9 @@
     "openings": 0,
     "walls": 94,
     "stairs": 0
-   }
+   },
+   "bench_class": "angled",
+   "angled_share": 0.0511
   },
   {
    "project": "swiss-b1928",
@@ -1501,7 +1905,9 @@
     "openings": 0,
     "walls": 34,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b2383",
@@ -1519,7 +1925,30 @@
     "openings": 0,
     "walls": 80,
     "stairs": 4
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0037
+  },
+  {
+   "project": "swiss-b16820",
+   "building_id": "16820",
+   "floor_ids": [
+    "44143",
+    "44147"
+   ],
+   "levels": 2,
+   "style_unit": "cm",
+   "counts": {
+    "levels": 2,
+    "rooms": 24,
+    "doors": 21,
+    "windows": 25,
+    "openings": 0,
+    "walls": 152,
+    "stairs": 2
+   },
+   "bench_class": "angled",
+   "angled_share": 0.1514
   },
   {
    "project": "swiss-b6708",
@@ -1537,7 +1966,9 @@
     "openings": 0,
     "walls": 110,
     "stairs": 0
-   }
+   },
+   "bench_class": "angled",
+   "angled_share": 0.1402
   },
   {
    "project": "swiss-b3245",
@@ -1557,7 +1988,9 @@
     "openings": 0,
     "walls": 166,
     "stairs": 0
-   }
+   },
+   "bench_class": "angled",
+   "angled_share": 0.0333
   },
   {
    "project": "swiss-b1653",
@@ -1576,7 +2009,9 @@
     "openings": 0,
     "walls": 94,
     "stairs": 0
-   }
+   },
+   "bench_class": "angled",
+   "angled_share": 0.0457
   },
   {
    "project": "swiss-b1739",
@@ -1596,7 +2031,9 @@
     "openings": 0,
     "walls": 159,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b15161",
@@ -1616,7 +2053,50 @@
     "openings": 0,
     "walls": 69,
     "stairs": 1
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0113
+  },
+  {
+   "project": "swiss-b1118",
+   "building_id": "1118",
+   "floor_ids": [
+    "4901",
+    "4902"
+   ],
+   "levels": 2,
+   "style_unit": "cm",
+   "counts": {
+    "levels": 2,
+    "rooms": 26,
+    "doors": 36,
+    "windows": 12,
+    "openings": 0,
+    "walls": 128,
+    "stairs": 0
+   },
+   "bench_class": "angled",
+   "angled_share": 0.2734
+  },
+  {
+   "project": "swiss-b1871",
+   "building_id": "1871",
+   "floor_ids": [
+    "8308"
+   ],
+   "levels": 1,
+   "style_unit": "paper50",
+   "counts": {
+    "levels": 1,
+    "rooms": 17,
+    "doors": 18,
+    "windows": 16,
+    "openings": 0,
+    "walls": 65,
+    "stairs": 1
+   },
+   "bench_class": "angled",
+   "angled_share": 0.1075
   },
   {
    "project": "swiss-b1675",
@@ -1637,7 +2117,51 @@
     "openings": 0,
     "walls": 257,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
+  },
+  {
+   "project": "swiss-b2255",
+   "building_id": "2255",
+   "floor_ids": [
+    "10367",
+    "10368",
+    "10369"
+   ],
+   "levels": 3,
+   "style_unit": "cm",
+   "counts": {
+    "levels": 3,
+    "rooms": 69,
+    "doors": 72,
+    "windows": 48,
+    "openings": 0,
+    "walls": 204,
+    "stairs": 0
+   },
+   "bench_class": "angled",
+   "angled_share": 0.4919
+  },
+  {
+   "project": "swiss-b3005",
+   "building_id": "3005",
+   "floor_ids": [
+    "13703"
+   ],
+   "levels": 1,
+   "style_unit": "cm",
+   "counts": {
+    "levels": 1,
+    "rooms": 5,
+    "doors": 6,
+    "windows": 11,
+    "openings": 0,
+    "walls": 32,
+    "stairs": 0
+   },
+   "bench_class": "angled",
+   "angled_share": 0.33
   },
   {
    "project": "swiss-b637",
@@ -1655,7 +2179,9 @@
     "openings": 0,
     "walls": 59,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b2102",
@@ -1675,7 +2201,9 @@
     "openings": 0,
     "walls": 149,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0259
   },
   {
    "project": "swiss-b5490",
@@ -1694,7 +2222,9 @@
     "openings": 0,
     "walls": 94,
     "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   },
   {
    "project": "swiss-b18207",
@@ -1713,340 +2243,12 @@
     "openings": 0,
     "walls": 76,
     "stairs": 0
-   }
-  },
-  {
-   "project": "swiss-b204",
-   "building_id": "204",
-   "floor_ids": [
-    "807"
-   ],
-   "levels": 1,
-   "style_unit": "paper50",
-   "counts": {
-    "levels": 1,
-    "rooms": 27,
-    "doors": 30,
-    "windows": 13,
-    "openings": 0,
-    "walls": 84,
-    "stairs": 0
-   }
-  },
-  {
-   "project": "swiss-b1197",
-   "building_id": "1197",
-   "floor_ids": [
-    "5337",
-    "5338"
-   ],
-   "levels": 2,
-   "style_unit": "cm",
-   "counts": {
-    "levels": 2,
-    "rooms": 22,
-    "doors": 27,
-    "windows": 24,
-    "openings": 0,
-    "walls": 105,
-    "stairs": 0
-   }
-  },
-  {
-   "project": "swiss-b7184",
-   "building_id": "7184",
-   "floor_ids": [
-    "28779",
-    "28782"
-   ],
-   "levels": 2,
-   "style_unit": "mm",
-   "counts": {
-    "levels": 2,
-    "rooms": 34,
-    "doors": 34,
-    "windows": 22,
-    "openings": 0,
-    "walls": 80,
-    "stairs": 0
-   }
-  },
-  {
-   "project": "swiss-b1073",
-   "building_id": "1073",
-   "floor_ids": [
-    "4704",
-    "4705",
-    "4706"
-   ],
-   "levels": 3,
-   "style_unit": "cm",
-   "counts": {
-    "levels": 3,
-    "rooms": 31,
-    "doors": 37,
-    "windows": 25,
-    "openings": 0,
-    "walls": 157,
-    "stairs": 2
-   }
-  },
-  {
-   "project": "swiss-b1371",
-   "building_id": "1371",
-   "floor_ids": [
-    "6005",
-    "6007"
-   ],
-   "levels": 2,
-   "style_unit": "paper50",
-   "counts": {
-    "levels": 2,
-    "rooms": 44,
-    "doors": 45,
-    "windows": 30,
-    "openings": 0,
-    "walls": 100,
-    "stairs": 0
-   }
-  },
-  {
-   "project": "swiss-b5417",
-   "building_id": "5417",
-   "floor_ids": [
-    "23767",
-    "23768"
-   ],
-   "levels": 2,
-   "style_unit": "cm",
-   "counts": {
-    "levels": 2,
-    "rooms": 22,
-    "doors": 23,
-    "windows": 21,
-    "openings": 0,
-    "walls": 98,
-    "stairs": 0
-   }
-  },
-  {
-   "project": "swiss-b2829",
-   "building_id": "2829",
-   "floor_ids": [
-    "13056",
-    "13058"
-   ],
-   "levels": 2,
-   "style_unit": "paper50",
-   "counts": {
-    "levels": 2,
-    "rooms": 31,
-    "doors": 32,
-    "windows": 28,
-    "openings": 0,
-    "walls": 130,
-    "stairs": 0
-   }
-  },
-  {
-   "project": "swiss-b963",
-   "building_id": "963",
-   "floor_ids": [
-    "4125"
-   ],
-   "levels": 1,
-   "style_unit": "paper50",
-   "counts": {
-    "levels": 1,
-    "rooms": 9,
-    "doors": 9,
-    "windows": 7,
-    "openings": 0,
-    "walls": 28,
-    "stairs": 1
-   }
-  },
-  {
-   "project": "swiss-b16257",
-   "building_id": "16257",
-   "floor_ids": [
-    "42180",
-    "42184",
-    "42186"
-   ],
-   "levels": 3,
-   "style_unit": "cm",
-   "counts": {
-    "levels": 3,
-    "rooms": 22,
-    "doors": 26,
-    "windows": 16,
-    "openings": 0,
-    "walls": 95,
-    "stairs": 0
-   }
-  },
-  {
-   "project": "swiss-b1147",
-   "building_id": "1147",
-   "floor_ids": [
-    "5060",
-    "5061",
-    "5062"
-   ],
-   "levels": 3,
-   "style_unit": "cm",
-   "counts": {
-    "levels": 3,
-    "rooms": 61,
-    "doors": 71,
-    "windows": 40,
-    "openings": 0,
-    "walls": 242,
-    "stairs": 0
-   }
-  },
-  {
-   "project": "swiss-b660",
-   "building_id": "660",
-   "floor_ids": [
-    "2808",
-    "2809"
-   ],
-   "levels": 2,
-   "style_unit": "cm",
-   "counts": {
-    "levels": 2,
-    "rooms": 56,
-    "doors": 60,
-    "windows": 22,
-    "openings": 0,
-    "walls": 162,
-    "stairs": 0
-   }
-  },
-  {
-   "project": "swiss-b47",
-   "building_id": "47",
-   "floor_ids": [
-    "176",
-    "177"
-   ],
-   "levels": 2,
-   "style_unit": "cm",
-   "counts": {
-    "levels": 2,
-    "rooms": 56,
-    "doors": 56,
-    "windows": 56,
-    "openings": 0,
-    "walls": 230,
-    "stairs": 0
-   }
-  },
-  {
-   "project": "swiss-b459",
-   "building_id": "459",
-   "floor_ids": [
-    "1809",
-    "1810",
-    "1811"
-   ],
-   "levels": 3,
-   "style_unit": "cm",
-   "counts": {
-    "levels": 3,
-    "rooms": 75,
-    "doors": 80,
-    "windows": 18,
-    "openings": 0,
-    "walls": 255,
-    "stairs": 0
-   }
+   },
+   "bench_class": "orthogonal",
+   "angled_share": 0.0
   }
  ],
- "floors": 200,
- "skipped": [
-  {
-   "building_id": "4858",
-   "reason": "building 4858: 62% of the wall length on the axes"
-  },
-  {
-   "building_id": "2857",
-   "reason": "building 2857: 61% of the wall length on the axes"
-  },
-  {
-   "building_id": "5481",
-   "reason": "building 5481: 46% of the wall length on the axes"
-  },
-  {
-   "building_id": "2249",
-   "reason": "building 2249: 84% of the wall length on the axes"
-  },
-  {
-   "building_id": "1060",
-   "reason": "building 1060: 87% of the wall length on the axes"
-  },
-  {
-   "building_id": "5422",
-   "reason": "building 5422: 73% of the wall length on the axes"
-  },
-  {
-   "building_id": "263",
-   "reason": "building 263: 62% of the wall length on the axes"
-  },
-  {
-   "building_id": "2891",
-   "reason": "building 2891: 70% of the wall length on the axes"
-  },
-  {
-   "building_id": "5133",
-   "reason": "building 5133: 88% of the wall length on the axes"
-  },
-  {
-   "building_id": "5664",
-   "reason": "building 5664: 86% of the wall length on the axes"
-  },
-  {
-   "building_id": "5460",
-   "reason": "building 5460: 86% of the wall length on the axes"
-  },
-  {
-   "building_id": "1479",
-   "reason": "building 1479: 62% of the wall length on the axes"
-  },
-  {
-   "building_id": "16820",
-   "reason": "building 16820: 82% of the wall length on the axes"
-  },
-  {
-   "building_id": "1118",
-   "reason": "building 1118: 80% of the wall length on the axes"
-  },
-  {
-   "building_id": "1871",
-   "reason": "building 1871: 90% of the wall length on the axes"
-  },
-  {
-   "building_id": "2255",
-   "reason": "building 2255: 52% of the wall length on the axes"
-  },
-  {
-   "building_id": "3005",
-   "reason": "building 3005: 67% of the wall length on the axes"
-  },
-  {
-   "building_id": "18211",
-   "reason": "building 18211: 86% of the wall length on the axes"
-  },
-  {
-   "building_id": "2807",
-   "reason": "building 2807: 82% of the wall length on the axes"
-  },
-  {
-   "building_id": "363",
-   "reason": "building 363: 85% of the wall length on the axes"
-  }
- ],
- "min_orthogonal": 0.9
+ "floors": 201,
+ "skipped": [],
+ "min_orthogonal": 0.0
 }

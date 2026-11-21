@@ -4315,7 +4315,10 @@
   "shift_m": [
    -9.155,
    -6.4
-  ]
+  ],
+  "orthogonal_share": 1.0,
+  "angled_share": 0.0332,
+  "bench_class": "angled"
  },
  "style": {
   "layers": {

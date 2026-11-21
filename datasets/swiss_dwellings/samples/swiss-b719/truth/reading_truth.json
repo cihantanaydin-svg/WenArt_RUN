@@ -3099,7 +3099,10 @@
   "shift_m": [
    -7.9075,
    -5.1186
-  ]
+  ],
+  "orthogonal_share": 1.0,
+  "angled_share": 0.004,
+  "bench_class": "orthogonal"
  },
  "style": {
   "layers": {

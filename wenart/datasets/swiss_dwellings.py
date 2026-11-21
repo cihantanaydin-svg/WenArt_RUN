@@ -15,7 +15,10 @@ computed from the same regularised layout that is drawn, so it is exact for the 
 errors.
 
 How (building metres):
-- one rotation per building puts its dominant wall direction on the axes (walls within 2 degrees are snapped);
+- one rotation per building puts its dominant wall direction (the most wall length) on the axes (walls within 2
+  degrees are snapped); walls at an angle stay at their angle, their doors and windows along them (user, 21 Nov 2026:
+  "include slanted walls in the bench too"); a building with ``ANGLED_MIN_SHARE`` of its wall length at an angle is
+  in the bench class ``angled`` (truth ``dataset.bench_class``);
 - every wall polygon becomes its minimum rotated rectangle (99.8 % of them are rectangles), rounded to 5 mm;
   collinear rectangles of one thickness that touch, or whose gap another wall or a column fills, are one wall (the
   reader's walls run on through junctions); railings become 1 m parapet walls (truth ``parapet: true``);
@@ -434,6 +437,21 @@ def building_layout(floors: dict, profile: dict, style: ST.Style, rng: random.Ra
             "site_id": first[0].get("site_id") if first else None}
 
 
+ANGLED_MIN_SHARE = 0.03      # a building with this share of its listed wall length off the axes is in the angled class
+
+
+def angled_share(walls: list) -> float:
+    """The share of the wall length (truth walls) running at an angle to the axes (more than ``SNAP_DEG``)."""
+    num = den = 0.0
+    for w in walls:
+        dx, dy = w["end"][0] - w["start"][0], w["end"][1] - w["start"][1]
+        L = math.hypot(dx, dy)
+        a = math.degrees(math.atan2(dy, dx)) % 90.0
+        den += L
+        num += L if min(a, 90.0 - a) > SNAP_DEG else 0.0
+    return num / den if den else 0.0
+
+
 def truth_of(name: str, layout: dict, style: ST.Style) -> dict:
     """The project's reading truth (``wenart.reading_check.truth.synthetic_truth`` reads it)."""
     levels, per_level = [], {}
@@ -442,6 +460,7 @@ def truth_of(name: str, layout: dict, style: ST.Style) -> dict:
         levels.append({"id": lid, "label": "Zemin Kat" if k == 0 else f"{k}. Kat",
                        "elevation": round(k * style.storey_m, 3), "order": k})
         per_level[lid] = floor_truth(fl, lid)
+    angled = angled_share([w for lv in per_level.values() for w in lv["walls"]])
     return {"project": name, "source": "synthetic", "status": "accepted",
             "units": "building metres (outer wall faces from the origin of each plan)",
             "levels": levels, "per_level": per_level, "failure_class": "dataset_swiss_dwellings", "lesson": None,
@@ -449,7 +468,9 @@ def truth_of(name: str, layout: dict, style: ST.Style) -> dict:
                        f"Turkish drafting style",
             "dataset": dict(DATASET, building_id=layout["building_id"], site_id=layout["site_id"],
                             floor_ids=layout["floor_ids"], rotation_deg=layout["rotation_deg"],
-                            shift_m=layout["shift_m"]),
+                            shift_m=layout["shift_m"], orthogonal_share=layout["orthogonal_share"],
+                            angled_share=round(angled, 4),
+                            bench_class="angled" if angled >= ANGLED_MIN_SHARE else "orthogonal"),
             "style": style.summary()}
 
 

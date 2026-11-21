@@ -3,19 +3,22 @@
 What:
 - ``pick <geometries.csv> <pick.json> [--floors N]``: varied buildings of Swiss Dwellings (1-4 flats a floor, 60-700
   entities, rooms, doors and windows; a third of the buildings with stairs), 1-4 floors each, about N floors;
-- ``convert <geometries.csv> <pick.json> <bench_dir>``: every picked building -> a project (``swiss_convert``);
+- ``convert <geometries.csv> <pick.json> <bench_dir>``: the picked buildings in the pick's order -> projects
+  (``swiss_convert``) until 200 floors, orthogonal and angled alike, and ``manifest.json``;
 - ``run <bench_dir> <work_dir> [--timeout S]``: each project read on the CPU (``ingest.pipeline.run_project``, no AI)
   in its own process, one at a time, and scored (``score_one``); the debug images are deleted, ``score.json`` kept;
 - ``rescore <bench_dir> <work_dir>``: the stored readings scored again;
 - ``report <bench_dir> <work_dir> <out_stem>``: the bench score per element kind (recall, precision, F1 over all
   projects; rooms also the share of matched rooms with the right type; levels by id), the mean project total
-  (``reading_check.score.total``) and the error classes, most frequent first, each with an example
+  (``reading_check.score.total``), the same where the drawing scale was read, per bench class (``orthogonal``,
+  ``angled``: walls at an angle, user, 21 Nov 2026), and the error classes, most frequent first, each with an example
   (``<out_stem>.json`` and ``.md``).
 
 Why: a large real-geometry test bench for the reader (user OK, 21 Nov 2026); not part of the gated synthetic set.
 
 How: the truth is the converter's exact truth (``truth.synthetic_truth``), the matching the score's own
-(``reading_check.score``: ``match``, ``match_rooms``, ``match_points``, ``match_walls``); an error class is a missed or
+(``reading_check.score``: ``match``, ``match_rooms``, ``match_points``, ``match_walls``) after ``align`` (each level
+turned and moved onto the truth frame, on the longest wall direction); an error class is a missed or
 invented element of a kind, refined by what stands near it (a door read as a window, two rooms read as one, a thin wall
 or a parapet missed ...).
 """
@@ -37,7 +40,7 @@ from wenart.reading_check import score as SC
 from wenart.reading_check import truth as TR
 
 KINDS = ("levels", "rooms", "walls", "doors", "windows", "stairs")
-MIN_ORTHOGONAL = 0.9          # the least share of wall length on the axes (Turkish apartment plans are orthogonal)
+MIN_ORTHOGONAL = 0.0          # 21 Nov 2026 (user: "include slanted walls in the bench too"): no building is left out
 
 
 # --- picking and converting -----------------------------------------------------------------------------------------
@@ -100,7 +103,8 @@ def convert(csv_path: Path, picked: dict, bench_dir: Path, target_floors: int = 
         floors += len(truth["levels"])
         projects.append({"project": name, "building_id": bid, "floor_ids": truth["dataset"]["floor_ids"],
                          "levels": len(truth["levels"]), "style_unit": truth["style"]["unit"],
-                         "counts": TR.counts(truth)})
+                         "counts": TR.counts(truth), "bench_class": truth["dataset"]["bench_class"],
+                         "angled_share": truth["dataset"]["angled_share"]})
     manifest = {"dataset": SD.DATASET, "source_file": "geometries.csv", "projects": projects,
                 "floors": floors, "skipped": skipped, "min_orthogonal": MIN_ORTHOGONAL}
     (Path(bench_dir) / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=1) + "\n",
@@ -243,10 +247,13 @@ def errors(project: str, truth: dict, read: dict) -> list[dict]:
     return out
 
 
-def _shift_level(rl: dict, dx: float, dy: float) -> dict:
-    """A level of a truth-shaped reading moved by (-dx, -dy) (every point the matching reads)."""
+def _shift_level(rl: dict, dx: float, dy: float, rot: float = 0.0) -> dict:
+    """A level of a truth-shaped reading turned by ``rot`` degrees about the origin, then moved by (-dx, -dy) (every
+    point the matching reads)."""
+    c, s_ = math.cos(math.radians(rot)), math.sin(math.radians(rot))
+
     def mv(p):
-        return [p[0] - dx, p[1] - dy] if p else p
+        return [c * p[0] - s_ * p[1] - dx, s_ * p[0] + c * p[1] - dy] if p else p
 
     out = {}
     for kind, items in rl.items():
@@ -269,37 +276,57 @@ def _wall_min(rl: dict) -> Optional[tuple]:
     return (min(p[0] for p in pts), min(p[1] for p in pts)) if pts else None
 
 
+def _longest_dir(rl: dict) -> Optional[float]:
+    """The direction (degrees in [0, 180)) of the longest wall of a level."""
+    walls = [w for w in rl.get("walls") or [] if w.get("start") and w.get("end")]
+    if not walls:
+        return None
+    w = max(walls, key=lambda q: SC._dist(q["start"], q["end"]))
+    return math.degrees(math.atan2(w["end"][1] - w["start"][1], w["end"][0] - w["start"][0])) % 180.0
+
+
 def _matches(tl: dict, rl: dict) -> int:
     return sum(len(SC.match_kind(k, TR.positives(tl.get(k) or []), rl.get(k) or []))
                for k in ("walls", "doors", "windows"))
 
 
 def align(truth: dict, read: dict) -> tuple[dict, dict]:
-    """The reading with each level moved onto the truth frame by the shift that matches most walls, doors and windows
-    (candidates: none, the walls' min-corner difference of the level, the first level's shift), and the shifts
-    ``{level: [dx, dy]}`` (only those over 5 cm). The reader's frame is the min corner of the reference level's outer
-    walls; a missed parapet or a level registered elsewhere moves every element of it, which the per-element numbers
-    should not count again (``frame offset`` is its own error class)."""
+    """The reading with each level moved onto the truth frame by the turn and shift that match most walls, doors and
+    windows, and the moves ``{level: {"shift_m", "rot_deg"}}`` (only those over 5 cm or 0.5 degrees). Turns: none and
+    the one that lays the reading's longest wall on the truth's longest wall direction (a reader may straighten a
+    non-orthogonal plan on another wall); shifts: none, the walls' min-corner difference of the level after the turn,
+    the first level's move. The reader's frame is the min corner of the reference level's outer walls; a missed parapet
+    or a level registered elsewhere moves every element of it, which the per-element numbers should not count again
+    (``frame offset`` is its own error class)."""
     out = dict(read, per_level=dict(read.get("per_level") or {}))
-    shifts, first = {}, None
+    moves, first = {}, None
     for lid, tl in (truth.get("per_level") or {}).items():
         rl = out["per_level"].get(lid)
         if not rl:
             continue
-        cands = [(0.0, 0.0)]
-        tm, rm = _wall_min(tl), _wall_min(rl)
-        if tm and rm:
-            cands.append((rm[0] - tm[0], rm[1] - tm[1]))
-        if first:
-            cands.append(first)
-        best = max(cands, key=lambda s: (_matches(tl, _shift_level(rl, *s)), -math.hypot(*s)))
-        if math.hypot(*best) > 0.05 and _matches(tl, _shift_level(rl, *best)) > _matches(tl, rl):
+        rots = [0.0]
+        td, rd = _longest_dir(tl), _longest_dir(rl)
+        if td is not None and rd is not None:
+            d = (td - rd + 90.0) % 180.0 - 90.0
+            if abs(d) > 0.5:
+                rots.append(round(d, 3))
+        cands = [(0.0, 0.0, 0.0)] + ([first] if first else [])
+        tm = _wall_min(tl)
+        for rot in rots:
+            rm = _wall_min(_shift_level(rl, 0.0, 0.0, rot))
+            if tm and rm:
+                cands.append((rm[0] - tm[0], rm[1] - tm[1], rot))
+            elif rot:
+                cands.append((0.0, 0.0, rot))
+        best = max(cands, key=lambda m: (_matches(tl, _shift_level(rl, *m)), -abs(m[2]), -math.hypot(m[0], m[1])))
+        moved = math.hypot(best[0], best[1]) > 0.05 or abs(best[2]) > 0.5
+        if moved and _matches(tl, _shift_level(rl, *best)) > _matches(tl, rl):
             out["per_level"][lid] = _shift_level(rl, *best)
-            shifts[lid] = [round(best[0], 3), round(best[1], 3)]
+            moves[lid] = {"shift_m": [round(best[0], 3), round(best[1], 3)], "rot_deg": best[2]}
             first = first or best
         else:
-            first = first or (0.0, 0.0)
-    return out, shifts
+            first = first or (0.0, 0.0, 0.0)
+    return out, moves
 
 
 def score_one(project_dir: Path, read_dir: Path) -> dict:
@@ -312,7 +339,8 @@ def score_one(project_dir: Path, read_dir: Path) -> dict:
     read, shifts = align(truth, raw)
     res = SC.match(truth, read, b)
     res["total_unaligned"] = SC.match(truth, raw, b)["total"]
-    res["frame_shift_m"] = shifts
+    res["frame_moves"] = shifts
+    res["bench_class"] = (truth.get("dataset") or {}).get("bench_class") or "orthogonal"
     typed = right = 0
     for lid, (tt, rr, m) in _pairs_by_level(truth, read, "rooms").items():
         for i, j in m:
@@ -330,8 +358,9 @@ def score_one(project_dir: Path, read_dir: Path) -> dict:
         res["nothing_read"] = True
     else:
         res["errors"] = errors(name, truth, read) + [
-            {"class": "frame offset (a level read in another origin)", "kind": "levels", "level": lid,
-             "project": name, "example": f"shift {s} m"} for lid, s in shifts.items()]
+            {"class": "frame offset (a level read in another origin or turned)", "kind": "levels", "level": lid,
+             "project": name, "example": f"shift {s['shift_m']} m, turn {s['rot_deg']} deg"}
+            for lid, s in shifts.items()]
     res["status"] = (b.get("project") or {}).get("status") or b.get("status")
     return res
 
@@ -398,24 +427,37 @@ def report(bench_dir: Path, work: Path, out_stem: Path) -> dict:
         if f.is_file():
             results[p.name] = json.loads(f.read_text(encoding="utf-8"))
     agg = aggregate(results)
-    read = aggregate({n: r for n, r in results.items() if "error" not in r and not r.get("nothing_read")})
+    ok = {n: r for n, r in results.items() if "error" not in r and not r.get("nothing_read")}
+    read = aggregate(ok)
     agg["scale_read"] = {k: read[k] for k in ("projects", "floors", "mean_total", "per_kind")}
+    classes = {c: aggregate({n: r for n, r in ok.items() if (r.get("bench_class") or "orthogonal") == c})
+               for c in ("orthogonal", "angled")}
+    agg["classes_scale_read"] = {c: {k: a[k] for k in ("projects", "floors", "mean_total", "per_kind")}
+                                 for c, a in classes.items()}
+    agg["classes_all"] = {c: sum(1 for r in results.values() if (r.get("bench_class") or "orthogonal") == c)
+                          for c in ("orthogonal", "angled")}
     agg["per_project"] = {n: (r.get("total") if "error" not in r else None) for n, r in results.items()}
     out_stem.parent.mkdir(parents=True, exist_ok=True)
     out_stem.with_suffix(".json").write_text(json.dumps(agg, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    co, ca = classes["orthogonal"], classes["angled"]
     lines = ["# Dataset bench: Swiss Dwellings in a Turkish drafting style", "",
-             f"{agg['projects']} projects, {agg['floors']} floors, {agg['scored']} scored, {len(agg['failed'])} "
-             f"failed; mean project total {agg['mean_total']} (all), {read['mean_total']} on the "
-             f"{read['projects']} projects ({read['floors']} floors) whose drawing scale was read.", "",
-             "| kind | truth | read | matched | recall | precision | F1 | F1 where the scale was read |",
-             "|---|---|---|---|---|---|---|---|"]
+             f"{agg['projects']} projects ({agg['classes_all']['orthogonal']} orthogonal, {agg['classes_all']['angled']} "
+             f"with angled walls), {agg['floors']} floors, {agg['scored']} scored, {len(agg['failed'])} failed. Mean "
+             f"project total {agg['mean_total']} (all); where the drawing scale was read: {read['mean_total']} "
+             f"({read['projects']} projects, {read['floors']} floors), orthogonal {co['mean_total']} ({co['projects']} "
+             f"projects), angled {ca['mean_total']} ({ca['projects']} projects).", "",
+             "| kind | truth | read | matched | recall | precision | F1 all | F1 scale read | F1 orthogonal | "
+             "F1 angled |", "|---|---|---|---|---|---|---|---|---|---|"]
     for k in KINDS:
         s, s2 = agg["per_kind"][k], read["per_kind"][k]
         lines.append(f"| {k} | {s['truth']} | {s['read']} | {s['matched']} | {s['recall']:.3f} | "
-                     f"{s['precision']:.3f} | {s['f1']:.3f} | {s2['f1']:.3f} |")
+                     f"{s['precision']:.3f} | {s['f1']:.3f} | {s2['f1']:.3f} | {co['per_kind'][k]['f1']:.3f} | "
+                     f"{ca['per_kind'][k]['f1']:.3f} |")
     rt, rt2 = agg["per_kind"]["room_types"], read["per_kind"]["room_types"]
     lines += [f"| room types (of matched rooms) | {rt['matched']} | | {rt['right']} | | | {rt['share']} | "
-              f"{rt2['share']} |", "",
+              f"{rt2['share']} | {co['per_kind']['room_types']['share']} | {ca['per_kind']['room_types']['share']} |",
+              "", "The class columns count the projects whose drawing scale was read (a floor not read says "
+              "nothing about walls at an angle).", "",
               "## Error classes", "", "| class | count | example |", "|---|---|---|"]
     for e in agg["error_classes"][:25]:
         ex = e["example"]
