@@ -1,0 +1,162 @@
+{
+ "folder": "after/real20",
+ "sheets": [
+  {
+   "file": "sheet_1.jpg",
+   "numbers": {
+    "1": "after/real20/L1|inventory|room_missing:1",
+    "2": "after/real20/L1|inventory|angled_wall_straight:6",
+    "3": "after/real20/L1|inventory|angled_wall_straight:7",
+    "4": "after/real20/L1|compare|q29",
+    "5": "after/real20/L1|compare|q30",
+    "6": "after/real20/L1|inventory|room_missing:0",
+    "7": "after/real20/L0#text|plausibility|P1:r_L0_mutfak",
+    "8": "after/real20/L0#text|plausibility|P4:r_L0_mutfak",
+    "9": "after/real20/L1#text|plausibility|P1:r_L1_mutfak",
+    "10": "after/real20/L1#text|plausibility|P1:r_L1_mutfak@L2",
+    "11": "after/real20/L1#text|plausibility|P1:r_L1_mutfak@L3",
+    "12": "after/real20/L1#text|plausibility|P1:r_L1_mutfak@L4",
+    "13": "after/real20/L1#text|plausibility|P4:r_L1_mutfak",
+    "14": "after/real20/L1#text|plausibility|P4:r_L1_mutfak@L2",
+    "15": "after/real20/L1#text|plausibility|P4:r_L1_mutfak@L3",
+    "16": "after/real20/L1#text|plausibility|P4:r_L1_mutfak@L4",
+    "17": "after/real20/L1#text|plausibility|P6:f_L1_001",
+    "18": "after/real20/L1#text|plausibility|P6:f_L1_001@L2",
+    "19": "after/real20/L1#text|plausibility|P6:f_L1_001@L3",
+    "20": "after/real20/L1#text|plausibility|P6:f_L1_001@L4",
+    "21": "after/real20/L0#text|plausibility|P7:r_L0_oda",
+    "22": "after/real20/L1#text|plausibility|P7:r_L1_oda",
+    "23": "after/real20/L1#text|plausibility|P7:r_L1_oda@L2",
+    "24": "after/real20/L1#text|plausibility|P7:r_L1_oda@L3",
+    "25": "after/real20/L1#text|plausibility|P7:r_L1_oda@L4",
+    "26": "after/real20/L0#text|plausibility|P5:d_r_L0_oda_4_hall_lift_lift",
+    "27": "after/real20/L1#text|plausibility|P5:d_r_L1_oda_4_hall_lift_lift",
+    "28": "after/real20/L1#text|plausibility|P5:d_r_L1_oda_4_hall_lift_lift@L2",
+    "29": "after/real20/L1#text|plausibility|P5:d_r_L1_oda_4_hall_lift_lift@L3",
+    "30": "after/real20/L1#text|plausibility|P5:d_r_L1_oda_4_hall_lift_lift@L4"
+   }
+  }
+ ],
+ "findings": {
+  "after/real20/L1|inventory|room_missing:1": {
+   "sheet": 1,
+   "n": 1
+  },
+  "after/real20/L1|inventory|angled_wall_straight:6": {
+   "sheet": 1,
+   "n": 2
+  },
+  "after/real20/L1|inventory|angled_wall_straight:7": {
+   "sheet": 1,
+   "n": 3
+  },
+  "after/real20/L1|compare|q29": {
+   "sheet": 1,
+   "n": 4
+  },
+  "after/real20/L1|compare|q30": {
+   "sheet": 1,
+   "n": 5
+  },
+  "after/real20/L1|inventory|room_missing:0": {
+   "sheet": 1,
+   "n": 6
+  },
+  "after/real20/L0#text|plausibility|P1:r_L0_mutfak": {
+   "sheet": 1,
+   "n": 7
+  },
+  "after/real20/L0#text|plausibility|P4:r_L0_mutfak": {
+   "sheet": 1,
+   "n": 8
+  },
+  "after/real20/L1#text|plausibility|P1:r_L1_mutfak": {
+   "sheet": 1,
+   "n": 9
+  },
+  "after/real20/L1#text|plausibility|P1:r_L1_mutfak@L2": {
+   "sheet": 1,
+   "n": 10
+  },
+  "after/real20/L1#text|plausibility|P1:r_L1_mutfak@L3": {
+   "sheet": 1,
+   "n": 11
+  },
+  "after/real20/L1#text|plausibility|P1:r_L1_mutfak@L4": {
+   "sheet": 1,
+   "n": 12
+  },
+  "after/real20/L1#text|plausibility|P4:r_L1_mutfak": {
+   "sheet": 1,
+   "n": 13
+  },
+  "after/real20/L1#text|plausibility|P4:r_L1_mutfak@L2": {
+   "sheet": 1,
+   "n": 14
+  },
+  "after/real20/L1#text|plausibility|P4:r_L1_mutfak@L3": {
+   "sheet": 1,
+   "n": 15
+  },
+  "after/real20/L1#text|plausibility|P4:r_L1_mutfak@L4": {
+   "sheet": 1,
+   "n": 16
+  },
+  "after/real20/L1#text|plausibility|P6:f_L1_001": {
+   "sheet": 1,
+   "n": 17
+  },
+  "after/real20/L1#text|plausibility|P6:f_L1_001@L2": {
+   "sheet": 1,
+   "n": 18
+  },
+  "after/real20/L1#text|plausibility|P6:f_L1_001@L3": {
+   "sheet": 1,
+   "n": 19
+  },
+  "after/real20/L1#text|plausibility|P6:f_L1_001@L4": {
+   "sheet": 1,
+   "n": 20
+  },
+  "after/real20/L0#text|plausibility|P7:r_L0_oda": {
+   "sheet": 1,
+   "n": 21
+  },
+  "after/real20/L1#text|plausibility|P7:r_L1_oda": {
+   "sheet": 1,
+   "n": 22
+  },
+  "after/real20/L1#text|plausibility|P7:r_L1_oda@L2": {
+   "sheet": 1,
+   "n": 23
+  },
+  "after/real20/L1#text|plausibility|P7:r_L1_oda@L3": {
+   "sheet": 1,
+   "n": 24
+  },
+  "after/real20/L1#text|plausibility|P7:r_L1_oda@L4": {
+   "sheet": 1,
+   "n": 25
+  },
+  "after/real20/L0#text|plausibility|P5:d_r_L0_oda_4_hall_lift_lift": {
+   "sheet": 1,
+   "n": 26
+  },
+  "after/real20/L1#text|plausibility|P5:d_r_L1_oda_4_hall_lift_lift": {
+   "sheet": 1,
+   "n": 27
+  },
+  "after/real20/L1#text|plausibility|P5:d_r_L1_oda_4_hall_lift_lift@L2": {
+   "sheet": 1,
+   "n": 28
+  },
+  "after/real20/L1#text|plausibility|P5:d_r_L1_oda_4_hall_lift_lift@L3": {
+   "sheet": 1,
+   "n": 29
+  },
+  "after/real20/L1#text|plausibility|P5:d_r_L1_oda_4_hall_lift_lift@L4": {
+   "sheet": 1,
+   "n": 30
+  }
+ }
+}
