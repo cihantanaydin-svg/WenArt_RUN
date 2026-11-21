@@ -83,6 +83,97 @@
    "n": 11,
    "folder": "questions",
    "date": "2026-11-21"
+  },
+  "after/real10/L-1#text|plausibility|P8:d_L-1_019": {
+   "right": true,
+   "sheet": 1,
+   "n": 6,
+   "folder": "questions",
+   "date": "2026-11-21"
+  },
+  "after/real09/L2#text|plausibility|P1:r_L2_mutfak": {
+   "right": true,
+   "sheet": 1,
+   "n": 13,
+   "folder": "questions",
+   "date": "2026-11-21"
+  },
+  "after/real20/L0#text|plausibility|P1:r_L0_mutfak": {
+   "right": true,
+   "sheet": 1,
+   "n": 14,
+   "folder": "questions",
+   "date": "2026-11-21"
+  },
+  "after/real20/L1#text|plausibility|P1:r_L1_mutfak": {
+   "right": true,
+   "sheet": 1,
+   "n": 15,
+   "folder": "questions",
+   "date": "2026-11-21"
+  },
+  "after/real09/L-1|inventory|room_missing:5": {
+   "right": false,
+   "sheet": 1,
+   "n": 1,
+   "folder": "questions",
+   "date": "2026-11-21"
+  },
+  "after/real10/L-2|inventory|room_missing:2": {
+   "right": false,
+   "sheet": 1,
+   "n": 2,
+   "folder": "questions",
+   "date": "2026-11-21"
+  },
+  "after/real10/L-2|inventory|room_missing:1": {
+   "right": false,
+   "sheet": 1,
+   "n": 3,
+   "folder": "questions",
+   "date": "2026-11-21"
+  },
+  "after/real09/L-1|inventory|room_missing:3": {
+   "right": false,
+   "sheet": 1,
+   "n": 4,
+   "folder": "questions",
+   "date": "2026-11-21"
+  },
+  "after/real10/L-1#text|plausibility|P8:d_L-1_001": {
+   "right": false,
+   "sheet": 1,
+   "n": 5,
+   "folder": "questions",
+   "date": "2026-11-21"
+  },
+  "after/real20/L1#text|plausibility|P6:f_L1_001": {
+   "right": false,
+   "sheet": 1,
+   "n": 8,
+   "folder": "questions",
+   "date": "2026-11-21"
+  },
+  "after/real21/L1#text|plausibility|P6:f_L1_016": {
+   "right": false,
+   "sheet": 1,
+   "n": 9,
+   "folder": "questions",
+   "date": "2026-11-21"
+  },
+  "after/real10/L-1|compare|q21": {
+   "right": false,
+   "sheet": 1,
+   "n": 11,
+   "folder": "questions",
+   "date": "2026-11-21"
+  },
+  "after/real20/L1|inventory|room_missing:0": {
+   "right": false,
+   "sheet": 1,
+   "n": 12,
+   "folder": "questions",
+   "date": "2026-11-21"
   }
  },
  "note": "The user's marks on the RC15 review sheets (finding id -> right or wrong); truth for the next calibration of checks 1, 2, 4 (critic calibrate)."

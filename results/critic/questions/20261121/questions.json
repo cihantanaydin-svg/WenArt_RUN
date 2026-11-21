@@ -1,0 +1,272 @@
+{
+ "note": "Loop A's questions for the user (uncertainty x impact, the highest first). Mark the sheet with `python -m wenart.reading_check critic mark --review results/critic/questions/20261121 --folder questions --sheet 1 --right N,.. --wrong N,..`: right = the AI is right (the reading is wrong), wrong = the reading is right. Each mark becomes a user label (loop B learns from it).",
+ "made": "2026-11-21",
+ "questions": {
+  "after/real09/L-1|inventory|room_missing:5": {
+   "id": "after/real09/L-1|inventory|room_missing:5",
+   "type": "finding",
+   "project": "real09",
+   "level_id": "L-1",
+   "at": [
+    3.09,
+    9.307
+   ],
+   "point": [
+    0.244,
+    0.093
+   ],
+   "image_entry": "after/real09/L-1",
+   "kind": "plan_not_read",
+   "call": "inventory",
+   "score": 3.0,
+   "description": "the drawing labels 'TERAS' here; it lies outside the level's walls: a plan the reading did not read (nearest r"
+  },
+  "after/real10/L-2|inventory|room_missing:2": {
+   "id": "after/real10/L-2|inventory|room_missing:2",
+   "type": "finding",
+   "project": "real10",
+   "level_id": "L-2",
+   "at": [
+    3.08,
+    17.73
+   ],
+   "point": [
+    0.159,
+    0.081
+   ],
+   "image_entry": "after/real10/L-2",
+   "kind": "plan_not_read",
+   "call": "inventory",
+   "score": 2.8,
+   "description": "the drawing labels 'ELK. PANO ODASI' here; it lies outside the level's walls: a plan the reading did not read "
+  },
+  "after/real10/L-2|inventory|room_missing:1": {
+   "id": "after/real10/L-2|inventory|room_missing:1",
+   "type": "finding",
+   "project": "real10",
+   "level_id": "L-2",
+   "at": [
+    3.788,
+    17.801
+   ],
+   "point": [
+    0.187,
+    0.078
+   ],
+   "image_entry": "after/real10/L-2",
+   "kind": "plan_not_read",
+   "call": "inventory",
+   "score": 2.7,
+   "description": "the drawing labels 'SIĞINAK' here; it lies outside the level's walls: a plan the reading did not read (nearest"
+  },
+  "after/real09/L-1|inventory|room_missing:3": {
+   "id": "after/real09/L-1|inventory|room_missing:3",
+   "type": "finding",
+   "project": "real09",
+   "level_id": "L-1",
+   "at": [
+    1.531,
+    9.616
+   ],
+   "point": [
+    0.191,
+    0.072
+   ],
+   "image_entry": "after/real09/L-1",
+   "kind": "plan_not_read",
+   "call": "inventory",
+   "score": 2.4,
+   "description": "the drawing labels 'MUTFAK' here; it lies outside the level's walls: a plan the reading did not read (nearest "
+  },
+  "after/real10/L-1#text|plausibility|P8:d_L-1_001": {
+   "id": "after/real10/L-1#text|plausibility|P8:d_L-1_001",
+   "type": "finding",
+   "project": "real10",
+   "level_id": "L-1",
+   "at": [
+    11.19,
+    1.915
+   ],
+   "point": null,
+   "image_entry": "after/real10/L-1",
+   "kind": "door_into_air",
+   "call": "plausibility",
+   "score": 2.4,
+   "description": "d_L-1_001: an exterior door above the ground with nothing to step onto (d_L-1_001, d_L-1_006, d_L-1_008, and d"
+  },
+  "after/real10/L-1#text|plausibility|P8:d_L-1_019": {
+   "id": "after/real10/L-1#text|plausibility|P8:d_L-1_019",
+   "type": "finding",
+   "project": "real10",
+   "level_id": "L-1",
+   "at": [
+    20.245,
+    14.727
+   ],
+   "point": null,
+   "image_entry": "after/real10/L-1",
+   "kind": "door_into_air",
+   "call": "plausibility",
+   "score": 2.4,
+   "description": "d_L-1_019: an exterior door above the ground with nothing to step onto (d_L-1_001, d_L-1_006, d_L-1_008, and d"
+  },
+  "after/real10/L7#text|plausibility|P6:f_L7_003": {
+   "id": "after/real10/L7#text|plausibility|P6:f_L7_003",
+   "type": "finding",
+   "project": "real10",
+   "level_id": "L7",
+   "at": [
+    12.112,
+    9.071
+   ],
+   "point": null,
+   "image_entry": "after/real10/L7",
+   "kind": "stair_no_landing_door",
+   "call": "plausibility",
+   "score": 1.8,
+   "description": "f_L7_003: a stair with no landing door (The stair room r_L7_oda has no doors or openings listed in the model c"
+  },
+  "after/real20/L1#text|plausibility|P6:f_L1_001": {
+   "id": "after/real20/L1#text|plausibility|P6:f_L1_001",
+   "type": "finding",
+   "project": "real20",
+   "level_id": "L1",
+   "at": [
+    8.125,
+    2.976
+   ],
+   "point": null,
+   "image_entry": "after/real20/L1",
+   "kind": "stair_no_landing_door",
+   "call": "plausibility",
+   "score": 1.8,
+   "description": "f_L1_001: a stair with no landing door (The stair is in r_L1_oda_4. The drawing for r_L1_oda_4 says 'nothing o"
+  },
+  "after/real21/L1#text|plausibility|P6:f_L1_016": {
+   "id": "after/real21/L1#text|plausibility|P6:f_L1_016",
+   "type": "finding",
+   "project": "real21",
+   "level_id": "L1",
+   "at": [
+    5.924,
+    14.421
+   ],
+   "point": null,
+   "image_entry": "after/real21/L1",
+   "kind": "stair_no_landing_door",
+   "call": "plausibility",
+   "score": 1.8,
+   "description": "f_L1_016: a stair with no landing door (The stair f_L1_016 is in r_L1_oda_10. r_L1_oda_10 connects to r_L1_gir"
+  },
+  "after/real09/L3|compare|q25": {
+   "id": "after/real09/L3|compare|q25",
+   "type": "finding",
+   "project": "real09",
+   "level_id": "L3",
+   "at": [
+    7.555,
+    8.189
+   ],
+   "point": [
+    0.3752,
+    0.1808
+   ],
+   "image_entry": "after/real09/L3",
+   "kind": "opening_type_differs",
+   "call": "compare",
+   "score": 1.6,
+   "description": "the drawing has a window here; the reading a opening"
+  },
+  "after/real10/L-1|compare|q21": {
+   "id": "after/real10/L-1|compare|q21",
+   "type": "finding",
+   "project": "real10",
+   "level_id": "L-1",
+   "at": [
+    5.69,
+    16.595
+   ],
+   "point": [
+    0.2652,
+    0.1642
+   ],
+   "image_entry": "after/real10/L-1",
+   "kind": "opening_type_differs",
+   "call": "compare",
+   "score": 1.6,
+   "description": "the drawing has a window here; the reading a opening"
+  },
+  "after/real20/L1|inventory|room_missing:0": {
+   "id": "after/real20/L1|inventory|room_missing:0",
+   "type": "finding",
+   "project": "real20",
+   "level_id": "L1",
+   "at": [
+    12.3,
+    9.373
+   ],
+   "point": [
+    0.71,
+    0.267
+   ],
+   "image_entry": "after/real20/L1",
+   "kind": "room_missing",
+   "call": "inventory",
+   "score": 1.6,
+   "description": "the drawing labels 'BALKON' here; the reading has no room there (nearest room 1.8 m away)"
+  },
+  "after/real09/L2#text|plausibility|P1:r_L2_mutfak": {
+   "id": "after/real09/L2#text|plausibility|P1:r_L2_mutfak",
+   "type": "finding",
+   "project": "real09",
+   "level_id": "L2",
+   "at": [
+    15.28,
+    2.89
+   ],
+   "point": null,
+   "image_entry": "after/real09/L2",
+   "kind": "habitable_no_window",
+   "call": "plausibility",
+   "score": 1.2,
+   "description": "r_L2_mutfak: a habitable room with no window (r_L2_mutfak is a kitchen with 0 windows in the model. It has a d"
+  },
+  "after/real20/L0#text|plausibility|P1:r_L0_mutfak": {
+   "id": "after/real20/L0#text|plausibility|P1:r_L0_mutfak",
+   "type": "finding",
+   "project": "real20",
+   "level_id": "L0",
+   "at": [
+    5.684,
+    6.483
+   ],
+   "point": null,
+   "image_entry": "after/real20/L1",
+   "kind": "habitable_no_window",
+   "call": "plausibility",
+   "score": 1.2,
+   "description": "r_L0_mutfak: a habitable room with no window (Kitchen has no window in model. Other habitable rooms (bedrooms,"
+  },
+  "after/real20/L1#text|plausibility|P1:r_L1_mutfak": {
+   "id": "after/real20/L1#text|plausibility|P1:r_L1_mutfak",
+   "type": "finding",
+   "project": "real20",
+   "level_id": "L1",
+   "at": [
+    5.684,
+    7.1
+   ],
+   "point": null,
+   "image_entry": "after/real20/L1",
+   "kind": "habitable_no_window",
+   "call": "plausibility",
+   "score": 1.2,
+   "description": "r_L1_mutfak: a habitable room with no window (r_L1_mutfak is a kitchen (habitable) with 0 windows. It has a do"
+  }
+ },
+ "sheets": {
+  "questions": [
+   "/home/user/WenArt_RUN/results/critic/questions/20261121/questions/sheet_1.jpg"
+  ]
+ }
+}

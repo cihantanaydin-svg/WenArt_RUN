@@ -78,6 +78,10 @@
    "elevation": 18.0,
    "order": 6,
    "anchor_source": "results/reading_accepted/real10.json (reading commit 3c8cb8f8014b)"
+  },
+  {
+   "id": "L7",
+   "source": "user_correction"
   }
  ],
  "levels_left_out": [],
@@ -1371,7 +1375,7 @@
      ]
     },
     {
-     "id": "u_C0019_1",
+     "id": "u_C0092_1",
      "type": "door",
      "center": [
       11.19,
@@ -1380,8 +1384,8 @@
      "source": "user_correction",
      "confidence": null,
      "method": "user",
-     "correction": "C0019",
-     "added_on": "2026-11-03",
+     "correction": "C0092",
+     "added_on": "2026-11-21",
      "attrs": {
       "main_entrance": true
      },
@@ -1394,9 +1398,9 @@
        13722.0423
       ]
      },
-     "reader_id": "d_L-1_001",
      "corrections": [
-      "C0019"
+      "C0019",
+      "C0092"
      ]
     },
     {
@@ -1488,6 +1492,39 @@
      "added_on": "2026-11-21",
      "corrections": [
       "C0085"
+     ]
+    },
+    {
+     "id": "u_C0094_1",
+     "type": "window",
+     "center": [
+      5.69,
+      16.595
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0094",
+     "corrections": [
+      "C0094"
+     ],
+     "absent": true,
+     "removed_on": "2026-11-21"
+    },
+    {
+     "id": "u_C0091_1",
+     "type": "window",
+     "center": [
+      20.245,
+      14.727
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0091",
+     "added_on": "2026-11-21",
+     "corrections": [
+      "C0091"
      ]
     }
    ],
@@ -6594,6 +6631,35 @@
      ]
     }
    ]
+  },
+  "L7": {
+   "rooms": [],
+   "doors": [],
+   "windows": [],
+   "openings": [],
+   "walls": [],
+   "stairs": [
+    {
+     "id": "u_C0093_1",
+     "center": [
+      12.112,
+      9.071
+     ],
+     "size": null,
+     "rotation_deg": null,
+     "room_id": null,
+     "turn": null,
+     "flights": [],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0093",
+     "added_on": "2026-11-21",
+     "corrections": [
+      "C0093"
+     ]
+    }
+   ]
   }
  },
  "project_assertions": [],
@@ -6616,7 +6682,11 @@
   "C0085",
   "C0086",
   "C0087",
-  "C0089"
+  "C0089",
+  "C0091",
+  "C0092",
+  "C0093",
+  "C0094"
  ],
  "not_measurable": [
   {
@@ -6690,7 +6760,11 @@
    "C0085",
    "C0086",
    "C0087",
-   "C0089"
+   "C0089",
+   "C0091",
+   "C0092",
+   "C0093",
+   "C0094"
   ],
   "asserted": []
  },
@@ -8144,6 +8218,54 @@
     "level": "L-1",
     "place": [
      11.19,
+     16.595
+    ],
+    "state": "negated"
+   },
+   {
+    "record": "C0091",
+    "n": 1,
+    "op": "add",
+    "kind": "window",
+    "level": "L-1",
+    "place": [
+     20.245,
+     14.727
+    ],
+    "state": "asserted"
+   },
+   {
+    "record": "C0092",
+    "n": 1,
+    "op": "confirm",
+    "kind": "door",
+    "level": "L-1",
+    "place": [
+     11.19,
+     1.915
+    ],
+    "state": "replaced"
+   },
+   {
+    "record": "C0093",
+    "n": 1,
+    "op": "confirm",
+    "kind": "stair",
+    "level": "L7",
+    "place": [
+     12.112,
+     9.071
+    ],
+    "state": "asserted"
+   },
+   {
+    "record": "C0094",
+    "n": 1,
+    "op": "remove",
+    "kind": "window",
+    "level": "L-1",
+    "place": [
+     5.69,
      16.595
     ],
     "state": "negated"

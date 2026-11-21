@@ -1,0 +1,87 @@
+{
+ "folder": "questions",
+ "sheets": [
+  {
+   "file": "sheet_1.jpg",
+   "numbers": {
+    "1": "after/real09/L-1|inventory|room_missing:5",
+    "2": "after/real10/L-2|inventory|room_missing:2",
+    "3": "after/real10/L-2|inventory|room_missing:1",
+    "4": "after/real09/L-1|inventory|room_missing:3",
+    "5": "after/real10/L-1#text|plausibility|P8:d_L-1_001",
+    "6": "after/real10/L-1#text|plausibility|P8:d_L-1_019",
+    "7": "after/real10/L7#text|plausibility|P6:f_L7_003",
+    "8": "after/real20/L1#text|plausibility|P6:f_L1_001",
+    "9": "after/real21/L1#text|plausibility|P6:f_L1_016",
+    "10": "after/real09/L3|compare|q25",
+    "11": "after/real10/L-1|compare|q21",
+    "12": "after/real20/L1|inventory|room_missing:0",
+    "13": "after/real09/L2#text|plausibility|P1:r_L2_mutfak",
+    "14": "after/real20/L0#text|plausibility|P1:r_L0_mutfak",
+    "15": "after/real20/L1#text|plausibility|P1:r_L1_mutfak"
+   }
+  }
+ ],
+ "findings": {
+  "after/real09/L-1|inventory|room_missing:5": {
+   "sheet": 1,
+   "n": 1
+  },
+  "after/real10/L-2|inventory|room_missing:2": {
+   "sheet": 1,
+   "n": 2
+  },
+  "after/real10/L-2|inventory|room_missing:1": {
+   "sheet": 1,
+   "n": 3
+  },
+  "after/real09/L-1|inventory|room_missing:3": {
+   "sheet": 1,
+   "n": 4
+  },
+  "after/real10/L-1#text|plausibility|P8:d_L-1_001": {
+   "sheet": 1,
+   "n": 5
+  },
+  "after/real10/L-1#text|plausibility|P8:d_L-1_019": {
+   "sheet": 1,
+   "n": 6
+  },
+  "after/real10/L7#text|plausibility|P6:f_L7_003": {
+   "sheet": 1,
+   "n": 7
+  },
+  "after/real20/L1#text|plausibility|P6:f_L1_001": {
+   "sheet": 1,
+   "n": 8
+  },
+  "after/real21/L1#text|plausibility|P6:f_L1_016": {
+   "sheet": 1,
+   "n": 9
+  },
+  "after/real09/L3|compare|q25": {
+   "sheet": 1,
+   "n": 10
+  },
+  "after/real10/L-1|compare|q21": {
+   "sheet": 1,
+   "n": 11
+  },
+  "after/real20/L1|inventory|room_missing:0": {
+   "sheet": 1,
+   "n": 12
+  },
+  "after/real09/L2#text|plausibility|P1:r_L2_mutfak": {
+   "sheet": 1,
+   "n": 13
+  },
+  "after/real20/L0#text|plausibility|P1:r_L0_mutfak": {
+   "sheet": 1,
+   "n": 14
+  },
+  "after/real20/L1#text|plausibility|P1:r_L1_mutfak": {
+   "sheet": 1,
+   "n": 15
+  }
+ }
+}
