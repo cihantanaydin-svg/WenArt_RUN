@@ -3716,3 +3716,16 @@ lift room, real18's room labels in ATTDEFs and hatch walls), the ranker's retrai
 records now replayed into the truth), the running out-of-sample recall (every new user remark records whether a machine
 check raised it first), and the vision critic R6 (one short pod, waiting for the user's OK: "Don't run any more pods for
 now", 4 Nov). CPU suite on main: the key reading files 601 passed, 26 xfailed (the reader's synthetic targets).
+
+## Dataset bench: Swiss Dwellings in a Turkish drafting style (21 Nov 2026)
+
+User OK of 21 Nov 2026: open floor-plan datasets as a real-geometry test bench for the reader.
+- `wenart/datasets/turkish_style.json`: the drafting profile measured from the user's 18 converted DXFs (statistics
+  only: layer names per role, text heights, label vocabulary, tag / area / level / title shapes, door arcs, hatches,
+  dimensions and units per drawing unit, wall thicknesses); `python -m wenart.datasets.turkish_profile`.
+- `wenart/datasets/swiss_dwellings.py`, `swiss_convert.py`, `style.py`: a Swiss Dwellings building (CC BY 4.0) -> a
+  Turkish-style DXF with its exact truth; each project draws with its own style sampled from the profile; walls at an
+  angle stay at their angle (user: "include slanted walls in the bench too").
+- `wenart/datasets/bench.py`: pick, convert, read on the CPU, score per element kind, per class (orthogonal, angled),
+  error classes. 107 buildings, 201 floors: `results/dataset_bench/swiss_20261121.md`. Not in the gated synthetic set.
+  Samples: `datasets/swiss_dwellings/samples/` (12); catalogue: `datasets/catalogue.json`.

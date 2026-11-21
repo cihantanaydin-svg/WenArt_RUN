@@ -466,6 +466,13 @@ views real02 12 of 41, real03 35 of 89, real04 12 of 49.
 
 GPL tools we call as separate programs (allowed, our code is not derived from them): Blender, LibreDWG, poppler.
 
+**Reader test datasets** (user OK of 21 Nov 2026; `datasets/catalogue.json`): **Swiss Dwellings** (Zenodo record
+7070952, **CC BY 4.0**, flag `none`) floors are redrawn as Turkish-style DXF test projects with exact truth
+(`wenart/datasets/`, each project's `ATTRIBUTION.md` names the building and floors); Modified Swiss Dwellings (CC BY
+4.0) planned; **CubiCasa5K** (CC BY-NC-SA 4.0, flag `non_commercial`, relaxed mode only) and **FloorPlanCAD** (labels
+CC BY-NC 4.0, drawings' copyright not the authors', flag `research_only`: internal tests only, never redistributed)
+later.
+
 
 Milestone 5 models (all checked on Hugging Face, 2 Oct 2026): Z-Image-Turbo (Apache-2.0; its text encoder is
 Qwen3-4B, Apache-2.0; its VAE is byte-identical to the FLUX.1-schnell VAE, Apache-2.0, not the FLUX.1-dev

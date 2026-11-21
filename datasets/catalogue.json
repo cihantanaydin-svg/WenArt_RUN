@@ -1,0 +1,67 @@
+{
+ "note": "Open floor-plan datasets used as reader test data (user OK of 21 Nov 2026). Every entry carries the catalogue fields of CLAUDE.md. Only Swiss Dwellings is converted so far (wenart/datasets/swiss_convert.py); converted projects carry an ATTRIBUTION.md and their truth names the source building and floors. url_confirmed: false = the record's link is still to be copied from its official page.",
+ "entries": [
+  {
+   "id": "swiss_dwellings",
+   "name": "Swiss Dwellings (Archilyse AG)",
+   "record": "Zenodo record 7070952",
+   "url": "https://zenodo.org/records/7070952",
+   "url_confirmed": true,
+   "licence": "CC BY 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "licence_declared_by": "publisher",
+   "licence_flag": "none",
+   "commercial_safe": "yes",
+   "attribution": "Swiss Dwellings (Archilyse AG), Zenodo record 7070952, CC BY 4.0; floors redrawn as Turkish-style DXF plans by WenArt (geometry regularised, labels translated, drafting conventions added).",
+   "used_as": "geometries.csv: floors converted to Turkish-style DXF projects with exact truth (dataset bench; samples in datasets/swiss_dwellings/samples/)",
+   "status": "in use"
+  },
+  {
+   "id": "modified_swiss_dwellings",
+   "name": "Modified Swiss Dwellings (MSD)",
+   "record": "4TU.ResearchData",
+   "url": null,
+   "url_confirmed": false,
+   "licence": "CC BY 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "licence_declared_by": "publisher",
+   "licence_flag": "none",
+   "commercial_safe": "yes",
+   "attribution": "Modified Swiss Dwellings (4TU.ResearchData), CC BY 4.0, derived from Swiss Dwellings.",
+   "used_as": "not converted yet (test zip downloaded to scratch)",
+   "status": "planned"
+  },
+  {
+   "id": "cubicasa5k",
+   "name": "CubiCasa5K",
+   "record": "github.com/CubiCasa/CubiCasa5k",
+   "url": "https://github.com/CubiCasa/CubiCasa5k",
+   "url_confirmed": false,
+   "licence": "CC BY-NC-SA 4.0",
+   "licence_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+   "licence_declared_by": "publisher",
+   "licence_flag": "non_commercial",
+   "licence_flags_all": ["non_commercial", "share_alike"],
+   "commercial_safe": "no",
+   "attribution": "CubiCasa5K, CC BY-NC-SA 4.0; reader test data in relaxed licence mode only.",
+   "used_as": "later: converted test projects (relaxed mode, flagged)",
+   "status": "planned"
+  },
+  {
+   "id": "floorplancad",
+   "name": "FloorPlanCAD",
+   "record": "floorplancad.github.io",
+   "url": "https://floorplancad.github.io/",
+   "url_confirmed": false,
+   "licence": "labels CC BY-NC 4.0; the drawings' copyright is not the dataset authors'",
+   "licence_url": "https://creativecommons.org/licenses/by-nc/4.0/",
+   "licence_declared_by": "publisher",
+   "licence_flag": "research_only",
+   "licence_flags_all": ["non_commercial", "research_only"],
+   "commercial_safe": "no",
+   "attribution": "FloorPlanCAD labels, CC BY-NC 4.0; internal reader tests only, never redistributed.",
+   "used_as": "later: internal tests only, never committed or redistributed",
+   "status": "planned"
+  }
+ ]
+}

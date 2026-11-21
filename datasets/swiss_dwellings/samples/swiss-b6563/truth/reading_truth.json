@@ -1,0 +1,983 @@
+{
+ "project": "swiss-b6563",
+ "source": "synthetic",
+ "status": "accepted",
+ "units": "building metres (outer wall faces from the origin of each plan)",
+ "levels": [
+  {
+   "id": "L0",
+   "label": "Zemin Kat",
+   "elevation": 0.0,
+   "order": 0
+  }
+ ],
+ "per_level": {
+  "L0": {
+   "rooms": [
+    {
+     "id": "r_L0_001",
+     "label": "COCUK ODASI",
+     "room_type": "bedroom",
+     "area": 14.8186,
+     "centroid": [
+      2.249391,
+      3.054139
+     ],
+     "polygon": [
+      [
+       0.77,
+       0.4975
+      ],
+      [
+       3.6725,
+       0.4975
+      ],
+      [
+       3.6725,
+       5.835
+      ],
+      [
+       2.765,
+       5.835
+      ],
+      [
+       2.765,
+       5.825
+      ],
+      [
+       2.42,
+       5.825
+      ],
+      [
+       2.42,
+       5.42
+      ],
+      [
+       2.24,
+       5.42
+      ],
+      [
+       2.24,
+       5.43
+      ],
+      [
+       0.77,
+       5.43
+      ]
+     ]
+    },
+    {
+     "id": "r_L0_002",
+     "label": "Y.ODA",
+     "room_type": "bedroom",
+     "area": 16.0176,
+     "centroid": [
+      5.277653,
+      3.167099
+     ],
+     "polygon": [
+      [
+       3.7775,
+       0.4975
+      ],
+      [
+       6.7775,
+       0.4975
+      ],
+      [
+       6.7775,
+       5.8375
+      ],
+      [
+       4.74,
+       5.8375
+      ],
+      [
+       4.74,
+       5.835
+      ],
+      [
+       3.7775,
+       5.835
+      ]
+     ]
+    },
+    {
+     "id": "r_L0_003",
+     "label": "BANYO",
+     "room_type": "bathroom",
+     "area": 4.2934,
+     "centroid": [
+      1.509051,
+      7.062819
+     ],
+     "polygon": [
+      [
+       0.77,
+       5.61
+      ],
+      [
+       2.24,
+       5.61
+      ],
+      [
+       2.24,
+       6.0
+      ],
+      [
+       2.25,
+       6.0
+      ],
+      [
+       2.25,
+       8.5125
+      ],
+      [
+       0.7675,
+       8.5125
+      ],
+      [
+       0.7675,
+       7.86
+      ],
+      [
+       0.77,
+       7.86
+      ]
+     ]
+    },
+    {
+     "id": "r_L0_004",
+     "label": "ANTRE",
+     "room_type": "hall",
+     "area": 6.5263,
+     "centroid": [
+      3.562919,
+      7.238323
+     ],
+     "polygon": [
+      [
+       2.765,
+       5.935
+      ],
+      [
+       4.675,
+       5.935
+      ],
+      [
+       4.675,
+       5.9925
+      ],
+      [
+       4.895,
+       5.9925
+      ],
+      [
+       4.895,
+       6.95
+      ],
+      [
+       4.7675,
+       6.95
+      ],
+      [
+       4.7675,
+       8.5075
+      ],
+      [
+       4.28,
+       8.5075
+      ],
+      [
+       4.28,
+       8.57
+      ],
+      [
+       2.38,
+       8.57
+      ],
+      [
+       2.38,
+       8.5125
+      ],
+      [
+       2.31,
+       8.5125
+      ],
+      [
+       2.31,
+       6.0
+      ],
+      [
+       2.385,
+       6.0
+      ],
+      [
+       2.385,
+       6.005
+      ],
+      [
+       2.765,
+       6.005
+      ]
+     ]
+    },
+    {
+     "id": "r_L0_005",
+     "label": "OTURMA.OD.",
+     "room_type": "living",
+     "area": 26.9007,
+     "centroid": [
+      6.650744,
+      10.721799
+     ],
+     "polygon": [
+      [
+       4.34,
+       8.6625
+      ],
+      [
+       9.9175,
+       8.6625
+      ],
+      [
+       9.9175,
+       12.78
+      ],
+      [
+       3.3825,
+       12.78
+      ],
+      [
+       3.3825,
+       8.67
+      ],
+      [
+       4.34,
+       8.67
+      ]
+     ]
+    },
+    {
+     "id": "r_L0_006",
+     "label": "COCUK ODASI",
+     "room_type": "bedroom",
+     "area": 9.8448,
+     "centroid": [
+      2.045353,
+      10.817183
+     ],
+     "polygon": [
+      [
+       2.3125,
+       8.6675
+      ],
+      [
+       2.36,
+       8.6675
+      ],
+      [
+       2.36,
+       8.67
+      ],
+      [
+       3.2775,
+       8.67
+      ],
+      [
+       3.2775,
+       12.78
+      ],
+      [
+       0.765,
+       12.78
+      ],
+      [
+       0.765,
+       11.92
+      ],
+      [
+       0.76,
+       11.92
+      ],
+      [
+       0.76,
+       11.745
+      ],
+      [
+       0.7675,
+       11.745
+      ],
+      [
+       0.7675,
+       8.9775
+      ],
+      [
+       2.31,
+       8.9775
+      ],
+      [
+       2.31,
+       8.88
+      ],
+      [
+       2.3125,
+       8.88
+      ]
+     ]
+    },
+    {
+     "id": "r_L0_007",
+     "label": "MUTFAK",
+     "room_type": "kitchen",
+     "area": 11.0955,
+     "centroid": [
+      11.57062,
+      10.818089
+     ],
+     "polygon": [
+      [
+       10.1725,
+       8.785
+      ],
+      [
+       11.9225,
+       8.785
+      ],
+      [
+       11.9225,
+       8.91
+      ],
+      [
+       11.93,
+       8.91
+      ],
+      [
+       11.93,
+       8.975
+      ],
+      [
+       13.0,
+       8.975
+      ],
+      [
+       13.0,
+       11.9975
+      ],
+      [
+       13.005,
+       11.9975
+      ],
+      [
+       13.005,
+       12.78
+      ],
+      [
+       10.1725,
+       12.78
+      ]
+     ]
+    },
+    {
+     "id": "r_L0_008",
+     "label": "BALKON",
+     "room_type": "balcony",
+     "area": 24.7872,
+     "centroid": [
+      6.875,
+      14.24
+     ],
+     "polygon": [
+      [
+       0.42,
+       13.28
+      ],
+      [
+       13.33,
+       13.28
+      ],
+      [
+       13.33,
+       15.2
+      ],
+      [
+       0.42,
+       15.2
+      ]
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "id": "d_L0_001",
+     "width": 0.8,
+     "center": [
+      3.185,
+      5.885
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L0_002",
+     "width": 0.8,
+     "center": [
+      4.26,
+      5.885
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L0_003",
+     "width": 0.8,
+     "center": [
+      2.28,
+      6.505
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L0_004",
+     "width": 0.8,
+     "center": [
+      4.965,
+      6.52
+     ],
+     "type": "door",
+     "flat_entrance": true
+    },
+    {
+     "id": "d_L0_005",
+     "width": 0.8,
+     "center": [
+      2.79,
+      8.62
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L0_006",
+     "width": 0.8,
+     "center": [
+      3.865,
+      8.62
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L0_007",
+     "width": 2.0,
+     "center": [
+      10.045,
+      10.71
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L0_008",
+     "width": 1.25,
+     "center": [
+      4.945,
+      13.03
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L0_009",
+     "width": 1.25,
+     "center": [
+      8.165,
+      13.03
+     ],
+     "type": "door"
+    }
+   ],
+   "windows": [
+    {
+     "id": "win_L0_001",
+     "width": 2.15,
+     "center": [
+      1.88,
+      0.25
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L0_002",
+     "width": 2.55,
+     "center": [
+      5.19,
+      0.25
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L0_003",
+     "width": 1.35,
+     "center": [
+      2.36,
+      13.03
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L0_004",
+     "width": 1.25,
+     "center": [
+      11.405,
+      13.03
+     ],
+     "type": "window"
+    }
+   ],
+   "openings": [],
+   "walls": [
+    {
+     "id": "w_L0_001",
+     "start": [
+      0.375,
+      13.155
+     ],
+     "end": [
+      0.375,
+      15.29
+     ],
+     "thickness": 0.09,
+     "parapet": true,
+     "height": 1.0
+    },
+    {
+     "id": "w_L0_002",
+     "start": [
+      13.375,
+      13.22
+     ],
+     "end": [
+      13.375,
+      15.3
+     ],
+     "thickness": 0.09,
+     "parapet": true,
+     "height": 1.0
+    },
+    {
+     "id": "w_L0_003",
+     "start": [
+      0.38,
+      15.245
+     ],
+     "end": [
+      13.405,
+      15.245
+     ],
+     "thickness": 0.09,
+     "parapet": true,
+     "height": 1.0
+    },
+    {
+     "id": "w_L0_004",
+     "start": [
+      0.0,
+      0.25
+     ],
+     "end": [
+      7.34,
+      0.25
+     ],
+     "thickness": 0.495
+    },
+    {
+     "id": "w_L0_005",
+     "start": [
+      0.58,
+      0.35
+     ],
+     "end": [
+      0.58,
+      7.86
+     ],
+     "thickness": 0.38
+    },
+    {
+     "id": "w_L0_006",
+     "start": [
+      3.725,
+      0.385
+     ],
+     "end": [
+      3.725,
+      5.865
+     ],
+     "thickness": 0.105
+    },
+    {
+     "id": "w_L0_007",
+     "start": [
+      6.905,
+      0.47
+     ],
+     "end": [
+      6.905,
+      5.89
+     ],
+     "thickness": 0.255
+    },
+    {
+     "id": "w_L0_008",
+     "start": [
+      2.33,
+      5.42
+     ],
+     "end": [
+      2.33,
+      6.0
+     ],
+     "thickness": 0.18
+    },
+    {
+     "id": "w_L0_009",
+     "start": [
+      0.645,
+      5.52
+     ],
+     "end": [
+      2.415,
+      5.52
+     ],
+     "thickness": 0.18
+    },
+    {
+     "id": "w_L0_010",
+     "start": [
+      2.75,
+      5.885
+     ],
+     "end": [
+      4.74,
+      5.885
+     ],
+     "thickness": 0.1
+    },
+    {
+     "id": "w_L0_011",
+     "start": [
+      2.28,
+      5.89
+     ],
+     "end": [
+      2.28,
+      8.54
+     ],
+     "thickness": 0.06
+    },
+    {
+     "id": "w_L0_012",
+     "start": [
+      2.385,
+      5.915
+     ],
+     "end": [
+      2.765,
+      5.915
+     ],
+     "thickness": 0.18
+    },
+    {
+     "id": "w_L0_013",
+     "start": [
+      4.675,
+      5.915
+     ],
+     "end": [
+      7.045,
+      5.915
+     ],
+     "thickness": 0.155
+    },
+    {
+     "id": "w_L0_014",
+     "start": [
+      4.965,
+      5.97
+     ],
+     "end": [
+      4.965,
+      7.01
+     ],
+     "thickness": 0.14
+    },
+    {
+     "id": "w_L0_015",
+     "start": [
+      4.905,
+      6.95
+     ],
+     "end": [
+      4.905,
+      8.54
+     ],
+     "thickness": 0.275
+    },
+    {
+     "id": "w_L0_016",
+     "start": [
+      0.555,
+      7.785
+     ],
+     "end": [
+      0.555,
+      11.745
+     ],
+     "thickness": 0.425
+    },
+    {
+     "id": "w_L0_017",
+     "start": [
+      13.215,
+      8.075
+     ],
+     "end": [
+      13.215,
+      11.745
+     ],
+     "thickness": 0.43
+    },
+    {
+     "id": "w_L0_018",
+     "start": [
+      10.045,
+      8.51
+     ],
+     "end": [
+      10.045,
+      12.88
+     ],
+     "thickness": 0.255
+    },
+    {
+     "id": "w_L0_019",
+     "start": [
+      4.28,
+      8.585
+     ],
+     "end": [
+      9.97,
+      8.585
+     ],
+     "thickness": 0.155
+    },
+    {
+     "id": "w_L0_020",
+     "start": [
+      0.71,
+      8.59
+     ],
+     "end": [
+      2.38,
+      8.59
+     ],
+     "thickness": 0.155
+    },
+    {
+     "id": "w_L0_021",
+     "start": [
+      2.36,
+      8.62
+     ],
+     "end": [
+      4.34,
+      8.62
+     ],
+     "thickness": 0.1
+    },
+    {
+     "id": "w_L0_022",
+     "start": [
+      3.33,
+      8.64
+     ],
+     "end": [
+      3.33,
+      12.91
+     ],
+     "thickness": 0.105
+    },
+    {
+     "id": "w_L0_023",
+     "start": [
+      10.11,
+      8.645
+     ],
+     "end": [
+      12.04,
+      8.645
+     ],
+     "thickness": 0.28
+    },
+    {
+     "id": "w_L0_024",
+     "start": [
+      11.93,
+      8.91
+     ],
+     "end": [
+      13.07,
+      8.91
+     ],
+     "thickness": 0.13
+    },
+    {
+     "id": "w_L0_025",
+     "start": [
+      0.65,
+      8.915
+     ],
+     "end": [
+      2.31,
+      8.915
+     ],
+     "thickness": 0.125
+    },
+    {
+     "id": "w_L0_026",
+     "start": [
+      0.535,
+      11.92
+     ],
+     "end": [
+      0.535,
+      12.83
+     ],
+     "thickness": 0.46
+    },
+    {
+     "id": "w_L0_027",
+     "start": [
+      13.24,
+      11.93
+     ],
+     "end": [
+      13.24,
+      12.82
+     ],
+     "thickness": 0.47
+    },
+    {
+     "id": "w_L0_028",
+     "start": [
+      0.3,
+      13.03
+     ],
+     "end": [
+      13.47,
+      13.03
+     ],
+     "thickness": 0.5
+    }
+   ],
+   "stairs": []
+  }
+ },
+ "failure_class": "dataset_swiss_dwellings",
+ "lesson": null,
+ "summary": "Swiss Dwellings building 6563, 1 floor(s), redrawn in a Turkish drafting style",
+ "dataset": {
+  "id": "swiss_dwellings",
+  "name": "Swiss Dwellings",
+  "record": "Zenodo record 7070952",
+  "url": "https://zenodo.org/records/7070952",
+  "licence": "CC BY 4.0",
+  "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+  "licence_declared_by": "publisher",
+  "licence_flag": "none",
+  "commercial_safe": "yes",
+  "attribution": "Swiss Dwellings (Archilyse AG), Zenodo record 7070952, CC BY 4.0; floors redrawn as Turkish-style DXF plans by WenArt (geometry regularised, labels translated, drafting conventions added).",
+  "building_id": "6563",
+  "site_id": "4089",
+  "floor_ids": [
+   "26725"
+  ],
+  "rotation_deg": 67.7042,
+  "shift_m": [
+   -6.885,
+   -7.6475
+  ],
+  "orthogonal_share": 1.0,
+  "angled_share": 0.0,
+  "bench_class": "orthogonal"
+ },
+ "style": {
+  "layers": {
+   "wall": "DUVAR",
+   "plaster": "siva_sgh",
+   "structure": "kolon",
+   "door": "kapı",
+   "window": "penc-yazi",
+   "stair": "MERDIVEN",
+   "furniture": "TEF",
+   "dimension": "iç ölçü",
+   "text": "YAZI",
+   "hatch": "tarama korıdor",
+   "axis": "aks",
+   "sanitary": "Piu_Vitrifiye",
+   "room_label": "TEXT",
+   "area": "TEXT",
+   "door_tag": "TEXT",
+   "window_tag": "YESIL",
+   "level": "YAZI",
+   "title": "YAZI"
+  },
+  "heights": {
+   "room_label": 0.126,
+   "area": 0.126,
+   "door_tag": 0.09,
+   "window_tag": 0.1,
+   "level": 0.175,
+   "title": 0.64,
+   "dimension": 0.125
+  },
+  "door_tag": "{w}/{h}",
+  "window_tag": "{w}X{h}",
+  "two_text_tags": false,
+  "area_tpl": "NET: {a}M2",
+  "area_decimals": 2,
+  "area_sep": ".",
+  "area_lower": true,
+  "level_tpl": "+ {z}",
+  "level_sep": ".",
+  "ground_mark": "±0.00",
+  "title_upper": "{n}.KAT PLANI",
+  "title_level": false,
+  "scale_text": "1/50",
+  "scale_inline": false,
+  "turkish_letters": false,
+  "title_case_labels": false,
+  "hatch_pattern": "ANSI37",
+  "hatch_on_wall_layer": false,
+  "window_lines": 4,
+  "window_sill": false,
+  "dims_as_entities": true,
+  "axes": true,
+  "unit": "cm",
+  "insunits": 0,
+  "storey_m": 3.06,
+  "seed": 6563
+ },
+ "drawing": {
+  "file": "plan.dxf",
+  "insunits": 0,
+  "units_per_metre": 100.0,
+  "plans": [
+   {
+    "key": "p0",
+    "origin_m": [
+     10.0,
+     9.998
+    ],
+    "title": "ZEMIN KAT PLANI",
+    "levels": [
+     "L0"
+    ]
+   }
+  ]
+ }
+}

@@ -1,0 +1,1667 @@
+{
+ "project": "swiss-b960",
+ "source": "synthetic",
+ "status": "accepted",
+ "units": "building metres (outer wall faces from the origin of each plan)",
+ "levels": [
+  {
+   "id": "L0",
+   "label": "Zemin Kat",
+   "elevation": 0.0,
+   "order": 0
+  },
+  {
+   "id": "L1",
+   "label": "1. Kat",
+   "elevation": 3.0,
+   "order": 1
+  }
+ ],
+ "per_level": {
+  "L0": {
+   "rooms": [
+    {
+     "id": "r_L0_001",
+     "label": "ASANSÖR",
+     "room_type": "shaft",
+     "area": 0.8644,
+     "centroid": [
+      15.500876,
+      0.454575
+     ],
+     "polygon": [
+      [
+       15.655,
+       0.29
+      ],
+      [
+       17.13,
+       0.29
+      ],
+      [
+       17.13,
+       0.58
+      ],
+      [
+       13.6,
+       0.58
+      ],
+      [
+       13.6,
+       0.3675
+      ],
+      [
+       15.655,
+       0.3675
+      ]
+     ]
+    },
+    {
+     "id": "r_L0_002",
+     "label": "ASANSÖR",
+     "room_type": "shaft",
+     "area": 0.9478,
+     "centroid": [
+      17.4225,
+      1.405
+     ],
+     "polygon": [
+      [
+       17.21,
+       0.29
+      ],
+      [
+       17.635,
+       0.29
+      ],
+      [
+       17.635,
+       2.52
+      ],
+      [
+       17.21,
+       2.52
+      ]
+     ]
+    },
+    {
+     "id": "r_L0_003",
+     "label": "BANYO",
+     "room_type": "bathroom",
+     "area": 6.707,
+     "centroid": [
+      15.365,
+      1.57
+     ],
+     "polygon": [
+      [
+       13.6,
+       0.62
+      ],
+      [
+       17.13,
+       0.62
+      ],
+      [
+       17.13,
+       2.52
+      ],
+      [
+       13.6,
+       2.52
+      ]
+     ]
+    },
+    {
+     "id": "r_L0_004",
+     "label": "BALKON",
+     "room_type": "balcony",
+     "area": 14.6492,
+     "centroid": [
+      2.169821,
+      2.700288
+     ],
+     "polygon": [
+      [
+       0.675,
+       0.25
+      ],
+      [
+       3.65,
+       0.25
+      ],
+      [
+       3.65,
+       0.3675
+      ],
+      [
+       3.665,
+       0.3675
+      ],
+      [
+       3.665,
+       5.15
+      ],
+      [
+       0.675,
+       5.15
+      ]
+     ]
+    },
+    {
+     "id": "r_L0_005",
+     "label": "SALON + MUTFAK",
+     "room_type": "living",
+     "area": 58.2065,
+     "centroid": [
+      10.513876,
+      3.186723
+     ],
+     "polygon": [
+      [
+       4.035,
+       0.3675
+      ],
+      [
+       13.47,
+       0.3675
+      ],
+      [
+       13.47,
+       2.52
+      ],
+      [
+       12.85,
+       2.52
+      ],
+      [
+       12.85,
+       2.65
+      ],
+      [
+       17.635,
+       2.65
+      ],
+      [
+       17.635,
+       3.8475
+      ],
+      [
+       17.63,
+       3.8475
+      ],
+      [
+       17.63,
+       4.1125
+      ],
+      [
+       21.81,
+       4.1125
+      ],
+      [
+       21.81,
+       5.97
+      ],
+      [
+       19.8725,
+       5.97
+      ],
+      [
+       19.8725,
+       5.4175
+      ],
+      [
+       19.875,
+       5.4175
+      ],
+      [
+       19.875,
+       5.3525
+      ],
+      [
+       19.19,
+       5.3525
+      ],
+      [
+       19.19,
+       5.34
+      ],
+      [
+       15.655,
+       5.34
+      ],
+      [
+       15.655,
+       4.055
+      ],
+      [
+       15.645,
+       4.055
+      ],
+      [
+       15.645,
+       3.78
+      ],
+      [
+       9.345,
+       3.78
+      ],
+      [
+       9.345,
+       4.15
+      ],
+      [
+       9.355,
+       4.15
+      ],
+      [
+       9.355,
+       6.025
+      ],
+      [
+       4.035,
+       6.025
+      ]
+     ]
+    },
+    {
+     "id": "r_L0_006",
+     "label": "ODA",
+     "room_type": "bedroom",
+     "area": 15.5032,
+     "centroid": [
+      23.484545,
+      6.527254
+     ],
+     "polygon": [
+      [
+       22.15,
+       4.0075
+      ],
+      [
+       25.025,
+       4.0075
+      ],
+      [
+       25.025,
+       9.04
+      ],
+      [
+       21.94,
+       9.04
+      ],
+      [
+       21.94,
+       4.1125
+      ],
+      [
+       22.15,
+       4.1125
+      ]
+     ]
+    },
+    {
+     "id": "r_L0_007",
+     "label": "EB.YATAK ODASI",
+     "room_type": "bedroom",
+     "area": 12.0934,
+     "centroid": [
+      17.34875,
+      7.255
+     ],
+     "polygon": [
+      [
+       15.655,
+       5.47
+      ],
+      [
+       19.0425,
+       5.47
+      ],
+      [
+       19.0425,
+       9.04
+      ],
+      [
+       15.655,
+       9.04
+      ]
+     ]
+    },
+    {
+     "id": "r_L0_008",
+     "label": "EB.YATAK ODASI",
+     "room_type": "bedroom",
+     "area": 15.3482,
+     "centroid": [
+      6.695,
+      7.5975
+     ],
+     "polygon": [
+      [
+       4.035,
+       6.155
+      ],
+      [
+       9.355,
+       6.155
+      ],
+      [
+       9.355,
+       9.04
+      ],
+      [
+       4.035,
+       9.04
+      ]
+     ]
+    },
+    {
+     "id": "r_L0_009",
+     "label": "BANYO",
+     "room_type": "bathroom",
+     "area": 7.261,
+     "centroid": [
+      20.524293,
+      7.653207
+     ],
+     "polygon": [
+      [
+       20.985,
+       6.1
+      ],
+      [
+       21.81,
+       6.1
+      ],
+      [
+       21.81,
+       9.04
+      ],
+      [
+       19.1875,
+       9.04
+      ],
+      [
+       19.1875,
+       6.35
+      ],
+      [
+       20.98,
+       6.35
+      ],
+      [
+       20.98,
+       6.31
+      ],
+      [
+       20.985,
+       6.31
+      ]
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "id": "d_L0_001",
+     "width": 1.0,
+     "center": [
+      3.85,
+      1.95
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L0_002",
+     "width": 0.7,
+     "center": [
+      16.085,
+      2.585
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L0_003",
+     "width": 0.95,
+     "center": [
+      17.76,
+      3.25
+     ],
+     "type": "door",
+     "flat_entrance": true
+    },
+    {
+     "id": "d_L0_004",
+     "width": 0.85,
+     "center": [
+      21.875,
+      4.665
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L0_005",
+     "width": 0.7,
+     "center": [
+      16.265,
+      5.405
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L0_006",
+     "width": 5.35,
+     "center": [
+      6.68,
+      6.09
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L0_007",
+     "width": 0.85,
+     "center": [
+      19.115,
+      8.5
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L0_008",
+     "width": 0.85,
+     "center": [
+      21.875,
+      8.5
+     ],
+     "type": "door"
+    }
+   ],
+   "windows": [
+    {
+     "id": "win_L0_001",
+     "width": 1.7,
+     "center": [
+      10.595,
+      3.965
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L0_002",
+     "width": 1.7,
+     "center": [
+      3.85,
+      4.025
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L0_003",
+     "width": 1.0,
+     "center": [
+      15.47,
+      4.65
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L0_004",
+     "width": 1.0,
+     "center": [
+      25.215,
+      5.87
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L0_005",
+     "width": 1.75,
+     "center": [
+      3.85,
+      7.175
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L0_006",
+     "width": 1.75,
+     "center": [
+      15.47,
+      7.875
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L0_007",
+     "width": 1.75,
+     "center": [
+      25.215,
+      7.94
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L0_008",
+     "width": 1.0,
+     "center": [
+      20.655,
+      9.225
+     ],
+     "type": "window"
+    }
+   ],
+   "openings": [],
+   "walls": [
+    {
+     "id": "w_L0_001",
+     "start": [
+      0.635,
+      0.145
+     ],
+     "end": [
+      0.635,
+      5.23
+     ],
+     "thickness": 0.08,
+     "parapet": true,
+     "height": 1.0
+    },
+    {
+     "id": "w_L0_002",
+     "start": [
+      0.595,
+      5.19
+     ],
+     "end": [
+      3.705,
+      5.19
+     ],
+     "thickness": 0.08,
+     "parapet": true,
+     "height": 1.0
+    },
+    {
+     "id": "w_L0_003",
+     "start": [
+      0.0,
+      0.125
+     ],
+     "end": [
+      3.73,
+      0.125
+     ],
+     "thickness": 0.25
+    },
+    {
+     "id": "w_L0_004",
+     "start": [
+      15.62,
+      0.165
+     ],
+     "end": [
+      18.53,
+      0.165
+     ],
+     "thickness": 0.25
+    },
+    {
+     "id": "w_L0_005",
+     "start": [
+      3.65,
+      0.19
+     ],
+     "end": [
+      15.655,
+      0.19
+     ],
+     "thickness": 0.355
+    },
+    {
+     "id": "w_L0_006",
+     "start": [
+      17.76,
+      0.235
+     ],
+     "end": [
+      17.76,
+      3.86
+     ],
+     "thickness": 0.25
+    },
+    {
+     "id": "w_L0_007",
+     "start": [
+      17.17,
+      0.26
+     ],
+     "end": [
+      17.17,
+      2.525
+     ],
+     "thickness": 0.08
+    },
+    {
+     "id": "w_L0_008",
+     "start": [
+      3.85,
+      0.3
+     ],
+     "end": [
+      3.85,
+      9.065
+     ],
+     "thickness": 0.37
+    },
+    {
+     "id": "w_L0_009",
+     "start": [
+      13.535,
+      0.355
+     ],
+     "end": [
+      13.535,
+      2.555
+     ],
+     "thickness": 0.13
+    },
+    {
+     "id": "w_L0_010",
+     "start": [
+      13.57,
+      0.6
+     ],
+     "end": [
+      17.155,
+      0.6
+     ],
+     "thickness": 0.04
+    },
+    {
+     "id": "w_L0_011",
+     "start": [
+      12.85,
+      2.585
+     ],
+     "end": [
+      17.66,
+      2.585
+     ],
+     "thickness": 0.13
+    },
+    {
+     "id": "w_L0_012",
+     "start": [
+      21.99,
+      3.83
+     ],
+     "end": [
+      25.41,
+      3.83
+     ],
+     "thickness": 0.355
+    },
+    {
+     "id": "w_L0_013",
+     "start": [
+      21.875,
+      3.955
+     ],
+     "end": [
+      21.875,
+      9.055
+     ],
+     "thickness": 0.13
+    },
+    {
+     "id": "w_L0_014",
+     "start": [
+      9.345,
+      3.965
+     ],
+     "end": [
+      15.645,
+      3.965
+     ],
+     "thickness": 0.37
+    },
+    {
+     "id": "w_L0_015",
+     "start": [
+      25.215,
+      3.965
+     ],
+     "end": [
+      25.215,
+      9.065
+     ],
+     "thickness": 0.38
+    },
+    {
+     "id": "w_L0_016",
+     "start": [
+      17.63,
+      3.98
+     ],
+     "end": [
+      22.15,
+      3.98
+     ],
+     "thickness": 0.265
+    },
+    {
+     "id": "w_L0_017",
+     "start": [
+      15.47,
+      4.055
+     ],
+     "end": [
+      15.47,
+      9.065
+     ],
+     "thickness": 0.37
+    },
+    {
+     "id": "w_L0_018",
+     "start": [
+      9.54,
+      4.085
+     ],
+     "end": [
+      9.54,
+      9.095
+     ],
+     "thickness": 0.37
+    },
+    {
+     "id": "w_L0_019",
+     "start": [
+      19.15,
+      5.385
+     ],
+     "end": [
+      19.875,
+      5.385
+     ],
+     "thickness": 0.065
+    },
+    {
+     "id": "w_L0_020",
+     "start": [
+      19.43,
+      5.39
+     ],
+     "end": [
+      19.43,
+      5.97
+     ],
+     "thickness": 0.12
+    },
+    {
+     "id": "w_L0_021",
+     "start": [
+      15.6,
+      5.405
+     ],
+     "end": [
+      19.19,
+      5.405
+     ],
+     "thickness": 0.13
+    },
+    {
+     "id": "w_L0_022",
+     "start": [
+      19.84,
+      5.405
+     ],
+     "end": [
+      19.84,
+      5.985
+     ],
+     "thickness": 0.065
+    },
+    {
+     "id": "w_L0_023",
+     "start": [
+      19.115,
+      5.44
+     ],
+     "end": [
+      19.115,
+      9.04
+     ],
+     "thickness": 0.145
+    },
+    {
+     "id": "w_L0_024",
+     "start": [
+      19.175,
+      6.035
+     ],
+     "end": [
+      21.825,
+      6.035
+     ],
+     "thickness": 0.13
+    },
+    {
+     "id": "w_L0_025",
+     "start": [
+      3.97,
+      6.09
+     ],
+     "end": [
+      9.38,
+      6.09
+     ],
+     "thickness": 0.13
+    },
+    {
+     "id": "w_L0_026",
+     "start": [
+      19.16,
+      6.33
+     ],
+     "end": [
+      20.98,
+      6.33
+     ],
+     "thickness": 0.04
+    },
+    {
+     "id": "w_L0_027",
+     "start": [
+      3.66,
+      9.225
+     ],
+     "end": [
+      9.74,
+      9.225
+     ],
+     "thickness": 0.37
+    },
+    {
+     "id": "w_L0_028",
+     "start": [
+      15.285,
+      9.225
+     ],
+     "end": [
+      25.405,
+      9.225
+     ],
+     "thickness": 0.37
+    }
+   ],
+   "stairs": [
+    {
+     "id": "s_L0_001",
+     "kind": "flight",
+     "center": [
+      14.529094,
+      3.215245
+     ],
+     "risers": 6,
+     "box": [
+      [
+       13.564094,
+       2.650245
+      ],
+      [
+       15.494094,
+       3.780245
+      ]
+     ]
+    }
+   ]
+  },
+  "L1": {
+   "rooms": [
+    {
+     "id": "r_L1_001",
+     "label": "ASANSÖR",
+     "room_type": "shaft",
+     "area": 0.7347,
+     "centroid": [
+      14.355695,
+      0.422677
+     ],
+     "polygon": [
+      [
+       14.27,
+       0.235
+      ],
+      [
+       15.755,
+       0.235
+      ],
+      [
+       15.755,
+       0.545
+      ],
+      [
+       12.2375,
+       0.545
+      ],
+      [
+       12.2375,
+       0.41
+      ],
+      [
+       14.27,
+       0.41
+      ]
+     ]
+    },
+    {
+     "id": "r_L1_002",
+     "label": "ASANSÖR KULESI",
+     "room_type": "shaft",
+     "area": 0.9912,
+     "centroid": [
+      16.05625,
+      1.355
+     ],
+     "polygon": [
+      [
+       15.835,
+       0.235
+      ],
+      [
+       16.2775,
+       0.235
+      ],
+      [
+       16.2775,
+       2.475
+      ],
+      [
+       15.835,
+       2.475
+      ]
+     ]
+    },
+    {
+     "id": "r_L1_003",
+     "label": "BANYO",
+     "room_type": "bathroom",
+     "area": 6.6481,
+     "centroid": [
+      13.99625,
+      1.53
+     ],
+     "polygon": [
+      [
+       12.2375,
+       0.585
+      ],
+      [
+       15.755,
+       0.585
+      ],
+      [
+       15.755,
+       2.475
+      ],
+      [
+       12.2375,
+       2.475
+      ]
+     ]
+    },
+    {
+     "id": "r_L1_004",
+     "label": "Y.ODA",
+     "room_type": "bedroom",
+     "area": 11.8915,
+     "centroid": [
+      16.05,
+      7.13375
+     ],
+     "polygon": [
+      [
+       14.35,
+       5.385
+      ],
+      [
+       17.75,
+       5.385
+      ],
+      [
+       17.75,
+       8.8825
+      ],
+      [
+       14.35,
+       8.8825
+      ]
+     ]
+    },
+    {
+     "id": "r_L1_005",
+     "label": "DUŞ",
+     "room_type": "bathroom",
+     "area": 7.1719,
+     "centroid": [
+      19.211139,
+      7.506
+     ],
+     "polygon": [
+      [
+       19.665,
+       5.96
+      ],
+      [
+       20.49,
+       5.96
+      ],
+      [
+       20.49,
+       8.8825
+      ],
+      [
+       17.88,
+       8.8825
+      ],
+      [
+       17.88,
+       6.215
+      ],
+      [
+       19.68,
+       6.215
+      ],
+      [
+       19.68,
+       6.175
+      ],
+      [
+       19.665,
+       6.175
+      ]
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "id": "d_L1_001",
+     "width": 0.8,
+     "center": [
+      14.63,
+      2.54
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L1_002",
+     "width": 0.95,
+     "center": [
+      16.415,
+      3.165
+     ],
+     "type": "door",
+     "flat_entrance": true
+    },
+    {
+     "id": "d_L1_003",
+     "width": 0.85,
+     "center": [
+      20.555,
+      4.49
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L1_004",
+     "width": 0.85,
+     "center": [
+      14.875,
+      5.32
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L1_005",
+     "width": 0.85,
+     "center": [
+      20.555,
+      8.32
+     ],
+     "type": "door"
+    },
+    {
+     "id": "d_L1_006",
+     "width": 0.85,
+     "center": [
+      17.815,
+      8.37
+     ],
+     "type": "door"
+    }
+   ],
+   "windows": [
+    {
+     "id": "win_L1_001",
+     "width": 1.7,
+     "center": [
+      2.535,
+      1.725
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L1_002",
+     "width": 1.0,
+     "center": [
+      2.535,
+      3.795
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L1_003",
+     "width": 1.65,
+     "center": [
+      10.12,
+      5.215
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L1_004",
+     "width": 0.85,
+     "center": [
+      5.255,
+      5.215
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L1_005",
+     "width": 1.7,
+     "center": [
+      23.89,
+      5.295
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L1_006",
+     "width": 1.0,
+     "center": [
+      23.89,
+      7.365
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L1_007",
+     "width": 1.7,
+     "center": [
+      14.18,
+      7.81
+     ],
+     "type": "window"
+    },
+    {
+     "id": "win_L1_008",
+     "width": 1.0,
+     "center": [
+      19.39,
+      9.065
+     ],
+     "type": "window"
+    }
+   ],
+   "openings": [],
+   "walls": [
+    {
+     "id": "w_L1_001",
+     "start": [
+      7.94,
+      5.34
+     ],
+     "end": [
+      7.94,
+      8.885
+     ],
+     "thickness": 0.04,
+     "parapet": true,
+     "height": 1.0
+    },
+    {
+     "id": "w_L1_002",
+     "start": [
+      2.955,
+      5.45
+     ],
+     "end": [
+      2.955,
+      8.995
+     ],
+     "thickness": 0.04,
+     "parapet": true,
+     "height": 1.0
+    },
+    {
+     "id": "w_L1_003",
+     "start": [
+      2.985,
+      8.94
+     ],
+     "end": [
+      7.985,
+      8.94
+     ],
+     "thickness": 0.04,
+     "parapet": true,
+     "height": 1.0
+    },
+    {
+     "id": "w_L1_004",
+     "start": [
+      14.24,
+      0.105
+     ],
+     "end": [
+      17.15,
+      0.105
+     ],
+     "thickness": 0.26
+    },
+    {
+     "id": "w_L1_005",
+     "start": [
+      16.415,
+      0.165
+     ],
+     "end": [
+      16.415,
+      3.775
+     ],
+     "thickness": 0.275
+    },
+    {
+     "id": "w_L1_006",
+     "start": [
+      15.795,
+      0.205
+     ],
+     "end": [
+      15.795,
+      2.46
+     ],
+     "thickness": 0.08
+    },
+    {
+     "id": "w_L1_007",
+     "start": [
+      2.315,
+      0.245
+     ],
+     "end": [
+      14.27,
+      0.245
+     ],
+     "thickness": 0.33
+    },
+    {
+     "id": "w_L1_008",
+     "start": [
+      12.165,
+      0.28
+     ],
+     "end": [
+      12.165,
+      2.53
+     ],
+     "thickness": 0.145
+    },
+    {
+     "id": "w_L1_009",
+     "start": [
+      2.535,
+      0.47
+     ],
+     "end": [
+      2.535,
+      5.14
+     ],
+     "thickness": 0.365
+    },
+    {
+     "id": "w_L1_010",
+     "start": [
+      12.19,
+      0.565
+     ],
+     "end": [
+      15.77,
+      0.565
+     ],
+     "thickness": 0.04
+    },
+    {
+     "id": "w_L1_011",
+     "start": [
+      11.49,
+      2.54
+     ],
+     "end": [
+      16.3,
+      2.54
+     ],
+     "thickness": 0.13
+    },
+    {
+     "id": "w_L1_012",
+     "start": [
+      20.795,
+      2.94
+     ],
+     "end": [
+      20.795,
+      3.85
+     ],
+     "thickness": 0.395
+    },
+    {
+     "id": "w_L1_013",
+     "start": [
+      20.93,
+      3.63
+     ],
+     "end": [
+      24.01,
+      3.63
+     ],
+     "thickness": 0.365
+    },
+    {
+     "id": "w_L1_014",
+     "start": [
+      23.89,
+      3.765
+     ],
+     "end": [
+      23.89,
+      8.83
+     ],
+     "thickness": 0.355
+    },
+    {
+     "id": "w_L1_015",
+     "start": [
+      16.29,
+      3.845
+     ],
+     "end": [
+      20.79,
+      3.845
+     ],
+     "thickness": 0.26
+    },
+    {
+     "id": "w_L1_016",
+     "start": [
+      20.555,
+      3.94
+     ],
+     "end": [
+      20.555,
+      8.875
+     ],
+     "thickness": 0.13
+    },
+    {
+     "id": "w_L1_017",
+     "start": [
+      14.265,
+      4.305
+     ],
+     "end": [
+      14.265,
+      4.975
+     ],
+     "thickness": 0.13
+    },
+    {
+     "id": "w_L1_018",
+     "start": [
+      18.52,
+      5.2
+     ],
+     "end": [
+      18.52,
+      5.85
+     ],
+     "thickness": 0.09
+    },
+    {
+     "id": "w_L1_019",
+     "start": [
+      2.395,
+      5.215
+     ],
+     "end": [
+      14.335,
+      5.215
+     ],
+     "thickness": 0.355
+    },
+    {
+     "id": "w_L1_020",
+     "start": [
+      14.18,
+      5.25
+     ],
+     "end": [
+      14.18,
+      8.97
+     ],
+     "thickness": 0.34
+    },
+    {
+     "id": "w_L1_021",
+     "start": [
+      17.85,
+      5.255
+     ],
+     "end": [
+      18.5,
+      5.255
+     ],
+     "thickness": 0.09
+    },
+    {
+     "id": "w_L1_022",
+     "start": [
+      18.11,
+      5.275
+     ],
+     "end": [
+      18.11,
+      5.865
+     ],
+     "thickness": 0.105
+    },
+    {
+     "id": "w_L1_023",
+     "start": [
+      14.245,
+      5.32
+     ],
+     "end": [
+      17.855,
+      5.32
+     ],
+     "thickness": 0.13
+    },
+    {
+     "id": "w_L1_024",
+     "start": [
+      17.815,
+      5.335
+     ],
+     "end": [
+      17.815,
+      8.915
+     ],
+     "thickness": 0.13
+    },
+    {
+     "id": "w_L1_025",
+     "start": [
+      17.825,
+      5.895
+     ],
+     "end": [
+      20.5,
+      5.895
+     ],
+     "thickness": 0.13
+    },
+    {
+     "id": "w_L1_026",
+     "start": [
+      17.85,
+      6.195
+     ],
+     "end": [
+      19.68,
+      6.195
+     ],
+     "thickness": 0.04
+    },
+    {
+     "id": "w_L1_027",
+     "start": [
+      14.04,
+      9.065
+     ],
+     "end": [
+      24.11,
+      9.065
+     ],
+     "thickness": 0.365
+    }
+   ],
+   "stairs": []
+  }
+ },
+ "failure_class": "dataset_swiss_dwellings",
+ "lesson": null,
+ "summary": "Swiss Dwellings building 960, 2 floor(s), redrawn in a Turkish drafting style",
+ "dataset": {
+  "id": "swiss_dwellings",
+  "name": "Swiss Dwellings",
+  "record": "Zenodo record 7070952",
+  "url": "https://zenodo.org/records/7070952",
+  "licence": "CC BY 4.0",
+  "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+  "licence_declared_by": "publisher",
+  "licence_flag": "none",
+  "commercial_safe": "yes",
+  "attribution": "Swiss Dwellings (Archilyse AG), Zenodo record 7070952, CC BY 4.0; floors redrawn as Turkish-style DXF plans by WenArt (geometry regularised, labels translated, drafting conventions added).",
+  "building_id": "960",
+  "site_id": "392",
+  "floor_ids": [
+   "4118",
+   "4119"
+  ],
+  "rotation_deg": 77.488,
+  "shift_m": [
+   -13.235,
+   -4.34
+  ],
+  "orthogonal_share": 1.0,
+  "angled_share": 0.0,
+  "bench_class": "orthogonal"
+ },
+ "style": {
+  "layers": {
+   "wall": "duvar",
+   "plaster": "SIVA",
+   "structure": "tarama kolon",
+   "door": "kapi",
+   "window": "penc-yazi",
+   "stair": "A-MERDIVEN",
+   "furniture": "M-TEF",
+   "dimension": "İÇ ÖLÇÜ",
+   "text": "03_Yazı",
+   "hatch": "DERE_TARAMA",
+   "axis": "akslar",
+   "sanitary": "Piu_Vitrifiye",
+   "room_label": "Z_yazı",
+   "area": "alan",
+   "door_tag": "03_Yazı",
+   "window_tag": "yazı",
+   "level": "kot_sgh",
+   "title": "pafta ismi"
+  },
+  "heights": {
+   "room_label": 0.15,
+   "area": 0.15,
+   "door_tag": 0.09,
+   "window_tag": 0.1,
+   "level": 0.175,
+   "title": 0.25,
+   "dimension": 0.25
+  },
+  "door_tag": "{w}/{h}",
+  "window_tag": "{w} X {h}",
+  "two_text_tags": false,
+  "area_tpl": "{a}M2",
+  "area_decimals": 2,
+  "area_sep": ".",
+  "area_lower": true,
+  "level_tpl": "+{z}",
+  "level_sep": ".",
+  "ground_mark": "±0.00",
+  "title_upper": "{n}.KAT PLANI",
+  "title_level": false,
+  "scale_text": "Ö:1/50",
+  "scale_inline": false,
+  "turkish_letters": true,
+  "title_case_labels": false,
+  "hatch_pattern": "ANSI33",
+  "hatch_on_wall_layer": true,
+  "window_lines": 3,
+  "window_sill": false,
+  "dims_as_entities": true,
+  "axes": true,
+  "unit": "cm",
+  "insunits": 0,
+  "storey_m": 3.0,
+  "seed": 960
+ },
+ "drawing": {
+  "file": "plan.dxf",
+  "insunits": 0,
+  "units_per_metre": 100.0,
+  "plans": [
+   {
+    "key": "p0",
+    "origin_m": [
+     10.0,
+     10.025
+    ],
+    "title": "ZEMİN KAT PLANI",
+    "levels": [
+     "L0"
+    ]
+   },
+   {
+    "key": "p1",
+    "origin_m": [
+     49.41,
+     10.025
+    ],
+    "title": "1.KAT PLANI",
+    "levels": [
+     "L1"
+    ]
+   }
+  ]
+ }
+}
