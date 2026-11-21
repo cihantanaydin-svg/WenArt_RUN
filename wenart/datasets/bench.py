@@ -136,7 +136,31 @@ def _wall_class(t: dict, rr: list) -> str:
         return "parapet wall missed"
     if any(SC.wall_overlap(t, dict(r, thickness=t.get("thickness"))) is not None for r in rr):
         return "wall read with another thickness"
+    if _off_axes(t):
+        return "angled wall missed"
     return "thin wall (< 10 cm) missed" if float(t.get("thickness") or 0) < 0.10 else "wall missed"
+
+
+def _angle(w: dict) -> float:
+    return math.degrees(math.atan2(w["end"][1] - w["start"][1], w["end"][0] - w["start"][0])) % 180.0
+
+
+def _off_axes(w: dict) -> bool:
+    a = _angle(w) % 90.0
+    return min(a, 90.0 - a) > 2.0
+
+
+def _extra_wall_class(r: dict, tt: list) -> str:
+    """A read wall that matched none: a piece of a drawn wall (on its line), axis-aligned steps along a drawn wall at
+    an angle, or a wall on no drawn line."""
+    if any(SC.wall_overlap(dict(t, thickness=r.get("thickness")), r) is not None for t in tt):
+        return "wall split (a piece of a drawn wall read as a wall of its own)"
+    if not _off_axes(r):
+        from shapely.geometry import LineString, Point
+        mid = Point((r["start"][0] + r["end"][0]) / 2, (r["start"][1] + r["end"][1]) / 2)
+        if any(_off_axes(t) and LineString([t["start"], t["end"]]).distance(mid) <= 0.4 for t in tt):
+            return "angled wall read as axis-aligned steps"
+    return "wall invented (on no drawn wall line)"
 
 
 def errors(project: str, truth: dict, read: dict) -> list[dict]:
@@ -232,7 +256,7 @@ def errors(project: str, truth: dict, read: dict) -> list[dict]:
                             "example": f"{t.get('id')} {t.get('start')}-{t.get('end')} t={t.get('thickness')}"})
         for j, r in enumerate(rr):
             if j not in mr:
-                out.append({"class": "wall invented or split", "kind": "walls", "level": lid,
+                out.append({"class": _extra_wall_class(r, tt), "kind": "walls", "level": lid,
                             "example": f"{r.get('start')}-{r.get('end')} t={r.get('thickness')}"})
     for lid, (tt, rr, m) in _pairs_by_level(truth, read, "stairs").items():
         if lid not in r_levels:
@@ -333,7 +357,10 @@ def score_one(project_dir: Path, read_dir: Path) -> dict:
     """The numbers of one reading against its truth: ``reading_check.score.match`` per kind after ``align`` (the
     unaligned total kept), the room types, the errors."""
     name = Path(project_dir).name
-    truth = TR.synthetic_truth(name, Path(project_dir) / "truth" / "reading_truth.json")
+    path = Path(project_dir) / "truth" / "reading_truth.json"
+    truth = TR.synthetic_truth(name, path)
+    meta = json.loads(path.read_text(encoding="utf-8"))          # the dataset and style fields synthetic_truth drops
+    truth["dataset"], truth["style"] = meta.get("dataset") or {}, meta.get("style") or {}
     b = json.loads((Path(read_dir) / "building.json").read_text(encoding="utf-8"))
     raw = TR.extract(b, project=name)
     read, shifts = align(truth, raw)
@@ -361,6 +388,8 @@ def score_one(project_dir: Path, read_dir: Path) -> dict:
             {"class": "frame offset (a level read in another origin or turned)", "kind": "levels", "level": lid,
              "project": name, "example": f"shift {s['shift_m']} m, turn {s['rot_deg']} deg"}
             for lid, s in shifts.items()]
+    for e in res["errors"]:
+        e["bench_class"] = res["bench_class"]
     res["status"] = (b.get("project") or {}).get("status") or b.get("status")
     return res
 
@@ -410,7 +439,9 @@ def aggregate(results: dict) -> dict:
         types[1] += res["room_types"]["right"]
         for e in res.get("errors") or []:
             errs[e["class"]] += 1
-            examples.setdefault(e["class"], e)
+            if e["class"] not in examples or (examples[e["class"]].get("bench_class") == "angled"
+                                              and e.get("bench_class") != "angled"):
+                examples[e["class"]] = e              # an orthogonal example where the class has one
     per_kind = {k: SC._stats(nt, nr, nm) for k, (nt, nr, nm) in sums.items()}
     per_kind["room_types"] = {"matched": types[0], "right": types[1],
                               "share": round(types[1] / types[0], 4) if types[0] else None}
