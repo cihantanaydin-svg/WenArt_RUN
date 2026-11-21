@@ -309,6 +309,49 @@ def _longest_dir(rl: dict) -> Optional[float]:
     return math.degrees(math.atan2(w["end"][1] - w["start"][1], w["end"][0] - w["start"][0])) % 180.0
 
 
+LINE_SHIFT_WALLS = 12         # align: the longest walls of each side whose lines vote for a shift
+LINE_SHIFT_TOP = 6            # ... the shifts with the most votes are tried
+
+
+def _line_shifts(tl: dict, rl: dict, rot: float) -> list[tuple]:
+    """21 Nov 2026 (bench: four plans read right but scored 0, their min corners off by a parapet or a step): shifts that
+    lay the reading's long wall lines on the truth's. Every pair of a truth wall and a read wall (after the turn) of
+    the same direction (2 degrees) and thickness (5 cm) gives one line equation n . s = d (n the wall's normal, d the
+    lines' offset); two equations of directions >= 30 degrees apart give a shift; the shifts are rounded to 2 cm and the
+    ``LINE_SHIFT_TOP`` most voted returned as ``(dx, dy, rot)``."""
+    def longest(ws):
+        ws = [w for w in ws if w.get("start") and w.get("end") and SC._dist(w["start"], w["end"]) > 0.5]
+        return sorted(ws, key=lambda w: -SC._dist(w["start"], w["end"]))[:LINE_SHIFT_WALLS]
+
+    tt = longest(TR.positives(tl.get("walls") or []))
+    rr = longest(_shift_level(rl, 0.0, 0.0, rot).get("walls") or [])
+    eqs = []
+    for t in tt:
+        lt = SC._dist(t["start"], t["end"])
+        ux, uy = (t["end"][0] - t["start"][0]) / lt, (t["end"][1] - t["start"][1]) / lt
+        nx, ny = -uy, ux
+        mt = ((t["start"][0] + t["end"][0]) / 2, (t["start"][1] + t["end"][1]) / 2)
+        for r in rr:
+            lr = SC._dist(r["start"], r["end"])
+            vx, vy = (r["end"][0] - r["start"][0]) / lr, (r["end"][1] - r["start"][1]) / lr
+            if abs(ux * vy - uy * vx) > math.sin(math.radians(2.0)):
+                continue
+            if abs(float(t.get("thickness") or 0) - float(r.get("thickness") or 0)) > SC.WALL_THICKNESS_M:
+                continue
+            mr = ((r["start"][0] + r["end"][0]) / 2, (r["start"][1] + r["end"][1]) / 2)
+            eqs.append((nx, ny, nx * (mr[0] - mt[0]) + ny * (mr[1] - mt[1])))
+    votes: collections.Counter = collections.Counter()
+    for i, (ax, ay, ad) in enumerate(eqs):
+        for bx, by, bd in eqs[i + 1:]:
+            det = ax * by - ay * bx
+            if abs(det) < math.sin(math.radians(30.0)):
+                continue
+            sx, sy = (ad * by - ay * bd) / det, (ax * bd - ad * bx) / det
+            if math.hypot(sx, sy) <= 5.0:
+                votes[(round(sx / 0.02) * 0.02, round(sy / 0.02) * 0.02)] += 1
+    return [(sx, sy, rot) for (sx, sy), _n in votes.most_common(LINE_SHIFT_TOP)]
+
+
 def _matches(tl: dict, rl: dict) -> int:
     return sum(len(SC.match_kind(k, TR.positives(tl.get(k) or []), rl.get(k) or []))
                for k in ("walls", "doors", "windows"))
@@ -342,6 +385,7 @@ def align(truth: dict, read: dict) -> tuple[dict, dict]:
                 cands.append((rm[0] - tm[0], rm[1] - tm[1], rot))
             elif rot:
                 cands.append((0.0, 0.0, rot))
+            cands += _line_shifts(tl, rl, rot)
         best = max(cands, key=lambda m: (_matches(tl, _shift_level(rl, *m)), -abs(m[2]), -math.hypot(m[0], m[1])))
         moved = math.hypot(best[0], best[1]) > 0.05 or abs(best[2]) > 0.5
         if moved and _matches(tl, _shift_level(rl, *best)) > _matches(tl, rl):
@@ -351,6 +395,78 @@ def align(truth: dict, read: dict) -> tuple[dict, dict]:
         else:
             first = first or (0.0, 0.0, 0.0)
     return out, moves
+
+
+COVER_ANGLE_DEG = 3.0         # wall coverage: a wall covers another within this angle ...
+
+
+def covered_length(a: dict, others: list) -> float:
+    """The length of wall ``a``'s centre line that walls of ``others`` cover: the union of their spans along ``a``'s axis,
+    each from a wall within ``COVER_ANGLE_DEG`` of ``a``, its centre line within ``score.WALL_LATERAL_M`` of ``a``'s
+    over the shared span and its thickness within ``score.WALL_THICKNESS_M`` (the same solid on the same line)."""
+    la = SC._dist(a["start"], a["end"])
+    if la < 1e-6:
+        return 0.0
+    ox, oy = float(a["start"][0]), float(a["start"][1])
+    ux, uy = (float(a["end"][0]) - ox) / la, (float(a["end"][1]) - oy) / la
+    ta = a.get("thickness")
+    spans = []
+    for b in others:
+        tb = b.get("thickness")
+        if ta is not None and tb is not None and abs(float(ta) - float(tb)) > SC.WALL_THICKNESS_M:
+            continue
+        lb = SC._dist(b["start"], b["end"])
+        if lb < 1e-6:
+            continue
+        cross = abs(((float(b["end"][0]) - float(b["start"][0])) * uy - (float(b["end"][1]) - float(b["start"][1])) * ux)
+                    / lb)
+        if cross > math.sin(math.radians(COVER_ANGLE_DEG)):
+            continue
+        pts = []
+        for p in (b["start"], b["end"]):
+            dx, dy = float(p[0]) - ox, float(p[1]) - oy
+            pts.append((dx * ux + dy * uy, dx * uy - dy * ux))
+        (s0, d0), (s1, d1) = sorted(pts)
+        lo, hi = max(0.0, s0), min(la, s1)
+        if hi - lo <= 1e-6:
+            continue
+        at = (lambda s: d0 + (d1 - d0) * (s - s0) / (s1 - s0)) if s1 - s0 > 1e-9 else (lambda s: d0)
+        if max(abs(at(lo)), abs(at(hi))) > SC.WALL_LATERAL_M:
+            continue
+        spans.append((lo, hi))
+    total, end = 0.0, -1.0
+    for lo, hi in sorted(spans):
+        if hi <= end:
+            continue
+        total += hi - max(lo, end)
+        end = hi
+    return total
+
+
+def wall_coverage(truth: dict, read: dict) -> dict:
+    """The length-weighted wall score (21 Nov 2026, next to the one-to-one ``match_walls``): pieces of one drawn wall
+    that build the same solid on the same line count as that wall. ``truth_m``: the truth's wall length, ``covered_m``:
+    of it covered by read walls; ``read_m``: the read wall length, ``on_truth_m``: of it on truth walls (``covered_length``
+    both ways)."""
+    out = {"truth_m": 0.0, "covered_m": 0.0, "read_m": 0.0, "on_truth_m": 0.0}
+    for lid, tl in (truth.get("per_level") or {}).items():
+        tt = [w for w in TR.positives(tl.get("walls") or []) if w.get("start") and w.get("end")]
+        rr = [w for w in ((read.get("per_level") or {}).get(lid) or {}).get("walls") or []
+              if w.get("start") and w.get("end")]
+        for t in tt:
+            out["truth_m"] += SC._dist(t["start"], t["end"])
+            out["covered_m"] += covered_length(t, rr)
+        for r in rr:
+            out["read_m"] += SC._dist(r["start"], r["end"])
+            out["on_truth_m"] += covered_length(r, tt)
+    return {k: round(v, 3) for k, v in out.items()}
+
+
+def _coverage_stats(c: dict) -> dict:
+    rec = c["covered_m"] / c["truth_m"] if c["truth_m"] else 0.0
+    prec = c["on_truth_m"] / c["read_m"] if c["read_m"] else 0.0
+    return {**{k: round(v, 1) for k, v in c.items()}, "recall": round(rec, 4), "precision": round(prec, 4),
+            "f1": round(2 * rec * prec / (rec + prec), 4) if rec + prec else 0.0}
 
 
 def score_one(project_dir: Path, read_dir: Path) -> dict:
@@ -367,6 +483,7 @@ def score_one(project_dir: Path, read_dir: Path) -> dict:
     res = SC.match(truth, read, b)
     res["total_unaligned"] = SC.match(truth, raw, b)["total"]
     res["frame_moves"] = shifts
+    res["walls_coverage"] = wall_coverage(truth, read)
     res["bench_class"] = (truth.get("dataset") or {}).get("bench_class") or "orthogonal"
     typed = right = 0
     for lid, (tt, rr, m) in _pairs_by_level(truth, read, "rooms").items():
@@ -423,6 +540,7 @@ def run(bench_dir: Path, work: Path, timeout: int = 900, only: Optional[list] = 
 def aggregate(results: dict) -> dict:
     sums = {k: [0, 0, 0] for k in KINDS}
     types = [0, 0]
+    cover = {"truth_m": 0.0, "covered_m": 0.0, "read_m": 0.0, "on_truth_m": 0.0}
     totals, errs, failed = [], collections.Counter(), []
     examples: dict = {}
     for name, res in sorted(results.items()):
@@ -437,6 +555,8 @@ def aggregate(results: dict) -> dict:
             sums[k][2] += st.get("matched", 0)
         types[0] += res["room_types"]["matched"]
         types[1] += res["room_types"]["right"]
+        for k, v in (res.get("walls_coverage") or {}).items():
+            cover[k] += v
         for e in res.get("errors") or []:
             errs[e["class"]] += 1
             if e["class"] not in examples or (examples[e["class"]].get("bench_class") == "angled"
@@ -445,6 +565,7 @@ def aggregate(results: dict) -> dict:
     per_kind = {k: SC._stats(nt, nr, nm) for k, (nt, nr, nm) in sums.items()}
     per_kind["room_types"] = {"matched": types[0], "right": types[1],
                               "share": round(types[1] / types[0], 4) if types[0] else None}
+    per_kind["walls_coverage"] = _coverage_stats(cover)
     return {"projects": len(results), "scored": len(totals), "failed": failed,
             "floors": sums["levels"][0], "mean_total": round(sum(totals) / len(totals), 2) if totals else None,
             "per_kind": per_kind,
@@ -484,11 +605,18 @@ def report(bench_dir: Path, work: Path, out_stem: Path) -> dict:
         lines.append(f"| {k} | {s['truth']} | {s['read']} | {s['matched']} | {s['recall']:.3f} | "
                      f"{s['precision']:.3f} | {s['f1']:.3f} | {s2['f1']:.3f} | {co['per_kind'][k]['f1']:.3f} | "
                      f"{ca['per_kind'][k]['f1']:.3f} |")
+    wc, wc2 = agg["per_kind"]["walls_coverage"], read["per_kind"]["walls_coverage"]
+    lines.append(f"| walls, length-weighted (m) | {wc['truth_m']:.0f} | {wc['read_m']:.0f} | {wc['covered_m']:.0f} | "
+                 f"{wc['recall']:.3f} | {wc['precision']:.3f} | {wc['f1']:.3f} | {wc2['f1']:.3f} | "
+                 f"{co['per_kind']['walls_coverage']['f1']:.3f} | {ca['per_kind']['walls_coverage']['f1']:.3f} |")
     rt, rt2 = agg["per_kind"]["room_types"], read["per_kind"]["room_types"]
     lines += [f"| room types (of matched rooms) | {rt['matched']} | | {rt['right']} | | | {rt['share']} | "
               f"{rt2['share']} | {co['per_kind']['room_types']['share']} | {ca['per_kind']['room_types']['share']} |",
               "", "The class columns count the projects whose drawing scale was read (a floor not read says "
-              "nothing about walls at an angle).", "",
+              "nothing about walls at an angle). Walls are scored twice: one to one (`match_walls`: a drawn wall "
+              "read in pieces counts one piece) and length-weighted (`wall_coverage`: the length of the truth's "
+              "walls that read walls of the same thickness cover on their line, and of the read walls on truth "
+              "walls; pieces that build the same solid count as the wall).", "",
               "## Error classes", "", "| class | count | example |", "|---|---|---|"]
     for e in agg["error_classes"][:25]:
         ex = e["example"]
