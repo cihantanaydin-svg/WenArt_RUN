@@ -1,0 +1,1811 @@
+{
+ "note": "Statistics measured from the user's converted DXFs (layer names per role, text heights, label vocabulary, tag and text shapes with digits folded to 9, door arcs, hatches, dimensions, units); no drawing content is kept. share = frequency over all counted items, projects = number of projects it occurs in. Built by python -m wenart.datasets.turkish_profile build.",
+ "projects": 18,
+ "units": {
+  "cm": 12,
+  "1 unit = 50 m": 5,
+  "mm": 1
+ },
+ "insunits": {
+  "4": 7,
+  "5": 2,
+  "0": 9
+ },
+ "layers": {
+  "wall": {
+   "DUVAR": {
+    "share": 0.9161,
+    "projects": 10
+   },
+   "duvar": {
+    "share": 0.0659,
+    "projects": 3
+   },
+   "duvar-kesim": {
+    "share": 0.011,
+    "projects": 5
+   },
+   "Z_ duvar": {
+    "share": 0.0044,
+    "projects": 1
+   },
+   "_P3_S_Duvar_Ç": {
+    "share": 0.0019,
+    "projects": 2
+   },
+   "duvar60": {
+    "share": 0.0004,
+    "projects": 1
+   },
+   "A-DUVAR-GOR0.2": {
+    "share": 0.0001,
+    "projects": 2
+   },
+   "DBM_fin_wall_solid": {
+    "share": 0.0001,
+    "projects": 1
+   },
+   "duvar_döş_kaplama": {
+    "share": 0.0001,
+    "projects": 1
+   },
+   "_P3_S_Duvar_T": {
+    "share": 0.0,
+    "projects": 2
+   }
+  },
+  "plaster": {
+   "SIVA": {
+    "share": 0.5277,
+    "projects": 5
+   },
+   "SıVA": {
+    "share": 0.2576,
+    "projects": 3
+   },
+   "siva_sgh": {
+    "share": 0.0966,
+    "projects": 1
+   },
+   "sıva": {
+    "share": 0.0871,
+    "projects": 2
+   },
+   "Z_sıva": {
+    "share": 0.031,
+    "projects": 1
+   }
+  },
+  "structure": {
+   "tarama-betonarme_sgh": {
+    "share": 0.9135,
+    "projects": 1
+   },
+   "KOLON": {
+    "share": 0.0293,
+    "projects": 4
+   },
+   "kolon": {
+    "share": 0.0224,
+    "projects": 9
+   },
+   "kolon-b.a_sgh": {
+    "share": 0.0157,
+    "projects": 1
+   },
+   "emsal&kolon": {
+    "share": 0.0081,
+    "projects": 1
+   },
+   "Z_kolon tarama": {
+    "share": 0.0078,
+    "projects": 1
+   },
+   "A-BA": {
+    "share": 0.0008,
+    "projects": 2
+   },
+   "tarama kolon": {
+    "share": 0.0007,
+    "projects": 1
+   },
+   "Kolon": {
+    "share": 0.0006,
+    "projects": 1
+   },
+   "Z_kolon": {
+    "share": 0.0004,
+    "projects": 1
+   }
+  },
+  "door": {
+   "KAPI": {
+    "share": 0.4606,
+    "projects": 5
+   },
+   "kapi": {
+    "share": 0.1465,
+    "projects": 5
+   },
+   "kapı-pencere": {
+    "share": 0.1144,
+    "projects": 1
+   },
+   "KAPI-GOR": {
+    "share": 0.1028,
+    "projects": 1
+   },
+   "kapı": {
+    "share": 0.0598,
+    "projects": 4
+   },
+   "KAPI-ACILIM11": {
+    "share": 0.0354,
+    "projects": 1
+   },
+   "kapi-yazi": {
+    "share": 0.0246,
+    "projects": 5
+   },
+   "KAPI-ACILIM1": {
+    "share": 0.0183,
+    "projects": 1
+   },
+   "KAPI-CAM": {
+    "share": 0.017,
+    "projects": 1
+   },
+   "KAPI-KASA": {
+    "share": 0.0159,
+    "projects": 1
+   }
+  },
+  "window": {
+   "dograma_sgh": {
+    "share": 0.4066,
+    "projects": 1
+   },
+   "PENCERE": {
+    "share": 0.2799,
+    "projects": 3
+   },
+   "pencere": {
+    "share": 0.1684,
+    "projects": 6
+   },
+   "DOĞRAMA": {
+    "share": 0.0726,
+    "projects": 2
+   },
+   "PENCERE-05": {
+    "share": 0.0477,
+    "projects": 1
+   },
+   "DOGRAMA": {
+    "share": 0.0125,
+    "projects": 1
+   },
+   "doğrama": {
+    "share": 0.0084,
+    "projects": 1
+   },
+   "penc-yazi": {
+    "share": 0.0035,
+    "projects": 4
+   },
+   "DOGRAMA_": {
+    "share": 0.0004,
+    "projects": 1
+   }
+  },
+  "stair": {
+   "MERDIVEN": {
+    "share": 0.699,
+    "projects": 8
+   },
+   "merdiven": {
+    "share": 0.158,
+    "projects": 2
+   },
+   "Merd&Balkon": {
+    "share": 0.0886,
+    "projects": 1
+   },
+   "Z_merdiven": {
+    "share": 0.0296,
+    "projects": 1
+   },
+   "MERD": {
+    "share": 0.0125,
+    "projects": 1
+   },
+   "A-MERDIVEN": {
+    "share": 0.0092,
+    "projects": 2
+   },
+   "DBM_cr_stairs": {
+    "share": 0.0021,
+    "projects": 1
+   },
+   "A-merdiven görünüş": {
+    "share": 0.001,
+    "projects": 2
+   }
+  },
+  "furniture": {
+   "tefriş": {
+    "share": 0.2972,
+    "projects": 4
+   },
+   "TEFRIS": {
+    "share": 0.2771,
+    "projects": 4
+   },
+   "A-TEFRIS": {
+    "share": 0.1454,
+    "projects": 2
+   },
+   "Z_tefriş": {
+    "share": 0.0875,
+    "projects": 1
+   },
+   "TEFRİŞ": {
+    "share": 0.0729,
+    "projects": 2
+   },
+   "M-TEF": {
+    "share": 0.0371,
+    "projects": 1
+   },
+   "Aks&Tefriş": {
+    "share": 0.028,
+    "projects": 1
+   },
+   "TEF": {
+    "share": 0.0208,
+    "projects": 2
+   },
+   "TEFRIŞ": {
+    "share": 0.0125,
+    "projects": 1
+   },
+   "S-TEF": {
+    "share": 0.0097,
+    "projects": 1
+   }
+  },
+  "dimension": {
+   "OLCU": {
+    "share": 0.4862,
+    "projects": 4
+   },
+   "OLÇÜ": {
+    "share": 0.0729,
+    "projects": 4
+   },
+   "iç ölçü": {
+    "share": 0.0711,
+    "projects": 1
+   },
+   "ölçü": {
+    "share": 0.0702,
+    "projects": 1
+   },
+   "DH": {
+    "share": 0.0469,
+    "projects": 1
+   },
+   "DV": {
+    "share": 0.0454,
+    "projects": 1
+   },
+   "İÇ ÖLÇÜ": {
+    "share": 0.0359,
+    "projects": 1
+   },
+   "Z_iç ölçü dikey": {
+    "share": 0.0284,
+    "projects": 1
+   },
+   "A_50_DİM": {
+    "share": 0.0259,
+    "projects": 1
+   },
+   "DIMV": {
+    "share": 0.0209,
+    "projects": 1
+   }
+  },
+  "text": {
+   "TEXT": {
+    "share": 0.2495,
+    "projects": 4
+   },
+   "YAZI": {
+    "share": 0.2013,
+    "projects": 5
+   },
+   "03_Yazı": {
+    "share": 0.1828,
+    "projects": 1
+   },
+   "yazi-merdi_sgh": {
+    "share": 0.1043,
+    "projects": 1
+   },
+   "yazı": {
+    "share": 0.0891,
+    "projects": 4
+   },
+   "Z_yazı": {
+    "share": 0.0603,
+    "projects": 1
+   },
+   "yazi-malz_sgh": {
+    "share": 0.0307,
+    "projects": 1
+   },
+   "Yazı 1_20": {
+    "share": 0.0181,
+    "projects": 1
+   },
+   "yazi-genel_sgh": {
+    "share": 0.0163,
+    "projects": 1
+   },
+   "yazi-mahal_sgh": {
+    "share": 0.0119,
+    "projects": 1
+   }
+  },
+  "hatch": {
+   "TARAMA": {
+    "share": 0.4987,
+    "projects": 4
+   },
+   "tarama-zemin_sgh": {
+    "share": 0.4013,
+    "projects": 1
+   },
+   "tarama": {
+    "share": 0.044,
+    "projects": 2
+   },
+   "Z_tarama": {
+    "share": 0.0266,
+    "projects": 1
+   },
+   "ÇATI TARAMA": {
+    "share": 0.0178,
+    "projects": 1
+   },
+   "Tarama": {
+    "share": 0.0077,
+    "projects": 1
+   },
+   "HATCH": {
+    "share": 0.0034,
+    "projects": 2
+   },
+   "tarama korıdor": {
+    "share": 0.0002,
+    "projects": 1
+   },
+   "tarama ıslak zemin": {
+    "share": 0.0001,
+    "projects": 3
+   },
+   "DERE_TARAMA": {
+    "share": 0.0001,
+    "projects": 1
+   }
+  },
+  "axis": {
+   "AKS": {
+    "share": 0.5569,
+    "projects": 6
+   },
+   "aks_sgh": {
+    "share": 0.161,
+    "projects": 1
+   },
+   "aks": {
+    "share": 0.0819,
+    "projects": 2
+   },
+   "akslar": {
+    "share": 0.0573,
+    "projects": 1
+   },
+   "Z_aks": {
+    "share": 0.0472,
+    "projects": 1
+   },
+   "AKS YAZISI": {
+    "share": 0.0314,
+    "projects": 1
+   },
+   "AKS  NO": {
+    "share": 0.0301,
+    "projects": 1
+   },
+   "AKS YAZI": {
+    "share": 0.0209,
+    "projects": 1
+   },
+   "aks merkezleri": {
+    "share": 0.0125,
+    "projects": 1
+   },
+   "DTM-AXIS": {
+    "share": 0.0007,
+    "projects": 2
+   }
+  },
+  "sanitary": {
+   "Piu_Vitrifiye": {
+    "share": 0.9326,
+    "projects": 2
+   },
+   "Deko_Vitrifiye": {
+    "share": 0.0674,
+    "projects": 2
+   }
+  }
+ },
+ "text_layers": {
+  "room_label": {
+   "mahal": {
+    "share": 0.3338,
+    "projects": 5
+   },
+   "emsal&kolon": {
+    "share": 0.1585,
+    "projects": 1
+   },
+   "TARAMA": {
+    "share": 0.1042,
+    "projects": 2
+   },
+   "MERDIVEN": {
+    "share": 0.0837,
+    "projects": 1
+   },
+   "0.3": {
+    "share": 0.047,
+    "projects": 1
+   },
+   "Z_yazı": {
+    "share": 0.0321,
+    "projects": 1
+   },
+   "YESIL": {
+    "share": 0.0271,
+    "projects": 1
+   },
+   "TEXT": {
+    "share": 0.0261,
+    "projects": 2
+   }
+  },
+  "area": {
+   "alan": {
+    "share": 0.5508,
+    "projects": 5
+   },
+   "emsal&kolon": {
+    "share": 0.2741,
+    "projects": 1
+   },
+   "MERDIVEN": {
+    "share": 0.1,
+    "projects": 1
+   },
+   "KAPI": {
+    "share": 0.0152,
+    "projects": 1
+   },
+   "TEXT": {
+    "share": 0.0102,
+    "projects": 2
+   },
+   "0.3": {
+    "share": 0.0091,
+    "projects": 1
+   },
+   "mahal yazısı_nz.": {
+    "share": 0.0081,
+    "projects": 1
+   },
+   "YAZıMAHAL": {
+    "share": 0.0061,
+    "projects": 1
+   }
+  },
+  "door_tag": {
+   "kapi-yazi": {
+    "share": 0.5796,
+    "projects": 5
+   },
+   "KAPI": {
+    "share": 0.1556,
+    "projects": 1
+   },
+   "poz_sgh": {
+    "share": 0.1128,
+    "projects": 1
+   },
+   "03_Yazı": {
+    "share": 0.0778,
+    "projects": 1
+   },
+   "TEXT": {
+    "share": 0.0371,
+    "projects": 1
+   },
+   "yazı": {
+    "share": 0.0228,
+    "projects": 1
+   },
+   "DOĞRAMA": {
+    "share": 0.0086,
+    "projects": 1
+   },
+   "penc-yazi": {
+    "share": 0.0043,
+    "projects": 1
+   }
+  },
+  "window_tag": {
+   "KAPI": {
+    "share": 0.5493,
+    "projects": 1
+   },
+   "penc-yazi": {
+    "share": 0.2896,
+    "projects": 4
+   },
+   "yazı": {
+    "share": 0.0478,
+    "projects": 1
+   },
+   "OLCU": {
+    "share": 0.0448,
+    "projects": 1
+   },
+   "t": {
+    "share": 0.0209,
+    "projects": 1
+   },
+   "duvar-kesim": {
+    "share": 0.0149,
+    "projects": 1
+   },
+   "YESIL": {
+    "share": 0.009,
+    "projects": 1
+   },
+   "YAZI": {
+    "share": 0.009,
+    "projects": 1
+   }
+  },
+  "level": {
+   "OLCU": {
+    "share": 0.328,
+    "projects": 1
+   },
+   "SIVA": {
+    "share": 0.1908,
+    "projects": 1
+   },
+   "TARAMA": {
+    "share": 0.1423,
+    "projects": 2
+   },
+   "TEXT": {
+    "share": 0.081,
+    "projects": 1
+   },
+   "kot_sgh": {
+    "share": 0.0511,
+    "projects": 1
+   },
+   "KOTLAR": {
+    "share": 0.0383,
+    "projects": 1
+   },
+   "YAZI": {
+    "share": 0.0345,
+    "projects": 2
+   },
+   "MERDIVEN": {
+    "share": 0.0262,
+    "projects": 1
+   }
+  },
+  "title": {
+   "YAZI": {
+    "share": 0.1624,
+    "projects": 2
+   },
+   "pafta_sgh": {
+    "share": 0.1538,
+    "projects": 1
+   },
+   "0.3": {
+    "share": 0.1538,
+    "projects": 1
+   },
+   "KOLON": {
+    "share": 0.094,
+    "projects": 1
+   },
+   "pafta ismi": {
+    "share": 0.0855,
+    "projects": 1
+   },
+   "0": {
+    "share": 0.0769,
+    "projects": 2
+   },
+   "03_Yazı": {
+    "share": 0.0769,
+    "projects": 1
+   },
+   "yazı": {
+    "share": 0.0598,
+    "projects": 3
+   }
+  },
+  "scale": {
+   "TARAMA": {
+    "share": 0.2,
+    "projects": 1
+   },
+   "TEXT": {
+    "share": 0.1647,
+    "projects": 1
+   },
+   "yazı": {
+    "share": 0.1176,
+    "projects": 2
+   },
+   "YAZI": {
+    "share": 0.1176,
+    "projects": 1
+   },
+   "03_Yazı": {
+    "share": 0.1176,
+    "projects": 1
+   },
+   "kolon": {
+    "share": 0.0706,
+    "projects": 1
+   },
+   "AKS  NO": {
+    "share": 0.0471,
+    "projects": 1
+   },
+   "pafta ismi": {
+    "share": 0.0471,
+    "projects": 1
+   }
+  },
+  "dimension": {
+   "OLCU": {
+    "share": 0.6347,
+    "projects": 3
+   },
+   "ölçü": {
+    "share": 0.0896,
+    "projects": 1
+   },
+   "OLÇÜ": {
+    "share": 0.085,
+    "projects": 1
+   },
+   "DH": {
+    "share": 0.0589,
+    "projects": 1
+   },
+   "DV": {
+    "share": 0.0575,
+    "projects": 1
+   },
+   "DIMV": {
+    "share": 0.0294,
+    "projects": 1
+   },
+   "DIMH": {
+    "share": 0.0206,
+    "projects": 1
+   },
+   "olcu-uyg_sgh": {
+    "share": 0.0142,
+    "projects": 1
+   }
+  }
+ },
+ "text_heights_m": {
+  "room_label": {
+   "0.15": {
+    "share": 0.3815,
+    "projects": 11
+   },
+   "0.175": {
+    "share": 0.3546,
+    "projects": 2
+   },
+   "0.126": {
+    "share": 0.0496,
+    "projects": 1
+   },
+   "0.2": {
+    "share": 0.0443,
+    "projects": 3
+   },
+   "0.25": {
+    "share": 0.0286,
+    "projects": 2
+   },
+   "0.12": {
+    "share": 0.0234,
+    "projects": 3
+   },
+   "0.21": {
+    "share": 0.0154,
+    "projects": 1
+   },
+   "0.076": {
+    "share": 0.015,
+    "projects": 1
+   }
+  },
+  "area": {
+   "0.1": {
+    "share": 0.5036,
+    "projects": 6
+   },
+   "0.175": {
+    "share": 0.3765,
+    "projects": 2
+   },
+   "0.2": {
+    "share": 0.0638,
+    "projects": 2
+   },
+   "0.125": {
+    "share": 0.0273,
+    "projects": 3
+   },
+   "0.432": {
+    "share": 0.0093,
+    "projects": 1
+   },
+   "0.14": {
+    "share": 0.0072,
+    "projects": 2
+   },
+   "0.265": {
+    "share": 0.0026,
+    "projects": 1
+   },
+   "0.25": {
+    "share": 0.0021,
+    "projects": 1
+   }
+  },
+  "door_tag": {
+   "0.09": {
+    "share": 0.6591,
+    "projects": 5
+   },
+   "0.125": {
+    "share": 0.1628,
+    "projects": 1
+   },
+   "0.1": {
+    "share": 0.1426,
+    "projects": 3
+   },
+   "0.12": {
+    "share": 0.0258,
+    "projects": 1
+   },
+   "0.07": {
+    "share": 0.0097,
+    "projects": 1
+   }
+  },
+  "window_tag": {
+   "0.1": {
+    "share": 0.5509,
+    "projects": 1
+   },
+   "0.09": {
+    "share": 0.3323,
+    "projects": 4
+   },
+   "0.12": {
+    "share": 0.0479,
+    "projects": 1
+   },
+   "0.15": {
+    "share": 0.0449,
+    "projects": 1
+   },
+   "0.125": {
+    "share": 0.015,
+    "projects": 2
+   },
+   "0.06": {
+    "share": 0.009,
+    "projects": 1
+   }
+  },
+  "level": {
+   "0.175": {
+    "share": 0.5126,
+    "projects": 3
+   },
+   "0.15": {
+    "share": 0.2053,
+    "projects": 1
+   },
+   "0.11": {
+    "share": 0.0863,
+    "projects": 1
+   },
+   "0.12": {
+    "share": 0.0387,
+    "projects": 3
+   },
+   "0.2": {
+    "share": 0.0381,
+    "projects": 2
+   },
+   "0.35": {
+    "share": 0.0279,
+    "projects": 1
+   },
+   "0.3": {
+    "share": 0.0245,
+    "projects": 1
+   },
+   "0.168": {
+    "share": 0.0163,
+    "projects": 1
+   }
+  },
+  "title": {
+   "0.75": {
+    "share": 0.2041,
+    "projects": 3
+   },
+   "0.64": {
+    "share": 0.1837,
+    "projects": 1
+   },
+   "0.216": {
+    "share": 0.1837,
+    "projects": 1
+   },
+   "0.661": {
+    "share": 0.0918,
+    "projects": 1
+   },
+   "0.25": {
+    "share": 0.0918,
+    "projects": 1
+   },
+   "0.265": {
+    "share": 0.0714,
+    "projects": 1
+   },
+   "0.4": {
+    "share": 0.0408,
+    "projects": 1
+   },
+   "0.35": {
+    "share": 0.0408,
+    "projects": 1
+   }
+  },
+  "scale": {
+   "0.25": {
+    "share": 0.2414,
+    "projects": 2
+   },
+   "0.35": {
+    "share": 0.2069,
+    "projects": 1
+   },
+   "0.4": {
+    "share": 0.1552,
+    "projects": 1
+   },
+   "0.375": {
+    "share": 0.1207,
+    "projects": 1
+   },
+   "0.14": {
+    "share": 0.1034,
+    "projects": 1
+   },
+   "0.175": {
+    "share": 0.0345,
+    "projects": 1
+   },
+   "0.092": {
+    "share": 0.0345,
+    "projects": 1
+   },
+   "0.529": {
+    "share": 0.0172,
+    "projects": 1
+   }
+  },
+  "dimension": {
+   "0.15": {
+    "share": 0.7273,
+    "projects": 3
+   },
+   "0.11": {
+    "share": 0.1689,
+    "projects": 1
+   },
+   "0.12": {
+    "share": 0.0909,
+    "projects": 1
+   },
+   "0.125": {
+    "share": 0.005,
+    "projects": 2
+   },
+   "0.113": {
+    "share": 0.0042,
+    "projects": 1
+   },
+   "0.08": {
+    "share": 0.0026,
+    "projects": 1
+   },
+   "0.3": {
+    "share": 0.0011,
+    "projects": 1
+   }
+  }
+ },
+ "shapes": {
+  "area": {
+   "A:9.99M9": {
+    "share": 0.2721,
+    "projects": 5
+   },
+   "A:99.99M9": {
+    "share": 0.198,
+    "projects": 5
+   },
+   "9,99M9": {
+    "share": 0.1497,
+    "projects": 1
+   },
+   "99,99M9": {
+    "share": 0.0822,
+    "projects": 1
+   },
+   "99.99M9": {
+    "share": 0.0624,
+    "projects": 2
+   },
+   "9.99M9": {
+    "share": 0.0619,
+    "projects": 2
+   },
+   "9.99 M9": {
+    "share": 0.0234,
+    "projects": 2
+   },
+   "BRÜT:99.99M9": {
+    "share": 0.0188,
+    "projects": 1
+   },
+   "NET:99.99M9": {
+    "share": 0.0147,
+    "projects": 1
+   },
+   "H:99.9": {
+    "share": 0.0102,
+    "projects": 1
+   },
+   "NET: 99.99M9": {
+    "share": 0.0091,
+    "projects": 1
+   },
+   "H:99.99": {
+    "share": 0.0081,
+    "projects": 1
+   },
+   "999.99M9": {
+    "share": 0.0081,
+    "projects": 2
+   },
+   "ALAN :9.99 M²": {
+    "share": 0.0076,
+    "projects": 1
+   },
+   "BRÜT:999.99M9": {
+    "share": 0.0076,
+    "projects": 1
+   }
+  },
+  "door_tag": {
+   "99/999": {
+    "share": 0.7273,
+    "projects": 10
+   },
+   "999/999": {
+    "share": 0.2484,
+    "projects": 9
+   },
+   "K:99/999": {
+    "share": 0.0193,
+    "projects": 1
+   },
+   "K:999/999": {
+    "share": 0.0036,
+    "projects": 1
+   },
+   "999X999": {
+    "share": 0.0014,
+    "projects": 1
+   }
+  },
+  "window_tag": {
+   "999/999": {
+    "share": 0.5672,
+    "projects": 5
+   },
+   "99/99": {
+    "share": 0.1731,
+    "projects": 2
+   },
+   "99/999": {
+    "share": 0.1284,
+    "projects": 4
+   },
+   "99X99/99": {
+    "share": 0.0448,
+    "projects": 1
+   },
+   "P:999/999": {
+    "share": 0.0418,
+    "projects": 1
+   },
+   "99X99": {
+    "share": 0.0149,
+    "projects": 1
+   },
+   "99 X 99": {
+    "share": 0.009,
+    "projects": 1
+   },
+   "999/99": {
+    "share": 0.009,
+    "projects": 1
+   },
+   "P:99/999": {
+    "share": 0.006,
+    "projects": 1
+   },
+   "99X999": {
+    "share": 0.006,
+    "projects": 1
+   }
+  },
+  "level": {
+   "+99.99": {
+    "share": 0.4027,
+    "projects": 5
+   },
+   "+9.99": {
+    "share": 0.3803,
+    "projects": 7
+   },
+   "-9.99": {
+    "share": 0.0887,
+    "projects": 7
+   },
+   "+ 99.99": {
+    "share": 0.0479,
+    "projects": 1
+   },
+   "+9,99": {
+    "share": 0.03,
+    "projects": 1
+   },
+   "+ 9.99": {
+    "share": 0.0236,
+    "projects": 1
+   },
+   "±9.99": {
+    "share": 0.0115,
+    "projects": 4
+   },
+   "- 9.99": {
+    "share": 0.0096,
+    "projects": 1
+   },
+   "±9,99": {
+    "share": 0.0045,
+    "projects": 1
+   },
+   "± 9.99": {
+    "share": 0.0013,
+    "projects": 2
+   }
+  },
+  "title": {
+   "9. KAT PLANI": {
+    "share": 0.1368,
+    "projects": 3
+   },
+   "ZEMİN KAT PLANI": {
+    "share": 0.0513,
+    "projects": 5
+   },
+   "9.NORMAL KAT PLANI 9/99": {
+    "share": 0.0513,
+    "projects": 1
+   },
+   "TERAS KAT PLANI": {
+    "share": 0.0427,
+    "projects": 2
+   },
+   "(+99.99) 9.KAT PLANI Ö:9/99": {
+    "share": 0.0427,
+    "projects": 1
+   },
+   "ÇATI PLANI": {
+    "share": 0.0342,
+    "projects": 4
+   },
+   "(+99.99) TERAS KAT PLANI Ö:9/99": {
+    "share": 0.0342,
+    "projects": 1
+   },
+   "(+9.99) 9. KAT PLANI Ö:9/99": {
+    "share": 0.0342,
+    "projects": 1
+   },
+   "ZEMİN KAT PLANI BRÜT 99M9": {
+    "share": 0.0256,
+    "projects": 2
+   },
+   "KAT PLANI": {
+    "share": 0.0256,
+    "projects": 1
+   },
+   "+9.99 KOTU KAT PLANI": {
+    "share": 0.0256,
+    "projects": 1
+   },
+   "9.BODRUM (-9.99 KOTU) KAT PLANI Ö: 9/99": {
+    "share": 0.0256,
+    "projects": 1
+   },
+   "9.NORMAL KAT PLANI Ö:9/99": {
+    "share": 0.0256,
+    "projects": 1
+   },
+   "BODRUM KAT PLANI BRÜT 99 M9": {
+    "share": 0.0171,
+    "projects": 2
+   },
+   "ÇATI KAT PLANI": {
+    "share": 0.0171,
+    "projects": 2
+   }
+  },
+  "scale": {
+   "ÖLÇEK:9/99": {
+    "share": 0.1294,
+    "projects": 1
+   },
+   "ÖLÇEK :9/99": {
+    "share": 0.0824,
+    "projects": 2
+   },
+   "9/99": {
+    "share": 0.0706,
+    "projects": 1
+   },
+   "ÖLÇEK:9/999": {
+    "share": 0.0588,
+    "projects": 2
+   },
+   "Ö:9/99": {
+    "share": 0.0588,
+    "projects": 2
+   },
+   "ÖLÇEK : 9/99": {
+    "share": 0.0471,
+    "projects": 1
+   },
+   "B-B KESİTİ 9/99": {
+    "share": 0.0471,
+    "projects": 1
+   },
+   "A-A KESİTİ 9/99": {
+    "share": 0.0471,
+    "projects": 1
+   },
+   "B-B KESITI Ö:9/999": {
+    "share": 0.0471,
+    "projects": 1
+   },
+   "Ö : 9/999": {
+    "share": 0.0235,
+    "projects": 1
+   },
+   "ÖLÇEK / SCALE 9/999": {
+    "share": 0.0235,
+    "projects": 1
+   },
+   "A-A KESITI Ö:9/999": {
+    "share": 0.0235,
+    "projects": 1
+   },
+   "A-A KESİTİ Ö:9/99": {
+    "share": 0.0118,
+    "projects": 1
+   },
+   "B-B KESİTİ Ö:9/99": {
+    "share": 0.0118,
+    "projects": 1
+   },
+   "DOĞU CEPHESİ Ö:9/99": {
+    "share": 0.0118,
+    "projects": 1
+   }
+  },
+  "dimension": {
+   "integer": {
+    "share": 0.9886,
+    "projects": 9
+   },
+   "decimal": {
+    "share": 0.0114,
+    "projects": 3
+   }
+  }
+ },
+ "room_labels": {
+  "BALKON": {
+   "share": 0.1131,
+   "projects": 14
+  },
+  "SALON": {
+   "share": 0.0904,
+   "projects": 12
+  },
+  "MUTFAK": {
+   "share": 0.0775,
+   "projects": 13
+  },
+  "ANTRE": {
+   "share": 0.0742,
+   "projects": 13
+  },
+  "BANYO": {
+   "share": 0.0673,
+   "projects": 10
+  },
+  "ODA": {
+   "share": 0.0416,
+   "projects": 8
+  },
+  "Y.ODA": {
+   "share": 0.0379,
+   "projects": 2
+  },
+  "WC": {
+   "share": 0.035,
+   "projects": 7
+  },
+  "ASANSOR": {
+   "share": 0.034,
+   "projects": 9
+  },
+  "MERDIVEN": {
+   "share": 0.0313,
+   "projects": 4
+  },
+  "KORIDOR": {
+   "share": 0.0234,
+   "projects": 2
+  },
+  "DUS": {
+   "share": 0.0231,
+   "projects": 7
+  },
+  "Y.BANYO": {
+   "share": 0.0185,
+   "projects": 1
+  },
+  "BANYO-WC": {
+   "share": 0.0178,
+   "projects": 1
+  },
+  "TERAS": {
+   "share": 0.0172,
+   "projects": 10
+  },
+  "COCUK ODASI": {
+   "share": 0.0165,
+   "projects": 3
+  },
+  "YATAK ODASI": {
+   "share": 0.0165,
+   "projects": 5
+  },
+  "HOL": {
+   "share": 0.0158,
+   "projects": 7
+  },
+  "OTURMA.OD.": {
+   "share": 0.0132,
+   "projects": 1
+  },
+  "GIRISI": {
+   "share": 0.0125,
+   "projects": 5
+  },
+  "BANYO WC": {
+   "share": 0.0125,
+   "projects": 5
+  },
+  "SAFT": {
+   "share": 0.0112,
+   "projects": 6
+  },
+  "OTOPARK": {
+   "share": 0.0109,
+   "projects": 4
+  },
+  "C.ODA": {
+   "share": 0.0109,
+   "projects": 1
+  },
+  "VESTIYER": {
+   "share": 0.0073,
+   "projects": 2
+  },
+  "KAT HOLU": {
+   "share": 0.0066,
+   "projects": 1
+  },
+  "S.ODASI": {
+   "share": 0.0066,
+   "projects": 2
+  },
+  "DEPO": {
+   "share": 0.0059,
+   "projects": 3
+  },
+  "EBV.BANYO": {
+   "share": 0.0056,
+   "projects": 2
+  },
+  "EB.YATAK ODASI": {
+   "share": 0.0053,
+   "projects": 1
+  },
+  "SIGINAK": {
+   "share": 0.0049,
+   "projects": 5
+  },
+  "KORIDOR 7M2": {
+   "share": 0.0046,
+   "projects": 2
+  },
+  "SU DEPOSU": {
+   "share": 0.0046,
+   "projects": 6
+  },
+  "YATAK OD.": {
+   "share": 0.0043,
+   "projects": 2
+  },
+  "ORTAK TERAS": {
+   "share": 0.0043,
+   "projects": 4
+  },
+  "YANGIN MERDIVENI": {
+   "share": 0.004,
+   "projects": 1
+  },
+  "GIRIS": {
+   "share": 0.0036,
+   "projects": 3
+  },
+  "BINA GIRISI": {
+   "share": 0.0036,
+   "projects": 4
+  },
+  "GALERI": {
+   "share": 0.0033,
+   "projects": 4
+  },
+  "WC+BANYO": {
+   "share": 0.0033,
+   "projects": 1
+  },
+  "UZERI ACIK TERAS ALANI": {
+   "share": 0.0033,
+   "projects": 1
+  },
+  "YATAK O.": {
+   "share": 0.003,
+   "projects": 1
+  },
+  "ODASI": {
+   "share": 0.003,
+   "projects": 2
+  },
+  "LAVABO": {
+   "share": 0.003,
+   "projects": 1
+  },
+  "GIRIS HOLU": {
+   "share": 0.0023,
+   "projects": 1
+  },
+  "E.BANYO 4M2": {
+   "share": 0.002,
+   "projects": 2
+  },
+  "GARAJ": {
+   "share": 0.002,
+   "projects": 2
+  },
+  "GUNLUK ODA": {
+   "share": 0.002,
+   "projects": 1
+  },
+  "GALERI IZI": {
+   "share": 0.002,
+   "projects": 1
+  },
+  "DEMIR MERDIVEN": {
+   "share": 0.002,
+   "projects": 1
+  },
+  "UZERI CATILI TERAS ALANI": {
+   "share": 0.002,
+   "projects": 1
+  },
+  "ASANSOR KULESI": {
+   "share": 0.002,
+   "projects": 1
+  },
+  "7 NOLU DUKKAN AIT DEPO": {
+   "share": 0.002,
+   "projects": 1
+  },
+  "BAYAN WC": {
+   "share": 0.0016,
+   "projects": 2
+  },
+  "ANTRE-HOL": {
+   "share": 0.0016,
+   "projects": 1
+  },
+  "DAIRE GIR. HOL.": {
+   "share": 0.0016,
+   "projects": 1
+  },
+  "BANYO+WC": {
+   "share": 0.0016,
+   "projects": 1
+  },
+  "Y.ODASI": {
+   "share": 0.0016,
+   "projects": 1
+  },
+  "SIGINAK HESABI": {
+   "share": 0.0016,
+   "projects": 3
+  },
+  "ARAC GIRISI": {
+   "share": 0.0016,
+   "projects": 1
+  }
+ },
+ "label_spelling": {
+  "ascii_only": {
+   "share": 0.7985,
+   "projects": 17
+  },
+  "turkish_letters": {
+   "share": 0.2015,
+   "projects": 16
+  }
+ },
+ "label_case": {
+  "upper": {
+   "share": 0.9641,
+   "projects": 17
+  },
+  "mixed": {
+   "share": 0.0327,
+   "projects": 9
+  },
+  "title": {
+   "share": 0.0033,
+   "projects": 4
+  }
+ },
+ "door_arc_radius_m": {
+  "0.80": {
+   "share": 0.3633,
+   "projects": 8
+  },
+  "0.90": {
+   "share": 0.2659,
+   "projects": 5
+  },
+  "0.70": {
+   "share": 0.1409,
+   "projects": 7
+  },
+  "0.85": {
+   "share": 0.0763,
+   "projects": 6
+  },
+  "1.00": {
+   "share": 0.0646,
+   "projects": 2
+  },
+  "0.75": {
+   "share": 0.0434,
+   "projects": 3
+  },
+  "0.55": {
+   "share": 0.018,
+   "projects": 1
+  },
+  "0.60": {
+   "share": 0.0117,
+   "projects": 2
+  },
+  "0.65": {
+   "share": 0.0095,
+   "projects": 4
+  },
+  "1.05": {
+   "share": 0.0021,
+   "projects": 1
+  }
+ },
+ "door_arc_sweep_deg": {
+  "90": {
+   "share": 0.6799,
+   "projects": 9
+  },
+  "180": {
+   "share": 0.1406,
+   "projects": 5
+  },
+  "85": {
+   "share": 0.0256,
+   "projects": 5
+  },
+  "55": {
+   "share": 0.024,
+   "projects": 5
+  },
+  "95": {
+   "share": 0.0228,
+   "projects": 5
+  },
+  "50": {
+   "share": 0.016,
+   "projects": 3
+  }
+ },
+ "door_window_inserts": {
+  "door": {
+   "share": 0.8104,
+   "projects": 7
+  },
+  "window": {
+   "share": 0.1896,
+   "projects": 6
+  }
+ },
+ "window_block_lines": {
+  "9": {
+   "share": 0.6667,
+   "projects": 4
+  },
+  "0": {
+   "share": 0.3333,
+   "projects": 2
+  }
+ },
+ "hatch": {
+  "other|SOLID": {
+   "share": 0.424,
+   "projects": 13
+  },
+  "stair|SOLID": {
+   "share": 0.0505,
+   "projects": 3
+  },
+  "text|SOLID": {
+   "share": 0.0447,
+   "projects": 5
+  },
+  "axis|SOLID": {
+   "share": 0.0428,
+   "projects": 2
+  },
+  "other|ANSI35,_O": {
+   "share": 0.0424,
+   "projects": 1
+  },
+  "plaster|SOLID": {
+   "share": 0.0329,
+   "projects": 2
+  },
+  "structure|ANSI35,_O": {
+   "share": 0.0327,
+   "projects": 1
+  },
+  "dimension|ANGLE,_O": {
+   "share": 0.0272,
+   "projects": 1
+  },
+  "door|SOLID": {
+   "share": 0.0266,
+   "projects": 4
+  },
+  "hatch|ANSI37": {
+   "share": 0.025,
+   "projects": 4
+  },
+  "hatch|JIS_STN_2.5,_O": {
+   "share": 0.0231,
+   "projects": 1
+  },
+  "hatch|ANGLE,_O": {
+   "share": 0.0173,
+   "projects": 2
+  },
+  "other|ANSI33": {
+   "share": 0.0166,
+   "projects": 3
+  },
+  "other|AR-CONC": {
+   "share": 0.0142,
+   "projects": 4
+  },
+  "other|ANSI37": {
+   "share": 0.0106,
+   "projects": 3
+  }
+ },
+ "dimension_layers": {
+  "OLCU": {
+   "share": 0.4882,
+   "projects": 2
+  },
+  "iç ölçü": {
+   "share": 0.1438,
+   "projects": 1
+  },
+  "İÇ ÖLÇÜ": {
+   "share": 0.1331,
+   "projects": 1
+  },
+  "DIM": {
+   "share": 0.0605,
+   "projects": 4
+  },
+  "TARAMA": {
+   "share": 0.0579,
+   "projects": 1
+  },
+  "Z_dış ölçü": {
+   "share": 0.0265,
+   "projects": 1
+  },
+  "D BLOK_ZK$0$MYD - DIM-IC": {
+   "share": 0.0147,
+   "projects": 1
+  },
+  "ASIK": {
+   "share": 0.0113,
+   "projects": 1
+  },
+  "SıVA": {
+   "share": 0.0089,
+   "projects": 2
+  },
+  "ölçü20": {
+   "share": 0.0082,
+   "projects": 1
+  }
+ },
+ "dimension_text_m": {
+  "0.15": {
+   "share": 0.1875,
+   "projects": 6
+  },
+  "0.2": {
+   "share": 0.1875,
+   "projects": 6
+  },
+  "0.1": {
+   "share": 0.1562,
+   "projects": 5
+  },
+  "0.125": {
+   "share": 0.0938,
+   "projects": 3
+  },
+  "0.13": {
+   "share": 0.0938,
+   "projects": 3
+  },
+  "0.25": {
+   "share": 0.0625,
+   "projects": 2
+  },
+  "0.12": {
+   "share": 0.0625,
+   "projects": 2
+  },
+  "0.05": {
+   "share": 0.0312,
+   "projects": 1
+  },
+  "0.3": {
+   "share": 0.0312,
+   "projects": 1
+  },
+  "0.16": {
+   "share": 0.0312,
+   "projects": 1
+  }
+ },
+ "assumed": {
+  "two_text_tag_share": 0.15,
+  "storey_height_m": {
+   "2.85": 0.2,
+   "3.00": 0.5,
+   "3.06": 0.15,
+   "3.20": 0.15
+  },
+  "note": "two-text size tags (width over height as two texts) and storey heights are not counted from the drawings; these shares are the converter's assumptions"
+ },
+ "wall_thickness_cm": {
+  "10": 0.2055,
+  "20": 0.1056,
+  "26": 0.0688,
+  "30": 0.0626,
+  "25": 0.0531,
+  "16": 0.0528,
+  "15": 0.0513,
+  "14": 0.0337,
+  "40": 0.0295,
+  "31": 0.0278,
+  "21": 0.0199,
+  "24": 0.0159,
+  "45": 0.0157,
+  "47": 0.0152,
+  "29": 0.015
+ }
+}
