@@ -3121,6 +3121,14 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
                                        if (r.get("registration") or {}).get("method") == "reference"), None)
     build.failed_levels = str(_brief_value(project_dir, "failed_levels", FAILED_LEVELS_DEFAULT))
     records = classify_pages(project_dir, work_dir=out_dir / "converted", ocr=ocr, sheets=sheets)
+    if sheets and build.sheets is None:
+        # 21 Nov 2026: a single-plan CAD page read in the unit of the sheets unit check (``classify.single_plan_units``)
+        # lists the header conflict as a multi-region project does
+        overridden = {r.file for r in records if r.units_override}
+        for c in sheets.get("conflicts") or []:
+            if c.get("kind") == "unit_mismatch" and any(f in str(c.get("description")) for f in overridden):
+                build.conflict(c["kind"], list(c.get("regions") or []), f"sheets.json {c['id']}: {c['description']}",
+                               c["resolution"])
     evidence_only = _evidence_only_pages(records)
     works: dict[tuple, PageWork] = {}
     by_level: dict[str, list[PageWork]] = {}

@@ -18,6 +18,11 @@ reads), each finding ``{"check": "RC17", "rule", "severity", "level_id", "messag
    ``ANGLE_OFF_DEG``), ``ANGLED_MIN_M`` or more of them, that no model wall at their angle follows: the wall was cut
    into axis stubs or left out.
 
+5. ``scale_misread`` (21 Nov 2026, dataset bench: 35 floors read nothing): a floor plan page whose level has no wall
+   (the drawing scale was not found, or a wrong one left the building too small for any wall rule), or whose walls have
+   an implausible median thickness (outside ``WALL_T_M``) or extent (outside ``EXTENT_M``) at the scale used: the
+   message names the scale's method and metres per unit, so a header unit the drawing contradicts shows before a pod.
+
 4. ``outdoor_label_lost``: an outdoor-space label (balcony, terrace) placed in no face and no outdoor space of its
    level (inside a wall, beside a tiny room), or a room named by an outdoor word read as an indoor room.
 
@@ -40,7 +45,10 @@ RULES = {
     "angled_wall_straight": "a drawn wall at an angle that no model wall at its angle follows (R35)",
     "outdoor_label_lost": "an outdoor label in no outdoor space (inside a wall, beside a tiny room) or naming a room",
     "door_without_opening": "a drawn door size tag or door block with no door or opening of the model near it",
+    "scale_misread": "a floor plan read with no wall or with walls of an implausible size at its scale",
 }
+WALL_T_M = (0.03, 1.0)        # scale_misread: the median wall thickness of a level outside this range ...
+EXTENT_M = (2.0, 1000.0)      # ... or its walls' extent outside this range
 PROBE_M = 0.3                 # a door's outside is probed this far past its wall's face
 GROUND_UP_M = 0.5             # a storey this far above the ground floor is an upper storey
 NOTCH_MIN_M2 = 1.0            # a notch of the slab inside a storey's walls this large is a finding
@@ -317,7 +325,43 @@ def outdoor_labels_lost(building: dict) -> list:
     return out
 
 
+def scales_misread(building: dict) -> list:
+    """Rule 5 (the module docstring): per level with a floor plan page, its walls against the scale it was read at."""
+    import statistics
+
+    out = []
+    pages = {}
+    for d in building.get("documents") or []:
+        for pg in d.get("pages") or []:
+            if pg.get("level_id"):
+                pages.setdefault(pg["level_id"], (d.get("file"), pg))
+    for lv in _levels(building):
+        lid = lv.get("id")
+        if lid not in pages:
+            continue
+        file, pg = pages[lid]
+        sc = pg.get("scale") or {}
+        how = (f"scale {sc.get('method')} {float(sc['metres_per_unit']):g} m per unit" if sc.get("metres_per_unit")
+               else "no scale")
+        walls = [w for w in building.get("walls") or [] if w.get("level_id") == lid and w.get("start") and w.get("end")]
+        if not walls:
+            out.append(_finding("scale_misread", "major", lid, f"{file}: level {lid} read no wall ({how}): the "
+                                f"drawing scale was not found or is misread; check the unit header against the door "
+                                f"widths, the wall thicknesses and the dimensions"))
+            continue
+        t = statistics.median(float(w.get("thickness") or 0.0) for w in walls)
+        xs = [p[0] for w in walls for p in (w["start"], w["end"])]
+        ys = [p[1] for w in walls for p in (w["start"], w["end"])]
+        extent = max(max(xs) - min(xs), max(ys) - min(ys))
+        if not (WALL_T_M[0] <= t <= WALL_T_M[1] and EXTENT_M[0] <= extent <= EXTENT_M[1]):
+            out.append(_finding("scale_misread", "major", lid, f"{file}: level {lid}: median wall thickness "
+                                f"{t:.3f} m and extent {extent:.1f} m at {how}: implausible for a building; the drawing "
+                                f"scale is likely misread", element_ids=[w.get("id") for w in walls[:5]]))
+    return out
+
+
 def findings(building: dict) -> list:
-    """Rules 1, 2 and 4 on a building (pure); rule 3 needs the drawing and runs in ``reading_check.check``."""
+    """Rules 1, 2, 4 and 5 on a building (pure); rule 3 needs the drawing and runs in ``reading_check.check``."""
     shapes = outlines(building)
-    return doors_into_air(building, shapes) + slabs_beyond_walls(building, shapes) + outdoor_labels_lost(building)
+    return doors_into_air(building, shapes) + slabs_beyond_walls(building, shapes) + outdoor_labels_lost(building) \
+        + scales_misread(building)

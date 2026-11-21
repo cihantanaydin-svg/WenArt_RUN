@@ -148,10 +148,17 @@ def source_dxf(out_dir: Path, file_rel: Optional[str]) -> Optional[Path]:
     try:
         building = json.loads((Path(out_dir) / "building.json").read_text(encoding="utf-8"))
         project = (building.get("project") or {}).get("id")
+        folder = (building.get("project") or {}).get("source_folder")
     except (OSError, ValueError):
-        project = None
+        project = folder = None
     if project:
         cand = Path(__file__).resolve().parents[2] / "projects" / project / file_rel
+        if cand.is_file():
+            return cand
+    if folder:
+        # 21 Nov 2026 (dataset bench: the drawing checks were silent on every project outside projects/, so no angled
+        # wall built in steps was named): the project's own source folder as the reading recorded it
+        cand = Path(folder) / file_rel
         if cand.is_file():
             return cand
     return None

@@ -184,11 +184,19 @@ def test_small_and_non_elongated_components_are_dropped():
     assert _union(walls).contains(sbox(3.85, 0.25, 3.95, 0.45))              # the pillar stays
 
 
-def test_angled_wall_gives_a_warning():
+def test_angled_wall_gives_a_warning(monkeypatch):
+    """21 Nov 2026 (R35 in filled wall regions, ``walls.angled_bands``): a filled angled bar is modelled at its angle;
+    the warning names an angled wall only when nothing models it (the rule switched off)."""
     axis = sbox(0, 0, 6, 0.2)
     angled = LineString([(1, 1), (4, 3)]).buffer(0.1, cap_style=2)          # about 34 deg
     strokes = [R.stroke(list(axis.exterior.coords)[:-1], closed=True, fill=(0, 0, 0)),
                R.stroke(list(angled.exterior.coords)[:-1], closed=True, fill=(0, 0, 0))]
+    _, _, walls, info = _walls_of(strokes)
+    slanted = [w for w in walls if 30.0 < math.degrees(math.atan2(w.end[1] - w.start[1], w.end[0] - w.start[0])) % 180
+               < 37.0]
+    assert len(slanted) == 1 and abs(slanted[0].thickness - 0.2) < 0.011
+    assert not any("angled wall not modelled" in w for w in info["warnings"])
+    monkeypatch.setenv("WENART_RULES_OFF", "angled_wall")
     _, _, walls, info = _walls_of(strokes)
     assert any("angled wall not modelled" in w for w in info["warnings"])
 

@@ -1,7 +1,7 @@
 {
  "_note": "What the user asked and corrected while this project was built, each turned into a general lesson the architect applies to every project (wenart/blender/architect_lessons.py; user request of 25 Oct 2026: 'the architect should ask the questions and corrections I was asking all along the build; use AI to understand what I was asking and keep developing with the future requests'). checks: the architect rules that check it on every build (architect.ORDER ids) or 'build' (the build does it by itself); status: rule (a rule checks it), built (code does it), open (no automatic check yet: the AI architect looks for it on every run and it is the next rule to write), process (how we work). Add a new request with: python -m wenart.agent.lessons add \"<the request>\"",
  "version": 1,
- "updated": "2026-11-20",
+ "updated": "2026-11-21",
  "lessons": [
   {
    "id": "UL01",
@@ -4007,6 +4007,16 @@
    "checks": [],
    "request": "The structure AI teaches itself (user, 20 Nov 2026: 'A bit RL for AI please it needs to teach itself'): the ranker learns as a contextual bandit from verifiable rewards only (the user's corrections and marks, synthetic exact truth, code checks newly firing or cleared, trusted AI findings, the reading score and section-0 grades), explores only low-margin decisions in exploration runs, and ships a model only when held-out truth, the score gate and the grades back it; questions the code cannot settle go to the user as one numbered sheet whose marks become truth",
    "lesson": "The structure AI teaches itself (user, 20 Nov 2026: 'A bit RL for AI please it needs to teach itself'): the ranker learns as a contextual bandit from verifiable rewards only (the user's corrections and marks, synthetic exact truth, code checks newly firing or cleared, trusted AI findings, the reading score and section-0 grades), explores only low-margin decisions in exploration runs, and ships a model only when held-out truth, the score gate and the grades back it; questions the code cannot settle go to the user as one numbered sheet whose marks become truth",
+   "question": null
+  },
+  {
+   "id": "UL340",
+   "date": "2026-11-21",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "21 Nov 2026 (user OK, bench fix round): reader fixes driven by the real-plan bench raise its scores with no fall on the user's projects. The drawing unit comes from what the drawing shows (DIMENSIONs printing their own measurement narrow it to cm or mm, door widths, text height and wall thickness choose); a header the drawing contradicts is a reported conflict; when the sources disagree nothing is guessed and the disagreement is reported. A drawn wall split into pieces that build the same solid is representation, not an error: walls are scored one to one and length-weighted. Angled walls are read at their angle in every drawing style (face pairs, hatched or filled wall bodies). Never change the reader only to please a strict matcher.",
+   "lesson": "21 Nov 2026 (user OK, bench fix round): reader fixes driven by the real-plan bench raise its scores with no fall on the user's projects. The drawing unit comes from what the drawing shows (DIMENSIONs printing their own measurement narrow it to cm or mm, door widths, text height and wall thickness choose); a header the drawing contradicts is a reported conflict; when the sources disagree nothing is guessed and the disagreement is reported. A drawn wall split into pieces that build the same solid is representation, not an error: walls are scored one to one and length-weighted. Angled walls are read at their angle in every drawing style (face pairs, hatched or filled wall bodies). Never change the reader only to please a strict matcher.",
    "question": null
   }
  ]

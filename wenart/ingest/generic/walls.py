@@ -70,6 +70,8 @@ FILL_CONFIDENCE = 0.9
 OUTLINE_MIN_VERTICES, OUTLINE_MAX_VERTICES = 4, 12
 OUTLINE_WIDTH_M = (0.05, 0.60)
 OUTLINE_MIN_LENGTH_M = 0.4
+OUTLINE_NOT_WALL_ROLES = frozenset({"furniture", "sanitary", "stair", "door", "window", "glass", "dimension", "axis",
+                                    "text", "site", "sill", "section"})   # 21 Nov 2026: a box on such a layer is no wall
 OUTLINE_CONFIDENCE = 0.8
 TEXT_FRAME_SHARE = 0.4         # 4 Nov 2026 (real17): a thin closed outline whose text fills this share of it frames it
 DXF_HATCH_CONFIDENCE = 0.95
@@ -612,11 +614,19 @@ def _dark_fills(page: GenericPage, s: float, used: set, owners: Optional[dict] =
 
 def _outline_walls(page: GenericPage, s: float, used: set) -> list[WallPrim]:
     """Closed stroked thin polygons with nothing drawn inside them."""
+    from wenart.ingest.generic import layer_names as LN
+
     cands = []
     for st in page.strokes:
         if st.id in used or not st.closed or st.fill is not None or st.arc is not None or dashed_stroke(st):
             continue
         if not OUTLINE_MIN_VERTICES <= len(st.pts) <= OUTLINE_MAX_VERTICES:
+            continue
+        roles = LN.layer_roles(getattr(st, "layer", None))
+        if roles & OUTLINE_NOT_WALL_ROLES and not roles & set(LN.WALL_ROLES):
+            # 21 Nov 2026 (dataset bench, 'wall read with another thickness': a 0.58 m wardrobe box on 'A-TEFRIS' beside a
+            # wall read as one 0.77 m wall): a box on a layer whose name says furniture, sanitary ware, a stair, a door
+            # or a window is that thing, never wall material
             continue
         poly = Polygon(_scale_pts(st.pts, s))
         if not poly.is_valid or poly.area <= 0:
@@ -2032,6 +2042,19 @@ def walls_from_mask(mask: MaskLayer, outline_strokes_m: list[Stroke], file_rel: 
         info["angled_walls"] = len(angled)
         info["notes"].append(f"{len(angled)} face-pair wall(s) drawn at an angle off the plan's axes kept at their "
                              f"angle (R35)")
+    # 21 Nov 2026 (R35 in filled wall regions, ``angled_bands``): the strips between angled face pairs of a hatched or
+    # filled wall body leave the mask (one pixel more, the strip's anti-aliased edge) and are walls at their angle
+    bands = angled_band_walls(prims, theta, file_rel, page_no, units_to_m)
+    if bands:
+        kernel = np.ones((3, 3), np.uint8)
+        for corners, _w in bands:
+            strip = np.zeros(m.shape, np.uint8)
+            cv2.fillPoly(strip, [np.array([grid.to_px_f(q) for q in corners], np.float64).round().astype(np.int32)], 1)
+            m &= cv2.dilate(strip, kernel) == 0
+        angled = list(angled) + [(0, w) for _c, w in bands]
+        info["angled_walls"] = len(angled)
+        info["notes"].append(f"{len(bands)} strip(s) of filled wall regions drawn at an angle off the plan's axes kept "
+                             f"at their angle (R35)")
     rot_m, rot_index, rot_grid, to_page = (m, index, grid, None)
     if abs(theta) > 0.5:
         rot_m, rot_index, rot_grid, to_page = _rotate_frame(m, index, grid, -theta)
@@ -2168,6 +2191,123 @@ def angled_face_walls(prims: list[WallPrim], theta: float, file_rel: str, page_n
         end = (round(piece["end"][0], 4), round(piece["end"][1], 4))
         out.append((k, WallItem(start=start, end=end, thickness=t, box=[round(v, 3) for v in box], entity=entity,
                                 evidence=ev)))
+    return out
+
+
+BAND_KINDS = ("dxf_hatch", "hatch", "fill", "outline")   # R35: wall material drawn as one filled region
+BAND_EDGE_MIN_M = 0.2          # R35: an angled face of a filled region this long or longer ...
+BAND_PARALLEL_DEG = 1.0        # ... pairs with the nearest face parallel to it within this angle ...
+BAND_MIN_LEN = 2.0             # ... over a shared span of at least this many thicknesses
+BAND_MIN_OFF_DEG = 0.5         # R35 bands: a strip less than ``ANGLED_DEG`` off the axes is angled when its axis rectangle
+                               # would drift past half its thickness over its span (a 3 deg wall over 6 m: 0.31 m)
+
+
+def angled_bands(prims: list[WallPrim], theta: float) -> list[tuple[int, dict]]:
+    """R35 (21 Nov 2026, dataset bench: 694 angled walls built as axis steps, 282 missed): the angled walls inside wall
+    material drawn as filled regions (a hatch or a fill of the whole wall body, ``BAND_KINDS``), where the face-pair
+    reading (``angled_face_walls``) never sees a single band. Every face of a region's rings (exterior and holes) off the
+    plan's axes by more than ``ANGLED_DEG`` (or by more than ``BAND_MIN_OFF_DEG`` where an axis rectangle over the
+    strip's span would drift past half its thickness) pairs with the nearest parallel face (``BAND_PARALLEL_DEG``) at a wall's
+    thickness (``PAIR_WIDTH_M``) when the strip between them over their shared span is wall material (its middle inside
+    the region) and the span is ``BAND_MIN_LEN`` thicknesses or more: the strip is one wall at its angle, its centre line
+    the strip's middle line, its thickness the faces' distance. ``[(primitive number, piece)]`` with the piece as
+    ``angled_piece`` gives it (``corners``: the strip); each face is used once, nearest pairs first. Pure, page metres."""
+
+    out = []
+    for k, p in enumerate(prims, start=1):
+        if p.kind not in BAND_KINDS or not p.polygons:
+            continue
+        try:
+            region = None
+            for ring in p.polygons:
+                g = Polygon(ring)
+                g = g if g.is_valid else g.buffer(0)
+                region = g if region is None else region.symmetric_difference(g)   # even-odd, as drawn
+        except Exception:  # noqa: BLE001 - a degenerate ring is no wall band
+            continue
+        if region is None or region.is_empty:
+            continue
+        edges = []
+        for ring in p.polygons:
+            n = len(ring)
+            for i in range(n):
+                a, b = ring[i], ring[(i + 1) % n]
+                length = math.dist(a, b)
+                if length < BAND_EDGE_MIN_M:
+                    continue
+                ang = math.degrees(math.atan2(b[1] - a[1], b[0] - a[0])) % 180.0
+                d = (ang - float(theta)) % 90.0
+                if min(d, 90.0 - d) > BAND_MIN_OFF_DEG:
+                    edges.append((a, b, ang, length, min(d, 90.0 - d)))
+        pairs = []
+        for i, (a, b, ang, la, off_i) in enumerate(edges):
+            ux, uy = (b[0] - a[0]) / la, (b[1] - a[1]) / la
+            for j in range(i + 1, len(edges)):
+                c, d_, ang2, lc, _off = edges[j]
+                dang = abs(ang - ang2) % 180.0
+                if min(dang, 180.0 - dang) > BAND_PARALLEL_DEG:
+                    continue
+                dist = abs((c[0] - a[0]) * uy - (c[1] - a[1]) * ux)
+                dist2 = abs((d_[0] - a[0]) * uy - (d_[1] - a[1]) * ux)
+                t = (dist + dist2) / 2.0
+                if not (PAIR_WIDTH_M[0] <= t <= PAIR_WIDTH_M[1]):
+                    continue
+                s = sorted(((c[0] - a[0]) * ux + (c[1] - a[1]) * uy, (d_[0] - a[0]) * ux + (d_[1] - a[1]) * uy))
+                lo, hi = max(0.0, s[0]), min(la, s[1])
+                if hi - lo < BAND_MIN_LEN * t:
+                    continue
+                if off_i <= ANGLED_DEG and (hi - lo) * math.sin(math.radians(off_i)) <= t / 2.0:
+                    continue                        # nearly on the axes: an axis rectangle holds it within half its thickness
+                pairs.append((t, i, j, lo, hi))
+        used: set = set()
+        for t, i, j, lo, hi in sorted(pairs):
+            if i in used or j in used:
+                continue
+            a, b, ang, la, _off = edges[i]
+            c, d_ = edges[j][0], edges[j][1]
+            ux, uy = (b[0] - a[0]) / la, (b[1] - a[1]) / la
+            nx, ny = -uy, ux
+            side = (c[0] - a[0]) * nx + (c[1] - a[1]) * ny
+            off = (side / abs(side)) * t if abs(side) > 1e-12 else t
+            p0 = (a[0] + ux * lo, a[1] + uy * lo)
+            p1 = (a[0] + ux * hi, a[1] + uy * hi)
+            corners = [p0, p1, (p1[0] + nx * off, p1[1] + ny * off), (p0[0] + nx * off, p0[1] + ny * off)]
+            mid = ((p0[0] + p1[0]) / 2 + nx * off / 2, (p0[1] + p1[1]) / 2 + ny * off / 2)
+            if not region.contains(Point(mid)):
+                continue                            # the strip between the faces is a room, not wall material
+            used |= {i, j}
+            d = (ang - float(theta)) % 90.0
+            start = (p0[0] + nx * off / 2, p0[1] + ny * off / 2)
+            end = (p1[0] + nx * off / 2, p1[1] + ny * off / 2)
+            out.append((k, {"start": start, "end": end, "thickness": t, "angle_deg": ang,
+                            "off_deg": min(d, 90.0 - d), "corners": corners}))
+    return out
+
+
+def angled_band_walls(prims: list[WallPrim], theta: float, file_rel: str, page_no: int,
+                      units_to_m: Optional[float]) -> list[tuple[list, WallItem]]:
+    """R35 for filled wall regions (``angled_bands``): ``[(strip corners, WallItem)]``, the evidence the region's own
+    (its entity, method and confidence). Off when the rule is switched off (``WENART_RULES_OFF``)."""
+    from wenart.ingest import rule_guards as RG
+
+    if not RG.active("angled_wall"):
+        return []
+    out = []
+    for k, piece in angled_bands(prims, theta):
+        p = prims[k - 1]
+        xs, ys = [q[0] for q in piece["corners"]], [q[1] for q in piece["corners"]]
+        box = [min(xs), min(ys), max(xs), max(ys)]
+        if units_to_m:
+            box = [v / units_to_m for v in box]
+        ev = B.evidence(file_rel, p.method, round(float(p.confidence), 3), page=page_no, entity=p.entity, layer=p.layer)
+        ev["note"] = (f"R35: a strip of the filled wall region between two faces drawn at {piece['angle_deg']:.1f} deg, "
+                      f"{piece['off_deg']:.1f} deg off the plan's axes, {piece['thickness']:.3f} m apart: one wall at "
+                      f"its angle")
+        t = round(round(piece["thickness"] / THICKNESS_ROUND_M) * THICKNESS_ROUND_M, 4)
+        start = (round(piece["start"][0], 4), round(piece["start"][1], 4))
+        end = (round(piece["end"][0], 4), round(piece["end"][1], 4))
+        out.append((piece["corners"], WallItem(start=start, end=end, thickness=t, box=[round(v, 3) for v in box],
+                                               entity=p.entity, evidence=ev)))
     return out
 
 

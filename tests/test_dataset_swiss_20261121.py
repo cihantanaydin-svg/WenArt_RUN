@@ -203,3 +203,35 @@ def test_angled_walls_are_drawn_at_their_angle(tmp_path):
                                        ("YATAK ODASI", "room_label"), ("Ö:1/50", "scale")])
 def test_profile_text_kinds(text, kind):
     assert TP.text_kind(text, None) == kind
+
+
+# --- the bench's wall coverage and line-shift alignment (21 Nov 2026) ------------------------------------------------
+def _w(a, b, t=0.2, wid=None):
+    return {"id": wid, "start": list(a), "end": list(b), "thickness": t}
+
+
+def test_wall_split_at_t_junctions_is_full_coverage_but_one_match():
+    from wenart.datasets import bench as BE
+    long_ = _w((0, 0), (10, 0), wid="t1")
+    cross = _w((4, 0), (4, 5), 0.1, wid="t2")
+    pieces = [_w((0, 0), (4, 0)), _w((4, 0), (7, 0)), _w((7, 0), (10, 0)), cross]
+    truth = {"per_level": {"L0": {"walls": [long_, cross]}}}
+    read = {"per_level": {"L0": {"walls": pieces}}}
+    c = BE.wall_coverage(truth, read)
+    assert c["truth_m"] == c["covered_m"] == 15.0 and c["read_m"] == c["on_truth_m"] == 15.0
+    assert len(SC.match_walls([long_, cross], pieces)) == 2                     # one to one: two of four pieces
+    thick = [_w((0, 0), (10, 0), 0.4)]
+    assert BE.covered_length(long_, thick) == 0.0                               # another solid: not covered
+
+
+def test_align_lays_wall_lines_on_the_truth_when_the_min_corners_differ():
+    from wenart.datasets import bench as BE
+    walls = [_w((0, 0), (10, 0)), _w((10, 0), (10, 8)), _w((10, 8), (0, 8)), _w((0, 8), (0, 0)),
+             _w((4, 0), (4, 8), 0.1)]
+    truth = {"per_level": {"L0": {"walls": walls + [_w((-1.5, 3), (0, 3), 0.1)]}}}       # a stub the reading misses
+    moved = [_w((w["start"][0] + 0.6, w["start"][1] + 0.3), (w["end"][0] + 0.6, w["end"][1] + 0.3), w["thickness"])
+             for w in walls]
+    read = {"per_level": {"L0": {"walls": moved}}}
+    out, moves = BE.align(truth, read)
+    assert moves["L0"]["shift_m"] == [0.6, 0.3]
+    assert len(SC.match_walls(truth["per_level"]["L0"]["walls"], out["per_level"]["L0"]["walls"])) == 5

@@ -445,16 +445,21 @@ BARE_INT_UNITS = (0.01, 0.001)       # a bare whole-number dimension text in cm 
 
 
 def check_dimensions(regions) -> Check:
+    """DIMENSION entities: the printed length (the text override, or, 21 Nov 2026, the measurement as the drawing
+    prints it, ``DimensionPrim.printed``) over the drawn span. A dimension printing its own measurement as a bare whole
+    number says the drawing unit is the dimension's text unit, cm or mm (never m): the check fits both and decides
+    neither (``dimension_unit`` lets the physical checks choose)."""
     ratios, bare = [], []
     for r in regions:
         for e in r.ents:
             d = e.dim
-            if d is None or not d.text or d.measured_units <= 0:
+            text = (d.text or getattr(d, "printed", None)) if d is not None else None
+            if d is None or not text or d.measured_units <= 0:
                 continue
-            length = U.parse_length(d.text)
+            length = U.parse_length(text)
             if length is not None and length.metres > 0:
                 ratios.append(length.metres / d.measured_units)
-                bare.append(bool(BARE_INT_RE.match(d.text.strip())))
+                bare.append(bool(BARE_INT_RE.match(text.strip())))
     # 2 Nov 2026 (real13): a bare whole number ("315") is read as metres by parse_length, but plans write centimetres
     # (Turkish, German, French) or millimetres that way; such a text says the drawing is in its unit, cm or mm, never m
     passed = {u: sum(1 for m, b in zip(ratios, bare)
@@ -649,6 +654,64 @@ def tie_break(checks: list[Check], drawings) -> Optional[tuple[str, dict]]:
     return best, fits
 
 
+def fitting_units(check: Check) -> set:
+    """The units a check finds plausible: its decided unit and every unit passing ``DECIDE_SHARE`` of its samples (the
+    text height: the units its median fits)."""
+    f = {u for u, v in (check.shares or {}).items() if v >= DECIDE_SHARE}
+    if check.unit:
+        f.add(check.unit)
+    if check.check == "text_height" and not check.unit and len(check.values) >= MIN_SAMPLES["text_height"]:
+        med = statistics.median(check.values)
+        f = {u for u, k in UNITS.items() if _in(med * k, TEXT_HEIGHT_M)}
+    return f
+
+
+def dimension_unit(checks: list[Check]) -> Optional[tuple[str, list[Check], list[Check]]]:
+    """21 Nov 2026 (dataset bench: 21 cm drawings, 15 with no unit header and 6 with a mm header, whose DIMENSIONs
+    print their own measurement as bare whole numbers): the dimensions narrow the unit to the few they fit (cm or mm);
+    the physical checks choose among them. A unit is used when a check decides it, >= 2 checks fit it alone among the
+    dimensions' units, and no check fits another of them alone or decides a unit the dimensions rule out (then the
+    sources disagree and nothing is chosen here). ``(unit, choosing checks, dimension checks)`` or None."""
+    dims = [c for c in checks if c.check == "dimensions" and c.samples >= MIN_SAMPLES["dimensions"]]
+    if not dims:
+        return None
+    allowed = set(UNITS)
+    for c in dims:
+        allowed &= fitting_units(c)
+    if len(allowed) < 2:
+        return None                                     # none, or one the check decides on its own
+    alone: dict[str, list[Check]] = {}
+    for c in checks:
+        if c in dims or c.samples < MIN_SAMPLES.get(c.check, 1):
+            continue
+        if c.unit and c.unit not in allowed:
+            return None                                 # a check decides a unit the dimensions rule out
+        fit = fitting_units(c) & allowed
+        if len(fit) == 1:
+            alone.setdefault(next(iter(fit)), []).append(c)
+    if len(alone) != 1:
+        return None
+    unit, choosing = next(iter(alone.items()))
+    if len(choosing) < 2 or not any(c.unit == unit for c in choosing):
+        return None
+    return unit, choosing, dims
+
+
+def dimension_disagreement(checks: list[Check]) -> Optional[str]:
+    """When the dimensions print bare whole numbers (cm or mm) but the physical checks do not agree on one of them:
+    what each check says, for the report (the unit is then never chosen from the dimensions: no guess)."""
+    dims = [c for c in checks if c.check == "dimensions" and c.samples >= MIN_SAMPLES["dimensions"]]
+    if not dims:
+        return None
+    allowed = set.intersection(*(fitting_units(c) for c in dims))
+    if len(allowed) < 2:
+        return None
+    says = [f"{c.check} {c.unit or ' or '.join(sorted(fitting_units(c))) or 'nothing'}" for c in checks
+            if c not in dims and c.samples >= MIN_SAMPLES.get(c.check, 1) and (c.unit or fitting_units(c))]
+    return (f"the {dims[0].samples} dimension(s) print their lengths in {' or '.join(sorted(allowed))}, but the checks "
+            f"do not agree on one of them ({'; '.join(says) or 'no check decides'}): no unit chosen from them")
+
+
 def check_units(insunits: Optional[int], regions, file_rel: str) -> UnitResult:
     """The unit of one CAD document from its drawing regions (strays excluded)."""
     drawings = [r for r in regions if r.kind == "drawing"]
@@ -656,6 +719,21 @@ def check_units(insunits: Optional[int], regions, file_rel: str) -> UnitResult:
     checks = [check_area_labels(drawings), marks_check, check_door_widths(drawings),
               check_wall_thickness(drawings), check_text_height(drawings), check_dimensions(drawings)]
     header = INSUNITS_NAME.get(int(insunits)) if insunits is not None else None
+    found = dimension_unit(checks)
+    note = None if found is not None else dimension_disagreement(checks)
+    if found is not None and found[0] != header:
+        unit, choosing, dims = found
+        result = UnitResult(insunits=insunits, metres_per_unit=UNITS[unit], method="unit_check", unit=unit,
+                            checks=checks)
+        allowed = " or ".join(sorted(set.intersection(*(fitting_units(c) for c in dims)),
+                                     key=lambda u: UNITS[u]))
+        text = (f"the {dims[0].samples} dimension(s) print their lengths in {allowed} and "
+                f"{', '.join(c.check for c in choosing)} agree on {unit}")
+        if header is not None:
+            result.conflict = f"$INSUNITS {insunits} says {header}, but {text}: {unit} used"
+        else:
+            result.warnings.append(f"{file_rel}: $INSUNITS {insunits} names no unit; {text}: {unit} used")
+        return result
     decided = [c for c in checks if c.unit is not None]
     support = [c for c in decided if c.unit == header]
     against = [c for c in decided if c.unit != header]
@@ -665,6 +743,8 @@ def check_units(insunits: Optional[int], regions, file_rel: str) -> UnitResult:
     top = max(votes.items(), key=lambda kv: len(kv[1]), default=(None, []))
     result = UnitResult(insunits=insunits, metres_per_unit=UNITS.get(header) if header else None,
                         method="dxf_insunits" if header else "none", unit=header, checks=checks)
+    if note:
+        result.warnings.append(f"{file_rel}: {note}")
     names = lambda cs: ", ".join(c.check for c in cs)  # noqa: E731 - a short local formatter
     if header is not None and not against:
         if not support:

@@ -3729,3 +3729,17 @@ User OK of 21 Nov 2026: open floor-plan datasets as a real-geometry test bench f
 - `wenart/datasets/bench.py`: pick, convert, read on the CPU, score per element kind, per class (orthogonal, angled),
   error classes. 107 buildings, 201 floors: `results/dataset_bench/swiss_20261121.md`. Not in the gated synthetic set.
   Samples: `datasets/swiss_dwellings/samples/` (12); catalogue: `datasets/catalogue.json`.
+
+### Reader fix round on the bench (21 Nov 2026, user OK)
+
+- Scale: DIMENSIONs printing their own measurement narrow the unit to cm or mm, door widths / text height / wall
+  thickness choose (`units_check.dimension_unit`); a contradicted header is a reported `unit_mismatch`, disagreeing
+  checks choose nothing; single-plan CAD pages now take the sheets unit check (`classify.single_plan_units`). RC17
+  `scale_misread` flags a floor plan with no wall or implausible wall sizes at its scale.
+- Walls: a split that builds the same solid is representation; the bench scores walls one to one and length-weighted
+  (`bench.wall_coverage`) and aligns levels on their wall lines. A box on a furniture / sanitary / stair / door / window
+  layer is never wall material (real03 lost 19 furniture-box wall stubs).
+- R35 in hatched or filled wall bodies (`walls.angled_bands`); the reading check finds a project's DXF in its source
+  folder, so RC4/RC5/RC17 run outside `projects/`.
+- Bench mean 56.9 -> 73.5 (rescored base -> fix), floors read 166 -> 189 of 201, walls F1 0.53 -> 0.68, length-weighted
+  0.74 -> 0.84, angled walls 0.36 -> 0.58: `results/dataset_bench/swiss_20261121_rescored.md`, `..._fix.md`.

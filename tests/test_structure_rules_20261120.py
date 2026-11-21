@@ -351,3 +351,77 @@ def test_rc17_names_an_outdoor_label_lost_in_a_wall_or_naming_a_room():
     b["site"]["outdoor_spaces"] = [{"id": "os", "level_id": "L2", "kind": "balcony",
                                     "polygon": _square(2.0, 4.8, 4.0, 6.0)}]
     assert [f["level_id"] for f in ST.outdoor_labels_lost(b)] == ["L1"]
+
+
+# ------------------------------------------- R35 in a filled wall region (21 Nov 2026, dataset bench: hatched bodies)
+def _slanted_body():
+    """The slanted house of ``_slanted_face_plan`` with its wall body drawn as one hatched region (outer ring and the
+    room's ring, even-odd), the way a plan hatches its whole wall body: no face pair is a single band."""
+    def top(x):
+        return 4.8078 + (x - 0.0553) * 2.3 / 8.0
+    outer = [(0.0, 0.0), (8.0, 0.0), (8.0, 7.3), (0.0, 5.0)]
+    room = [(0.2, 0.2), (7.8, 0.2), (7.8, top(7.8)), (0.2, top(0.2))]
+    return [outer, room]
+
+
+def test_r35_an_angled_strip_of_a_hatched_wall_body_is_one_wall_at_its_angle():
+    from wenart.ingest.generic import walls as W
+    prim = W.WallPrim(kind="dxf_hatch", entity="HATCH:1", stroke_ids=["HATCH:1"], method="vector", confidence=1.0,
+                      polygons=_slanted_body())
+    bands = W.angled_bands([prim], 0.0)
+    assert len(bands) == 1
+    piece = bands[0][1]
+    assert abs(piece["angle_deg"] - 16.04) < 0.1 and abs(piece["thickness"] - 0.2) < 0.005
+    assert math.dist(piece["start"], piece["end"]) > 7.0
+    assert W.angled_bands([prim], 16.04) != []                         # the axis walls are the angled ones then
+    # a 0.4 m slot (a shaft) between two angled faces is a hole of the region, not a wall
+    slot = [(2.0, 2.0), (6.0, 3.15), (5.89, 3.53), (1.89, 2.38)]
+    block = W.WallPrim(kind="dxf_hatch", entity="HATCH:2", stroke_ids=["HATCH:2"], method="vector", confidence=1.0,
+                       polygons=[[(0, 0), (8, 0), (8, 6), (0, 6)], slot])
+    assert W.angled_bands([block], 0.0) == []
+    # 2.5 degrees off over 8 m drifts 0.35 m (past half the 0.2 m thickness): angled; over 1.5 m (0.07 m) it is not
+    def strip(length, deg=2.5, t=0.2):
+        ux, uy = math.cos(math.radians(deg)), math.sin(math.radians(deg))
+        a, b = (0.0, 0.0), (length * ux, length * uy)
+        return [a, b, (b[0] - t * uy, b[1] + t * ux), (a[0] - t * uy, a[1] + t * ux)]
+    assert len(W.angled_bands([W.WallPrim(kind="dxf_hatch", entity="H", stroke_ids=["H"], method="vector",
+                                          confidence=1.0, polygons=[strip(8.0)])], 0.0)) == 1
+    assert W.angled_bands([W.WallPrim(kind="dxf_hatch", entity="H", stroke_ids=["H"], method="vector",
+                                      confidence=1.0, polygons=[strip(1.5)])], 0.0) == []
+
+
+def test_r35_a_hatched_angled_wall_is_read_at_its_angle_not_in_steps():
+    from wenart.ingest.generic import walls as W
+    prim = W.WallPrim(kind="dxf_hatch", entity="HATCH:1", stroke_ids=["HATCH:1"], method="vector", confidence=1.0,
+                      polygons=_slanted_body())
+    mask = W.wall_mask(None, [prim], 1.0)
+    walls, info = W.walls_from_mask(mask, [], "test.dxf", 1)
+
+    def ang(w):
+        return math.degrees(math.atan2(w.end[1] - w.start[1], w.end[0] - w.start[0])) % 180.0
+    angled = [w for w in walls if 10.0 < ang(w) % 90 < 20.0]
+    assert info.get("angled_walls", 0) == 1 and len(angled) == 1 and abs(angled[0].thickness - 0.2) < 0.011
+    stubs = [w for w in walls if w not in angled and math.dist(w.start, w.end) < 0.5]
+    assert len(stubs) <= 2, [(w.start, w.end) for w in stubs]           # no axis steps along the angled wall
+    assert len(walls) <= 6
+
+
+def test_a_box_on_a_furniture_layer_is_never_wall_material():
+    """21 Nov 2026 (dataset bench, wall thickness): a 0.58 m wardrobe box drawn on the furniture layer beside a wall was
+    read as an outline wall and the two as one 0.77 m wall. A closed box on a layer whose name says furniture, sanitary
+    ware, a stair, a door or a window is that thing; on a wall layer or an unnamed layer it stays a wall candidate."""
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).parent))
+    import _real01_page as R
+    from wenart.ingest.generic import walls as W
+
+    wall = R.stroke([(0, 0), (4, 0), (4, 0.2), (0, 0.2)], closed=True)
+    wall.layer = "DUVAR"
+    wardrobe = R.stroke([(0.5, 0.2), (2.5, 0.2), (2.5, 0.78), (0.5, 0.78)], closed=True)
+    wardrobe.layer = "A-TEFRIS"
+    plain = R.stroke([(5, 0), (9, 0), (9, 0.2), (5, 0.2)], closed=True)
+    plain.layer = "0"
+    page = R.synthetic_page([wall, wardrobe, plain])
+    got = {p.entity for p in W._outline_walls(page, 1.0, set())}
+    assert got == {wall.id, plain.id}
