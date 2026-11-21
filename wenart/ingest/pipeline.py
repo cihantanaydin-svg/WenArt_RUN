@@ -596,10 +596,22 @@ def _generic_rooms(build: ProjectBuild, level_id: str, ex: LevelExtraction) -> R
     turkish = ex.report.get("unlabelled_label", R.UNLABELLED_LABEL) == R.UNLABELLED_LABEL
     all_faces = TP.faces(ex.walls, real, ex.separators)     # 3 Nov 2026: a light well's windows open onto other rooms
 
+    # 21 Nov 2026 (the RC18 fix round): the drawing's texts in building metres (any layer), so a doorless face is
+    # typed by the words drawn in it (an air shaft's H.B, a closet's YÜKLÜK) before its size makes it a light well
+    page_texts = []
+    if ex.transform_to_building:
+        for t in ex.texts or []:
+            if t.text and str(t.text).strip() and not str(t.text).strip().replace(".", "").replace(",", "").isdigit():
+                page_texts.append((str(t.text), _to_building(ex, G.box_center(t.box) if t.box else t.start)))
+
     def face_type(poly):
-        room_type, reason = TP.unlabelled_face_type(poly, ex.walls, real, stairs, others=all_faces)
+        x0, y0, x1, y1 = poly.bounds
+        near = [(t, q) for t, q in page_texts if x0 - 0.1 <= q[0] <= x1 + 0.1 and y0 - 0.1 <= q[1] <= y1 + 0.1]
+        room_type, reason = TP.unlabelled_face_type(poly, ex.walls, real, stairs, others=all_faces, texts=near)
         label = TP.stair_room_label(poly, stairs, turkish)   # Milestone 11 (M8): a stair core is no "Oda"
         label = label or TP.light_well_label(reason, turkish)  # 3 Nov 2026 (real09): a light well is no "Oda"
+        if reason and reason.startswith("named:") and "|" in reason:
+            reason = reason.rsplit("|", 1)[0].rstrip()
         label = label or TP.closet_label(reason, turkish)      # 3 Nov 2026 (real10): a closet is a "Depo"
         return (room_type, reason, label) if label else (room_type, reason)
 

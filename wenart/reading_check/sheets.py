@@ -52,9 +52,33 @@ def _entities(doc, box):
             continue
         if box[0] <= p[0] <= box[2] and box[1] <= p[1] <= box[3]:
             out.append(e)
+        elif t in ("LINE", "LWPOLYLINE") and _crosses(e, t, box):
+            # 21 Nov 2026 (the RC18 fix round: real21's party wall, two lines drawn the building's whole length, was
+            # missing from the crop of its light well because both lines start outside it, and the judge took the well
+            # for open onto the neighbour): a line or polyline crossing the box is drawn whatever its first point
+            out.append(e)
         elif t == "INSERT" and _overlaps(e, box):
             out.append(e)                     # real03: the whole plan is one block inserted away from its points
     return out
+
+
+def _crosses(e, t: str, box) -> bool:
+    """True when a LINE or LWPOLYLINE has a segment crossing ``box`` (pure geometry on its points)."""
+    from shapely.geometry import LineString, box as sbox
+
+    try:
+        if t == "LINE":
+            pts = [(e.dxf.start.x, e.dxf.start.y), (e.dxf.end.x, e.dxf.end.y)]
+        else:
+            pts = [tuple(q[:2]) for q in e.get_points("xy")]
+            if e.closed and pts:
+                pts.append(pts[0])
+    except Exception:  # noqa: BLE001 - no points: left out
+        return False
+    xs, ys = [q[0] for q in pts], [q[1] for q in pts]
+    if len(pts) < 2 or max(xs) < box[0] or min(xs) > box[2] or max(ys) < box[1] or min(ys) > box[3]:
+        return False
+    return LineString(pts).intersects(sbox(*box))
 
 
 def _overlaps(insert, box) -> bool:

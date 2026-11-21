@@ -6,7 +6,8 @@ stands (the caller reads the windows and doors drawn across them with ``openings
 invented).
 
 - *Material*: the walls and the lines of the window, door and glass layers (``layer_names``; no swing arcs), each line
-  a band ``BAND_M`` wide (a frame stands in a wall's place).
+  a band ``BAND_M`` wide (a frame stands in a wall's place); 21 Nov 2026: a line standing in a drawn wall's line takes
+  that wall's band (``facade_band``), so the inferred facade wall lies on the drawn facade line.
 - *Links*: from each open room's label ``RAYS`` rays are cast; a run of rays that escapes (no material within
   ``REACH_M``) leaves through a gap; the two hit points beside the run bound it, and a gap of at most ``LINK_M`` is
   linked by a band (a piece of wall the drawing shows on another layer, or not at all, between two frames). Rounds
@@ -89,10 +90,113 @@ def joinery_lines(strokes: list, theta: Optional[float] = None) -> list:
     return out
 
 
-def material(walls: list, lines: list) -> list:
-    """The pieces of material: the wall rectangles and the joinery bands."""
+# 21 Nov 2026 (the RC18 reader fix round, user OK; RC18 found real09's salon 2.88 m across against about 3.2 m drawn):
+# a frame line's band of ``BAND_M`` centred on the line put the room's face ``BAND_M / 2`` inside the frames, and the
+# inferred facade wall grew outwards from there: 0.1-0.27 m inside the drawn facade, the room short of its windows. A
+# frame line standing in the line of a drawn wall (parallel, within the wall's half thickness plus ``FRAME_IN_WALL_M``
+# of its axis, its end within ``FRAME_LINE_REACH_M`` along the line) takes that wall's band: the facade's inner and
+# outer faces are the drawn wall's, so the inferred wall continues the drawn facade.
+FRAME_IN_WALL_M = BAND_M / 2.0
+# Switched OFF (21 Nov 2026): measured on the 19 readings it moves real09's glazed facade walls onto the drawn line
+# (the salon 2.88 -> about 3.2 m across, synthetic-10 and -20 scores up), but the truth record C0001 (the user's "go
+# ahead with the glazed facades", its walls located by the machine on the old reading's walls, 0.18 m inside the drawn
+# facade and off the frames) then no longer holds, so the score gate falls. It ships off until the user lets C0001's
+# walls be located on the drawn facade line; RC17 ``inferred_wall_off_facade`` names the walls it would move.
+FACADE_LINE_SNAP = False
+FRAME_LINE_REACH_M = 0.30         # the frames stand between or next to the drawn wall pieces of that line: a wall further
+                                  # along is another wall (real09 L3: a door frame snapped to a wall 1.25 m away left a
+                                  # 3 cm crack at the room's corner and the room open)
+
+
+def _wall_frames(walls: list) -> list:
+    """``[(a, u, length, half thickness)]`` of the drawn walls (page metres)."""
+    out = []
+    for w in walls:
+        (x0, y0), (x1, y1) = tuple(w.start)[:2], tuple(w.end)[:2]
+        L = math.hypot(x1 - x0, y1 - y0)
+        if L < 1e-6:
+            continue
+        out.append(((x0, y0), ((x1 - x0) / L, (y1 - y0) / L), L, float(w.thickness or 0.0) / 2.0))
+    return out
+
+
+def _band_candidates(line, frames: list) -> list:
+    """``[(gap, offset, wall index, (t0, t1))]``: the drawn walls (``frames``) in whose line a frame line stands
+    (parallel or across within ``AXIS_TOL_DEG``, both ends within the wall's half thickness plus ``FRAME_IN_WALL_M`` of
+    its axis), with the gap along the axis from the wall's extent and the line's extent along it (pure)."""
+    cs = list(line.coords)
+    p, q = cs[0], cs[-1]
+    out = []
+    for k, (a, u, L, h) in enumerate(frames):
+        if h <= 0.0:
+            continue
+        perp = [(c[0] - a[0]) * -u[1] + (c[1] - a[1]) * u[0] for c in (p, q)]
+        if max(abs(d) for d in perp) > h + FRAME_IN_WALL_M + 1e-9:
+            continue
+        lu = ((q[0] - p[0]), (q[1] - p[1]))
+        ln = math.hypot(*lu)
+        along = ln < 1e-9 or abs(lu[0] * u[1] - lu[1] * u[0]) / ln <= math.sin(math.radians(AXIS_TOL_DEG))
+        across = ln >= 1e-9 and abs(lu[0] * u[0] + lu[1] * u[1]) / ln <= math.sin(math.radians(AXIS_TOL_DEG))
+        if not (along or across):
+            continue
+        ts = sorted((c[0] - a[0]) * u[0] + (c[1] - a[1]) * u[1] for c in (p, q))
+        out.append((max(0.0, ts[0] - L, -ts[1]), abs(sum(perp) / 2.0), k, (ts[0], ts[1])))
+    return sorted(out)
+
+
+def _band_rect(frame, ts):
+    a, u, _L, h = frame
+    t0, t1 = ts[0] - BAND_M / 2.0, ts[1] + BAND_M / 2.0
+    n = (-u[1], u[0])
+    return Polygon([(a[0] + u[0] * t + n[0] * s, a[1] + u[1] * t + n[1] * s)
+                    for t, s in ((t0, -h), (t1, -h), (t1, h), (t0, h))])
+
+
+def facade_band(line, frames: list):
+    """The band of the drawn wall whose line a frame line stands in, its end within ``FRAME_LINE_REACH_M`` along the
+    line: a rectangle along the wall's axis over the line's extent (``BAND_M / 2`` beyond each end, a frame's jamb)
+    and across the wall's thickness; None when the line stands in no drawn wall's line (pure). ``facade_bands`` also
+    lets a run of frames reach the wall through each other."""
+    for gap, _off, k, ts in _band_candidates(line, frames):
+        if gap <= FRAME_LINE_REACH_M:
+            return _band_rect(frames[k], ts)
+    return None
+
+
+def facade_bands(lines: list, frames: list) -> list:
+    """``facade_band`` of every line, a run of frames chained (pure; 21 Nov 2026): a line within ``FRAME_LINE_REACH_M``
+    along of a line already in a wall's band, in that wall's line too, takes the same band (real09 L-1: a window and a
+    terrace door with a 0.2 m pier between them, the window 1 m from the drawn wall piece that continues the facade)."""
+    cands = [_band_candidates(ln, frames) for ln in lines]
+    got: dict = {}
+    for i, cs in enumerate(cands):
+        for gap, _off, k, ts in cs:
+            if gap <= FRAME_LINE_REACH_M:
+                got[i] = (k, ts)
+                break
+    changed = True
+    while changed:
+        changed = False
+        for i, cs in enumerate(cands):
+            if i in got:
+                continue
+            for _gap, _off, k, ts in cs:
+                if any(kj == k and ts[0] <= tj[1] + FRAME_LINE_REACH_M and tj[0] <= ts[1] + FRAME_LINE_REACH_M
+                       for kj, tj in got.values()):
+                    got[i] = (k, ts)
+                    changed = True
+                    break
+    return [_band_rect(frames[got[i][0]], got[i][1]) if i in got else None for i in range(len(lines))]
+
+
+def material(walls: list, lines: list, snap: Optional[bool] = None) -> list:
+    """The pieces of material: the wall rectangles and the joinery bands (a frame in a drawn wall's line takes that
+    wall's band, ``facade_bands``, unless ``snap`` is False)."""
     polys = [TP.wall_polygon(w) for w in walls]
-    polys += [ln.buffer(BAND_M / 2.0, cap_style=3, join_style=2) for ln in lines]     # square ends: a frame's jamb
+    snap = FACADE_LINE_SNAP if snap is None else snap
+    bands = facade_bands(lines, _wall_frames(walls)) if snap else [None] * len(lines)
+    for ln, band in zip(lines, bands):
+        polys.append(band if band is not None else ln.buffer(BAND_M / 2.0, cap_style=3, join_style=2))  # square ends
     return [p for p in polys if p is not None and not p.is_empty]
 
 
@@ -174,14 +278,14 @@ def face_of(pieces: list, anchor) -> Optional[Polygon]:
     return None
 
 
-def close_rooms(walls: list, strokes: list, anchors: list) -> tuple[dict, list]:
+def close_rooms(walls: list, strokes: list, anchors: list, snap: Optional[bool] = None) -> tuple[dict, list]:
     """``({anchor index: face}, links)``: the faces of the open rooms the links close and the link lines (the module
-    docstring)."""
+    docstring); ``snap`` False: the frames' own bands only (``material``)."""
     from wenart.ingest.generic import openings as O
 
     theta = O.dominant_angle(walls) if walls else None
     lines = joinery_lines(strokes, theta)
-    pieces = material(walls, lines)
+    pieces = material(walls, lines, snap=snap)
     faces: dict = {}
     links_all: list = []
     for k, anchor in enumerate(anchors):
@@ -272,6 +376,7 @@ FRAME_COVER_M = 0.6             # frames along a facade wall covering this much 
 DOOR_RADIUS_M = (0.75, 1.3)     # ... a door when a swing of this radius on a door / window layer (a casement's
                                 # swing is 0.4-0.7 m: real09) ...
 SWING_REACH_M = 0.35            # ... is hinged within this of the wall band and of the frames' extent
+FRAME_RUN_GAP_M = 0.10          # frames apart by more than this along a wall (a pier) are separate openings
 
 
 def frame_windows(new_walls: list, strokes: list, read: list, walls: list) -> list:
@@ -308,31 +413,41 @@ def frame_windows(new_walls: list, strokes: list, read: list, walls: list) -> li
                     spans.append((max(0.0, min(ts)), min(L, max(ts))))
         if not spans:
             continue
-        lo, hi = min(a for a, _ in spans), max(b for _, b in spans)
-        if hi - lo < FRAME_COVER_M:
-            continue
         mine = LineString([(x0, y0), (x1, y1)]).buffer(float(w.thickness))
         if any(mine.contains(Point(o.center)) for o in read):
             continue                                       # the reader read this wall's opening
-        c = ((lo + hi) / 2.0)
-        # a swing hinged on the wall within the frames' extent: a door (a balcony door), else a window
-        reach = float(w.thickness) / 2.0 + SWING_REACH_M
-        door = any(abs(-(q[0] - x0) * uy + (q[1] - y0) * ux) <= reach
-                   and lo - SWING_REACH_M <= (q[0] - x0) * ux + (q[1] - y0) * uy <= hi + SWING_REACH_M
-                   for q, _r in swings)
-        kind = "door" if door else "window"
-        ev = dict(w.evidence or {})
-        ev.update(rule="glazed_facade", reason=(f"{'door' if door else 'window'} frames drawn along the inferred facade "
-                                                f"wall{' with a door swing hinged on it' if door else ''}, no symbol "
-                                                f"the openings reader knows: an unverified {kind} as wide as the "
-                                                f"frames"))
-        out.append(OpeningItem(kind=kind, width=round(hi - lo, 3),
-                               center=(round(x0 + ux * c, 4), round(y0 + uy * c, 4)),
-                               rotation_deg=math.degrees(math.atan2(uy, ux)), box=list(w.box),
-                               entity=f"inferred:glazed_facade_{kind}:{n}", evidence=ev, status="unverified",
-                               type_raw=f"{kind} frames on an inferred facade wall (rule glazed_facade)",
-                               assumed=["height"] if door else ["height", "sill_height"],
-                               operation="swing" if door else None, operation_source="geometry" if door else None))
+        # 21 Nov 2026 (the RC18 fix round; real09 L-1: a 1.2 m window and a 0.8 m terrace door with a 0.2 m pier between
+        # them became one 2.15 m window once the facade wall lay straight on the drawn line): frames in runs apart by
+        # more than ``FRAME_RUN_GAP_M`` (a pier, a wall piece) are separate openings
+        runs = []
+        for a, b in sorted(spans):
+            # (with the facade line only: a straight wall then carries frames that stepped walls kept apart)
+            if runs and (not FACADE_LINE_SNAP or a <= runs[-1][1] + FRAME_RUN_GAP_M):
+                runs[-1][1] = max(runs[-1][1], b)
+            else:
+                runs.append([a, b])
+        for lo, hi in runs:
+            if hi - lo < FRAME_COVER_M:
+                continue
+            c = ((lo + hi) / 2.0)
+            # a swing hinged on the wall within the frames' extent: a door (a balcony door), else a window
+            reach = float(w.thickness) / 2.0 + SWING_REACH_M
+            door = any(abs(-(q[0] - x0) * uy + (q[1] - y0) * ux) <= reach
+                       and lo - SWING_REACH_M <= (q[0] - x0) * ux + (q[1] - y0) * uy <= hi + SWING_REACH_M
+                       for q, _r in swings)
+            kind = "door" if door else "window"
+            ev = dict(w.evidence or {})
+            ev.update(rule="glazed_facade", reason=(f"{'door' if door else 'window'} frames drawn along the inferred "
+                                                    f"facade wall{' with a door swing hinged on it' if door else ''}, "
+                                                    f"no symbol the openings reader knows: an unverified {kind} as "
+                                                    f"wide as the frames"))
+            out.append(OpeningItem(kind=kind, width=round(hi - lo, 3),
+                                   center=(round(x0 + ux * c, 4), round(y0 + uy * c, 4)),
+                                   rotation_deg=math.degrees(math.atan2(uy, ux)), box=list(w.box),
+                                   entity=f"inferred:glazed_facade_{kind}:{n}", evidence=ev, status="unverified",
+                                   type_raw=f"{kind} frames on an inferred facade wall (rule glazed_facade)",
+                                   assumed=["height"] if door else ["height", "sill_height"],
+                                   operation="swing" if door else None, operation_source="geometry" if door else None))
     return out
 
 

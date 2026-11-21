@@ -27,5 +27,20 @@
     {"project": "real20", "level": "L0", "id": "r_L0_salon", "rule": "room_min_size", "verdict": "reading", "why": "an inferred wall about 1.5 m inside the drawn east facade: 10.44 m2 against the drawn 15.2 m2 (marked by the area text and the inferred wall)"}
   ],
   "precision": {"light_air": "2/5", "light_well_size": "2/5", "room_min_size": "3/5", "all": "7/15",
-                "after_fixes_unmarked": "7/11 (the facade-offset fix removes real17's salon; reading_suspect marks real09's salon, real11's well and real20's salon and no real breach)"}
+                "after_fixes_unmarked": "7/11 (the facade-offset fix removes real17's salon; reading_suspect marks real09's salon, real11's well and real20's salon and no real breach)"},
+  "fixround_20261121": {
+    "what": "the reader fix round for the faults the judged sample showed (user OK of 21 Nov 2026), measured on fresh CPU readings of the 19 real projects at 80c1a446 (before) and with the round's code (after)",
+    "rc18_before": {"light_air": 29, "light_well_size": 21, "room_min_size": 19, "stair_width": 15, "stair_steps": 9, "lift_required": 2, "corridor_width": 2, "entrance_door_width": 1, "total": 98, "reading_suspect": 10},
+    "rc18_after": {"light_air": 28, "light_well_size": 19, "room_min_size": 18, "stair_width": 15, "stair_steps": 9, "lift_required": 2, "corridor_width": 2, "entrance_door_width": 1, "total": 94, "reading_suspect": 3},
+    "rc18_note": "light_well_size: real11 7 -> 0, real09 2 -> 0 (a closet and air shafts typed light wells), real17's two H.B 50/50 now judged as air shafts (PAIY 32(3), still breaches); real03 1 -> 8: its 0.35 m2 'Oda' faces holding a drawn 'Hava Bacasi' are now the air shafts the drawing names (the judged 50 x 65 cm breach, repeated). room_min_size and light_air -1 each: real20's rooms cut by the inferred ground floor are no longer judged",
+    "judged_after": {"real_breaches_firing": "7/7 (real17's H.B 50/50 now as an air shaft)",
+                     "reading_errors_firing": "3/7 (6/7 at 80c1a446: real17's salon was already fixed); gone: real11 isiklik (a closet), real09 isiklik (an air shaft), real20 salon (a room of the inferred ground floor); still firing: real16 mutfak and real04 yatak_odasi_3 (checked against the drawing: no window is drawn there, the readings follow the drawing), real09 salon (the facade-line rule is built but ships off: truth record C0001)"},
+    "faults": {
+      "a_inferred_wall_inside_facade": "confirmed on real09 (glazed-facade walls 0.1-0.27 m inside the drawn facade); rule facade.FACADE_LINE_SNAP built and tested, shipped OFF (it moves the walls truth record C0001 holds, the score gate falls); RC17 inferred_wall_off_facade names them (133 on 7 readings). real20: not a reader fault (the ground floor is the typical plan cut to the drawn footprint); real16: not a reader fault (the south wall is drawn, no window)",
+      "b_band_axis_and_openings": "fixed: a framed window is never added where the openings read in the band cover the frames together (real17 L1-L3: 6 windows off the band gone; real15 L0: 5 duplicate framed windows gone); RC17 opening_off_wall (53 left: real10's shower glass read as windows in no wall, real14)",
+      "c_air_shafts": "fixed: room_subtype air_shaft (an air-shaft word drawn in the face, or under 1.0 m across and at most 1.5 m2), RC18 judges it by PAIY 32(3); RC14 well_type",
+      "d_thin_glazed_bands": "not confirmed on real04: the north face is drawn as a wall (two lines 0.20 m apart like the west wall); the glazed bands of that plan carry glass lines and are read",
+      "e_light_well_names": "fixed: a room word drawn inside a doorless face (any layer) names it before its size makes it a well (real11's YUKLUK); real09's shaft is c",
+      "f_party_wall_in_light_well": "not confirmed on real21: the party wall is drawn across the well (two DUVAR lines the building's whole length); the judged crop left them out (sheets._entities picked lines by their start point: fixed)"}
+  }
 }

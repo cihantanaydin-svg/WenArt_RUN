@@ -4018,6 +4018,56 @@
    "request": "21 Nov 2026 (user OK, bench fix round): reader fixes driven by the real-plan bench raise its scores with no fall on the user's projects. The drawing unit comes from what the drawing shows (DIMENSIONs printing their own measurement narrow it to cm or mm, door widths, text height and wall thickness choose); a header the drawing contradicts is a reported conflict; when the sources disagree nothing is guessed and the disagreement is reported. A drawn wall split into pieces that build the same solid is representation, not an error: walls are scored one to one and length-weighted. Angled walls are read at their angle in every drawing style (face pairs, hatched or filled wall bodies). Never change the reader only to please a strict matcher.",
    "lesson": "21 Nov 2026 (user OK, bench fix round): reader fixes driven by the real-plan bench raise its scores with no fall on the user's projects. The drawing unit comes from what the drawing shows (DIMENSIONs printing their own measurement narrow it to cm or mm, door widths, text height and wall thickness choose); a header the drawing contradicts is a reported conflict; when the sources disagree nothing is guessed and the disagreement is reported. A drawn wall split into pieces that build the same solid is representation, not an error: walls are scored one to one and length-weighted. Angled walls are read at their angle in every drawing style (face pairs, hatched or filled wall bodies). Never change the reader only to please a strict matcher.",
    "question": null
+  },
+  {
+   "id": "UL341",
+   "date": "2026-11-21",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "21 Nov 2026 (user OK, RC18 reader fix round): an inferred wall that closes a facade lies on the drawn facade line where one is drawn. Window, door and glass frame lines standing in the line of a drawn wall (parallel, within its half thickness plus a frame band, its end close along the line) take that wall's band, so the inferred wall continues the drawn wall's faces and the room reaches its windows; never a band centred on the frames that puts the room's face inside them. Checked by RC17 inferred_wall_off_facade (an inferred exterior wall standing into the room off the face of the drawn wall it continues). The reader rule (facade.FACADE_LINE_SNAP) is built and tested but ships OFF: the truth record C0001 holds real09's glazed-facade walls where the old rule put them (0.18 m inside the drawn facade, off the frames), so the score gate falls when they move; it is switched on once the user lets C0001's walls be located on the drawn facade line.",
+   "lesson": "21 Nov 2026 (user OK, RC18 reader fix round): an inferred wall that closes a facade lies on the drawn facade line where one is drawn. Window, door and glass frame lines standing in the line of a drawn wall (parallel, within its half thickness plus a frame band, its end close along the line) take that wall's band, so the inferred wall continues the drawn wall's faces and the room reaches its windows; never a band centred on the frames that puts the room's face inside them. Checked by RC17 inferred_wall_off_facade (an inferred exterior wall standing into the room off the face of the drawn wall it continues).",
+   "question": null
+  },
+  {
+   "id": "UL342",
+   "date": "2026-11-21",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "21 Nov 2026 (user OK, RC18 reader fix round): a wall band's axis and its openings stay consistent. A window is never read from frame or sill lines where the openings already read in that band together cover them (a double casement read as two windows is covered, even when each covers less than half); every opening stands in its wall's band. Checked by RC17 opening_off_wall (a door or window more than 0.10 m beyond its wall's half thickness).",
+   "lesson": "21 Nov 2026 (user OK, RC18 reader fix round): a wall band's axis and its openings stay consistent. A window is never read from frame or sill lines where the openings already read in that band together cover them (a double casement read as two windows is covered, even when each covers less than half); every opening stands in its wall's band. Checked by RC17 opening_off_wall (a door or window more than 0.10 m beyond its wall's half thickness).",
+   "question": null
+  },
+  {
+   "id": "UL343",
+   "date": "2026-11-21",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "21 Nov 2026 (user OK, RC18 reader fix round): an air shaft is no light well. A doorless face that windows open onto is an air shaft (room_type shaft, room_subtype air_shaft, 'Hava Bacası') when an air-shaft word is drawn in it (H.B 50/50, HAVA BACASI, havalandırma, air shaft) or when it is under 1.0 m across and at most 1.5 m2; a light-well word drawn in it (AYDINLIK, IŞIKLIK) keeps it a light well whatever its size. Air shafts are open-air voids like light wells (slab voids, roof opening) and RC18 judges them by PAİY 32(3) (0.60 m / 0.36 m2), light wells by 32(2). Checked by RC14 well_type.",
+   "lesson": "21 Nov 2026 (user OK, RC18 reader fix round): an air shaft is no light well. A doorless face that windows open onto is an air shaft (room_type shaft, room_subtype air_shaft, 'Hava Bacası') when an air-shaft word is drawn in it (H.B 50/50, HAVA BACASI, havalandırma, air shaft) or when it is under 1.0 m across and at most 1.5 m2; a light-well word drawn in it (AYDINLIK, IŞIKLIK) keeps it a light well whatever its size. Air shafts are open-air voids like light wells (slab voids, roof opening) and RC18 judges them by PAİY 32(3) (0.60 m / 0.36 m2), light wells by 32(2). Checked by RC14 well_type.",
+   "question": null
+  },
+  {
+   "id": "UL344",
+   "date": "2026-11-21",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "21 Nov 2026 (user OK, RC18 reader fix round): a label goes to the space it sits in. A room word drawn inside a doorless face on any layer (a YÜKLÜK closet written on the stair layer) names that face before its size or the windows onto it make it a light well or an air shaft; yüklük is a closet. Checked by RC14 well_type (a light well holding another room's word in the drawing).",
+   "lesson": "21 Nov 2026 (user OK, RC18 reader fix round): a label goes to the space it sits in. A room word drawn inside a doorless face on any layer (a YÜKLÜK closet written on the stair layer) names that face before its size or the windows onto it make it a light well or an air shaft; yüklük is a closet. Checked by RC14 well_type (a light well holding another room's word in the drawing).",
+   "question": null
+  },
+  {
+   "id": "UL345",
+   "date": "2026-11-21",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "21 Nov 2026 (user OK, RC18 reader fix round): the regulation checks (RC18) judge what the drawing draws. The rooms an undrawn ground floor was cut to (the typical plan cut to the drawn footprint: inferred walls, no drawn windows on the cut side) are not judged for size or daylight; a crop shown to a judge draws every line crossing it, not only the lines starting in it (a party wall drawn the building's whole length is in its light well's crop).",
+   "lesson": "21 Nov 2026 (user OK, RC18 reader fix round): the regulation checks (RC18) judge what the drawing draws. The rooms an undrawn ground floor was cut to (the typical plan cut to the drawn footprint: inferred walls, no drawn windows on the cut side) are not judged for size or daylight; a crop shown to a judge draws every line crossing it, not only the lines starting in it (a party wall drawn the building's whole length is in its light well's crop).",
+   "question": null
   }
  ]
 }
