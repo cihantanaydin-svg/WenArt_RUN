@@ -70,6 +70,8 @@ FILL_CONFIDENCE = 0.9
 OUTLINE_MIN_VERTICES, OUTLINE_MAX_VERTICES = 4, 12
 OUTLINE_WIDTH_M = (0.05, 0.60)
 OUTLINE_MIN_LENGTH_M = 0.4
+OUTLINE_NOT_WALL_ROLES = frozenset({"furniture", "sanitary", "stair", "door", "window", "glass", "dimension", "axis",
+                                    "text", "site", "sill", "section"})   # 21 Nov 2026: a box on such a layer is no wall
 OUTLINE_CONFIDENCE = 0.8
 TEXT_FRAME_SHARE = 0.4         # 4 Nov 2026 (real17): a thin closed outline whose text fills this share of it frames it
 DXF_HATCH_CONFIDENCE = 0.95
@@ -612,11 +614,19 @@ def _dark_fills(page: GenericPage, s: float, used: set, owners: Optional[dict] =
 
 def _outline_walls(page: GenericPage, s: float, used: set) -> list[WallPrim]:
     """Closed stroked thin polygons with nothing drawn inside them."""
+    from wenart.ingest.generic import layer_names as LN
+
     cands = []
     for st in page.strokes:
         if st.id in used or not st.closed or st.fill is not None or st.arc is not None or dashed_stroke(st):
             continue
         if not OUTLINE_MIN_VERTICES <= len(st.pts) <= OUTLINE_MAX_VERTICES:
+            continue
+        roles = LN.layer_roles(getattr(st, "layer", None))
+        if roles & OUTLINE_NOT_WALL_ROLES and not roles & set(LN.WALL_ROLES):
+            # 21 Nov 2026 (dataset bench, 'wall read with another thickness': a 0.58 m wardrobe box on 'A-TEFRIS' beside a
+            # wall read as one 0.77 m wall): a box on a layer whose name says furniture, sanitary ware, a stair, a door
+            # or a window is that thing, never wall material
             continue
         poly = Polygon(_scale_pts(st.pts, s))
         if not poly.is_valid or poly.area <= 0:
@@ -2188,13 +2198,16 @@ BAND_KINDS = ("dxf_hatch", "hatch", "fill", "outline")   # R35: wall material dr
 BAND_EDGE_MIN_M = 0.2          # R35: an angled face of a filled region this long or longer ...
 BAND_PARALLEL_DEG = 1.0        # ... pairs with the nearest face parallel to it within this angle ...
 BAND_MIN_LEN = 2.0             # ... over a shared span of at least this many thicknesses
+BAND_MIN_OFF_DEG = 0.5         # R35 bands: a strip less than ``ANGLED_DEG`` off the axes is angled when its axis rectangle
+                               # would drift past half its thickness over its span (a 3 deg wall over 6 m: 0.31 m)
 
 
 def angled_bands(prims: list[WallPrim], theta: float) -> list[tuple[int, dict]]:
     """R35 (21 Nov 2026, dataset bench: 694 angled walls built as axis steps, 282 missed): the angled walls inside wall
     material drawn as filled regions (a hatch or a fill of the whole wall body, ``BAND_KINDS``), where the face-pair
     reading (``angled_face_walls``) never sees a single band. Every face of a region's rings (exterior and holes) off the
-    plan's axes by more than ``ANGLED_DEG`` pairs with the nearest parallel face (``BAND_PARALLEL_DEG``) at a wall's
+    plan's axes by more than ``ANGLED_DEG`` (or by more than ``BAND_MIN_OFF_DEG`` where an axis rectangle over the
+    strip's span would drift past half its thickness) pairs with the nearest parallel face (``BAND_PARALLEL_DEG``) at a wall's
     thickness (``PAIR_WIDTH_M``) when the strip between them over their shared span is wall material (its middle inside
     the region) and the span is ``BAND_MIN_LEN`` thicknesses or more: the strip is one wall at its angle, its centre line
     the strip's middle line, its thickness the faces' distance. ``[(primitive number, piece)]`` with the piece as
@@ -2224,13 +2237,13 @@ def angled_bands(prims: list[WallPrim], theta: float) -> list[tuple[int, dict]]:
                     continue
                 ang = math.degrees(math.atan2(b[1] - a[1], b[0] - a[0])) % 180.0
                 d = (ang - float(theta)) % 90.0
-                if min(d, 90.0 - d) > ANGLED_DEG:
-                    edges.append((a, b, ang, length))
+                if min(d, 90.0 - d) > BAND_MIN_OFF_DEG:
+                    edges.append((a, b, ang, length, min(d, 90.0 - d)))
         pairs = []
-        for i, (a, b, ang, la) in enumerate(edges):
+        for i, (a, b, ang, la, off_i) in enumerate(edges):
             ux, uy = (b[0] - a[0]) / la, (b[1] - a[1]) / la
             for j in range(i + 1, len(edges)):
-                c, d_, ang2, lc = edges[j]
+                c, d_, ang2, lc, _off = edges[j]
                 dang = abs(ang - ang2) % 180.0
                 if min(dang, 180.0 - dang) > BAND_PARALLEL_DEG:
                     continue
@@ -2243,12 +2256,14 @@ def angled_bands(prims: list[WallPrim], theta: float) -> list[tuple[int, dict]]:
                 lo, hi = max(0.0, s[0]), min(la, s[1])
                 if hi - lo < BAND_MIN_LEN * t:
                     continue
+                if off_i <= ANGLED_DEG and (hi - lo) * math.sin(math.radians(off_i)) <= t / 2.0:
+                    continue                        # nearly on the axes: an axis rectangle holds it within half its thickness
                 pairs.append((t, i, j, lo, hi))
         used: set = set()
         for t, i, j, lo, hi in sorted(pairs):
             if i in used or j in used:
                 continue
-            a, b, ang, la = edges[i]
+            a, b, ang, la, _off = edges[i]
             c, d_ = edges[j][0], edges[j][1]
             ux, uy = (b[0] - a[0]) / la, (b[1] - a[1]) / la
             nx, ny = -uy, ux
