@@ -989,7 +989,40 @@ class _Reader:
         if text is not None and text.strip() in ("", "<>"):
             text = None
         self.dims.append(DimensionPrim(id=eid, p1=_xy(span[0]), p2=_xy(span[1]), measured_units=_r(measured),
-                                       text=text))
+                                       text=text, printed=None if text is not None else printed_measurement(
+                                           dim, measured)))
+
+
+def printed_measurement(dim, measured: float) -> Optional[str]:
+    """21 Nov 2026 (dataset bench: 21 cm drawings with no unit header, or a mm header, whose DIMENSIONs print their own
+    measurement): the number a DIMENSION without a text override prints, as the drawing shows it: the text of its own
+    ``*D`` block (CAD wrote it with the drawing's DIMLFAC and rounding), else the measurement x DIMLFAC (the entity's
+    override, else its style's) rounded as a whole number when it is one within 0.5 %. None when neither is readable.
+    The printed number over the drawn length is the drawing unit in the dimension's text unit (``units_check``)."""
+    try:
+        block = dim.get_geometry_block()
+    except Exception:                                   # noqa: BLE001 - a broken block reference is no text
+        block = None
+    if block is not None:
+        for e in block:
+            kind = e.dxftype()
+            if kind not in ("MTEXT", "TEXT"):
+                continue
+            try:
+                shown = (e.plain_text() if kind == "MTEXT" else e.dxf.text or "").strip()
+            except Exception:                           # noqa: BLE001 - an unreadable text is skipped
+                continue
+            if shown:
+                return shown
+    try:
+        factor = float(dim.override().get("dimlfac", 1.0) or 1.0)
+    except Exception:                                   # noqa: BLE001 - no style: the measurement as it is
+        factor = 1.0
+    value = float(measured) * factor
+    if value <= 0:
+        return None
+    whole = round(value)
+    return str(int(whole)) if whole and abs(value - whole) <= 0.005 * value else f"{value:.2f}"
 
 
 def dimension_angle_from_block(dim) -> Optional[float]:

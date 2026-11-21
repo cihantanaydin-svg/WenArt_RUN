@@ -60,6 +60,8 @@ class DimensionPrim:
     p2: tuple[float, float]
     measured_units: float                     # in page units
     text: Optional[str] = None                # text override as drawn, None = the measurement
+    printed: Optional[str] = None             # without an override: the measurement as the drawing prints it (its
+                                              # block's text, else measurement x DIMLFAC), 21 Nov 2026
 
 
 @dataclass

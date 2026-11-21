@@ -720,8 +720,10 @@ def region_records(records: list[PageRecord], sheets: Optional[dict]) -> list[Pa
     variant, box, registered transform and, for a CAD document, the drawing unit of the unit check (scale method
     ``unit_check`` when the check overrode the header). Other pages, and every page of a project that is one drawing
     per page, keep their M2-M9 record unchanged."""
-    if not sheets or not sheets.get("multi_region"):
+    if not sheets:
         return records
+    if not sheets.get("multi_region"):
+        return single_plan_units(records, sheets)
     by_page: dict[tuple, list[dict]] = {}
     for r in sheets.get("regions") or []:
         if (r.get("features") or {}).get("raster"):
@@ -744,6 +746,30 @@ def region_records(records: list[PageRecord], sheets: Optional[dict]) -> list[Pa
                 out.append(_region_record(rec, r, units.get(rec.file) or {}, base_of))
                 out.extend(typical_copies(out[-1], r))
     return out
+
+
+def single_plan_units(records: list[PageRecord], sheets: dict) -> list[PageRecord]:
+    """21 Nov 2026 (dataset bench: 17 single-plan DXFs read nothing although the sheets unit check had found their
+    unit): the unit check of a CAD document holds for every reading of it, not only for a multi-region project. A DXF/DWG
+    page read by the generic adapter takes the checked unit when the check overrode the header or filled a header with
+    no unit (``unit_check``): ``units_override`` and the scale name the agreeing checks. A header the checks confirm,
+    and a document whose checks disagree (``needs_review``), keep the header path."""
+    units = {d["file"]: d.get("units") or {} for d in sheets.get("documents") or []}
+    for rec in records:
+        u = units.get(rec.file) or {}
+        if rec.kind != "vector" or rec.format not in ("dxf", "dwg") or rec.extractor == "synthetic" \
+                or u.get("method") != "unit_check" or not u.get("metres_per_unit") or rec.units_override:
+            continue
+        mpu = float(u["metres_per_unit"])
+        rec.units_override = mpu
+        rec.scale = unit_scale(rec.file, u)
+        if rec.generic_page is not None:
+            import dataclasses
+
+            rec.generic_page = dataclasses.replace(
+                rec.generic_page, units_to_m=mpu,
+                warnings=[w for w in rec.generic_page.warnings if "names no drawing unit" not in w])
+    return records
 
 
 def typical_copies(base: PageRecord, region: dict) -> list[PageRecord]:
