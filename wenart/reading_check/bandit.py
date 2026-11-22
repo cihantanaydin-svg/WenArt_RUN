@@ -534,12 +534,17 @@ def latest_questions() -> Optional[Path]:
 
 
 # ============================================================================================ 6. questions
-def question_list(labels: dict, top: int = 15, include_findings: bool = True) -> list:
-    """Loop A's questions (pure given the labels): every gap disagreement and every unjudged RC15 finding of the
-    newest calibration, scored by uncertainty (1 - the decision's margin; for a finding, nearness of its confidence to
-    0.5) times impact (``IMPACT``), the highest ``top``."""
+def question_list(labels: dict, top: int = 15, include_findings: bool = True,
+                  excluded: Optional[dict] = None) -> list:
+    """Loop A's questions (pure given the labels and ``excluded``): every gap disagreement and every unjudged RC15
+    finding of the newest calibration, scored by uncertainty (1 - the decision's margin; for a finding, nearness of its
+    confidence to 0.5) times impact (``IMPACT``), the highest ``top``. 21 Nov 2026 (real09 L3, the user: "this drawing
+    is not good we can ignore this drawing"): nothing is asked about a level the user excluded (``excluded``:
+    ``truth.excluded_levels()``, ``{project: {level: record}}``; the store's when None)."""
     from wenart.reading_check import critic as CR
+    from wenart.reading_check import truth as TR
 
+    excluded = TR.excluded_levels() if excluded is None else excluded
     qs = []
     for d in labels["disagreements"]:
         rec, sig = d["rec"], d["ai"]
@@ -567,6 +572,7 @@ def question_list(labels: dict, top: int = 15, include_findings: bool = True) ->
                        "kind": f["kind"], "call": f.get("call"), "score": round(u * imp, 3),
                        "description": str(f.get("description") or "")[:110]})
     _ = CR
+    qs = [q for q in qs if not TR.is_excluded(excluded, q.get("project"), q.get("level_id"))]
     qs.sort(key=lambda q: (-q["score"], q["id"]))
     # one question settles its like: at most two of a kind per project and four of a kind in all, no repeated text
     out, per, seen = [], {}, set()

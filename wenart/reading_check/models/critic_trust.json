@@ -7033,31 +7033,31 @@
  "checks": {
   "inventory": {
    "room_missing": {
-    "findings": 16,
-    "judged": 12,
-    "right": 11,
-    "wrong": 1,
-    "precision": 0.9167,
-    "false_alarms_after": 0,
+    "findings": 19,
+    "judged": 15,
+    "right": 13,
+    "wrong": 2,
+    "precision": 0.8667,
+    "false_alarms_after": 1,
     "false_alarms_clean_synthetic": 0,
     "trusted": true,
     "small_sample": false,
-    "folders": 1
+    "folders": 3
    },
    "mirror_twin_missing": {
-    "findings": 3,
-    "judged": 3,
-    "right": 3,
+    "findings": 0,
+    "judged": 0,
+    "right": 0,
     "wrong": 0,
-    "precision": 1.0,
+    "precision": null,
     "false_alarms_after": 0,
     "false_alarms_clean_synthetic": 0,
-    "trusted": true,
+    "trusted": false,
     "small_sample": true,
-    "folders": 1
+    "folders": 0
    },
    "stair_missing": {
-    "findings": 0,
+    "findings": 3,
     "judged": 0,
     "right": 0,
     "wrong": 0,
@@ -7081,19 +7081,19 @@
     "folders": 0
    },
    "balcony_missing": {
-    "findings": 2,
-    "judged": 2,
-    "right": 2,
+    "findings": 0,
+    "judged": 0,
+    "right": 0,
     "wrong": 0,
-    "precision": 1.0,
+    "precision": null,
     "false_alarms_after": 0,
     "false_alarms_clean_synthetic": 0,
     "trusted": false,
     "small_sample": true,
-    "folders": 1
+    "folders": 0
    },
    "entrance_missing": {
-    "findings": 2,
+    "findings": 0,
     "judged": 0,
     "right": 0,
     "wrong": 0,
@@ -7106,15 +7106,15 @@
    },
    "angled_wall_straight": {
     "findings": 5,
-    "judged": 0,
+    "judged": 1,
     "right": 0,
-    "wrong": 0,
-    "precision": null,
-    "false_alarms_after": 0,
+    "wrong": 1,
+    "precision": 0.0,
+    "false_alarms_after": 1,
     "false_alarms_clean_synthetic": 0,
     "trusted": false,
     "small_sample": true,
-    "folders": 0
+    "folders": 1
    },
    "storey_count_differs": {
     "findings": 2,
@@ -7129,6 +7129,32 @@
     "folders": 1
    },
    "plan_not_read": {
+    "findings": 77,
+    "judged": 4,
+    "right": 0,
+    "wrong": 4,
+    "precision": 0.0,
+    "false_alarms_after": 4,
+    "false_alarms_clean_synthetic": 0,
+    "trusted": false,
+    "small_sample": true,
+    "folders": 2
+   }
+  },
+  "compare": {
+   "room_missing": {
+    "findings": 10,
+    "judged": 8,
+    "right": 8,
+    "wrong": 0,
+    "precision": 1.0,
+    "false_alarms_after": 0,
+    "false_alarms_clean_synthetic": 0,
+    "trusted": true,
+    "small_sample": false,
+    "folders": 1
+   },
+   "room_not_in_drawing": {
     "findings": 0,
     "judged": 0,
     "right": 0,
@@ -7139,35 +7165,9 @@
     "trusted": false,
     "small_sample": true,
     "folders": 0
-   }
-  },
-  "compare": {
-   "room_missing": {
-    "findings": 15,
-    "judged": 10,
-    "right": 10,
-    "wrong": 0,
-    "precision": 1.0,
-    "false_alarms_after": 0,
-    "false_alarms_clean_synthetic": 0,
-    "trusted": true,
-    "small_sample": false,
-    "folders": 1
-   },
-   "room_not_in_drawing": {
-    "findings": 21,
-    "judged": 2,
-    "right": 0,
-    "wrong": 2,
-    "precision": 0.0,
-    "false_alarms_after": 0,
-    "false_alarms_clean_synthetic": 2,
-    "trusted": false,
-    "small_sample": true,
-    "folders": 1
    },
    "angled_wall_straight": {
-    "findings": 38,
+    "findings": 10,
     "judged": 2,
     "right": 2,
     "wrong": 0,
@@ -7179,52 +7179,52 @@
     "folders": 1
    },
    "door_into_air": {
-    "findings": 8,
-    "judged": 8,
-    "right": 8,
+    "findings": 11,
+    "judged": 11,
+    "right": 11,
     "wrong": 0,
     "precision": 1.0,
     "false_alarms_after": 0,
     "false_alarms_clean_synthetic": 0,
     "trusted": true,
     "small_sample": false,
-    "folders": 2
+    "folders": 3
    },
    "balcony_missing": {
-    "findings": 7,
-    "judged": 5,
-    "right": 5,
+    "findings": 1,
+    "judged": 0,
+    "right": 0,
     "wrong": 0,
-    "precision": 1.0,
+    "precision": null,
     "false_alarms_after": 0,
     "false_alarms_clean_synthetic": 0,
-    "trusted": true,
-    "small_sample": false,
-    "folders": 2
+    "trusted": false,
+    "small_sample": true,
+    "folders": 0
    },
    "opening_type_differs": {
-    "findings": 71,
-    "judged": 10,
+    "findings": 35,
+    "judged": 11,
     "right": 8,
-    "wrong": 2,
-    "precision": 0.8,
-    "false_alarms_after": 2,
+    "wrong": 3,
+    "precision": 0.7273,
+    "false_alarms_after": 3,
     "false_alarms_clean_synthetic": 0,
     "trusted": true,
     "small_sample": false,
     "folders": 4
    },
    "opening_not_in_drawing": {
-    "findings": 19,
-    "judged": 3,
-    "right": 2,
-    "wrong": 1,
-    "precision": 0.6667,
+    "findings": 9,
+    "judged": 0,
+    "right": 0,
+    "wrong": 0,
+    "precision": null,
     "false_alarms_after": 0,
     "false_alarms_clean_synthetic": 0,
-    "trusted": true,
+    "trusted": false,
     "small_sample": true,
-    "folders": 3
+    "folders": 0
    },
    "plan_not_read": {
     "findings": 0,
@@ -7253,16 +7253,16 @@
   },
   "plausibility": {
    "habitable_no_window": {
-    "findings": 162,
-    "judged": 12,
-    "right": 12,
+    "findings": 161,
+    "judged": 17,
+    "right": 17,
     "wrong": 0,
     "precision": 1.0,
     "false_alarms_after": 0,
     "false_alarms_clean_synthetic": 0,
     "trusted": true,
     "small_sample": false,
-    "folders": 1
+    "folders": 3
    },
    "bedroom_through_bathroom": {
     "findings": 0,
@@ -7289,7 +7289,7 @@
     "folders": 0
    },
    "kitchen_no_window": {
-    "findings": 37,
+    "findings": 70,
     "judged": 14,
     "right": 14,
     "wrong": 0,
@@ -7301,7 +7301,7 @@
     "folders": 1
    },
    "lift_door_into_flat": {
-    "findings": 35,
+    "findings": 33,
     "judged": 0,
     "right": 0,
     "wrong": 0,
@@ -7313,43 +7313,43 @@
     "folders": 0
    },
    "stair_no_landing_door": {
-    "findings": 10,
-    "judged": 0,
+    "findings": 13,
+    "judged": 4,
     "right": 0,
-    "wrong": 0,
-    "precision": null,
-    "false_alarms_after": 0,
+    "wrong": 4,
+    "precision": 0.0,
+    "false_alarms_after": 2,
     "false_alarms_clean_synthetic": 0,
     "trusted": false,
     "small_sample": true,
-    "folders": 0
+    "folders": 3
    },
    "storey_no_stair_access": {
-    "findings": 9,
-    "judged": 0,
+    "findings": 25,
+    "judged": 3,
     "right": 0,
-    "wrong": 0,
-    "precision": null,
-    "false_alarms_after": 0,
+    "wrong": 3,
+    "precision": 0.0,
+    "false_alarms_after": 3,
     "false_alarms_clean_synthetic": 0,
     "trusted": false,
     "small_sample": true,
-    "folders": 0
+    "folders": 3
    },
    "door_into_air": {
-    "findings": 63,
-    "judged": 26,
-    "right": 26,
-    "wrong": 0,
-    "precision": 1.0,
-    "false_alarms_after": 0,
+    "findings": 76,
+    "judged": 31,
+    "right": 30,
+    "wrong": 1,
+    "precision": 0.9677,
+    "false_alarms_after": 1,
     "false_alarms_clean_synthetic": 0,
     "trusted": true,
     "small_sample": false,
-    "folders": 3
+    "folders": 5
    },
    "balcony_no_door": {
-    "findings": 133,
+    "findings": 134,
     "judged": 0,
     "right": 0,
     "wrong": 0,
@@ -7374,9 +7374,7 @@
       "mirror_twin_missing"
      ],
      "desc": "Salon (r_L0_oda_5 in the after reading) not read",
-     "found_by": [
-      "inventory"
-     ],
+     "found_by": [],
      "targeted": true
     },
     {
@@ -7401,9 +7399,7 @@
       "mirror_twin_missing"
      ],
      "desc": "Salon (r_L1_oda_5 in the after reading) not read",
-     "found_by": [
-      "inventory"
-     ],
+     "found_by": [],
      "targeted": true
     },
     {
@@ -7428,9 +7424,7 @@
       "mirror_twin_missing"
      ],
      "desc": "Mutfak (r_L2_oda in the after reading) not read",
-     "found_by": [
-      "inventory"
-     ],
+     "found_by": [],
      "targeted": true
     },
     {
@@ -7442,9 +7436,7 @@
       "mirror_twin_missing"
      ],
      "desc": "Salon (r_L2_oda_3 in the after reading) not read",
-     "found_by": [
-      "inventory"
-     ],
+     "found_by": [],
      "targeted": true
     },
     {
@@ -7526,20 +7518,6 @@
      "targeted": true
     },
     {
-     "id": "real09-B13",
-     "folder": "before/real09@324c487f",
-     "level": "L3",
-     "kinds": [
-      "door_into_air"
-     ],
-     "desc": "door d_L3_004 into the air",
-     "found_by": [
-      "compare",
-      "plausibility"
-     ],
-     "targeted": true
-    },
-    {
      "id": "real09-UB01",
      "folder": "before/real09@324c487f",
      "level": "L0",
@@ -7547,9 +7525,7 @@
       "balcony_missing"
      ],
      "desc": "user correction C0008: outdoor present does not hold",
-     "found_by": [
-      "inventory"
-     ],
+     "found_by": [],
      "targeted": true
     },
     {
@@ -7578,31 +7554,6 @@
       "compare",
       "plausibility"
      ],
-     "targeted": true
-    },
-    {
-     "id": "real09-A03",
-     "folder": "after/real09",
-     "level": "L3",
-     "kinds": [
-      "door_into_air"
-     ],
-     "desc": "door d_L3_004 into the air",
-     "found_by": [
-      "compare",
-      "plausibility"
-     ],
-     "targeted": true
-    },
-    {
-     "id": "real09-UA01",
-     "folder": "after/real09",
-     "level": "L0",
-     "kinds": [
-      "balcony_missing"
-     ],
-     "desc": "user correction C0008: outdoor present does not hold",
-     "found_by": [],
      "targeted": true
     },
     {
@@ -8374,16 +8325,16 @@
    ],
    "per_check": {
     "inventory": {
-     "targeted": 18,
-     "found": 8
+     "targeted": 17,
+     "found": 3
     },
     "compare": {
-     "targeted": 59,
-     "found": 49
+     "targeted": 56,
+     "found": 47
     },
     "plausibility": {
-     "targeted": 37,
-     "found": 37
+     "targeted": 35,
+     "found": 35
     }
    }
   },
@@ -8524,9 +8475,9 @@
     "check": "compare",
     "errors": 26,
     "targeted_errors": 18,
-    "findings": 1,
-    "right": 1,
-    "verdict": "caught"
+    "findings": 0,
+    "right": 0,
+    "verdict": "missed"
    },
    {
     "folder": "synth/synthetic-12-mirrored-halves",
@@ -8584,8 +8535,8 @@
     "check": "compare",
     "errors": 68,
     "targeted_errors": 47,
-    "findings": 10,
-    "right": 10,
+    "findings": 8,
+    "right": 8,
     "verdict": "caught"
    },
    {
@@ -8594,9 +8545,9 @@
     "check": "plausibility",
     "errors": 68,
     "targeted_errors": 26,
-    "findings": 0,
-    "right": 0,
-    "verdict": "missed"
+    "findings": 8,
+    "right": 6,
+    "verdict": "caught"
    },
    {
     "folder": "synth/synthetic-15-winder-stair",
@@ -8674,9 +8625,9 @@
     "check": "compare",
     "errors": 8,
     "targeted_errors": 4,
-    "findings": 1,
-    "right": 1,
-    "verdict": "caught"
+    "findings": 0,
+    "right": 0,
+    "verdict": "missed"
    },
    {
     "folder": "synth/synthetic-17-garage-lift",
@@ -8764,7 +8715,7 @@
     "check": "compare",
     "errors": 22,
     "targeted_errors": 18,
-    "findings": 2,
+    "findings": 1,
     "right": 1,
     "verdict": "caught"
    },
@@ -8794,9 +8745,9 @@
     "check": "compare",
     "errors": 0,
     "targeted_errors": 0,
-    "findings": 2,
+    "findings": 0,
     "right": 0,
-    "verdict": "false_alarm"
+    "verdict": "clean"
    },
    {
     "folder": "synth/synthetic-21-parapet",
@@ -8874,7 +8825,7 @@
     "answered": 42,
     "failed": 0,
     "skipped": 0,
-    "seconds": 733.0,
+    "seconds": 655.3,
     "asked_marks": 0,
     "model_read_right": 0,
     "unclear": 0,
@@ -8885,9 +8836,9 @@
     "answered": 91,
     "failed": 0,
     "skipped": 0,
-    "seconds": 1022.1,
+    "seconds": 1191.2,
     "asked_marks": 1072,
-    "model_read_right": 896,
+    "model_read_right": 938,
     "unclear": 0,
     "invalid_ids": 0,
     "answered_ids": 0
@@ -8896,33 +8847,33 @@
     "answered": 56,
     "failed": 0,
     "skipped": 0,
-    "seconds": 910.2,
+    "seconds": 936.1,
     "asked_marks": 0,
     "model_read_right": 0,
     "unclear": 0,
     "invalid_ids": 0,
-    "answered_ids": 338
+    "answered_ids": 396
    }
   },
   "judged_by": {
-   "user": 0,
-   "truth": 31,
-   "known": 80,
-   "null": 549
+   "user": 18,
+   "truth": 32,
+   "known": 73,
+   "null": 573
   },
   "second_look": {
-   "asked": 0,
-   "dropped": 0,
-   "dropped_right": 0,
-   "dropped_wrong": 0,
-   "confirmed": 0,
-   "confirmed_right": 0,
-   "confirmed_wrong": 0
+   "asked": 132,
+   "dropped": 60,
+   "dropped_right": 4,
+   "dropped_wrong": 4,
+   "confirmed": 57,
+   "confirmed_right": 15,
+   "confirmed_wrong": 3
   },
-  "date": "2026-11-20",
-  "answers": "runs/20261120-165521-critic/results/critic/agent/answers.json",
-  "findings": 660,
-  "known": "/home/user/WenArt_RUN/results/critic/known_errors.json",
-  "marks": "/home/user/WenArt_RUN/results/critic/user_marks.json"
+  "date": "2026-11-21",
+  "answers": "/home/user/WenArt_RUN/runs/20261121-151439-critic/results/critic/agent/answers.json",
+  "findings": 696,
+  "known": "/home/user/WenArt_RUN/.claude/worktrees/agent-a54a27dd642732a7d/results/critic/known_errors.json",
+  "marks": "/home/user/WenArt_RUN/.claude/worktrees/agent-a54a27dd642732a7d/results/critic/user_marks.json"
  }
 }

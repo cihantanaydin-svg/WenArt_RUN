@@ -42,7 +42,10 @@ exits 1); ``--gate`` compares the new numbers with the newest stored number of e
 entries skipped) and exits 1 when the synthetic overall falls by more than ``GATE_OVERALL_DROP``, a synthetic project
 by more than ``GATE_PROJECT_DROP`` or a sparse project loses a satisfied entry (``falls``); a full run (no
 ``--projects``) also fails when a stored project is not scored. With ``--update``
-the entry is appended only when the gate holds. Each reading's folder gets ``reading_check/score.json``.
+the entry is appended only when the gate holds. Each reading's folder gets ``reading_check/score.json``. 21 Nov 2026
+(C0001, the user's OK "Yes, use the right one"): a record whose machine-located geometry the user's OK moved
+(``truth move``, logged in the record) is judged at its new place: its old place's loss against the stored truth is a
+note, not a fall, only while every entry of the record holds at the new place (``moved_with_ok``).
 
 Why: the regression set (``regress.py``) stops a reading from changing its counts; it cannot say how far a reading is
 from the truth, nor whether a new rule brought a project nearer to it. The score per commit is the gate every change
@@ -594,6 +597,7 @@ def match_sparse(truth: dict, read: dict, building: Optional[dict] = None) -> di
         have = rid is not None and rid in r_levels
         rl = rper.get(rid) or {} if have else {}
         ceiling = (r_levels.get(rid) or {}).get("ceiling_height") if have else None
+        matched: dict = {}                               # the reading elements a present entry of their type took
         for t in TR.ELEMENT_TYPES + TR.SPARSE_KINDS:
             ents = []
             for e in lv.get(t) or []:
@@ -656,7 +660,14 @@ def match_sparse(truth: dict, read: dict, building: Optional[dict] = None) -> di
             for i, e in enumerate(pres):
                 note(e, lid, t, i in ok_idx, f"no {TR.TYPE_KIND[t]} within {tol} m" + (
                     f" with {', '.join(sorted(e['attrs']))}" if e.get("attrs") else ""))
+            matched[t] = set(used)
             left = [r for j, r in enumerate(rr) if j not in used]
+            if t == "openings":
+                # 21 Nov 2026 (C0090, real09 L3: "it is a drawing mistake", neither a window nor an opening): a negated
+                # opening is a gap the user says is none: no door, window or opening of any kind may stand there (a
+                # door or window a present entry of the truth took is the user's own, never this gap)
+                left += [r for k in ("doors", "windows") for j, r in enumerate(rl.get(k) or [])
+                         if j not in matched.get(k, set())]
             for e in absn:
                 hit = next((r for r in left if r.get("center") and e.get("center")
                             and _dist(r["center"], e["center"]) <= tol), None)
@@ -738,7 +749,8 @@ def latest(stored: list, truth_kind: Optional[str] = TRUTH_KIND) -> Optional[dic
             continue
         for p, v in (entry.get("projects") or {}).items():
             if p not in projects and not v.get("error"):
-                projects[p] = dict(v, commit=entry.get("commit"), truth_kind=entry.get("truth_kind"))
+                projects[p] = dict(v, commit=entry.get("commit"), truth_kind=entry.get("truth_kind"),
+                                   **({"stored_on": entry["date"]} if entry.get("date") else {}))
     return {"projects": projects, "overall": overall(projects), "overall_synthetic": synthetic_overall(projects),
             "truth_kind": truth_kind} if projects else None
 
@@ -749,6 +761,11 @@ def _lost(was: dict, now: dict) -> list[str]:
     it asserts (``signature``): an id that names another place, polarity or attribute in ``now`` (a record re-placed or
     its operations re-ordered), or an id ``now`` no longer has, is not compared here (``changed`` reports it, and the
     gate's re-score against the stored truth catches a loss behind it)."""
+    return _fmt_lost(_lost_by_record(was, now))
+
+
+def _lost_by_record(was: dict, now: dict) -> dict:
+    """``_lost`` as ``{record id: [entry ids]}`` (pure)."""
     before, after = satisfied_ids(was), satisfied_ids(now)
     by_record: dict = {}
     for eid, (ok, recs, sig) in before.items():
@@ -760,8 +777,42 @@ def _lost(was: dict, now: dict) -> list[str]:
         if not ok2:
             for rid in sorted(set(recs) | set(recs2), key=TR._record_key):
                 by_record.setdefault(rid, []).append(eid)
+    return by_record
+
+
+def _fmt_lost(by_record: dict) -> list[str]:
     return [f"{rid} ({', '.join(sorted(ids))})" for rid, ids in sorted(by_record.items(),
                                                                        key=lambda kv: TR._record_key(kv[0]))]
+
+
+def _op_number(eid: str, rid: str) -> Optional[int]:
+    """The operation number of a record's entry id ``u_<record>_<n>`` (``truth.USER_ID_PREFIX``), None for another id."""
+    head = f"{TR.USER_ID_PREFIX}{rid}_"
+    tail = str(eid)[len(head):] if str(eid).startswith(head) else ""
+    return int(tail) if tail.isdigit() else None
+
+
+def moved_with_ok(p: str, by_record: dict, was: dict, now: dict, moved: Optional[dict]) -> dict:
+    """21 Nov 2026 (C0001: the user let the machine-located walls move onto the drawn facade line, "Yes, use the right
+    one"): the lost entries the gate does not count as a fall because the user's OK moved them (pure): ``{record id:
+    (entry ids, the move)}``. A record's lost entries are excused only when every one is an operation that a move
+    logged by ``truth move`` (``truth.moves_by_project``: the user's words of the OK in the record's history) took away
+    on or after the day the stored numbers were made, AND every entry of the record holds on the new reading at its new
+    place (``now["records"]``: all satisfied). An entry that also names another record stays a fall for that record."""
+    out: dict = {}
+    mine = (moved or {}).get(p) or {}
+    since = str(was.get("stored_on") or "")
+    for rid, ids in by_record.items():
+        mv = [m for m in mine.get(rid) or [] if str(m.get("date") or "") >= since]
+        if not mv:
+            continue
+        nums = {n for m in mv for n in m.get("old_numbers") or []}
+        held = (now.get("records") or {}).get(rid)
+        if not held or int(held[1]) <= 0 or int(held[0]) != int(held[1]):
+            continue
+        if all(_op_number(eid, rid) in nums for eid in ids):
+            out[rid] = (sorted(ids), mv[-1])
+    return out
 
 
 def changed(last: Optional[dict], new: dict) -> list[str]:
@@ -789,7 +840,8 @@ def changed(last: Optional[dict], new: dict) -> list[str]:
     return out
 
 
-def falls(last: Optional[dict], new: dict, full: bool = False, withdrawn=()) -> list[str]:
+def falls(last: Optional[dict], new: dict, full: bool = False, withdrawn=(), moved: Optional[dict] = None,
+          notes: Optional[list] = None) -> list[str]:
     """What fell against the stored numbers (pure; ``last`` is ``latest(stored)``), over the projects both have:
 
     - the synthetic overall (``synthetic_overall``: the mean total of the projects with an F1 truth, the synthetic
@@ -804,7 +856,9 @@ def falls(last: Optional[dict], new: dict, full: bool = False, withdrawn=()) -> 
     is left out here too). A project whose reading failed stands at 0 with its error and falls; a project scored for
     the first time is not compared; in a ``full`` run (no ``--projects``) a stored project that was not scored falls
     too, unless it left the truth (``withdrawn``: the user's acceptance was withdrawn, or no applicable record is
-    left)."""
+    left). ``moved`` (``truth.moves_by_project``): the records whose geometry the user's OK moved since the stored
+    numbers; their old places' losses go to ``notes`` instead (``moved_with_ok``: only while the whole record holds at
+    its new place)."""
     if not last or last.get("truth_kind") != new.get("truth_kind"):
         return []
     was_all, now_all = last.get("projects") or {}, new.get("projects") or {}
@@ -836,8 +890,21 @@ def falls(last: Optional[dict], new: dict, full: bool = False, withdrawn=()) -> 
             # the stored truth re-scored on the new reading (main: ``vs_stored_truth``) keeps every entry's identity:
             # a correction that held there and fails now is a fall, whatever the truth's edits since; the current
             # truth adds the entries both truths assert alike
-            lost = _lost(was_all[p], now_all[p]["vs_stored_truth"]) if now_all[p].get("vs_stored_truth") else []
-            lost += [x for x in _lost(was_all[p], now_all[p]) if x not in lost]
+            vs = _lost_by_record(was_all[p], now_all[p]["vs_stored_truth"]) if now_all[p].get("vs_stored_truth") \
+                else {}
+            cur = _lost_by_record(was_all[p], now_all[p])
+            # 21 Nov 2026: a record whose geometry the user's OK moved (``truth move``) is judged at its new place: its
+            # old place's loss is a note, not a fall, only while the whole record holds there (``moved_with_ok``)
+            ok = moved_with_ok(p, {r: sorted(set(vs.get(r, [])) | set(cur.get(r, []))) for r in set(vs) | set(cur)},
+                               was_all[p], now_all[p], moved)
+            for rid, (ids, mv) in sorted(ok.items(), key=lambda kv: TR._record_key(kv[0])):
+                held = (now_all[p].get("records") or {}).get(rid) or [0, 0]
+                if notes is not None:
+                    notes.append(f"{p}: {rid} moved with the user's OK on {mv['date']} (\"{mv['user_words']}\"): its "
+                                 f"old place no longer holds ({', '.join(ids)}), every entry at its new place holds "
+                                 f"({held[0]}/{held[1]})")
+            lost = _fmt_lost({r: v for r, v in vs.items() if r not in ok})
+            lost += [x for x in _fmt_lost({r: v for r, v in cur.items() if r not in ok}) if x not in lost]
             if lost:
                 out.append(f"{p}: no longer satisfied: " + "; ".join(lost))
             continue
@@ -1022,8 +1089,10 @@ def main(args) -> int:
         if why:
             print(f"{p}: left the truth ({why})")
             withdrawn.append(p)
-    fell = falls(last, entry, full=not named, withdrawn=withdrawn) if gate else []
-    for line in changed(last, entry) if gate else []:
+    moved_notes: list = []
+    fell = falls(last, entry, full=not named, withdrawn=withdrawn, moved=TR.moves_by_project(records),
+                 notes=moved_notes) if gate else []
+    for line in (changed(last, entry) + moved_notes) if gate else []:
         print(f"note: {line}")
     for v in entry["projects"].values():
         v.pop("vs_stored_truth", None)                           # a gate's working number, never stored

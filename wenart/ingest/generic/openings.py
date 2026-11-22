@@ -46,7 +46,9 @@ wall, and its two bedroom doors share one run gap that the end of the wall betwe
   window's glass spans its gap, centred). A door block whose name says a door that opens without a swing arc
   (KAPI/DOOR with sliding, pocket or folding; no window word) is that door whatever its leaf looks like, checked
   before the window rule (drawn closed, a leaf's two sides would read as glass). Windows get an operation only from
-  a block name (else null: swing, assumed).
+  a block name (else null: swing, assumed). 21 Nov 2026 (real09's kitchen windows, the user: "There is a window and
+  there is a door"): a window's glass drawn as panes end to end on one line with mullions between them, each pane
+  shorter than the gap, is a window, checked before the sliding leaves (``_window_panes``).
 - Walls drawn as face lines (real02) put two walls of one axis line far apart with perpendicular walls crossing the
   gap between them (the bedroom walls of a semi-detached pair, a corridor and a bathroom between them): a run gap
   that perpendicular walls running through the band split is one wall with openings only when every part holds a
@@ -179,6 +181,19 @@ LEAF_END_M = 0.01               # a leaf drawn as lines: its lines end within 1 
 PANEL_LEAF = (0.35, 0.60)       # two-panel sliding door: each leaf this share of the gap ...
 PANEL_COVER = 0.8               # ... together covering this share of it ...
 PANEL_TRACK_M = 0.01            # ... on two tracks this far apart across
+# 21 Nov 2026 (user, real09 L2 kitchen: "There is a window and there is a door"): a window's glass drawn as panes end to
+# end in one line, a mullion or post between them, each pane shorter than the gap (a 0.60 m and a 0.80 m casement in a
+# 1.50 m gap), read as one sliding leaf. A sliding door's leaves run on separate tracks and overlap when closed; panes of
+# one window share a line with a mullion gap between them. Panes: lines (or sides of thin shapes) parallel to the gap,
+# strictly between the faces, confined to the gap, each at least ``PANE_MIN_M`` long and shorter than ``WINDOW_COVER``
+# x the gap; at least two of them in a chain, each joint a mullion ``PANE_JOINT_M`` wide (leaves that touch or overlap
+# are a door's), neighbours with the same across extent (``PANE_TRACK_M``: leaves on shifted tracks are a sliding
+# door's, real10's entrance '140/230'), the chain covering ``WINDOW_COVER`` of the gap.
+ONE_FACE_REACH_M = 0.05           # 21 Nov 2026: a wall's face line across an empty gap runs on past each jamb this far
+PANE_MIN_M = 0.20
+PANE_SHARE = 0.5                  # the lines of one pane share at least this share of the shorter one's span
+PANE_TRACK_M = 0.005
+PANE_JOINT_M = (0.02, 0.15)
 CONF_RASTER = 0.7
 
 
@@ -969,6 +984,13 @@ def _classify_gap_rules(g: Gap, index: StrokeIndex, owned_global: set) -> None:
                                              f"wall layer ({', '.join(layers)}: {', '.join(ids[:4])}) and no glass "
                                              f"or swing is in it: the wall continues ({no_glass})"}
             return
+    # 21 Nov 2026 (user, real09 L2: "There is a window and there is a door"): a window's glass in panes end to end on
+    # one line, mullions between them (``_window_panes``), before the sliding leaves (each pane alone looks like one)
+    panes = _window_panes(g, zone)
+    if panes is not None and g.cls != "closed":
+        g.cls = "window"
+        g.found = {"lines": panes[0], "glass": panes[1], "panes": panes[2]}
+        return
     # Sliding door (Milestone 10): no swing arc, but one or two leaves (thin closed shapes) parallel to the wall,
     # shorter than the gap, in the band or just beside it.
     leaves = _sliding_leaves(g, zone)
@@ -994,13 +1016,48 @@ def _classify_gap_rules(g: Gap, index: StrokeIndex, owned_global: set) -> None:
         (inner[0], inner[1] + shrink, inner[2], inner[3] - shrink)
     content = [it for it in index.query(inner) if it.st.id not in owned_global and it.geom.length > 0.005]
     swings = [it for it, arc in arcs if _door_like(g, arc)]
+    face = _one_face_across(g, index) if not swings else None
+    if face is not None and all(it.st.id == face.st.id for it in content):
+        content = []
     if not content and not swings:
+        if face is not None:
+            # 21 Nov 2026 (real09 L3, C0090, the user: "it is a drawing mistake"): nothing in the gap but one of the
+            # wall's own face lines, on a wall layer, running on across it from jamb to jamb: the wall drawn with one
+            # face, a drafting slip; the wall continues (no opening of any kind)
+            g.cls = "closed"
+            g.found = {"faces": [face.st.id], "note": f"one face of the wall ({face.st.layer}: {face.st.id}) runs on "
+                                                      f"across the {g.width:.2f} m gap and nothing else is drawn in "
+                                                      f"it: the wall drawn with one face, it continues"}
+            return
         g.cls = "empty"
         return
     g.cls = "unclassified"
     g.found = {"content": content + [it for it in swings if it not in content]}
     if no_glass:
         g.found["no_glass"] = no_glass
+
+
+def _one_face_across(g: Gap, index: StrokeIndex):
+    """A straight line on a wall layer (``dxf_generic.is_wall_hint_layer``) lying on one face of the empty gap ``g``
+    (within ``BAND_SLACK_M`` of it), spanning it from jamb to jamb and running on past at least one jamb by
+    ``ONE_FACE_REACH_M`` (it continues the wall; a threshold ends at the jambs), or None (the wall's own face lines
+    count: the gap is a stretch where only its other face is missing; real09 L3's starts at a column). 21 Nov 2026."""
+    from wenart.ingest.dxf_generic import is_wall_hint_layer
+
+    for it in index.query(g.rect(grow_face=BAND_SLACK_M)):
+        if len(it.pts) != 2 or it.st.arc is not None or not is_wall_hint_layer(it.st.layer):
+            continue
+        p, q = it.pts
+        if not _parallel(p, q, g.axis):
+            continue
+        off = abs(g.across(((p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0)))
+        if abs(off - g.t / 2.0) > BAND_SLACK_M:
+            continue
+        lo, hi = sorted((g.along(p), g.along(q)))
+        if lo <= g.a + BAND_SLACK_M and hi >= g.b - BAND_SLACK_M \
+                and (lo <= g.a - ONE_FACE_REACH_M or hi >= g.b + ONE_FACE_REACH_M):
+            return it
+    return None
 
 
 def _framed_glass(framed: set, glass: set) -> bool:
@@ -1043,6 +1100,67 @@ def _wall_faces(g: Gap, faces: dict) -> list:
             return []
         out.update((id(it), it) for it, _, _ in lines)
     return list(out.values())
+
+
+def _window_panes(g: Gap, zone: list) -> Optional[tuple[list, list, int]]:
+    """A window's glass drawn as panes end to end on one line (the constants ``PANE_*``; 21 Nov 2026): ``(the pane
+    strokes, the offsets of the pane lines, the panes on the best line)`` or None. Each straight piece (a line, or a
+    side of a polyline) parallel to the gap, strictly between the faces (``GLASS_INSET_M``), ending within the gap +-
+    ``OWN_MARGIN_M``, from ``PANE_MIN_M`` up to ``WINDOW_COVER`` x the gap long; the pieces sharing ``PANE_SHARE`` of
+    their span along the gap are one pane, its across extent the span of their offsets. Two panes or more in a chain, each the
+    next one's neighbour along the gap with a mullion ``PANE_JOINT_M`` wide between them and the same across extent
+    (both edges within ``PANE_TRACK_M``: the panes of one window share their frame line), cover ``WINDOW_COVER`` of
+    the gap together. Leaves that touch or overlap, or stand on tracks shifted across (a sliding door's, real10's
+    entrance '140/230'), make no chain."""
+    width = g.width
+    pieces = []
+    for it in zone:
+        pts = it.pts
+        if it.st.arc is not None or len(pts) < 2:
+            continue
+        segs = list(zip(pts, pts[1:] + ([pts[0]] if it.st.closed and len(pts) > 2 else [])))
+        for p, q in segs:
+            if not (_parallel(p, q, g.axis) or (g.slant and _parallel(p, q, g.axis, g.slant))):
+                continue
+            off = g.across(((p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0))
+            if abs(off) >= g.t / 2.0 - GLASS_INSET_M:
+                continue
+            lo, hi = sorted((g.along(p), g.along(q)))
+            if not _confined(lo, hi, g.a, g.b) or not PANE_MIN_M <= hi - lo < WINDOW_COVER * width:
+                continue
+            pieces.append((off, lo, hi, it))
+    if len(pieces) < 2:
+        return None
+    panes: list = []                      # [lo, hi, min offset, max offset, items]
+    for off, lo, hi, it in sorted(pieces, key=lambda x: (x[1], x[2], x[0])):
+        # one pane: the pieces sharing most of their span along the gap (a pane's frame lines, whatever their ends)
+        pane = next((q for q in panes if min(q[1], hi) - max(q[0], lo) >= PANE_SHARE * min(q[1] - q[0], hi - lo)),
+                    None)
+        if pane is None:
+            panes.append([lo, hi, off, off, [it]])
+        else:
+            pane[0], pane[1] = min(pane[0], lo), max(pane[1], hi)
+            pane[2], pane[3] = min(pane[2], off), max(pane[3], off)
+            pane[4].append(it)
+    panes.sort(key=lambda q: (q[0], q[1]))
+    best = []
+    for i in range(len(panes)):
+        chain = [panes[i]]
+        for q in panes[i + 1:]:
+            last = chain[-1]
+            joint = q[0] - last[1]
+            if PANE_JOINT_M[0] <= joint <= PANE_JOINT_M[1] and abs(q[2] - last[2]) <= PANE_TRACK_M \
+                    and abs(q[3] - last[3]) <= PANE_TRACK_M:
+                chain.append(q)
+            elif q[0] > last[1] + PANE_JOINT_M[1]:
+                break
+        if len(chain) >= 2 and min(chain[-1][1], g.b) - max(chain[0][0], g.a) >= WINDOW_COVER * width \
+                and len(chain) > len(best):
+            best = chain
+    if not best:
+        return None
+    items = list({id(it): it for q in best for it in q[4]}.values())
+    return items, sorted({round(best[0][2], 3), round(best[0][3], 3)}), len(best)
 
 
 def _sliding_leaves(g: Gap, zone: list) -> list:
@@ -1785,6 +1903,18 @@ def gaps_and_openings_frame(walls: list[WallItem], strokes_m: list[Stroke], file
     _trim_into_bands(out_walls, theta)
 
     exterior = _exterior_test(out_walls)
+    if ctx.rest_index is not None:
+        # 21 Nov 2026 (real09 L3, C0090: "it is a drawing mistake"): an empty run gap one of whose wall faces is drawn
+        # on across it (the wall's own face line, among the wall primitives' strokes) is the wall drawn with one face
+        for g in gaps:
+            if g.kind != "end" and g.cls == "empty":
+                face = _one_face_across(g, ctx.rest_index)
+                if face is not None:
+                    g.cls = "closed"
+                    g.found = {"faces": [face.st.id], "note": f"one face of the wall ({face.st.layer}: {face.st.id}) "
+                                                              f"runs on across the {g.width:.2f} m gap and nothing "
+                                                              f"else is drawn in it: the wall drawn with one face, it "
+                                                              f"continues"}
     if decisions is not None:
         # 5 Nov 2026 (Milestone 14 R3): every gap is classified and the walls are merged: the records get the exterior
         # test and the mirror twin's answer, and the ranker may re-type a run gap the cascade left empty or

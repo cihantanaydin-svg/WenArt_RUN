@@ -57,12 +57,13 @@ XFAIL_COUNTS = {
     "synthetic-14-elevation-title": _xfail("elevation_title", "UL271", "the two plans are read as one level"),
     "synthetic-16-open-recess": _xfail("open_recess", "UL313", "an opening doubles the corridor-end door"),
     "synthetic-17-garage-lift": _xfail("garage_lift", "UL320", "the 3.4 m garage opening is read as a window"),
-    "synthetic-20-glazed-corner": _xfail("glazed_corner", "UL274", "the L of frames is one window and one door"),
 }
 # every drawn room and opening of synthetic-16 is read; the counts fail on what is extra or missing (synthetic-22 reads
 # right since 6 Nov 2026: its curved stair is read, stair_numbers.curved_stair_of; review B-X1: no entry for it here)
 # (synthetic-19, the symmetric single house, reads right since 5 Nov 2026: mirror.halves_axis)
 XFAIL_GEOMETRY = {k: v for k, v in XFAIL_COUNTS.items() if k != "synthetic-16-open-recess"}
+# 21 Nov 2026: with the facade-line rule on (UL341, UL348) synthetic-20's counts per level are right; its geometry not yet
+XFAIL_GEOMETRY["synthetic-20-glazed-corner"] = _xfail("glazed_corner", "UL274", "the L of frames is one window and one door")
 
 
 def _params(names, marks: dict):

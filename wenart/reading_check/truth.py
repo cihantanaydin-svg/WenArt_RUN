@@ -84,6 +84,11 @@ The truth is DERIVED, never merged and never edited by hand::
   names the place of that element in the current truth file.
 - ``truth accept`` stores a reading only when the baseline's ``accepted_on`` is not older than the reading's commit,
   or with the user's own words (``--user-said``, kept in the file); the stored one moves to ``previous/`` first.
+- 21 Nov 2026: ``truth move`` moves a record's machine-located geometry with the user's OK (its operations replaced by
+  a reading's elements, or a place given on it; the user's words, the OK's words and the reason logged in the record,
+  the score gate judging it at its new place); ``truth exclude`` keeps the user's word that a level's drawing is
+  ignored as a brief input (``excluded_levels``: the AI checks' questions and the critic's calibration skip it);
+  ``truth add --reading`` also stores the place in the drawing's frame.
 
 Ids are informational only: the score, the ranker's labels and the remark crops all work by place.
 
@@ -2579,17 +2584,17 @@ def _correct(args, *, corrections, truth_dir, accepted_dir, baseline_dir, projec
     fields = {k: g(k) for k in FIELD_ARGS}
     hint = None
     if g("id") and kind != "level":
-        building = None
-        if g("reading"):
-            rp = Path(g("reading"))
-            rp = rp / "building.json" if rp.is_dir() else rp
-            if not rp.is_file():
-                return 2, f"--reading {g('reading')}: no building.json there"
-            building = json.loads(rp.read_text(encoding="utf-8"))
+        building = _reading_building(g("reading")) if g("reading") else None
         given = resolve_id(g("id"), kind, level, action, truth=load_truth(project, truth_dir), building=building)
         fields = dict(given, **{k: v for k, v in fields.items() if v not in (None, "")})
         hint = None if is_truth_id(g("id")) else g("id")
     op = op_from_args(action, kind, level, fields, confirm=bool(g("confirm")), retype=bool(g("retype")), hint=hint)
+    if g("reading") and kind != "level":
+        # 21 Nov 2026: the place in the drawing's own frame too, from the reading the metres were read on (a later
+        # reading whose origin shifts, e.g. after a reader change, maps it through its own transform)
+        frame = frame_of(op, _reading_building(g("reading")), level)
+        if frame is not None:
+            op["frame"] = frame
     parse_op(op)                                          # a refused operation is refused here, before any record
     date = g("date") or today()
     if not _is_date(date):
@@ -2661,6 +2666,229 @@ def _correct(args, *, corrections, truth_dir, accepted_dir, baseline_dir, projec
                f"{number}; truth rebuilt -> {shown}")
 
 
+def _reading_building(path) -> dict:
+    """The ``building.json`` of a reading folder (or the file itself); ValueError when there is none."""
+    rp = Path(path)
+    rp = rp / "building.json" if rp.is_dir() else rp
+    if not rp.is_file():
+        raise ValueError(f"--reading {path}: no building.json there")
+    return json.loads(rp.read_text(encoding="utf-8"))
+
+
+# --- truth move: a record's geometry moved with the user's OK (21 Nov 2026) ------------------------------------------
+MOVE_BY = "truth move"
+
+
+def moved_ops(rec: dict) -> list[dict]:
+    """The geometry moves logged in a record's history by ``truth move`` (pure): ``[{date, old_numbers, new_numbers,
+    user_words}]``; only a move carrying the user's words and a date counts (the score gate excuses nothing else)."""
+    out = []
+    for h in rec.get("history") or []:
+        if not isinstance(h, dict) or h.get("by") != MOVE_BY or not str(h.get("user_words") or "").strip():
+            continue
+        if not _is_date(h.get("date")):
+            continue
+        out.append({"date": h["date"], "old_numbers": [int(x["n"]) for x in h.get("old_ops") or []],
+                    "new_numbers": [int(n) for n in h.get("new_numbers") or []], "user_words": h["user_words"]})
+    return out
+
+
+def moves_by_project(records: Iterable[dict]) -> dict:
+    """``{project: {record id: [move, ...]}}`` of the applicable records' logged moves (``moved_ops``; pure)."""
+    out: dict = {}
+    for rec in records or []:
+        if correction_applicable(rec) is not None:
+            continue
+        mv = moved_ops(rec)
+        if mv:
+            out.setdefault(rec.get("project"), {})[rec["id"]] = mv
+    return out
+
+
+def move(args, *, corrections: Optional[Path] = None, truth_dir: Optional[Path] = None,
+         accepted_dir: Optional[Path] = None, baseline_dir: Optional[Path] = None,
+         projects_dir: Optional[Path] = None) -> tuple[int, str]:
+    """``truth move``: ``(exit code, message)``. The geometry of a record the machine located moves with the user's OK
+    (21 Nov 2026, C0001: the user saw the facade-line rule's reading, "Yes, use the right one"): the record's operations
+    of ``--kind`` on ``--level`` (or the numbers ``--ops`` names) are replaced by the reading's elements that ``--id``
+    names (``--reading``: their places, each also in the drawing's frame), with the same operation (add, confirm or
+    remove); the user's words, the right answer and every other operation stay. The record's history keeps the old
+    operations with their numbers, the user's words of the OK (``--text``) and the reason (``--why``), so the score gate
+    judges the record at its new place (``score.falls``). The store and the truth are written only when every new
+    operation applies. A refusal is an answer (exit code 2), never a traceback."""
+    try:
+        return _move(args, corrections=Path(corrections or CORRECTIONS_PATH), truth_dir=Path(truth_dir or TRUTH_DIR),
+                     accepted_dir=Path(accepted_dir or ACCEPTED_DIR), baseline_dir=Path(baseline_dir or BASELINE_DIR),
+                     projects_dir=Path(projects_dir or PROJECTS_DIR))
+    except (ValueError, KeyError, TypeError, AttributeError, OSError, json.JSONDecodeError) as exc:
+        return 2, str(exc) if type(exc) is ValueError else f"{type(exc).__name__}: {exc}"
+
+
+def _move(args, *, corrections, truth_dir, accepted_dir, baseline_dir, projects_dir) -> tuple[int, str]:
+    g = lambda k: getattr(args, k, None)                 # noqa: E731 - a namespace may lack the optional fields
+    project, level, kind, rid = g("project"), g("level"), g("kind"), g("correction")
+    if not (project and level and kind and rid):
+        return 2, "--project, --level, --kind and --correction are needed"
+    if kind not in KIND_TO_TYPE:
+        return 2, f"--kind {kind!r}: one of {', '.join(KIND_TO_TYPE)}"
+    words, why = str(g("text") or "").strip(), str(g("why") or "").strip()
+    if not words:
+        return 2, "a move needs the user's words of the OK: --text \"...\""
+    if not why:
+        return 2, "a move needs its reason: --why \"...\""
+    place = {k: g(k) for k in FIELD_ARGS if g(k) not in (None, "")}
+    if not g("reading") or not (g("id") or place):
+        return 2, ("a move needs the reading (--reading) and the new place: the ids of its elements there (--id a,b,...) "
+                   "and/or one place given as numbers on it (--start --end [--thickness], --center [--width])")
+    date = g("date") or today()
+    if not _is_date(date):
+        return 2, f"--date {date!r}: give the date as YYYY-MM-DD"
+    records = load_corrections(corrections)
+    rec = next((r for r in records if r.get("id") == rid), None)
+    why_not = correction_applicable(rec)
+    if why_not:
+        return 2, f"correction {rid} is not applied: {why_not}"
+    if rec.get("project") != project:
+        return 2, f"correction {rid} is a record of {rec.get('project')}, not of {project}"
+    ops = record_ops(rec)
+    if g("ops"):
+        numbers = sorted({int(x) for x in str(g("ops")).split(",") if x.strip()})
+    else:
+        numbers = [n for n, o in enumerate(ops, 1) if o.get("kind") == kind and o.get("level") == level]
+    if not numbers or any(not 1 <= n <= len(ops) for n in numbers):
+        return 2, f"correction {rid} has no operation {numbers or ''} of a {kind} on {level}"
+    old = [ops[n - 1] for n in numbers]
+    if any(o.get("kind") != kind or o.get("level") != level for o in old):
+        return 2, f"operations {numbers} of {rid} are not all {kind}s on {level}"
+    what = {o.get("op") for o in old}
+    if len(what) != 1 or not what <= {"add", "confirm", "remove"}:
+        return 2, f"operations {numbers} of {rid} are {', '.join(sorted(map(str, what)))}: move add, confirm or " \
+                  f"remove operations of one kind at a time"
+    building = _reading_building(g("reading"))
+    new_ops = []
+    for eid in [x.strip() for x in str(g("id") or "").split(",") if x.strip()]:
+        found = reading_element(building, eid, level)
+        if found is None:
+            return 2, f"{eid}: the given reading has no such element on {level}"
+        t, el = found
+        if t != KIND_TO_TYPE[kind]:
+            return 2, f"{eid} is a {TYPE_KIND[t]} in the given reading, not a {kind}"
+        op = op_from_args("remove" if what == {"remove"} else "add", kind, level, place_fields(t, el),
+                          confirm=what == {"confirm"}, hint=eid)
+        frame = frame_of(op, building, level)
+        if frame is not None:
+            op["frame"] = frame
+        new_ops.append(parse_op(op))
+    if place:                                           # one place given as numbers, read on the same reading
+        op = op_from_args("remove" if what == {"remove"} else "add", kind, level, place, confirm=what == {"confirm"})
+        frame = frame_of(op, building, level)
+        if frame is not None:
+            op["frame"] = frame
+        new_ops.append(parse_op(op))
+    new_records = copy.deepcopy(records)
+    target = next(r for r in new_records if r.get("id") == rid)
+    act = target["truth_action"]
+    els = act["elements"] if isinstance(act.get("elements"), list) else [act]
+    kept = [e for k, e in enumerate(els) if k + 1 not in numbers]
+    at = sum(1 for k in range(numbers[0] - 1) if k + 1 not in numbers)
+    target["truth_action"] = {"op": act.get("op"), "kind": act.get("kind"),
+                              "elements": kept[:at] + [dict(o) for o in new_ops] + kept[at:]}
+    new_numbers = list(range(at + 1, at + 1 + len(new_ops)))
+    old_ids = {o.get("id") for o in old if o.get("id")}
+    target["reader_ids"] = [h for h in target.get("reader_ids") or [] if h not in old_ids] + \
+        [o["id"] for o in new_ops if o.get("id")]
+    rp = Path(g("reading"))
+    target.setdefault("history", []).append({
+        "date": date, "by": MOVE_BY, "user_words": words, "reason": why, "level": level, "kind": kind,
+        "old_ops": [dict({"n": n}, **{k: v for k, v in o.items() if k not in ("level", "kind")})
+                    for n, o in zip(numbers, old)],
+        "new_numbers": new_numbers, "from_reading": read_commit(rp) if rp.is_dir() else None})
+    lessons = _lesson_ids()
+    errors = correction_errors([target], lessons if lessons is not None else [target.get("lesson")],
+                               [x.name for x in projects_dir.iterdir() if x.is_dir()] if projects_dir.is_dir()
+                               else [project])
+    if errors:
+        return 2, "nothing written: the record would break the store's checks: " + "; ".join(errors)
+    acc, why_acc = accepted_of(project, accepted_dir=accepted_dir, baseline_dir=baseline_dir, projects_dir=projects_dir)
+    if acc is None and synthetic_truth_file(project, projects_dir) is not None:
+        return 2, why_acc
+    truth = build_truth(project, acc, new_records) if acc is not None else \
+        build_sparse(project, new_records, load_level_anchors().get(project))
+    bad = [x for x in truth["build_report"]["unmatched"] if x["record"] == rid and x.get("n") in new_numbers]
+    if bad:
+        return 2, "nothing written: " + "; ".join(f"operation {x['n']} is unmatched: {x.get('why')}" for x in bad)
+    path = write_truth(project, truth, truth_dir)
+    sync_store(new_records, truth_dir=truth_dir, accepted_dir=accepted_dir, baseline_dir=baseline_dir,
+               projects_dir=projects_dir)
+    save_corrections(new_records, corrections)
+    try:
+        shown = path.relative_to(REPO)
+    except ValueError:
+        shown = path
+    return 0, (f"{project}: record {rid}: {len(old)} {kind} operation(s) {numbers} moved to {len(new_ops)} at the "
+               f"reading's {', '.join(o.get('id') or 'given place' for o in new_ops)} (operations {new_numbers}); truth "
+               f"rebuilt -> {shown}")
+
+
+# --- levels the user excluded (21 Nov 2026) --------------------------------------------------------------------------
+def excluded_levels(records: Optional[Iterable[dict]] = None) -> dict:
+    """``{project: {level id: record id}}``: the levels whose drawing the user said to ignore (an accepted brief input
+    record with ``excludes_level: true``; real09 L3, 21 Nov 2026: "this drawing is not good we can ignore this
+    drawing"). The AI checks' question picker and the critic's calibration skip these levels
+    (``bandit.question_list``, ``critic calibrate``); no truth holds them (a brief input is never truth)."""
+    out: dict = {}
+    for rec in load_corrections() if records is None else records:
+        if rec.get("truth_role") == TRUTH_ROLE_BRIEF and rec.get("excludes_level") is True and rec.get("level") \
+                and rec.get("status") == "accepted":
+            out.setdefault(rec.get("project"), {})[rec["level"]] = rec["id"]
+    return out
+
+
+def is_excluded(excluded: dict, project: Optional[str], level: Optional[str]) -> Optional[str]:
+    """The record id that excludes ``level`` of ``project`` (``excluded_levels``), None when the level counts."""
+    return ((excluded or {}).get(project) or {}).get(level) if project and level else None
+
+
+def exclude_level(args, *, corrections: Optional[Path] = None,
+                  projects_dir: Optional[Path] = None) -> tuple[int, str]:
+    """``truth exclude``: the user's words that a level's drawing is to be ignored, kept as a brief input record
+    (``excludes_level: true``, never truth). ``(exit code, message)``; a level already excluded is not repeated."""
+    corrections = Path(corrections or CORRECTIONS_PATH)
+    projects_dir = Path(projects_dir or PROJECTS_DIR)
+    g = lambda k: getattr(args, k, None)                 # noqa: E731 - a namespace may lack the optional fields
+    project, level, words = g("project"), g("level"), str(g("text") or "").strip()
+    if not project or not level:
+        return 2, "--project and --level are needed"
+    if not words:
+        return 2, "an exclusion needs the user's words: --text \"...\""
+    date = g("date") or today()
+    if not _is_date(date):
+        return 2, f"--date {date!r}: give the date as YYYY-MM-DD"
+    records = load_corrections(corrections)
+    have = is_excluded(excluded_levels(records), project, level)
+    if have:
+        return 0, f"{project} {level}: already excluded by {have}"
+    rec = {"id": _next_record_id(records), "date": date, "project": project, "level": level, "place": None,
+           "element_kind": "level", "reader_answer": g("reader_answer") or "",
+           "right_answer": g("right_answer") or ("the level's drawing is left out of the AI checks' questions and the "
+                                                 "critic's calibration"),
+           "user_words": words, "lesson": g("lesson"), "source": SOURCE_REVIEW, "status": "accepted",
+           "placeable": False, "why": "a whole level's drawing the user excludes: no element",
+           "truth_role": TRUTH_ROLE_BRIEF, "excludes_level": True,
+           "truth_role_reason": g("why") or ("the user's word that this level's drawing is not to be used: a brief "
+                                             "input (which drawings count), not a revision of a reading")}
+    if not g("lesson"):
+        rec["note"] = "no lesson yet: the general rule for this correction is still to be written"
+    lessons = _lesson_ids()
+    errors = correction_errors([rec], lessons if lessons is not None else [rec.get("lesson")],
+                               [x.name for x in projects_dir.iterdir() if x.is_dir()] if projects_dir.is_dir()
+                               else [project])
+    if errors:
+        return 2, "nothing written: the record would break the store's checks: " + "; ".join(errors)
+    save_corrections(records + [rec], corrections)
+    return 0, f"{project} {level}: excluded (brief input {rec['id']})"
+
+
 LESSONS_PATH = REPO / "wenart" / "blender" / "architect_lessons.json"
 
 
@@ -2703,6 +2931,14 @@ def main(args) -> int:
     if action in ("add", "remove"):
         code, msg = correct(args)
         print(f"reading truth {action}: {msg}" if code else msg)
+        return code
+    if action == "move":
+        code, msg = move(args)
+        print(f"reading truth move: {msg}" if code else msg)
+        return code
+    if action == "exclude":
+        code, msg = exclude_level(args)
+        print(f"reading truth exclude: {msg}" if code else msg)
         return code
     print(f"reading truth: unknown action {action}")
     return 2

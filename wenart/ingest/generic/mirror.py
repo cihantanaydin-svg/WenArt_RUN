@@ -413,6 +413,7 @@ def solid_span(host, center, width, strokes: list) -> bool:
     lo, hi = _span(host, center, width)
     t = float(host.thickness)
     tol = max(FACE_TOL_M, 0.15 * t)
+    sides = []
     for side in (-1.0, 1.0):
         off = side * t / 2.0
         spans = []
@@ -435,9 +436,11 @@ def solid_span(host, center, width, strokes: list) -> bool:
             else:
                 cur[1] = max(cur[1], s1)
         covered += (cur[1] - cur[0]) if cur else 0.0
-        if covered < FACE_COVER * (hi - lo):
-            return False
-    return True
+        sides.append(covered >= FACE_COVER * (hi - lo))
+    # 21 Nov 2026 (real09 L3, C0090: "it is a drawing mistake"): one of the wall's own face lines running on across the
+    # span is solid wall too (a real gap breaks both at its jambs; the reader closes such a gap,
+    # ``openings._one_face_across``), so no twin is copied onto it
+    return any(sides)
 
 
 def consistency(walls: list, openings: list, axis=None, steps=STEPS, keep_out=None,

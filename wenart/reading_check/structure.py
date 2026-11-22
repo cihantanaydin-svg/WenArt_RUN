@@ -39,6 +39,7 @@ Advisory like RC14 and RC16, but never demoted: a structural impossibility (``st
 from __future__ import annotations
 
 import math
+import re
 from typing import Optional
 
 CHECK = "RC17"
@@ -371,7 +372,48 @@ def findings(building: dict) -> list:
     """Rules 1, 2, 4 and 5 on a building (pure); rule 3 needs the drawing and runs in ``reading_check.check``."""
     shapes = outlines(building)
     return doors_into_air(building, shapes) + slabs_beyond_walls(building, shapes) + outdoor_labels_lost(building) \
-        + scales_misread(building) + openings_off_wall(building) + inferred_walls_off_facade(building)
+        + scales_misread(building) + openings_off_wall(building) + inferred_walls_off_facade(building) \
+        + core_spaces_unbuilt(building)
+
+
+# 21 Nov 2026 (the facade-line rule on; real13 L0-L3: the lift shaft's face vanished and no lift room was built, its
+# label 'outside every room'): a lift, stair or shaft label the reading placed in no room is a structural loss on any
+# project (the core a building cannot do without), raised wherever it happens
+CORE_WORDS_RE = re.compile(r"(?<![a-z])(?:asansor|merdiven|saft|saht|baca)|(?<![a-z])(?:lift|elevator|stair|staircase"
+                           r"|shaft|riser)s?(?![a-z])")
+
+
+def core_spaces_unbuilt(building: dict) -> list:
+    """RC17 ``core_space_unbuilt`` (pure): each label the reading left outside every room (a level's
+    ``reading_places`` of kind ``unplaced_label``) that names a lift, a stair or a shaft (``CORE_WORDS_RE`` on the
+    ASCII-folded text): its space was not built."""
+    from shapely.geometry import Point, Polygon
+
+    from wenart import building as B
+
+    out = []
+    for lv in _levels(building):
+        rooms = []
+        for r in building.get("rooms") or []:
+            if r.get("level_id") == lv["id"] and len(r.get("polygon") or []) >= 3:
+                try:
+                    rooms.append(Polygon(r["polygon"]).buffer(0.05))
+                except Exception:  # noqa: BLE001 - a broken outline holds nothing
+                    continue
+        for p in lv.get("reading_places") or []:
+            if not isinstance(p, dict) or p.get("kind") != "unplaced_label" or not p.get("at"):
+                continue
+            text = str(p.get("text") or "")
+            if not CORE_WORDS_RE.search(B.fold_ascii(text).lower()):
+                continue
+            if any(q.contains(Point(p["at"][0], p["at"][1])) for q in rooms):
+                continue                        # the label found its room later in the reading
+
+            out.append(_finding("core_space_unbuilt", "major", lv["id"],
+                                f"level {lv['id']}: the label '{text}' names a lift, stair or shaft but stands in no "
+                                f"room of the reading: that space was not built (its walls do not close around it)",
+                                place=p.get("at")))
+    return out
 
 
 # ----------------------------------------------------------------------------------------------- 21 Nov 2026

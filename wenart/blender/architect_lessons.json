@@ -4088,6 +4088,56 @@
    "request": "The AI plausibility checks 'rooms with no way to a stair', 'flat with no entrance door' and 'lift door into a flat' were wrong on all 7 asked cases (real10, real20, real21, real09): trace access through every door, opening and the common hall before raising them; a gap the user calls a drawing mistake is neither a window nor an opening (user answers of 21 Nov, Q1-Q6, Q8, Q13)",
    "lesson": "The AI plausibility checks 'rooms with no way to a stair', 'flat with no entrance door' and 'lift door into a flat' were wrong on all 7 asked cases (real10, real20, real21, real09): trace access through every door, opening and the common hall before raising them; a gap the user calls a drawing mistake is neither a window nor an opening (user answers of 21 Nov, Q1-Q6, Q8, Q13)",
    "question": null
+  },
+  {
+   "id": "UL348",
+   "date": "2026-11-21",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "21 Nov 2026 (user OK after seeing real09's salon read with the facade-line rule on: 'Yes, use the right one'): the facade-line rule is on (inferred facade walls on the drawn facade line). A correction record whose place the machine located moves with the user's OK only through truth move: the user's words of the record kept, the old operations, the user's words of the OK and the reason logged in its history; the score gate judges a moved record at its new place and excuses the loss at its old place only while the whole record holds at the new one (C0001's walls moved onto the drawn facade line)",
+   "lesson": "21 Nov 2026 (user OK after seeing real09's salon read with the facade-line rule on: 'Yes, use the right one'): the facade-line rule is on (inferred facade walls on the drawn facade line). A correction record whose place the machine located moves with the user's OK only through truth move: the user's words of the record kept, the old operations, the user's words of the OK and the reason logged in its history; the score gate judges a moved record at its new place and excuses the loss at its old place only while the whole record holds at the new one (C0001's walls moved onto the drawn facade line)",
+   "question": null
+  },
+  {
+   "id": "UL349",
+   "date": "2026-11-21",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "A window's glass drawn as panes end to end on one line, a mullion or post between them, is one window as wide as its gap, never a sliding door (sliding leaves run on two tracks and overlap; bi-parting leaves touch); user, 21 Nov 2026, real09 L2 kitchen: 'There is a window and there is a door'. A section ground that buries the drawn windows of storeys that are no basement is refused like one that buries doors; with no drawn door to the outside up to those storeys, the line read on both sides at the lowest storey's floor is the ground, and the facade gaps are typed again over the new ground",
+   "lesson": "A window's glass drawn as panes end to end on one line, a mullion or post between them, is one window as wide as its gap, never a sliding door (sliding leaves run on two tracks and overlap; bi-parting leaves touch); user, 21 Nov 2026, real09 L2 kitchen: 'There is a window and there is a door'. A section ground that buries the drawn windows of storeys that are no basement is refused like one that buries doors; with no drawn door to the outside up to those storeys, the line read on both sides at the lowest storey's floor is the ground, and the facade gaps are typed again over the new ground",
+   "question": null
+  },
+  {
+   "id": "UL350",
+   "date": "2026-11-21",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "A level's drawing the user says to ignore (real09 L3, 21 Nov 2026: 'this drawing is not good we can ignore this drawing') is a brief input (truth exclude, truth_role brief_input), never truth: the AI checks' question picker asks nothing about it and the critic's calibration leaves its findings and known errors out; the user's corrections on it (C0090) stay",
+   "lesson": "A level's drawing the user says to ignore (real09 L3, 21 Nov 2026: 'this drawing is not good we can ignore this drawing') is a brief input (truth exclude, truth_role brief_input), never truth: the AI checks' question picker asks nothing about it and the critic's calibration leaves its findings and known errors out; the user's corrections on it (C0090) stay",
+   "question": null
+  },
+  {
+   "id": "UL351",
+   "date": "2026-11-21",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "The AI-check kinds the user marked wrong every time they were asked (storey_no_stair_access, flat_no_entrance, lift_door_into_flat, plan_not_read for labels outside the walls, stair_no_landing_door; room_missing for a balcony label, a kind otherwise right) write their findings as info until a calibration shows them right on at least TRUST_MIN of the judged findings (21 Nov 2026); a checks calibration made after the trust file's stale mark is not stale",
+   "lesson": "The AI-check kinds the user marked wrong every time they were asked (storey_no_stair_access, flat_no_entrance, lift_door_into_flat, plan_not_read for labels outside the walls, stair_no_landing_door; room_missing for a balcony label, a kind otherwise right) write their findings as info until a calibration shows them right on at least TRUST_MIN of the judged findings (21 Nov 2026); a checks calibration made after the trust file's stale mark is not stale",
+   "question": null
+  },
+  {
+   "id": "UL352",
+   "date": "2026-11-21",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "No reader change may open a space that was closed (21 Nov 2026, coordinator review of the facade-line rule: real13's lift shaft vanished): the slit closing of the wall union never fills a hole (GEOS's mitred erosion did; the round erosion closes the slits then), and RC17 core_space_unbuilt raises any lift, stair or shaft label left outside every room. An empty gap with only one of its wall's face lines running across it on a wall layer is the wall drawn with one face, not an opening (real09 L3, C0090: 'it is a drawing mistake'); a negated opening holds only when no door, window or opening stands there",
+   "lesson": "No reader change may open a space that was closed (21 Nov 2026, coordinator review of the facade-line rule: real13's lift shaft vanished): the slit closing of the wall union never fills a hole (GEOS's mitred erosion did; the round erosion closes the slits then), and RC17 core_space_unbuilt raises any lift, stair or shaft label left outside every room. An empty gap with only one of its wall's face lines running across it on a wall layer is the wall drawn with one face, not an opening (real09 L3, C0090: 'it is a drawing mistake'); a negated opening holds only when no door, window or opening stands there",
+   "question": null
   }
  ]
 }

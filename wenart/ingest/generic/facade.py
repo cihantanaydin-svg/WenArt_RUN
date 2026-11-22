@@ -97,12 +97,12 @@ def joinery_lines(strokes: list, theta: Optional[float] = None) -> list:
 # of its axis, its end within ``FRAME_LINE_REACH_M`` along the line) takes that wall's band: the facade's inner and
 # outer faces are the drawn wall's, so the inferred wall continues the drawn facade.
 FRAME_IN_WALL_M = BAND_M / 2.0
-# Switched OFF (21 Nov 2026): measured on the 19 readings it moves real09's glazed facade walls onto the drawn line
-# (the salon 2.88 -> about 3.2 m across, synthetic-10 and -20 scores up), but the truth record C0001 (the user's "go
-# ahead with the glazed facades", its walls located by the machine on the old reading's walls, 0.18 m inside the drawn
-# facade and off the frames) then no longer holds, so the score gate falls. It ships off until the user lets C0001's
-# walls be located on the drawn facade line; RC17 ``inferred_wall_off_facade`` names the walls it would move.
-FACADE_LINE_SNAP = False
+# Built off in the RC18 round (21 Nov 2026): the truth record C0001 (the user's "go ahead with the glazed facades") held
+# real09's walls where the machine had located them on the old reading, 0.1-0.27 m inside the drawn facade. Switched ON
+# the same day (user OK, after seeing the salon with the rule on: "Yes, use the right one"): C0001's walls were moved onto
+# the drawn facade line with `truth move` (logged in the record, the user's words kept). RC17
+# ``inferred_wall_off_facade`` still names any inferred wall standing into the room off the drawn face.
+FACADE_LINE_SNAP = True
 FRAME_LINE_REACH_M = 0.30         # the frames stand between or next to the drawn wall pieces of that line: a wall further
                                   # along is another wall (real09 L3: a door frame snapped to a wall 1.25 m away left a
                                   # 3 cm crack at the room's corner and the room open)
@@ -377,6 +377,62 @@ DOOR_RADIUS_M = (0.75, 1.3)     # ... a door when a swing of this radius on a do
                                 # swing is 0.4-0.7 m: real09) ...
 SWING_REACH_M = 0.35            # ... is hinged within this of the wall band and of the frames' extent
 FRAME_RUN_GAP_M = 0.10          # frames apart by more than this along a wall (a pier) are separate openings
+SWING_HINGE_M = 0.15            # ``swing_doors``: a door's hinge within this of a jamb (and of the wall band) ...
+SWING_LEAF_M = (0.25, 0.15)     # ... its radius the opening's width less up to the frames, or a little more
+SWING_DOOR_RADIUS_M = (0.5, 1.3)  # ... any door leaf's radius (the width test above is the stricter one)
+
+
+def door_swings(strokes: list, radius=DOOR_RADIUS_M) -> list:
+    """``[(hinge, radius)]``: the swing arcs on the door, window and glass layers of a door's radius (``radius``)."""
+    from wenart.ingest.generic import layer_names as LN
+
+    return [(tuple(st.arc["center"]), float(st.arc["radius"])) for st in strokes or []
+            if getattr(st, "arc", None) and LN.layer_role(getattr(st, "layer", None)) in JOINERY_ROLES
+            and radius[0] <= float(st.arc["radius"]) <= radius[1]]
+
+
+def swing_doors(new_walls: list, strokes: list, read: list) -> list:
+    """21 Nov 2026 (the facade-line rule on; real13 L0: a 'K2 90/210' door drawn closed with its swing, in the line of
+    the drawn wall, now inside the inferred wall's band, its handle strokes read as a window's lines): a window the
+    openings reader read on an inferred facade wall where a door's swing (``door_swings``) is hinged at one of its jambs
+    (``SWING_HINGE_M``) with a radius of its width (``SWING_LEAF_M``) is that door: a drawn swing beats strokes that
+    look like glass. Returns ``read`` with those windows made doors (in place)."""
+    swings = door_swings(strokes, SWING_DOOR_RADIUS_M)      # the opening's own width decides below (a 0.71 m leaf of
+    if not swings:                                          # a 90 cm door, real13)
+        return read
+    for o in read:
+        if o.kind != "window":
+            continue
+        w = min(new_walls, key=lambda x: LineString([tuple(x.start), tuple(x.end)]).distance(Point(o.center)),
+                default=None)
+        if w is None or LineString([tuple(w.start), tuple(w.end)]).distance(Point(o.center)) > float(w.thickness):
+            continue
+        (x0, y0), (x1, y1) = tuple(w.start), tuple(w.end)
+        L = math.hypot(x1 - x0, y1 - y0)
+        if L < 1e-9:
+            continue
+        ux, uy = (x1 - x0) / L, (y1 - y0) / L
+        c = (o.center[0] - x0) * ux + (o.center[1] - y0) * uy
+        width = float(o.width)
+        lo, hi = c - width / 2.0, c + width / 2.0
+        reach = float(w.thickness) / 2.0 + SWING_HINGE_M
+        # the door's own swing: hinged at one of the opening's jambs, as wide as the opening (a door beside a window,
+        # hinged past a pier, or a casement's small swing, is not this opening's)
+        if not any(abs(-(q[0] - x0) * uy + (q[1] - y0) * ux) <= reach
+                   and min(abs((q[0] - x0) * ux + (q[1] - y0) * uy - e) for e in (lo, hi)) <= SWING_HINGE_M
+                   and width - SWING_LEAF_M[0] <= r <= width + SWING_LEAF_M[1]
+                   for q, r in swings):
+            continue
+        o.kind = "door"
+        o.height, o.sill = 2.1, None
+        o.assumed = ["height"]
+        o.operation, o.operation_source = "swing", "geometry"
+        ev = dict(o.evidence or {})
+        ev["note"] = ((ev.get("note") + "; ") if ev.get("note") else "") + (
+            "a door swing is hinged on the inferred facade wall within this opening: a door, not a window (its lines "
+            "are the door's)")
+        o.evidence = ev
+    return read
 
 
 def frame_windows(new_walls: list, strokes: list, read: list, walls: list) -> list:
