@@ -332,3 +332,19 @@ def test_rl_pilot_chat_url_on_the_server_root():
     assert chat_url("http://127.0.0.1:8000/v1") == "http://127.0.0.1:8000/v1/chat/completions"
     assert chat_url("http://127.0.0.1:8000/v1/") == "http://127.0.0.1:8000/v1/chat/completions"
     assert chat_url("http://127.0.0.1:8000") == "http://127.0.0.1:8000/v1/chat/completions"
+
+
+def test_rl_pilot_lora_targets_language_model_only():
+    """22 Nov 2026: the LoRA goes on the language model's attention and MLP projections, never on the vision tower, the
+    linear-attention layers or the MTP head of Qwen/Qwen3.8-27B (names from its weight index)."""
+    import re
+
+    from wenart.reading_check.rl_pilot import LORA_TARGETS
+
+    for name, want in [("model.language_model.layers.3.mlp.gate_proj", True),
+                       ("model.language_model.layers.3.self_attn.o_proj", True),
+                       ("model.language_model.layers.0.linear_attn.in_proj_qkv", False),
+                       ("model.language_model.layers.0.linear_attn.out_proj", False),
+                       ("model.visual.blocks.0.attn.qkv", False), ("model.visual.blocks.0.mlp.linear_fc1", False),
+                       ("mtp.layers.0.mlp.down_proj", False), ("lm_head", False)]:
+        assert bool(re.fullmatch(LORA_TARGETS, name)) == want, name

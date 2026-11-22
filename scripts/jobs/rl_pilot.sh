@@ -150,15 +150,37 @@ export HF_HUB_OFFLINE=1
 run_step build "$PY" -m wenart.reading_check rl_pilot build --out "$TRAIN" || exit 1
 run_step fewshot "$PY" -m wenart.reading_check rl_pilot fewshot --out "$TRAIN" || true
 
+# RL_SFT=<repo path>: reuse the training rows of an earlier pod (22 Nov 2026: pod jd2hvt0b64uidy sampled and filtered,
+# 290 rows, then the training failed) when every crop they name is in the fresh build; else phase A runs again
+SFT_READY=0
+if [ -n "${RL_SFT:-}" ] && [ -f "$REPO/$RL_SFT" ] && "$PY" - "$REPO/$RL_SFT" "$TRAIN" <<'PYEOF'
+import json, sys
+from pathlib import Path
+rows = [json.loads(l) for l in open(sys.argv[1], encoding="utf-8") if l.strip()]
+missing = [p for r in rows for p in r["images"] if not (Path(sys.argv[2]) / p).is_file()]
+print(f"rl_pilot: reuse {sys.argv[1]}: {len(rows)} rows, {len(missing)} crops missing")
+sys.exit(1 if missing or not rows else 0)
+PYEOF
+then
+  cp -f "$REPO/$RL_SFT" "$TRAIN/sft.jsonl"
+  SFT_READY=1
+  log "phase A skipped: the training rows of $RL_SFT"
+fi
+
 A_ARGS=(--train "$TRAIN" --out "$OUT/phase_a" --server-flags "$RL_SERVER_FLAGS")
 # RL_FEWSHOT=0 skips the few-shot exam (22 Nov 2026: the rerun after pod 1p2wukgcbep0d8, whose few-shot exam answered 555
 # of 555 calls; only the sampling failed)
 if [ "${RL_FEWSHOT:-1}" = "1" ]; then A_ARGS+=(--fewshot "$TRAIN/fewshot_fold0.json"); fi
 if [ -n "${WENART_DEADLINE:-}" ]; then A_ARGS+=(--deadline "$WENART_DEADLINE"); fi
-run_step phase-a "$PY" -m wenart.reading_check rl_pilot phase-sample "${A_ARGS[@]}" || true
+if [ "$SFT_READY" != 1 ]; then
+  run_step phase-a "$PY" -m wenart.reading_check rl_pilot phase-sample "${A_ARGS[@]}" || true
+  if [ -f "$OUT/phase_a/samples.jsonl" ] && run_step filter "$PY" -m wenart.reading_check rl_pilot filter \
+      --train "$TRAIN" --samples "$OUT/phase_a/samples.jsonl"; then
+    SFT_READY=1
+  fi
+fi
 
-if [ -f "$OUT/phase_a/samples.jsonl" ] && run_step filter "$PY" -m wenart.reading_check rl_pilot filter \
-    --train "$TRAIN" --samples "$OUT/phase_a/samples.jsonl"; then
+if [ "$SFT_READY" = 1 ]; then
   if [ "$(seconds_left)" -ge "$RL_TRAIN_MIN_S" ]; then
     BF16_ID=$("$PY" -c 'from wenart.run import servers as SV; m=SV.model_entry(SV.check_models(), "bakeoff.bf16"); print(m["id"])')
     BF16_REV=$("$PY" -c 'from wenart.run import servers as SV; m=SV.model_entry(SV.check_models(), "bakeoff.bf16"); print(m["revision"])')

@@ -494,6 +494,13 @@ def phase_exam(train_dir: Path, adapter: Path, out: Path, *, key: str = "bakeoff
     return rep
 
 
+# 22 Nov 2026 (pod jd2hvt0b64uidy): transformers 5.18 has no ``warmup_ratio`` (a float ``warmup_steps`` < 1 is the ratio).
+# The adapter goes on the language model's attention and MLP projections only (PEFT matches a string in full): the
+# base's index (Qwen/Qwen3.8-27B 1d4bf0f2) also has the vision tower (model.visual: qkv, proj, linear_fc1/2), the
+# linear-attention layers (in_proj_qkv/z/a/b, out_proj) and the MTP head, where vLLM may refuse a LoRA ("all-linear")
+LORA_TARGETS = r".*language_model.*\.(q_proj|k_proj|v_proj|o_proj|gate_proj|up_proj|down_proj)"
+
+
 def train(train_dir: Path, base_model: str, revision: str, out: Path, *, epochs: float = 2.0, rank: int = 16,
           lr: float = 1e-4, max_minutes: float = 30.0) -> dict:
     """The LoRA (TRL ``SFTTrainer`` + PEFT ``LoraConfig``) on ``sft.jsonl``; pod only (GPU, the BF16 base)."""
@@ -512,10 +519,10 @@ def train(train_dir: Path, base_model: str, revision: str, out: Path, *, epochs:
     model = AutoModelForImageTextToText.from_pretrained(base_model, revision=revision, dtype=torch.bfloat16,
                                                         device_map="auto")
     cfg = SFTConfig(output_dir=str(out), num_train_epochs=epochs, per_device_train_batch_size=1,
-                    gradient_accumulation_steps=8, learning_rate=lr, lr_scheduler_type="cosine", warmup_ratio=0.05,
+                    gradient_accumulation_steps=8, learning_rate=lr, lr_scheduler_type="cosine", warmup_steps=0.05,
                     bf16=True, gradient_checkpointing=True, max_length=None, logging_steps=5, save_strategy="no",
                     report_to=[], max_steps=-1, seed=SEED)
-    lora = LoraConfig(r=rank, lora_alpha=2 * rank, lora_dropout=0.05, target_modules="all-linear",
+    lora = LoraConfig(r=rank, lora_alpha=2 * rank, lora_dropout=0.05, target_modules=LORA_TARGETS,
                       task_type="CAUSAL_LM")
     trainer = SFTTrainer(model=model, args=cfg, train_dataset=ds, processing_class=processor, peft_config=lora)
     res = trainer.train()

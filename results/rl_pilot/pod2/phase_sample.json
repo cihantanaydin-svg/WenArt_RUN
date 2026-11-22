@@ -1,0 +1,24 @@
+{
+ "train": {
+  "questions": 646,
+  "answered": 646,
+  "accuracy": 0.7839,
+  "per_kind": {
+   "opening_kind": 0.7751,
+   "room_window": 0.8465,
+   "room_here": 0.7238,
+   "stair_here": 0.8131
+  }
+ },
+ "held_base_fp8": {
+  "questions": 117,
+  "answered": 117,
+  "accuracy": 0.8718,
+  "per_kind": {
+   "opening_kind": 0.9206,
+   "room_window": 1.0,
+   "room_here": 0.7222,
+   "stair_here": 0.7222
+  }
+ }
+}
