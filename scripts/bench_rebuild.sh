@@ -2,6 +2,7 @@
 set -Eeuo pipefail
 trap 'echo "failed at line $LINENO"' ERR
 D=${BENCH_DATA:-/home/user/bench_data}
+mkdir -p "$D"
 cd "${BENCH_CODE:-$(dirname "$0")/..}"
 [ -s $D/geometries.csv ] || curl -sSfL -o $D/geometries.csv.part https://zenodo.org/api/records/7070952/files/geometries.csv/content && { [ -s $D/geometries.csv ] || mv $D/geometries.csv.part $D/geometries.csv; }
 echo "downloaded $(du -h $D/geometries.csv | cut -f1)"
