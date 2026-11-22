@@ -32,6 +32,7 @@ from typing import Optional
 
 from wenart import building as B
 from wenart.ingest.generic import labels as GL
+from wenart.ingest.generic import layer_names as LN
 from wenart.ingest.generic.model import TextRun
 from wenart.sheets import heights as H
 from wenart.sheets import titles as T
@@ -206,7 +207,7 @@ def stairs_of(region: Region) -> list:
     out = []
     for e in region.ents:
         name = T.fold(" ".join(x for x in (e.block or "", e.layer or "") if x))
-        if STAIR_RE.search(name):
+        if STAIR_RE.search(name) or LN.geometry_role(e.layer) == "stair":      # 22 Nov 2026 (S5)
             out.append(e.box)
     return out
 

@@ -107,6 +107,11 @@ EXPECTED_NAMES = [
     "synthetic-24-sliding-windows",
     "synthetic-25-stair-edge",
     "synthetic-26-corner-shower",
+    # 22 Nov 2026: the S3-S6 round (the user's pick "build S5, S3, S4, S6")
+    "synthetic-29-upper-floor-door",
+    "synthetic-30-fire-stair",
+    "synthetic-31-plain-layers",
+    "synthetic-32-sliding-window-tag",
 ]
 
 
@@ -215,6 +220,9 @@ def test_dxf_layers_are_the_cad_office_ones(generated, name):
     doc, _ = ezdxf.recover.readfile(str(generated / name / FC.DXF_FILE))
     assert doc.header["$INSUNITS"] == FC.INSUNITS
     used = {e.dxf.layer for e in doc.modelspace()}
+    if PROJECTS[name].plain_layers:           # 22 Nov 2026 (S5): synthetic-31 renames every layer L1, L2 ... on purpose
+        assert used <= {f"L{k}" for k in range(1, 30)} and {"L1", "L2", "L3", "L4"} <= used
+        return
     assert {"DUVAR", "KAPI", "PENCERE", "YAZI"} <= used
 
 

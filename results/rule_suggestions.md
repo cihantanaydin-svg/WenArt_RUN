@@ -5,6 +5,10 @@ and `wenart/blender/architect_lessons.json` (352 lessons, 26 open), plus what pa
 entry is a pattern that repeats (two or more records, marks or lessons) and that no rule covers yet. **None of these is
 implemented: the user picks.** Every rule would be general (UL338) and ship with its synthetic test and a check.
 
+**Update 22 Nov 2026 (the user: "build S5, S3, S4, S6"): S3, S4, S5 and S6 are BUILT** (lessons UL355-UL358; tests
+`tests/test_rules_s3_s6_20261122.py`; synthetic-29-upper-floor-door, synthetic-30-fire-stair, synthetic-31-plain-layers,
+synthetic-32-sliding-window-tag in the gated set; `docs/progress.md`, "22 Nov 2026, S3-S6 round"). S1 and S2 stay open.
+
 How they were found: records grouped by element kind and by what the user said ("no wall", "it is a window", "kitchen
 ... window", "not a real room"); records still unsatisfied on today's reading (`score`: real07 C0053, real10 C0035,
 C0086, C0089; C0085 and C0091 were fixed in this round, part 2, by the sash rule); the marks the user gave per AI-check kind; open

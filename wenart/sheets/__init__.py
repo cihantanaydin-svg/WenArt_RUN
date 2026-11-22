@@ -200,6 +200,17 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
             entry["units"] = ur.to_json()
             mpu = ur.metres_per_unit
             warnings.extend(ur.warnings)
+            # 22 Nov 2026 (S5): a drawing whose layer names say nothing gets its layers' roles from their geometry
+            # (``ingest.generic.layer_geometry``), registered for every later rule and recorded here
+            page0 = next((s.generic_page for s in doc.sheets if getattr(s, "generic_page", None) is not None), None)
+            if page0 is not None:
+                from wenart.ingest.generic import layer_geometry as LGEO
+                geo_roles = LGEO.register(doc.file, page0, unit=mpu)
+                if geo_roles is not None:
+                    entry["layer_roles_geometry"] = geo_roles
+                    warnings.append(f"{doc.file}: the layer names say nothing; the roles of {len(geo_roles)} layer(s) "
+                                    f"come from their geometry: " + ", ".join(f"'{k}' {v['role']}" for k, v in
+                                                                             sorted(geo_roles.items())))
             if ur.conflict:
                 entry["units"]["conflict"] = ur.conflict
                 conflict("unit_mismatch", [r.id for r in doc_regions], f"{doc.file}: {ur.conflict}",

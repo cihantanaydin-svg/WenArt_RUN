@@ -50,6 +50,10 @@ RULES = {
     "stair_over_nothing": (("R18", "R25"), "a stair with no storey over it is not built upward (audit real10-5)"),
     "shaft": (("R20",), "a small face named by a shaft word is a shaft with its slab voids"),
     "balcony_door": (("R27",), "a balcony with no door gets its window as a door, or an inferred door"),
+    # 22 Nov 2026 (S3, the user's pick "build S5, S3, S4, S6")
+    "door_onto_nothing": (("R37",), "an upper-storey door onto nothing, with no swing or door block drawn, on a window "
+                                     "layer or with a window's tag is a window (else a question)"),
+    "fire_stair_closed": (("R16",), "a fire stair's enclosure has no doorless opening: an empty gap in it is wall"),
     "light_well": (("R52",), "a face named by a light-well word is an open-air void through the storeys (UL334)"),
     "party_wall": (("R46", "R45"), "a wall on the side a party text names is a blank party wall"),
     "party_balcony": (("R46",), "a balcony on an attached side is cut at the party line or left out"),

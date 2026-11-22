@@ -10,7 +10,9 @@ evidence only, took the document's plaster (``SIVA``) and masonry (``DUVAR``) la
 level out. Column, plaster and wall layers all draw walls.
 
 How: the folded name (ASCII, upper; ``_`` ``-`` ``.`` and digits split words) is matched word by word; the short
-words (BA, RC, COL) only as a whole word.
+words (BA, RC, COL) only as a whole word. 22 Nov 2026 (S5, UL355): ``layer_role`` / ``layer_roles`` fall back on the
+role the layer's geometry shows (``geometry_role``, registered by ``layer_geometry``) only in a drawing whose layer names
+say nothing; ``name_role`` is the name's alone.
 """
 from __future__ import annotations
 
@@ -69,8 +71,8 @@ def _words(name: str) -> set[str]:
     return set(_WORD_RE.findall(folded)) | set(w for part in _WORD_RE.findall(folded) for w in part.split("-"))
 
 
-def layer_role(name: Optional[str]) -> Optional[str]:
-    """The meaning of a layer name (the module docstring), None when no word of it is known."""
+def name_role(name: Optional[str]) -> Optional[str]:
+    """The meaning of a layer name by its words alone (the module docstring), None when no word of it is known."""
     if not name:
         return None
     words = _words(name)
@@ -78,6 +80,12 @@ def layer_role(name: Optional[str]) -> Optional[str]:
         if words & set(vocab):
             return role
     return None
+
+
+def layer_role(name: Optional[str]) -> Optional[str]:
+    """The meaning of a layer: its name's (``name_role``), else, in a document whose layer names say nothing, the role
+    its geometry and blocks show (``geometry_role``, 22 Nov 2026, S5)."""
+    return name_role(name) or geometry_role(name)
 
 
 def layer_roles(name: Optional[str]) -> set[str]:
@@ -92,8 +100,59 @@ def layer_roles(name: Optional[str]) -> set[str]:
         for head in ROLES["wall"]:
             if len(w) > len(head) and w.startswith(head):
                 roles |= {role for role, vocab in ROLES.items() if w[len(head):] in vocab} | {"wall"}
+    if not roles:
+        geo = geometry_role(name)               # 22 Nov 2026 (S5): a layer whose name says nothing
+        if geo:
+            roles = {geo}
     return roles
 
 
 def draws_walls(name: Optional[str]) -> bool:
     return layer_role(name) in WALL_ROLES
+
+
+# --- 22 Nov 2026 (S5, the user's pick "build S5, S3, S4, S6"): roles by geometry where the names say nothing ---------
+# ``layer_geometry.infer_roles`` reads a document whose layer names give no role to its drawing (layers renamed L1, L2
+# ..., numbered or pen-width layers) and finds each layer's role from what it draws (face pairs that close the rooms,
+# door swings, dimension texts, grid bubbles, tread runs ...) and from the names of the blocks drawn on it.
+# ``dxf_generic.read_page_info`` registers the result per file; ``pipeline.run_project`` clears it before a project.
+# The name always comes first: a layer whose name has a role never takes one from its geometry.
+_GEOMETRY: dict[str, dict[str, str]] = {}       # file -> {folded layer name: role}
+
+
+def _key(name: str) -> str:
+    return B.fold_ascii(str(name)).upper().strip()
+
+
+def set_geometry_roles(file: str, roles: Optional[dict]) -> None:
+    """Register the roles ``layer_geometry.infer_roles`` found for the layers of ``file`` whose names say nothing
+    (``{layer: role}`` or ``{layer: {"role": ...}}``; an empty dict still marks the file as one whose names say
+    nothing); None removes the file's entry."""
+    if roles is None:
+        _GEOMETRY.pop(str(file), None)
+        return
+    out = {}
+    for k, v in roles.items():
+        role = v.get("role") if isinstance(v, dict) else v
+        if role:
+            out[_key(k)] = role
+    _GEOMETRY[str(file)] = out
+
+
+def clear_geometry_roles() -> None:
+    _GEOMETRY.clear()
+
+
+def geometry_role(name: Optional[str]) -> Optional[str]:
+    """The role the geometry gave a layer whose name says nothing (``set_geometry_roles``), None when none did or two
+    documents of the project disagree about a layer of that name."""
+    if not name or not _GEOMETRY:
+        return None
+    key = _key(name)
+    found = {roles[key] for roles in _GEOMETRY.values() if key in roles}
+    return found.pop() if len(found) == 1 else None
+
+
+def names_silent() -> bool:
+    """True while the roles of a document whose layer names say nothing are registered (``set_geometry_roles``)."""
+    return bool(_GEOMETRY)

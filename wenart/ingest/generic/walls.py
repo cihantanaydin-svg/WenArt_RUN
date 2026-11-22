@@ -1781,8 +1781,16 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
     base_elems = _network(base_pairs, columns) if also else win["_elems"]
     base_rooms = separate_rooms(anchors, [e.polygon for e in base_elems] + _gap_bridges(base_pairs)) if anchors else 0
     named = []
+    silent = LN.names_silent()
     for r in rows:
-        if r["layer"] in chosen or r["grid"] or not LN.draws_walls(r["layer"]):
+        if r["layer"] in chosen or r["grid"]:
+            continue
+        # 22 Nov 2026 (S5): in a drawing whose layer names say nothing (``layer_names.names_silent``) a layer whose role
+        # nothing gave, whose strokes pair as wall faces (``OWN_PAIR_SHARE``) and whose walls lie along the chosen
+        # ones (``ALONG_SHARE``: the plaster faces of the same walls) is a candidate as a wall-named layer is
+        if not LN.draws_walls(r["layer"]) and not (
+                silent and LN.layer_role(r["layer"]) is None and r["pair_share"] >= OWN_PAIR_SHARE
+                and along_share(r["_elems"], base_elems) >= ALONG_SHARE):
             continue
         joined = _network(base_pairs + r["_pairs"], columns)
         connects = _parts_count(joined) < _parts_count(base_elems)
@@ -1795,8 +1803,15 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
             base_rooms = max(base_rooms, rooms)
     if named:
         also = list(also) + named
-        note += "; " + ", ".join(f"'{r['layer']}' ({LN.layer_role(r['layer'])})" for r in named) + \
-            " join(s) by the name (a wall, plaster or column layer whose walls join the others or part more rooms)"
+        by_name = [r for r in named if LN.name_role(r["layer"])]
+        by_geo = [r for r in named if not LN.name_role(r["layer"])]
+        if by_name:
+            note += "; " + ", ".join(f"'{r['layer']}' ({LN.layer_role(r['layer'])})" for r in by_name) + \
+                " join(s) by the name (a wall, plaster or column layer whose walls join the others or part more rooms)"
+        if by_geo:
+            note += "; " + ", ".join(f"'{r['layer']}' ({LN.layer_role(r['layer']) or 'faces along the walls'})"
+                                     for r in by_geo) + \
+                " join(s) by the geometry (the layer names say nothing: its strokes pair as walls along the others)"
     layers = [win["layer"]] + [r["layer"] for r in also]
     elems = list(win["_elems"])
     if also:

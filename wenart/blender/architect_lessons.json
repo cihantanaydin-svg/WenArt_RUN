@@ -4158,6 +4158,46 @@
    "request": "22 Nov 2026, real20 L0/L1 kitchens (user, marking the 1.20 m '120/210' unit between the MUTFAK and the BALKON on the crop outputs/si/real20_L1_kitchen_balcony_wall.png): 'this marked section could be seen as window or a door'. This drawn unit is the window the user meant by 'Separate window too': no further window is drawn and none is added. Rule: a kitchen's opening to a balcony or terrace may be read as a door or a window; either reading is right, so no truth record asserts its type, and a kitchen daylight check counts it as the kitchen's daylight opening (rule suggestion S1 must not add a window beside such a unit).",
    "lesson": "22 Nov 2026, real20 L0/L1 kitchens (user, marking the 1.20 m '120/210' unit between the MUTFAK and the BALKON on the crop outputs/si/real20_L1_kitchen_balcony_wall.png): 'this marked section could be seen as window or a door'. This drawn unit is the window the user meant by 'Separate window too': no further window is drawn and none is added. Rule: a kitchen's opening to a balcony or terrace may be read as a door or a window; either reading is right, so no truth record asserts its type, and a kitchen daylight check counts it as the kitchen's daylight opening (rule suggestion S1 must not add a window beside such a unit).",
    "question": null
+  },
+  {
+   "id": "UL355",
+   "date": "2026-11-22",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "S5 (22 Nov 2026, user: build S5, S3, S4, S6): layer names are no evidence the reading may depend on. A drawing whose layer names give a role to less than 20 % of its drawing (layers renamed L1, L2 ..., numbered or pen-width layers) gets each layer's role from its geometry and blocks (face pairs along the walls, door swings, window bundles, tread runs, dimension and label texts, grid linetypes; wenart.ingest.generic.layer_geometry, recorded in sheets.json layer_roles_geometry); a name always wins where it says something, and a plain layer whose strokes pair as walls along the chosen walls joins them like a wall-named layer. Test: synthetic-31-plain-layers.",
+   "lesson": "S5 (22 Nov 2026, user: build S5, S3, S4, S6): layer names are no evidence the reading may depend on. A drawing whose layer names give a role to less than 20 % of its drawing (layers renamed L1, L2 ..., numbered or pen-width layers) gets each layer's role from its geometry and blocks (face pairs along the walls, door swings, window bundles, tread runs, dimension and label texts, grid linetypes; wenart.ingest.generic.layer_geometry, recorded in sheets.json layer_roles_geometry); a name always wins where it says something, and a plain layer whose strokes pair as walls along the chosen walls joins them like a wall-named layer. Test: synthetic-31-plain-layers.",
+   "question": null
+  },
+  {
+   "id": "UL356",
+   "date": "2026-11-22",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "S3 (22 Nov 2026, user: build S5, S3, S4, S6; C0089, RC17 door_into_air): a door in an outer wall of a storey above the ground with nothing outside to step onto (no balcony, terrace or roof of the storey below), drawn without a swing arc or door block, is a window when its gap lies on the window layer or it carries a window's tag; otherwise it stays a door and becomes a question for the user (needs_review door_onto_nothing), never silently a door into the air. A door with a drawn swing, or onto a drawn balcony, stays a door. Test: synthetic-29-upper-floor-door.",
+   "lesson": "S3 (22 Nov 2026, user: build S5, S3, S4, S6; C0089, RC17 door_into_air): a door in an outer wall of a storey above the ground with nothing outside to step onto (no balcony, terrace or roof of the storey below), drawn without a swing arc or door block, is a window when its gap lies on the window layer or it carries a window's tag; otherwise it stays a door and becomes a question for the user (needs_review door_onto_nothing), never silently a door into the air. A door with a drawn swing, or onto a drawn balcony, stays a door. Test: synthetic-29-upper-floor-door.",
+   "question": null
+  },
+  {
+   "id": "UL357",
+   "date": "2026-11-22",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "S4 (22 Nov 2026, user: build S5, S3, S4, S6; C0035, C0040, UL307, UL316): a fire stair (a stair room labelled YANGIN MERDIVENI, KACIS, fire escape, or each stair room of a storey with two or more) is a closed enclosure: a doorless gap in its enclosure on a stacked wall run in a door's span is that door read again (merged), one with a door-high tag is its door, an empty one closes (the wall), except the stair's only way to the shared hall, which is its entrance door. Every typical floor. Test: synthetic-30-fire-stair.",
+   "lesson": "S4 (22 Nov 2026, user: build S5, S3, S4, S6; C0035, C0040, UL307, UL316): a fire stair (a stair room labelled YANGIN MERDIVENI, KACIS, fire escape, or each stair room of a storey with two or more) is a closed enclosure: a doorless gap in its enclosure on a stacked wall run in a door's span is that door read again (merged), one with a door-high tag is its door, an empty one closes (the wall), except the stair's only way to the shared hall, which is its entrance door. Every typical floor. Test: synthetic-30-fire-stair.",
+   "question": null
+  },
+  {
+   "id": "UL358",
+   "date": "2026-11-22",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "S6 (22 Nov 2026, user: build S5, S3, S4, S6; C0086, C0087): sliding leaves on a door layer or a layer with no role, with a size tag W/H of the gap's width (within 0.15 m) within 1.2 m whose H is under 1.80 m, are a sliding window; a door-high tag or a lift label within 2 m keeps the door (the lift's sliding door, C0087). The reverse of the window-layer sash rule (UL346). Test: synthetic-32-sliding-window-tag.",
+   "lesson": "S6 (22 Nov 2026, user: build S5, S3, S4, S6; C0086, C0087): sliding leaves on a door layer or a layer with no role, with a size tag W/H of the gap's width (within 0.15 m) within 1.2 m whose H is under 1.80 m, are a sliding window; a door-high tag or a lift label within 2 m keeps the door (the lift's sliding door, C0087). The reverse of the window-layer sash rule (UL346). Test: synthetic-32-sliding-window-tag.",
+   "question": null
   }
  ]
 }
