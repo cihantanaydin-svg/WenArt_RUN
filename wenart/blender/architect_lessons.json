@@ -4208,6 +4208,16 @@
    "request": "22 Nov 2026, RL pilot (user: 'start the RL pilot'): a LoRA trained on synthetic close-up questions (rejection sampling, 290 rows) was 117/117 on held-out synthetic questions but found 12 fewer known errors on the real readings than its own untrained base (64 -> 52 of 73, same pod). Rule: a model change for the AI checks is judged only on the real exam (the user's marks and known_errors.json) against a same-pod control, never on synthetic questions; few-shot examples drawn from the user's marks are scored only on the other fold.",
    "lesson": "22 Nov 2026, RL pilot (user: 'start the RL pilot'): a LoRA trained on synthetic close-up questions (rejection sampling, 290 rows) was 117/117 on held-out synthetic questions but found 12 fewer known errors on the real readings than its own untrained base (64 -> 52 of 73, same pod). Rule: a model change for the AI checks is judged only on the real exam (the user's marks and known_errors.json) against a same-pod control, never on synthetic questions; few-shot examples drawn from the user's marks are scored only on the other fold.",
    "question": null
+  },
+  {
+   "id": "UL360",
+   "date": "2026-11-22",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "22 Nov 2026, AI checks exam A/B with the drawing text (pod i4phbjt09lryno): a few-shot block of the user's marks made the FP8 checks model cautious (65 -> 50 of 73 known errors, same false findings); the BF16 base equals the FP8 model at 1.5x the time. The default stays FP8 + drawing text without examples. Rule: a prompt or model change for the AI checks ships only when it finds more known errors with no more false findings, scored on marks it never saw as examples.",
+   "lesson": "22 Nov 2026, AI checks exam A/B with the drawing text (pod i4phbjt09lryno): a few-shot block of the user's marks made the FP8 checks model cautious (65 -> 50 of 73 known errors, same false findings); the BF16 base equals the FP8 model at 1.5x the time. The default stays FP8 + drawing text without examples. Rule: a prompt or model change for the AI checks ships only when it finds more known errors with no more false findings, scored on marks it never saw as examples.",
+   "question": null
   }
  ]
 }
