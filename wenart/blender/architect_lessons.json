@@ -4158,6 +4158,16 @@
    "request": "22 Nov 2026, real20 L0/L1 kitchens (user, marking the 1.20 m '120/210' unit between the MUTFAK and the BALKON on the crop outputs/si/real20_L1_kitchen_balcony_wall.png): 'this marked section could be seen as window or a door'. This drawn unit is the window the user meant by 'Separate window too': no further window is drawn and none is added. Rule: a kitchen's opening to a balcony or terrace may be read as a door or a window; either reading is right, so no truth record asserts its type, and a kitchen daylight check counts it as the kitchen's daylight opening (rule suggestion S1 must not add a window beside such a unit).",
    "lesson": "22 Nov 2026, real20 L0/L1 kitchens (user, marking the 1.20 m '120/210' unit between the MUTFAK and the BALKON on the crop outputs/si/real20_L1_kitchen_balcony_wall.png): 'this marked section could be seen as window or a door'. This drawn unit is the window the user meant by 'Separate window too': no further window is drawn and none is added. Rule: a kitchen's opening to a balcony or terrace may be read as a door or a window; either reading is right, so no truth record asserts its type, and a kitchen daylight check counts it as the kitchen's daylight opening (rule suggestion S1 must not add a window beside such a unit).",
    "question": null
+  },
+  {
+   "id": "UL355",
+   "date": "2026-11-22",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "22 Nov 2026, RL pilot (user: 'start the RL pilot'): a LoRA trained on synthetic close-up questions (rejection sampling, 290 rows) was 117/117 on held-out synthetic questions but found 12 fewer known errors on the real readings than its own untrained base (64 -> 52 of 73, same pod). Rule: a model change for the AI checks is judged only on the real exam (the user's marks and known_errors.json) against a same-pod control, never on synthetic questions; few-shot examples drawn from the user's marks are scored only on the other fold.",
+   "lesson": "22 Nov 2026, RL pilot (user: 'start the RL pilot'): a LoRA trained on synthetic close-up questions (rejection sampling, 290 rows) was 117/117 on held-out synthetic questions but found 12 fewer known errors on the real readings than its own untrained base (64 -> 52 of 73, same pod). Rule: a model change for the AI checks is judged only on the real exam (the user's marks and known_errors.json) against a same-pod control, never on synthetic questions; few-shot examples drawn from the user's marks are scored only on the other fold.",
+   "question": null
   }
  ]
 }
