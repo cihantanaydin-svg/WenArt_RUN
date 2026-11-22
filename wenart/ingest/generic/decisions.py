@@ -68,6 +68,10 @@ RULE_CONFIDENCE: dict[str, float] = {
     "flight": 0.80,                # a band crossed by three or more treads at an even pitch: a stair flight
     "stair_edge": 0.75,            # 22 Nov 2026 (C0053): a thin band at whose one face a flight's treads end, as long
                                    # as the flight: its open side (stringer and balustrade)
+    "stair_edge_part": 0.70,       # 22 Nov 2026 (S2): the part of a longer thin piece along a flight whose treads end at
+                                   # its one face, parting nothing (its sides joined round it, no other room's label in
+                                   # sight beyond it, walls.split_stair_edges): the piece is split
+                                   # at the flight's ends, the parts beyond stay wall pieces
     "wall_chosen_layer": 0.80,     # a primary pair on the layer the labels chose (walls.PAIR_CONFIDENCE)
     "wall_document_layer": 0.50,   # a primary pair on a layer taken from the document's other plans (too few labels)
     "secondary_pair": 0.40,        # a pair under PAIR_OVERLAP_M on a chosen layer that the network takes (as long as it

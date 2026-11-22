@@ -107,11 +107,15 @@ EXPECTED_NAMES = [
     "synthetic-24-sliding-windows",
     "synthetic-25-stair-edge",
     "synthetic-26-corner-shower",
+    # 22 Nov 2026: S2 (the user's "build S2 and double-wall rule")
+    "synthetic-28-stair-edge-run",
     # 22 Nov 2026: the S3-S6 round (the user's pick "build S5, S3, S4, S6")
     "synthetic-29-upper-floor-door",
     "synthetic-30-fire-stair",
     "synthetic-31-plain-layers",
     "synthetic-32-sliding-window-tag",
+    # 22 Nov 2026: the double-wall rule (the user's C0086)
+    "synthetic-33-double-wall",
 ]
 
 

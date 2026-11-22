@@ -1039,6 +1039,51 @@ def _tread_run(ts: list) -> int:
     return best
 
 
+def _tread_run_span(ts: list) -> tuple[int, float, float]:
+    """``(steps, lo, hi)`` of the longest run of steps at an even tread pitch among the along-positions ``ts`` (pure;
+    as ``_tread_run``; ``(0, 0, 0)`` without one)."""
+    ts = sorted(ts)
+    uniq = [t for k, t in enumerate(ts) if k == 0 or t - ts[k - 1] > 0.02]
+    steps = [b - a for a, b in zip(uniq, uniq[1:])]
+    run = 0
+    best = (0, 0.0, 0.0)
+    start = 0
+    for k, d in enumerate(steps):
+        if TREAD_PITCH_M[0] <= d <= TREAD_PITCH_M[1] and (run == 0 or abs(d - steps[k - 1]) <= TREAD_EVEN * d):
+            if run == 0:
+                start = k
+            run += 1
+        elif TREAD_PITCH_M[0] <= d <= TREAD_PITCH_M[1]:
+            run, start = 1, k
+        else:
+            run = 0
+        if run > best[0]:
+            best = (run, uniq[start], uniq[k + 1])
+    return best
+
+
+def _tread_sides(p: _Pair, treads: list) -> dict:
+    """``{0: [t ...], 1: [t ...]}``: the along-positions of the tread lines (``treads``: (a, b) pieces across the
+    pair's direction) that end at the pair's face 0 or 1 (one end within ``STAIR_EDGE_END_M`` of that face, the other
+    away from the band on that side), within the pair's extent (pure)."""
+    o0, o1 = p.lines[0].off, p.lines[1].off
+    sides: dict = {0: [], 1: []}
+    for a, b in treads:
+        ta, tb = a[0] * p.u[0] + a[1] * p.u[1], b[0] * p.u[0] + b[1] * p.u[1]
+        if abs(ta - tb) > 0.1 * math.dist(a, b):
+            continue
+        t = (ta + tb) / 2.0
+        if not p.lo - STAIR_EDGE_END_M <= t <= p.hi + STAIR_EDGE_END_M:
+            continue
+        oa, ob = a[0] * p.n[0] + a[1] * p.n[1], b[0] * p.n[0] + b[1] * p.n[1]
+        near, far = (oa, ob) if min(abs(oa - o0), abs(oa - o1)) <= min(abs(ob - o0), abs(ob - o1)) else (ob, oa)
+        if abs(near - o0) <= STAIR_EDGE_END_M and far < o0 - STAIR_EDGE_END_M:
+            sides[0].append(t)
+        elif abs(near - o1) <= STAIR_EDGE_END_M and far > o1 + STAIR_EDGE_END_M:
+            sides[1].append(t)
+    return sides
+
+
 def _drop_stair_edge_pairs(pairs: list[_Pair], treads: list) -> tuple[list[_Pair], list[_Pair]]:
     """22 Nov 2026 (the user's C0053 on real07, "no wall: the stair's edge"; synthetic-25-stair-edge): a thin pair
     (<= ``STAIR_EDGE_MAX_W``) at one of whose faces the treads of a flight end (>= ``FLIGHT_MIN_TREADS`` lines across
@@ -1056,21 +1101,7 @@ def _drop_stair_edge_pairs(pairs: list[_Pair], treads: list) -> tuple[list[_Pair
                                                      for ln in p.lines):
             keep.append(p)               # too thick, or a face line runs on past the piece: a wall's face (real18)
             continue
-        o0, o1 = p.lines[0].off, p.lines[1].off
-        sides: dict = {0: [], 1: []}
-        for a, b in treads:
-            ta, tb = a[0] * p.u[0] + a[1] * p.u[1], b[0] * p.u[0] + b[1] * p.u[1]
-            if abs(ta - tb) > 0.1 * math.dist(a, b):
-                continue
-            t = (ta + tb) / 2.0
-            if not p.lo - STAIR_EDGE_END_M <= t <= p.hi + STAIR_EDGE_END_M:
-                continue
-            oa, ob = a[0] * p.n[0] + a[1] * p.n[1], b[0] * p.n[0] + b[1] * p.n[1]
-            near, far = (oa, ob) if min(abs(oa - o0), abs(oa - o1)) <= min(abs(ob - o0), abs(ob - o1)) else (ob, oa)
-            if abs(near - o0) <= STAIR_EDGE_END_M and far < o0 - STAIR_EDGE_END_M:
-                sides[0].append(t)
-            elif abs(near - o1) <= STAIR_EDGE_END_M and far > o1 + STAIR_EDGE_END_M:
-                sides[1].append(t)
+        sides = _tread_sides(p, treads)
         edge = False
         for side, other in ((0, 1), (1, 0)):
             ts = sides[side]
@@ -1105,6 +1136,137 @@ def free_standing(cands: list[_Pair], pairs: list[_Pair]) -> list[_Pair]:
         if not touch and not run:
             out.append(c)
     return out
+
+
+# S2 (22 Nov 2026, the user's "build S2"; results/rule_suggestions.md S2): a flight's open side drawn as part of a
+# longer wall piece. A thin pair (<= STAIR_EDGE_MAX_W) at one face of which the treads of a flight end at an even pitch
+# (>= FLIGHT_MIN_TREADS lines, fewer than two ending at its other face: a U stair's well has treads at both faces)
+# carries the flight's open side over the flight's span (its first to its last tread; a rest of the piece within
+# STAIR_EDGE_REACH_M of the span goes with it). That part is the stringer and balustrade, never a wall, when it parts
+# nothing: (1) the probe points STAIR_EDGE_PROBE_M off its two faces at its middle are joined round it within
+# STAIR_EDGE_AROUND_M (a walk round the piece's free end or the flight's ends, the part, every other wall piece of the
+# chosen wall layers, the plan's other wall primitives and the door and window bridges standing in the way:
+# ``locally_joined``; judged once the wall layers are chosen, in ``face_pair_walls``), and (2) the room labels in sight from
+# the two probes (``label_in_sight``, the part in the way too) are not two different rooms, at least one of them in
+# sight. A stair-hall wall whose other face bounds a room (a room label beyond it, a door in it, or the room outline
+# needing it to close) joins nothing round it, or sees another room's label beyond, and stays, whatever the treads; so do
+# real02 L1's and real18's stair walls (see ``free_standing``). The piece is split at the flight's ends: the parts
+# beyond it stay wall pieces. The tread test works per straight piece across a straight pair: a curved flight's treads
+# are radial and end on a curved stringer (no straight pair), so it does not fire there; real07's C0053 span lies
+# beyond its flight's top end (no tread ends on it): no S2 case.
+STAIR_EDGE_PROBE_M = 0.15
+STAIR_EDGE_SIGHT_M = 15.0
+STAIR_EDGE_AROUND_M = 2.0
+STAIR_EDGE_PX_M = 0.02
+STAIR_EDGE_LEAK_M = 0.15         # a gap narrower than this between wall pieces is no way round (a drawing's junction gap:
+                                 # real15 L0's bathroom walls stop 5 cm short of its stair wall)
+
+
+def stair_edge_spans(pairs: list[_Pair], treads: list) -> list[tuple[_Pair, float, float]]:
+    """S2 candidates (pure): ``(pair, lo, hi)`` for each thin pair at one face of which a flight's treads end at an even
+    pitch (none of the old rule's conditions on the face lines' extent or the piece's ends), ``lo``-``hi`` the flight's
+    span along the pair (its longest even run of treads)."""
+    out = []
+    for p in pairs:
+        if p.width > STAIR_EDGE_MAX_W + 1e-9:
+            continue
+        sides = _tread_sides(p, treads)
+        for side, other in ((0, 1), (1, 0)):
+            steps, lo, hi = _tread_run_span(sides[side])
+            if len(sides[other]) >= 2 or steps + 1 < FLIGHT_MIN_TREADS:
+                continue
+            out.append((p, lo, hi))
+            break
+    return out
+
+
+def label_in_sight(pt: tuple, anchors: list, obstacles: list, reach: float = STAIR_EDGE_SIGHT_M) -> Optional[int]:
+    """The index of the nearest room-label anchor within ``reach`` of ``pt`` whose line of sight crosses none of the
+    ``obstacles`` (shapely geometries), or None (pure)."""
+    tree = STRtree(obstacles) if obstacles else None
+    for k in sorted(range(len(anchors)), key=lambda i: math.dist(pt, anchors[i])):
+        if math.dist(pt, anchors[k]) > reach:
+            return None
+        sight = LineString([pt, anchors[k]])
+        if tree is None or not any(obstacles[int(j)].intersects(sight) for j in tree.query(sight)):
+            return k
+    return None
+
+
+def locally_joined(pa: tuple, pb: tuple, obstacles: list, box: tuple, px: float = STAIR_EDGE_PX_M) -> bool:
+    """Whether ``pa`` and ``pb`` are joined by a walk inside ``box`` (x0, y0, x1, y1) that crosses none of the
+    ``obstacles`` (pure; a raster of ``px`` cells, the obstacles grown by half ``STAIR_EDGE_LEAK_M`` so that a gap
+    narrower than that is closed, 4-connected; what lies outside the box is no way round)."""
+    x0, y0, x1, y1 = box
+    w, h = int(math.ceil((x1 - x0) / px)) + 1, int(math.ceil((y1 - y0) / px)) + 1
+    img = np.zeros((h, w), np.uint8)
+
+    def cells(ring):
+        return np.array([[int(round((x - x0) / px)), int(round((y - y0) / px))] for x, y in ring], np.int32)
+    for g in obstacles:
+        for part in getattr(g, "geoms", [g]):
+            if part.is_empty:
+                continue
+            if part.geom_type == "LineString":
+                cv2.polylines(img, [cells(part.coords)], False, 255, thickness=2)
+                continue
+            if part.geom_type != "Polygon":
+                continue
+            cv2.fillPoly(img, [cells(part.exterior.coords)], 255)
+            for hole in part.interiors:
+                cv2.fillPoly(img, [cells(hole.coords)], 0)
+    r = max(1, int(math.ceil(STAIR_EDGE_LEAK_M / 2.0 / px)))
+    img = cv2.dilate(img, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * r + 1, 2 * r + 1)))
+    (ax, ay), (bx, by) = [(int(round((x - x0) / px)), int(round((y - y0) / px))) for x, y in (pa, pb)]
+    if not (0 <= ax < w and 0 <= ay < h and 0 <= bx < w and 0 <= by < h) or img[ay, ax] or img[by, bx]:
+        return False
+    _n, lab = cv2.connectedComponents((img == 0).astype(np.uint8), connectivity=4)
+    return bool(lab[ay, ax] == lab[by, bx])
+
+
+def split_stair_edges(spans: list, pairs: list[_Pair], columns: list, anchors: list, extra: list = ()
+                      ) -> tuple[list[_Pair], list[tuple[_Pair, list[_Pair]]]]:
+    """S2 (see the comment above): ``(pairs, split)``, the wall layers' pairs with each stair-edge part taken out of its
+    piece (the parts beyond the flight kept as pairs of their own) and ``[(original, kept parts)]``. ``spans``:
+    ``stair_edge_spans`` of the layers; ``anchors``: the room-label anchors (none: nothing is split); ``extra``: the
+    plan's other wall primitives (shapely geometries), in the way too."""
+    if not spans or not anchors:
+        return pairs, []
+    import dataclasses
+
+    out = list(pairs)
+    split = []
+    for p, t0, t1 in spans:
+        if not any(q is p for q in out):
+            continue
+        a = p.lo if t0 - p.lo <= STAIR_EDGE_REACH_M else t0
+        b = p.hi if p.hi - t1 <= STAIR_EDGE_REACH_M else t1
+        if b - a < PAIR_OVERLAP_M:
+            continue
+        parts = []
+        if a - p.lo > STAIR_EDGE_REACH_M:
+            parts.append(dataclasses.replace(p, hi=a, run=0.0))
+        if p.hi - b > STAIR_EDGE_REACH_M:
+            parts.append(dataclasses.replace(p, lo=b, run=0.0))
+        part = dataclasses.replace(p, lo=a, hi=b, run=0.0)
+        rest = [q for q in out if q is not p] + parts
+        obstacles = [e.polygon for e in _network(rest, columns)] + _gap_bridges(rest + [part]) + [part.polygon()] \
+            + list(extra)
+        tm = (a + b) / 2.0
+        o0, o1 = p.lines[0].off, p.lines[1].off
+        pa, pb = p.point(tm, o0 - STAIR_EDGE_PROBE_M), p.point(tm, o1 + STAIR_EDGE_PROBE_M)
+        bx0, by0, bx1, by1 = part.polygon().bounds
+        box = (bx0 - STAIR_EDGE_AROUND_M, by0 - STAIR_EDGE_AROUND_M, bx1 + STAIR_EDGE_AROUND_M,
+               by1 + STAIR_EDGE_AROUND_M)
+        if not locally_joined(pa, pb, obstacles, box):
+            continue                     # nothing joins round it: it parts two spaces, a wall
+        seen = [label_in_sight(pa, anchors, obstacles), label_in_sight(pb, anchors, obstacles)]
+        if seen == [None, None] or (None not in seen and seen[0] != seen[1]):
+            continue                     # no room in sight, or another room's label beyond it: a wall
+        k = next(i for i, q in enumerate(out) if q is p)
+        out[k:k + 1] = parts
+        split.append((p, parts))
+    return out, split
 
 
 def stepped_runs(pairs: list[_Pair]) -> None:
@@ -1638,6 +1800,7 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
         considered: list[_Pair] = []
         dropped: dict[int, str] = {}
         edge_cands: list[_Pair] = []
+        edge_spans: list = []
         all_lines: list[_Line] = []
         for u, n, lines in groups:
             all_lines.extend(lines)
@@ -1662,6 +1825,7 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
                 across = [(a, b) for a, b in tread_like
                           if abs((b[0] - a[0]) * u[0] + (b[1] - a[1]) * u[1]) < 0.1 * math.dist(a, b)]
                 edge_cands.extend(_drop_stair_edge_pairs(found, across)[1])
+                edge_spans.extend(stair_edge_spans(found, across))       # S2: the open side on a longer piece
             pairs.extend(found)
             in_pairs = {id(ln) for p in found if p.primary for ln in p.lines}
             for ln in lines:
@@ -1672,9 +1836,10 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
         if edges:
             pairs = [p for p in pairs if id(p) not in {id(e) for e in edges}]
             dropped.update({id(p): "stair_edge" for p in edges})
+        cand = {"layer": layer, "pairs": considered, "dropped": dropped, "lines": all_lines, "notation": False,
+                "dimension_pieces": len(dims)}
         if decisions is not None:
-            cands.append({"layer": layer, "pairs": considered, "dropped": dropped, "lines": all_lines,
-                          "notation": False, "dimension_pieces": len(dims)})
+            cands.append(cand)
         if not any(p.primary for p in pairs):
             continue
         elems = _network(pairs, columns)
@@ -1687,7 +1852,8 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
         rows.append({"layer": layer, "closed_in": sum(hits), "pair_share": round(paired / max(long_lines, 1), 3),
                      "pairs": sum(1 for p in pairs if p.primary), "widths_m": widths[:8],
                      "crossings": [through, meet], "grid": grid, "rooms": rooms, "_elems": elems,
-                     "_pairs": pairs})
+                     "_pairs": pairs, "_spans": [sp for sp in edge_spans if id(sp[0]) not in dropped],
+                     "_cand": cand})
     # An axis grid closes in the rooms too (real10's double-line axes, 0.10 m apart, closed in 8 of 9 labels and beat
     # the walls): it never wins, whatever it closes in.
     # real10 (1 Nov 2026): the typical floor's layer 0 closed in all 10 labels only because its balcony and railing
@@ -1695,7 +1861,7 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
     # close in enough labels, the one parting them into the most separate rooms wins.
     rows.sort(key=lambda r: (r["grid"], r["closed_in"] < need, -r["rooms"], -r["closed_in"], -r["pair_share"],
                              -r["pairs"], r["layer"]))
-    choice["layers"] = [{k: v for k, v in r.items() if k != "_elems"} for r in rows]
+    choice["layers"] = [{k: v for k, v in r.items() if k not in ("_elems", "_spans", "_cand")} for r in rows]
     decided = bool(rows) and labels and not rows[0]["grid"] and rows[0]["closed_in"] >= need
     if decided and document and rows[0]["layer"] not in document \
             and rows[0]["closed_in"] - 1 < LAYER_EXPLAINS * (len(labels) - 1):
@@ -1813,6 +1979,23 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
                                      for r in by_geo) + \
                 " join(s) by the geometry (the layer names say nothing: its strokes pair as walls along the others)"
     layers = [win["layer"]] + [r["layer"] for r in also]
+    # S2 (22 Nov 2026): a flight's open side on a longer piece is split off once every wall layer is known, judged
+    # against all of them and the plan's other wall primitives (one layer alone leaves a room open: real15 L0's bathroom
+    # wall beside its stair, whose other faces are drawn on other layers)
+    split = split_stair_edges([sp for r in [win] + list(also) for sp in r.get("_spans") or []],
+                              [pr for r in [win] + list(also) for pr in r["_pairs"]], columns, anchors,
+                              extra=_prim_geoms(prims))[1]
+    if split:
+        parts_of = {id(orig): parts for orig, parts in split}
+        for r in [win] + list(also):
+            if any(id(p) in parts_of for p in r["_pairs"]):
+                r["_pairs"] = [q for p in r["_pairs"] for q in (parts_of.get(id(p), [p]))]
+                r["_elems"] = _network(r["_pairs"], columns)
+                cand = r.get("_cand") or {}
+                for p in [p for p in cand.get("pairs") or [] if id(p) in parts_of]:
+                    cand["dropped"][id(p)] = "stair_edge_part"
+                    cand["pairs"].extend(parts_of[id(p)])
+        choice["stair_edges_split"] = len(split)
     elems = list(win["_elems"])
     if also:
         # One network of all the layers drawing the walls: a piece of one layer stopping at the plaster of another

@@ -4057,3 +4057,52 @@ included in both), real10 95.8 -> 98.5, no project falls (real10 still misses C0
 stored baselines at HEAD. Tests: the touched modules' files 731 passed (5 failures fixed: rule ids, the class list, the
 plain layers, synthetic-30's stair; the pre-existing real10 id fixture failure stays), the new file 8 passed. Lessons
 UL355-UL358.
+
+## 22 Nov 2026, S2 and double-wall round (the user: "build S2 and double-wall rule"; CPU only, no pod)
+
+Two reader rules, each general (UL338) with its synthetic project in the gated set, an RC14 machine check, a test
+(`tests/test_rules_s2_doublewall_20261122.py`) and a lesson. Base 07fecfe7.
+
+- **S2, a flight's open side on a longer piece (UL361).** `walls.stair_edge_spans` + `walls.split_stair_edges`: a thin
+  piece (<= 0.12 m) at one face of which a flight's treads end at an even pitch (none at the other face: a U stair's
+  well stays a wall) is split at the flight's ends, judged once the wall layers are chosen: the part along the flight
+  (first to last tread, a rest within 0.35 m going with it) goes when its two sides are joined by a walk round it
+  within 2 m (every chosen wall layer, the plan's other wall primitives and the door and window bridges in the way; a
+  gap under 0.15 m is no way round) and no other room's label is in sight beyond it; the parts beyond stay walls.
+  synthetic-28-stair-edge-run 92.8 -> 100 (HEAD read the balustrade and the partition as one 5.65 m wall, closed the
+  flight's strip off as an invented 'Oda' and bridged a 1.17 m 'opening' to the outer wall). Check RC14
+  `stair_edge_wall`. Misfire found and fixed (crop looked at): real15 L0's bathroom wall beside its stair (treads
+  13-17 end on it, the BANYO beyond) was split, first because each layer was judged alone (the bathroom's other walls
+  are on other layers), then through 5 cm junction gaps where the bathroom walls stop short of it (the final building
+  kept the wall from another primitive, so no count changed); now S2 fires on no real project. **C0053 is no S2
+  case:** on the drawing the top flight (treads 10-18) ends on the BANYO's 0.18 m wall, a real wall; the C0053 span
+  (9.75-11.98 m) lies beyond the flight's top end and holds no line (only the axis and the floor hatch): the BANYO's
+  corner ends short of a column and the reader bridges the gap into w_L1_023 with a 2.23 m opening 2.10 m high. That is
+  UL327's general form ("a drawn partition simply ends short of the next wall, with no door and no frame in the gap:
+  an open passage to the ceiling"), built so far for dressing rooms only (`twins.open_passages`); not built here.
+- **A facade drawn as two leaves is one wall (UL362).** `wenart/ingest/generic/double_leaf.py`, after the twin walls:
+  two parallel walls, each a leaf (<= 0.25 m), a cavity of at most 0.10 m between them (the Turkish double wall, TS
+  825: 19 cm + 3-5 cm insulation or air + 8.5-19 cm; a ventilated cladding skin 5-12 cm off the masonry), along each
+  other (80 % of the longer), a room beyond one only and none in the gap, one of them exterior, are one wall of their
+  total thickness; their facing openings are one (the better typed one, at the drawn gap when a size tag placed it);
+  an empty gap in a band up to 0.30 m outside a facade facing its door or window is that opening read again, the band
+  stopping at the jambs. Party walls and joints (rooms on both sides), shafts (a wider gap), fins 0.30 m thick and
+  short outer pieces stay apart. synthetic-33-double-wall 91.0 -> 100. Check RC14 `double_leaf_walls`. Real: of the
+  19 real projects only real10 draws its facades this way (17 cm + 3 cm + 20 cm + 4 cm render, 30 cm fins beside the
+  windows; real09 L3's glazed frame 7 cm off its facade is a 1.1 m piece on a 6.2 m wall and stays): on L0-L6 four
+  facades per floor become one wall each, three windows read twice across the leaves and three empty fin gaps merge
+  into their windows (openings 11 -> 6, windows 33 -> 32 per floor; crops looked at). **C0086 is still not satisfied by
+  the score:** its place (20.832, 14.74) is the old empty gap in the fins 0.49 m outside the facade's centre line; the
+  one window now stands in the drawn gap at (20.34, 14.74), out of the 0.30 m reach. With the user's OK the record can
+  be moved onto it (`truth move`); the tolerance is not widened. Its four PENCERE sash lines are still read as "no
+  glass" (the window is typed by its size tag, not as sliding).
+
+Gate: `score --gate` holds against 381016c0 (never --update): synthetic overall (gated) 97.0 -> 97.2 (the 34 projects
+unchanged, synthetic-28 and synthetic-33 at 100; on the same 36 projects read with the HEAD code 96.7 -> 97.2); real07
+95.5 and real10 98.5 as before (C0053, C0086, C0089 still open), no project falls. Regress (19 real projects, real08
+left out) against today's HEAD readings (07fecfe7, read in this round): 18 read the same counts; real10 L0-L6 openings
+11 -> 6 (the double-leaf merges; windows 33 -> 32 and walls one fewer per floor, within the tolerance); against the
+stored baselines the pre-existing differences of HEAD (real03, real12, real15, real19, real21). New regression
+baselines: synthetic-28, synthetic-33. Tests: the touched modules' files 410 + 704 passed (22 xfailed; the
+test_plausibility timing test failed once while four readings ran beside it and passes alone), the new file 15 passed.
+Lessons UL361, UL362.

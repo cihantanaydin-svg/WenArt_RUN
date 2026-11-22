@@ -9,6 +9,11 @@ implemented: the user picks.** Every rule would be general (UL338) and ship with
 `tests/test_rules_s3_s6_20261122.py`; synthetic-29-upper-floor-door, synthetic-30-fire-stair, synthetic-31-plain-layers,
 synthetic-32-sliding-window-tag in the gated set; `docs/progress.md`, "22 Nov 2026, S3-S6 round"). S1 and S2 stay open.
 
+**Update 22 Nov 2026 (the user: "build S2 and double-wall rule"): S2 is BUILT** (lesson UL361, `walls.split_stair_edges`,
+check RC14 `stair_edge_wall`, synthetic-28-stair-edge-run, `tests/test_rules_s2_doublewall_20261122.py`), with the
+double-wall rule (UL362, `ingest.generic.double_leaf`, check RC14 `double_leaf_walls`, synthetic-33-double-wall).
+C0053 is no S2 case after all (see S2 below); S1 stays open.
+
 How they were found: records grouped by element kind and by what the user said ("no wall", "it is a window", "kitchen
 ... window", "not a real room"); records still unsatisfied on today's reading (`score`: real07 C0053, real10 C0035,
 C0086, C0089; C0085 and C0091 were fixed in this round, part 2, by the sash rule); the marks the user gave per AI-check kind; open
@@ -45,6 +50,17 @@ lessons with no check.
   unchanged (an inferred element is no read element).
 
 ## S2. A flight's open side on a long wall
+
+- **BUILT 22 Nov 2026 (UL361).** `walls.stair_edge_spans` + `walls.split_stair_edges`: a thin piece (<= 0.12 m) at one
+  face of which a flight's treads end (none at the other face) is split at the flight's ends when the part along the
+  flight parts nothing (its two sides joined round it within 2 m, no other room's label in sight beyond it); the parts
+  beyond stay walls. synthetic-28-stair-edge-run 92.8 -> 100. **C0053 is not reached and is no S2 case:** on the
+  drawing (real07 L1) the top flight (treads 10-18, x 7.6-9.89) ends on the BANYO's 0.18 m wall, a real wall with a
+  room beyond; the C0053 span (9.75-11.98) lies beyond the flight's top end and holds no line at all, only the axis and
+  the floor hatch: a partition (the BANYO's corner at 9.89) ends short of a column (11.65), and the reader bridges the
+  gap into the wall run w_L1_023 with a 2.23 m opening 2.10 m high. It is UL327's general form ("where a drawn
+  partition simply ends short of the next wall, with no door and no frame in the gap, the gap is an open passage from
+  floor to ceiling"), built so far only for dressing rooms (`twins.open_passages`).
 
 - **Rule.** Where the treads of a flight end on one face of a wall piece and nothing ends on its other face, the part
   of the piece along the flight (from the first to the last tread, within 0.35 m) is the stair's edge (stringer and

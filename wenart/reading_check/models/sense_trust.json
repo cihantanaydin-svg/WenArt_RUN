@@ -379,6 +379,22 @@
    "small_sample": true,
    "by_status": {}
   },
+  "stair_edge_wall": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
+  "double_leaf_walls": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
   "well_type": {
    "findings": 0,
    "judged_right": 0,

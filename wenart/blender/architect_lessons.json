@@ -4218,6 +4218,26 @@
    "request": "22 Nov 2026, AI checks exam A/B with the drawing text (pod i4phbjt09lryno): a few-shot block of the user's marks made the FP8 checks model cautious (65 -> 50 of 73 known errors, same false findings); the BF16 base equals the FP8 model at 1.5x the time. The default stays FP8 + drawing text without examples. Rule: a prompt or model change for the AI checks ships only when it finds more known errors with no more false findings, scored on marks it never saw as examples.",
    "lesson": "22 Nov 2026, AI checks exam A/B with the drawing text (pod i4phbjt09lryno): a few-shot block of the user's marks made the FP8 checks model cautious (65 -> 50 of 73 known errors, same false findings); the BF16 base equals the FP8 model at 1.5x the time. The default stays FP8 + drawing text without examples. Rule: a prompt or model change for the AI checks ships only when it finds more known errors with no more false findings, scored on marks it never saw as examples.",
    "question": null
+  },
+  {
+   "id": "UL361",
+   "date": "2026-11-22",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "S2 (22 Nov 2026, user: build S2 and double-wall rule): a flight's open side drawn as part of a longer thin wall piece (<= 0.12 m) is no wall over the flight's span. Where the treads of a flight end at one face of the piece at an even pitch (none at its other face: a U stair's well keeps its wall), the part from the first to the last tread is the stringer and balustrade when it parts nothing: its two sides are joined by a walk round it within 2 m and no other room's label is in sight beyond it; the piece is split at the flight's ends and the parts beyond stay walls. A stair-hall wall with a room beyond (a label, a door, the room outline needing it) stays. Test: synthetic-28-stair-edge-run; check: RC14 stair_edge_wall.",
+   "lesson": "S2 (22 Nov 2026, user: build S2 and double-wall rule): a flight's open side drawn as part of a longer thin wall piece (<= 0.12 m) is no wall over the flight's span. Where the treads of a flight end at one face of the piece at an even pitch (none at its other face: a U stair's well keeps its wall), the part from the first to the last tread is the stringer and balustrade when it parts nothing: its two sides are joined by a walk round it within 2 m and no other room's label is in sight beyond it; the piece is split at the flight's ends and the parts beyond stay walls. A stair-hall wall with a room beyond (a label, a door, the room outline needing it) stays. Test: synthetic-28-stair-edge-run; check: RC14 stair_edge_wall.",
+   "question": null
+  },
+  {
+   "id": "UL362",
+   "date": "2026-11-22",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "22 Nov 2026 (user: build S2 and double-wall rule; C0086 on real10 L0, 'it is a sliding window'): a facade drawn as two leaves is one wall. Two parallel walls, each a leaf (<= 0.25 m), with a cavity of at most 0.10 m between them (a Turkish double wall: 19 + 3-5 cm insulation or air + 8.5-19 cm; a cladding skin 5-12 cm off the masonry), running along each other (80 % of the longer), a room beyond one only and none in the gap, are one wall of their total thickness; gaps facing each other in the two leaves are one opening through the whole wall, typed by what is drawn in either, at the drawn gap, never two; an empty gap in a band just outside a facade (<= 0.30 m: a surround, fins, a reveal) facing its door or window is that opening read again and the band stops at the jambs. Party walls, joints, shafts and parapets stay walls of their own. Test: synthetic-33-double-wall; check: RC14 double_leaf_walls.",
+   "lesson": "22 Nov 2026 (user: build S2 and double-wall rule; C0086 on real10 L0, 'it is a sliding window'): a facade drawn as two leaves is one wall. Two parallel walls, each a leaf (<= 0.25 m), with a cavity of at most 0.10 m between them (a Turkish double wall: 19 + 3-5 cm insulation or air + 8.5-19 cm; a cladding skin 5-12 cm off the masonry), running along each other (80 % of the longer), a room beyond one only and none in the gap, are one wall of their total thickness; gaps facing each other in the two leaves are one opening through the whole wall, typed by what is drawn in either, at the drawn gap, never two; an empty gap in a band just outside a facade (<= 0.30 m: a surround, fins, a reveal) facing its door or window is that opening read again and the band stops at the jambs. Party walls, joints, shafts and parapets stay walls of their own. Test: synthetic-33-double-wall; check: RC14 double_leaf_walls.",
+   "question": null
   }
  ]
 }
