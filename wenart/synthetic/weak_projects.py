@@ -373,7 +373,102 @@ def project_34() -> FailureProject:
                           extra_truth={"weak_kind": "wall_invented", "records": ["C0053"]})
 
 
+L_FURNITURE = "TEFRIS"
+L_RAILING = "KORKULUK"
+L_FLOOR = "ZEMIN"
+
+
+def _bars(x0: float, x1: float, y0: float, y1: float, pitch: float, pair: float, layer: str) -> list:
+    """Equal bars across a facade line (vertical lines from ``y0`` to ``y1``), ``pitch`` apart from ``x0`` to ``x1``,
+    each drawn twice ``pair`` apart when ``pair`` (the two faces of a flat bar), on ``layer``."""
+    out, x = [], x0
+    while x <= x1 + 1e-9:
+        for dx in ((0.0, pair) if pair else (0.0,)):
+            out.append(Prim("line", layer, [(r6(x + dx), r6(y0)), (r6(x + dx), r6(y1))]))
+        x += pitch
+    return out
+
+
+def project_35() -> FailureProject:
+    """synthetic-35-grille-slot (22 Nov 2026; the user's C0089 on real10 L-1, "it is not a real room and there is no
+    doors to outside", UL364): a light slot between the two bedrooms of the top row (1.8 m wide, 2.9 m deep, as
+    real10's; the bedrooms' windows open onto its sides, no label), closed at the facade line by a grille: the outer
+    wall runs on across its mouth with a 1.8 m gap holding 16 flat bars 0.64 m long from the outer face inward, each
+    drawn as two lines 2 cm apart at a 0.10 m pitch, on the furniture layer TEFRIS (real10's light-slot grille): HEAD
+    read two of its bars as a double door's leaves opened at 90 degrees and the slot as a room. The cases that must keep
+    their door or opening: the entrance drawn open at 90 degrees with no swing arc (one leaf, two lines) above an
+    outside step on MERDIVEN; the YATAK ODASI's French window to a BALKON (a swing arc, a balustrade's bars drawn across
+    the wall band on KORKULUK); the MUTFAK's 1.20 m doorless way in, across which floor boards on ZEMIN run on from the
+    HOL into the kitchen. Truth: the grille gap a window (a fixed grille), the slot a light well (a shaft, 'HAVA
+    BOŞLUĞU': no door reaches it, never furnished), the entrance and the French window doors, the kitchen's way in an
+    opening."""
+    W, H = 12.0, 9.0
+    t = FC.EXT_T
+    x0, x1 = 6.3, 8.1                           # the slot's inner faces
+    walls = FC.outer_walls("e", W, H) + [
+        FC.Wall("i1", (0.0, 4.4), (W, 4.4), FC.INT_T), FC.Wall("i2", (0.0, 5.8), (9.0, 5.8), FC.INT_T),
+        FC.Wall("i3", (7.0, 0.0), (7.0, 4.4), FC.INT_T), FC.Wall("i4", (3.6, 5.8), (3.6, H), FC.INT_T),
+        FC.Wall("i6", (9.0, 4.4), (9.0, 5.875), FC.INT_T),             # the corridor's end
+        FC.Wall("k1", (r6(x0 - t / 2), 5.8), (r6(x0 - t / 2), r6(H - t)), t),     # the slot's sides, to the facade
+        FC.Wall("k2", (r6(x1 + t / 2), 5.8), (r6(x1 + t / 2), r6(H - t)), t)]
+    tb = FC.INT_T * 2 / 3                       # the balcony's parapet walls (synthetic-29's), off the right facade
+    walls += [FC.Wall("b1", (W, r6(1.2 + tb / 2)), (r6(W + 1.3), r6(1.2 + tb / 2)), tb),
+              FC.Wall("b2", (r6(W + 1.3 - tb / 2), 1.2), (r6(W + 1.3 - tb / 2), 3.2), tb),
+              FC.Wall("b3", (r6(W + 1.3), r6(3.2 - tb / 2)), (W, r6(3.2 - tb / 2)), tb)]
+    plan = FC.Plan("p0", (10.0, 10.0), walls, title="ZEMİN KAT PLANI")
+    for oid, kind, wall, at, width, kw in [
+            ("entrance", "door", "e4", (0.125, 5.1), 1.0, dict(draw_symbol=False)),
+            ("d_salon", "door", "i1", (3.0, 4.4), 0.9, dict(hinge="start", side=-1)),
+            ("d_yatak", "door", "i1", (7.8, 4.4), 0.9, dict(hinge="end", side=-1)),
+            ("g_mutfak", "opening", "i2", (1.8, 5.8), 1.2, dict(draw_symbol=False)),
+            ("d_ebeveyn", "door", "i2", (4.8, 5.8), 0.9, dict(hinge="end", side=1)),
+            ("d_cocuk", "door", "i6", (9.0, 5.1), 0.9, dict(hinge="start", side=-1)),
+            ("w_salon1", "window", "e1", (2.0, 0.125), 1.6, {}), ("w_salon2", "window", "e1", (5.0, 0.125), 1.6, {}),
+            ("w_salon3", "window", "e4", (0.125, 2.2), 1.4, {}), ("w_yatak1", "window", "e1", (9.5, 0.125), 1.4, {}),
+            ("d_balkon", "door", "e2", (W - 0.125, 2.2), 0.9, dict(hinge="start", side=1)),
+            ("w_mutfak", "window", "e3", (1.8, H - 0.125), 1.2, {}),
+            ("w_ebeveyn1", "window", "e3", (4.8, H - 0.125), 1.4, {}),
+            ("w_ebeveyn2", "window", "k1", (r6(x0 - t / 2), 7.4), 0.6, {}),
+            ("w_cocuk1", "window", "k2", (r6(x1 + t / 2), 7.4), 0.6, {}),
+            ("g_grille", "window", "e3", (r6((x0 + x1) / 2), H - 0.125), r6(x1 - x0), dict(draw_symbol=False)),
+            ("w_cocuk2", "window", "e3", (10.0, H - 0.125), 1.4, {}),
+            ("w_cocuk3", "window", "e2", (W - 0.125, 6.6), 1.0, {})]:
+        FC.place(plan, oid, kind, wall, at, width, **kw)
+    plan.labels = [FC.Label("SALON", (3.5, 2.2)), FC.Label("YATAK ODASI", (9.5, 2.6)), FC.Label("HOL", (5.0, 5.1)),
+                   FC.Label("MUTFAK", (1.8, 7.4)), FC.Label("EBEVEYN ODASI", (4.8, 7.4), height=0.15),
+                   FC.Label("ÇOCUK ODASI", (10.1, 7.4)), FC.Label("BALKON", (r6(W + 0.65), 2.2), height=0.15)]
+    # the slot's grille: flat bars from the outer face 0.64 m inward, the first 0.14 m from a jamb (real10's)
+    plan.prims += _bars(r6(x0 + 0.14), r6(x1 - 0.14), r6(H - 0.64), H, 0.10, 0.02, L_FURNITURE)
+    # the entrance drawn open at 90 degrees, no arc: one leaf (two lines 4 cm apart) hinged at the gap's upper jamb,
+    # running 0.95 m into the HOL; the outside step on MERDIVEN (a landing outline and one tread, along the wall)
+    y_hinge = 5.6 - 0.04
+    plan.prims += [Prim("line", FC.L_DOOR, [(t, r6(y_hinge)), (r6(t + 0.95), r6(y_hinge))]),
+                   Prim("line", FC.L_DOOR, [(t, r6(y_hinge + 0.04)), (r6(t + 0.95), r6(y_hinge + 0.04))]),
+                   Prim("poly", FC.L_STAIR, [(-0.6, 4.4), (0.0, 4.4), (0.0, 5.8), (-0.6, 5.8)], closed=True),
+                   Prim("line", FC.L_STAIR, [(-0.3, 4.4), (-0.3, 5.8)])]
+    # the French window's balustrade: bars across the wall band at a 0.12 m pitch from the inner face, standing out
+    # 0.20 m onto the balcony (horizontal: the right facade runs up)
+    plan.prims += [Prim("line", L_RAILING, [(r6(W - t), r6(y)), (r6(W + 0.2), r6(y))])
+                   for y in (1.85 + 0.12 * k for k in range(7))]
+    # the kitchen's floor boards drawn on through its doorless way in (x 1.2 .. 2.4): 0.12 m apart from the HOL into the
+    # MUTFAK, through the gap from face to face and beyond both, cut by the wall i2 on either side of the gap
+    lo, hi = r6(5.8 - FC.INT_T / 2), r6(5.8 + FC.INT_T / 2)
+    for p in _bars(0.4, 3.2, 5.1, 6.5, 0.12, 0.0, L_FLOOR):
+        x = p.pts[0][0]
+        if 1.2 < x < 2.4:
+            plan.prims.append(p)
+        else:
+            plan.prims += [Prim("line", L_FLOOR, [(x, 5.1), (x, lo)]), Prim("line", L_FLOOR, [(x, hi), (x, 6.5)])]
+    plan.truth_rooms = {(r6((x0 + x1) / 2), 7.3): "HAVA BOŞLUĞU"}
+    return FailureProject("synthetic-35-grille-slot", "grille_slot", "UL364",
+                          "a light slot closed at the facade by a grille of equal bars (a fixed grille, no door, no "
+                          "room), beside an entrance drawn open with no arc above a step, a French window over a "
+                          "balustrade's bars and a doorless way in crossed by floor boards (each keeps its kind)",
+                          [plan], [GROUND], BRIEF,
+                          extra_truth={"weak_kind": "door_invented", "records": ["C0089"]})
+
+
 PROJECTS = (("opening_type", project_24), ("wall_invented", project_25), ("door_invented", project_26),
             ("stair_edge_run", project_28), ("upper_floor_door", project_29), ("fire_stair", project_30),
             ("layer_names", project_31), ("sliding_window_tag", project_32), ("double_wall", project_33),
-            ("open_passage", project_34))
+            ("open_passage", project_34), ("grille_slot", project_35))

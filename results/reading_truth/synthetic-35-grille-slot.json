@@ -1,0 +1,736 @@
+{
+ "project": "synthetic-35-grille-slot",
+ "source": "synthetic",
+ "status": "accepted",
+ "commit": null,
+ "date": null,
+ "levels": [
+  {
+   "id": "L0",
+   "label": "Zemin Kat",
+   "elevation": 0.0,
+   "order": 0,
+   "source": "synthetic"
+  }
+ ],
+ "levels_left_out": [],
+ "failure_class": "grille_slot",
+ "lesson": "UL364",
+ "summary": "a light slot closed at the facade by a grille of equal bars (a fixed grille, no door, no room), beside an entrance drawn open with no arc above a step, a French window over a balustrade's bars and a doorless way in crossed by floor boards (each keeps its kind)",
+ "truth_file": "projects/synthetic-35-grille-slot/truth/reading_truth.json",
+ "per_level": {
+  "L0": {
+   "rooms": [
+    {
+     "id": "t_L0_room_0001",
+     "label": "MUTFAK",
+     "room_type": "kitchen",
+     "area": 9.4156,
+     "centroid": [
+      1.8875,
+      7.3125
+     ],
+     "polygon": [
+      [
+       0.25,
+       5.875
+      ],
+      [
+       3.525,
+       5.875
+      ],
+      [
+       3.525,
+       8.75
+      ],
+      [
+       0.25,
+       8.75
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "r_L0_006"
+    },
+    {
+     "id": "t_L0_room_0002",
+     "label": "SALON",
+     "room_type": "living",
+     "area": 27.2006,
+     "centroid": [
+      3.5875,
+      2.2875
+     ],
+     "polygon": [
+      [
+       0.25,
+       0.25
+      ],
+      [
+       6.925,
+       0.25
+      ],
+      [
+       6.925,
+       4.325
+      ],
+      [
+       0.25,
+       4.325
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "r_L0_002"
+    },
+    {
+     "id": "t_L0_room_0003",
+     "label": "HOL",
+     "room_type": "hall",
+     "area": 10.8437,
+     "centroid": [
+      4.5875,
+      5.1
+     ],
+     "polygon": [
+      [
+       0.25,
+       4.475
+      ],
+      [
+       8.925,
+       4.475
+      ],
+      [
+       8.925,
+       5.725
+      ],
+      [
+       0.25,
+       5.725
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "r_L0_004"
+    },
+    {
+     "id": "t_L0_room_0004",
+     "label": "EBEVEYN ODASI",
+     "room_type": "bedroom",
+     "area": 6.8281,
+     "centroid": [
+      4.8625,
+      7.3125
+     ],
+     "polygon": [
+      [
+       3.675,
+       5.875
+      ],
+      [
+       6.05,
+       5.875
+      ],
+      [
+       6.05,
+       8.75
+      ],
+      [
+       3.675,
+       8.75
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "r_L0_007"
+    },
+    {
+     "id": "t_L0_room_0005",
+     "label": "HAVA BOŞLUĞU",
+     "room_type": "shaft",
+     "area": 5.175,
+     "centroid": [
+      7.2,
+      7.3125
+     ],
+     "polygon": [
+      [
+       6.3,
+       5.875
+      ],
+      [
+       8.1,
+       5.875
+      ],
+      [
+       8.1,
+       8.75
+      ],
+      [
+       6.3,
+       8.75
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "r_L0_008"
+    },
+    {
+     "id": "t_L0_room_0006",
+     "label": "YATAK ODASI",
+     "room_type": "bedroom",
+     "area": 19.0506,
+     "centroid": [
+      9.4125,
+      2.2875
+     ],
+     "polygon": [
+      [
+       7.075,
+       0.25
+      ],
+      [
+       11.75,
+       0.25
+      ],
+      [
+       11.75,
+       4.325
+      ],
+      [
+       7.075,
+       4.325
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "r_L0_003"
+    },
+    {
+     "id": "t_L0_room_0007",
+     "label": "ÇOCUK ODASI",
+     "room_type": "bedroom",
+     "area": 13.52,
+     "centroid": [
+      10.150411,
+      6.720419
+     ],
+     "polygon": [
+      [
+       9.075,
+       4.475
+      ],
+      [
+       11.75,
+       4.475
+      ],
+      [
+       11.75,
+       8.75
+      ],
+      [
+       8.35,
+       8.75
+      ],
+      [
+       8.35,
+       5.875
+      ],
+      [
+       8.925,
+       5.875
+      ],
+      [
+       9.0,
+       5.875
+      ],
+      [
+       9.075,
+       5.875
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "r_L0_005"
+    },
+    {
+     "id": "t_L0_room_0008",
+     "label": "BALKON",
+     "room_type": "balcony",
+     "area": 2.16,
+     "centroid": [
+      12.6,
+      2.2
+     ],
+     "polygon": [
+      [
+       12.0,
+       1.3
+      ],
+      [
+       13.2,
+       1.3
+      ],
+      [
+       13.2,
+       3.1
+      ],
+      [
+       12.0,
+       3.1
+      ]
+     ],
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "r_L0_001"
+    }
+   ],
+   "doors": [
+    {
+     "id": "t_L0_door_0001",
+     "width": 1.0,
+     "center": [
+      0.125,
+      5.1
+     ],
+     "type": "door",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "d_L0_001"
+    },
+    {
+     "id": "t_L0_door_0002",
+     "width": 0.9,
+     "center": [
+      3.0,
+      4.4
+     ],
+     "type": "door",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "d_L0_002"
+    },
+    {
+     "id": "t_L0_door_0003",
+     "width": 0.9,
+     "center": [
+      4.8,
+      5.8
+     ],
+     "type": "door",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "d_L0_004"
+    },
+    {
+     "id": "t_L0_door_0004",
+     "width": 0.9,
+     "center": [
+      7.8,
+      4.4
+     ],
+     "type": "door",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "d_L0_003"
+    },
+    {
+     "id": "t_L0_door_0005",
+     "width": 0.9,
+     "center": [
+      9.0,
+      5.1
+     ],
+     "type": "door",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "d_L0_005"
+    },
+    {
+     "id": "t_L0_door_0006",
+     "width": 0.9,
+     "center": [
+      11.875,
+      2.2
+     ],
+     "type": "door",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "d_L0_006"
+    }
+   ],
+   "windows": [
+    {
+     "id": "t_L0_window_0001",
+     "width": 1.4,
+     "center": [
+      0.125,
+      2.2
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L0_003"
+    },
+    {
+     "id": "t_L0_window_0002",
+     "width": 1.2,
+     "center": [
+      1.8,
+      8.875
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L0_005"
+    },
+    {
+     "id": "t_L0_window_0003",
+     "width": 1.6,
+     "center": [
+      2.0,
+      0.125
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L0_001"
+    },
+    {
+     "id": "t_L0_window_0004",
+     "width": 1.4,
+     "center": [
+      4.8,
+      8.875
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L0_006"
+    },
+    {
+     "id": "t_L0_window_0005",
+     "width": 1.6,
+     "center": [
+      5.0,
+      0.125
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L0_002"
+    },
+    {
+     "id": "t_L0_window_0006",
+     "width": 0.6,
+     "center": [
+      6.175,
+      7.4
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L0_007"
+    },
+    {
+     "id": "t_L0_window_0007",
+     "width": 1.8,
+     "center": [
+      7.2,
+      8.875
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L0_009"
+    },
+    {
+     "id": "t_L0_window_0008",
+     "width": 0.6,
+     "center": [
+      8.225,
+      7.4
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L0_008"
+    },
+    {
+     "id": "t_L0_window_0009",
+     "width": 1.4,
+     "center": [
+      9.5,
+      0.125
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L0_004"
+    },
+    {
+     "id": "t_L0_window_0010",
+     "width": 1.4,
+     "center": [
+      10.0,
+      8.875
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L0_010"
+    },
+    {
+     "id": "t_L0_window_0011",
+     "width": 1.0,
+     "center": [
+      11.875,
+      6.6
+     ],
+     "type": "window",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "win_L0_011"
+    }
+   ],
+   "openings": [
+    {
+     "id": "t_L0_opening_0001",
+     "width": 1.2,
+     "center": [
+      1.8,
+      5.8
+     ],
+     "type": "opening",
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "o_L0_001"
+    }
+   ],
+   "walls": [
+    {
+     "id": "t_L0_wall_0001",
+     "start": [
+      0.125,
+      9.0
+     ],
+     "end": [
+      0.125,
+      0.0
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L0_004"
+    },
+    {
+     "id": "t_L0_wall_0002",
+     "start": [
+      3.6,
+      5.8
+     ],
+     "end": [
+      3.6,
+      9.0
+     ],
+     "thickness": 0.15,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L0_008"
+    },
+    {
+     "id": "t_L0_wall_0003",
+     "start": [
+      0.0,
+      5.8
+     ],
+     "end": [
+      9.0,
+      5.8
+     ],
+     "thickness": 0.15,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L0_006"
+    },
+    {
+     "id": "t_L0_wall_0004",
+     "start": [
+      0.0,
+      0.125
+     ],
+     "end": [
+      12.0,
+      0.125
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L0_001"
+    },
+    {
+     "id": "t_L0_wall_0005",
+     "start": [
+      0.0,
+      4.4
+     ],
+     "end": [
+      12.0,
+      4.4
+     ],
+     "thickness": 0.15,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L0_005"
+    },
+    {
+     "id": "t_L0_wall_0006",
+     "start": [
+      12.0,
+      8.875
+     ],
+     "end": [
+      0.0,
+      8.875
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L0_003"
+    },
+    {
+     "id": "t_L0_wall_0007",
+     "start": [
+      6.175,
+      5.8
+     ],
+     "end": [
+      6.175,
+      8.75
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L0_010"
+    },
+    {
+     "id": "t_L0_wall_0008",
+     "start": [
+      7.0,
+      0.0
+     ],
+     "end": [
+      7.0,
+      4.4
+     ],
+     "thickness": 0.15,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L0_007"
+    },
+    {
+     "id": "t_L0_wall_0009",
+     "start": [
+      8.225,
+      5.8
+     ],
+     "end": [
+      8.225,
+      8.75
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L0_011"
+    },
+    {
+     "id": "t_L0_wall_0010",
+     "start": [
+      9.0,
+      4.4
+     ],
+     "end": [
+      9.0,
+      5.875
+     ],
+     "thickness": 0.15,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L0_009"
+    },
+    {
+     "id": "t_L0_wall_0011",
+     "start": [
+      11.875,
+      0.0
+     ],
+     "end": [
+      11.875,
+      9.0
+     ],
+     "thickness": 0.25,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L0_002"
+    },
+    {
+     "id": "t_L0_wall_0012",
+     "start": [
+      12.0,
+      1.25
+     ],
+     "end": [
+      13.3,
+      1.25
+     ],
+     "thickness": 0.1,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L0_012"
+    },
+    {
+     "id": "t_L0_wall_0013",
+     "start": [
+      13.3,
+      3.15
+     ],
+     "end": [
+      12.0,
+      3.15
+     ],
+     "thickness": 0.1,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L0_014"
+    },
+    {
+     "id": "t_L0_wall_0014",
+     "start": [
+      13.25,
+      1.2
+     ],
+     "end": [
+      13.25,
+      3.2
+     ],
+     "thickness": 0.1,
+     "source": "synthetic",
+     "confidence": null,
+     "reader_id": "w_L0_013"
+    }
+   ],
+   "stairs": []
+  }
+ },
+ "built_from": {
+  "reading": "projects/synthetic-35-grille-slot/truth/reading_truth.json",
+  "reading_commit": null,
+  "records": []
+ },
+ "build_report": {
+  "applied": [],
+  "unmatched": [],
+  "not_replayed": []
+ }
+}

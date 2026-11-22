@@ -440,7 +440,8 @@ def allowed_answers(rec: dict) -> list[str]:
         if rec.get("gap") == "end" or (f.get("arcs_swing") or 0) > 0:
             return [rule]
         out = [a for a in RANKER_ANSWERS[KIND_GAP]
-               if not (a == "door" and (f.get("run_length") or 0) > 0 and (f.get("width") or 0) > f["run_length"])]
+               if not (a == "door" and (f.get("run_length") or 0) > 0 and (f.get("width") or 0) > f["run_length"])
+               and not (a == "door" and rec.get("leaves_blocked"))]   # 22 Nov 2026 (UL364): bars between the leaves
     elif kind == KIND_WALL:
         if f.get("in_dimension_chain") or f.get("in_axis_grid") or f.get("role_dimension") or f.get("role_axis") \
                 or f.get("role_text"):
