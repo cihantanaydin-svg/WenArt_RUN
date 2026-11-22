@@ -1,0 +1,51 @@
+{
+ "project": "synthetic-24-sliding-windows",
+ "status": "ok",
+ "heights": {
+  "L0": {
+   "elevation": 0.0,
+   "source": null
+  }
+ },
+ "datum": null,
+ "slabs": {
+  "sl_L0": 0.0
+ },
+ "entrances": {
+  "d_L0_001": "steps",
+  "d_L0_007": "steps"
+ },
+ "levels": [
+  "L0"
+ ],
+ "levels_left_out": [],
+ "low_confidence": {},
+ "per_level": {
+  "L0": {
+   "rooms": 6,
+   "walls": 10,
+   "doors": 7,
+   "windows": 8,
+   "openings": 0,
+   "room_area": 93.1
+  }
+ },
+ "check": {
+  "verdict": "ready",
+  "counts": {
+   "critical": 0,
+   "major": 0,
+   "minor": 0,
+   "advisory": {
+    "major": 0,
+    "minor": 0,
+    "info": 1
+   },
+   "regulations": {
+    "minor": 0,
+    "info": 0
+   }
+  },
+  "stacking": {}
+ }
+}

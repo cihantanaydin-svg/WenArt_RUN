@@ -1045,14 +1045,16 @@ def _drop_stair_edge_pairs(pairs: list[_Pair], treads: list) -> tuple[list[_Pair
     it, each with one end within ``STAIR_EDGE_END_M`` of that face and the other end away from the band, at an even
     pitch), the treads reaching both of its ends (within ``STAIR_EDGE_REACH_M``) and none ending at its other face, is
     the open side of the flight: its stringer and balustrade, never a wall. A wall beside a flight runs on past it (a
-    landing, the enclosure), and a U stair's well has treads at both faces: both stay walls. ``treads``: (a, b) pieces
+    landing, the enclosure; its face lines run on past the piece by more than ``STAIR_EDGE_REACH_M``, as real18's stair
+    walls cut into pieces by doors), and a U stair's well has treads at both faces: both stay walls. ``treads``: (a, b) pieces
     across the pairs' direction. Returns (kept, dropped)."""
     if not treads or not pairs:
         return pairs, []
     keep, drop = [], []
     for p in pairs:
-        if p.width > STAIR_EDGE_MAX_W + 1e-9:
-            keep.append(p)
+        if p.width > STAIR_EDGE_MAX_W + 1e-9 or any(ln.s0 < p.lo - STAIR_EDGE_REACH_M or ln.s1 > p.hi + STAIR_EDGE_REACH_M
+                                                     for ln in p.lines):
+            keep.append(p)               # too thick, or a face line runs on past the piece: a wall's face (real18)
             continue
         o0, o1 = p.lines[0].off, p.lines[1].off
         sides: dict = {0: [], 1: []}
@@ -1081,18 +1083,26 @@ def _drop_stair_edge_pairs(pairs: list[_Pair], treads: list) -> tuple[list[_Pair
 
 
 STAIR_EDGE_FREE_M = 0.05         # 22 Nov 2026: a stair-edge pair's end this close to another wall piece is joined
+STAIR_EDGE_RUN_M = 1.0           # ... and a wall piece on its line this far beyond either end makes it part of a run
 
 
 def free_standing(cands: list[_Pair], pairs: list[_Pair]) -> list[_Pair]:
-    """The candidates of ``_drop_stair_edge_pairs`` whose two ends touch no other wall piece of the layer (pure): a
-    balustrade stands free, while a wall piece that a door's gap cut to the flight's length meets a wall at its other
-    end (real02 L1's stair-hall wall)."""
+    """The candidates of ``_drop_stair_edge_pairs`` that stand free (pure): neither end touches another wall piece of
+    the layer (``STAIR_EDGE_FREE_M``; real02 L1's stair-hall wall, cut to the flight's length by a door's gap, meets a
+    wall at its other end) and no wall piece lies on its line within ``STAIR_EDGE_RUN_M`` beyond either end (real18's
+    stair walls, drawn as short collinear pieces between doors). A balustrade stands free."""
     out = []
     for c in cands:
         others = [q.polygon() for q in pairs if q is not c]
         o0, o1 = c.lines[0].off, c.lines[1].off
         caps = [LineString([c.point(s_, o0), c.point(s_, o1)]) for s_ in (c.lo, c.hi)]
-        if all(not any(cap.distance(g) <= STAIR_EDGE_FREE_M for g in others) for cap in caps):
+        om = (o0 + o1) / 2.0
+        runs = [LineString([c.point(c.lo - STAIR_EDGE_RUN_M, om), c.point(c.lo - STAIR_EDGE_FREE_M, om)]),
+                LineString([c.point(c.hi + STAIR_EDGE_FREE_M, om), c.point(c.hi + STAIR_EDGE_RUN_M, om)])]
+        touch = any(cap.distance(g) <= STAIR_EDGE_FREE_M for cap in caps for g in others)
+        along = [q.polygon() for q in pairs if q is not c and abs(q.u[0] * c.u[0] + q.u[1] * c.u[1]) > 0.999]
+        run = any(r.intersects(g) for r in runs for g in along)        # collinear pieces only, never a cross wall
+        if not touch and not run:
             out.append(c)
     return out
 

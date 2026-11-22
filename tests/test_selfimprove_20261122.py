@@ -142,6 +142,8 @@ def test_stair_edge_must_stand_free():
                                                                  W._Line(-3.1, -1.0, 0.05, ["d"])))
     assert W.free_standing([edge], [edge]) == [edge]
     assert W.free_standing([edge], [edge, meets]) == []      # a wall meets its end at x = 3.0: a wall piece
+    beyond = _pair(3.9, 5.0)                                  # a collinear piece 0.9 m past its end (a door between)
+    assert W.free_standing([edge], [edge, beyond]) == []
 
 
 def _pair(lo, hi, o0=0.0, o1=0.05):
@@ -159,6 +161,10 @@ def test_stair_edge_pair_dropped_only_at_a_flight_side():
     assert keep and not drop                                  # a wall running on past the flight
     keep, drop = W._drop_stair_edge_pairs([_pair(0.0, 3.0, 0.0, 0.25)], treads_above)
     assert keep and not drop                                  # a thick wall is never a balustrade
+    runs_on = _pair(0.0, 3.0)
+    runs_on.lines[1].s1 = 6.4                                 # one face line runs on past the piece: a wall's face
+    keep, drop = W._drop_stair_edge_pairs([runs_on], treads_above)
+    assert keep and not drop
     assert "stair_edge" in __import__("wenart.ingest.generic.decisions", fromlist=["x"]).RULE_CONFIDENCE
 
 

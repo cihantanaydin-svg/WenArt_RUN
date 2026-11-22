@@ -250,12 +250,12 @@ def main(argv=None) -> int:
     if args.cmd == "rank":
         src = all_sources(args.work or None)
         rows = rank(src)
+        if args.json:                                   # written first: a closed pipe never loses the record
+            Path(args.json).write_text(json.dumps({"sources": src, "rank": rows}, indent=1) + "\n", encoding="utf-8")
         print("kind | score (sum of shares) | count | " + " | ".join(src))
         for x in rows:
             print(f"{x['kind']} | {x['score']:.3f} | {x['count']} | "
                   + " | ".join(f"{x['sources'].get(s, (0, 0))[0]} ({x['sources'].get(s, (0, 0.0))[1]:.2f})" for s in src))
-        if args.json:
-            Path(args.json).write_text(json.dumps({"sources": src, "rank": rows}, indent=1) + "\n", encoding="utf-8")
         return 0
     work = Path(args.work) if args.work else Path(tempfile.mkdtemp(prefix="weak_spots_"))
     res = hunt(work, [k.strip() for k in (args.kinds or "").split(",") if k.strip()] or None)

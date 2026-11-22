@@ -3893,3 +3893,108 @@ strict xfail lifted, its geometry still xfail). Images: `outputs/facade_on/`.
    any kind, C0096), real10 94.2, real06, 07, 17 as before. Regress (real08 left out) against a22ac82c's: only real15 L0
    openings 11 -> 10 (the 0.80 m gap; within the tolerance). Lesson UL352. Image:
    `outputs/facade_on/real13_L0_lift_shaft_a22ac82c_vs_now.png`.
+
+## Self-improvement round (22 Nov 2026, Milestone 14, user-approved queue item; CPU only, no pod)
+
+Queue item: the structure reader and the AI checks improve themselves with as little of the user's time as possible,
+and every gain is measured. Base bb96f999.
+
+0. **real20 kitchens L0/L1** (the user: "kitchen has window to the balcony", then "Separate window too"). Every layer
+   looked at again around r_L1_mutfak (drawing frame x 5.42-7.85, y 6.62-9.82 m; the building frame is the drawing
+   frame less (0.92, 1.12) m). The kitchen's only outer wall, to the BALKON (a:2.14 m2), holds the 1.20 m opening x
+   5.58-6.78 (jamb profiles on 'kapi', 'duvar-kesim' lines across it, the tag '120/210' on 'kapi-yazi', the block
+   fm-door2 inserted at 1/10 scale: two leaves 2:1 with hinge marks at both outer jambs, no sill, no glass line) and a
+   solid 1.07 m wall beside it (the DUVAR lines run through from 6.78 to 7.85). No window symbol, no 'pencere' or
+   'penc-yazi' entity, no dimension chain naming a window, an empty paper space. Not drawn: nothing recorded. Crop:
+   `outputs/si/real20_L1_kitchen_balcony_wall.png`. The user's rule is proposed as S1 (kitchen daylight) in
+   `results/rule_suggestions.md`.
+1. **Self-tuning settings: stopped, no gain.** `python -m wenart.reading_check tune list|search` (`tune.py`): ten
+   thresholds read as module globals at call time (gap widths, the door-arc zone, the swing radius tolerance, the frame
+   allowance, wall join and corner reach, window and door tag reach, the face-pair overlap, the slit fill; a test proves
+   none is a default argument or imported by value); each candidate reads all 27 scored projects in its own process
+   (the attributes set before the reading); split: every third synthetic project by baseline total held out (synthetic-01,
+   05, 08, 10, 12, 15, 21) and every third user record by a hash; a value is kept only when the held-out score rises
+   by 0.05 and nothing held out falls, then it needs `score --gate` and `regress`. Measured: 4 candidates of 3
+   thresholds (openings.GAP_MIN_M 0.20, ZONE_M 0.25 and 0.45, core.DOOR_TAG_REACH_M 0.9): tune 95.31 and held-out 97.46
+   in every evaluation, one reading changed (synthetic-12 under GAP_MIN_M 0.20, same total). The thresholds are not
+   binding on the scored projects; nothing changed. Record `results/tuning/2026-11-22.json` (the code was snapshotted
+   so the search measured the HEAD reader while the reader changed).
+2. **Weak-spot hunter.** `python -m wenart.reading_check weak rank|hunt` (`weak_spots.py`): the error kinds ranked by
+   the sum of their shares in five sources (the bench's error classes, the AI checks' known errors of the before
+   readings, the user's entries today's reading misses, the synthetic misses, RC4/RC5/RC14 door_to_air/RC17 on the
+   bb96f999 readings of the 19 real projects): 1 wall_invented 1.17 (bench 1549, RC5/RC17 396, synthetic 21, C0053), 2
+   opening_type 0.72 (known errors 19, the user's C0085, C0086, C0091, bench 108), 3 door_invented 0.61 (known errors 20
+   doors into the air, bench 140, checks 86, C0089), then window_missed 0.31, door_missed 0.31
+   (`results/weak_spots/rank_20261122.json`). One synthetic project per top kind (`wenart.synthetic.weak_projects`, in the
+   failure-class set and the score set): synthetic-24-sliding-windows (three windows drawn as two sashes on the window
+   layer, a sash pair tagged '160/220', a sliding door on the door layer), synthetic-25-stair-edge (a 16-tread flight
+   whose open side is two lines 5 cm apart on the wall layer), synthetic-26-corner-shower (a quarter-circle shower on
+   VITRIFIYE, a quarter-round cabinet on TEFRIS). All three exposed a reader fault (HEAD 93.73, 99.70, 98.82): sashes on
+   the window layer read as sliding doors (the fault of the user's C0085/C0091), the balustrade read as a 4.0 m wall,
+   the shower's arc read as a 0.80 m door. Three general rules (UL353), each 100 on its project:
+   - sliding leaves on a window or glass layer, loose or in a window block, none on a door layer or in a door block,
+     are a sliding window (`openings.sliding_sashes`, rule `window_sliding_sashes` 0.75), unless the drawing's text
+     says door: a door-high size tag ('240/230', or '220' over '230', `core.paired_size_tags`) or a door word ('SÜRGÜ
+     KAPI') within 1.2 m, or a balcony or terrace label within 2 m (`openings.sliding_door_by_text`; without it real10's
+     '240/230' balcony doors on L0-L6, real07's 'SÜRGÜ KAPI' to its BALKON and real06's '220/230' became windows);
+   - an arc on a sanitary or finish layer is never a door swing (`openings.swing_layer_ok`; not furniture layers:
+     real03's typical-floor door is an anonymous block of a leaf and a 0.74 m arc inserted on the xref layer
+     'SAA_TEFRİS', and the first version of the rule lost it on all 13 floors);
+   - a thin face pair (<= 0.12 m) at whose one face a flight's treads end at an even pitch, the treads reaching both its
+     ends, none ending at its other face, its face lines ending with it, and standing free (no other wall piece of the
+     layer within 5 cm of its ends, no collinear piece within 1 m beyond them) is the flight's open side, never a wall
+     (`walls._drop_stair_edge_pairs`, `walls.free_standing`, rule `stair_edge` 0.75). The first versions dropped real
+     walls, each looked at on the drawing and closed by a condition: real02 L1's stair-hall wall (cut to the flight's
+     length by a door's gap, it meets a wall), real18 L0/L2's stair walls (drawn as short collinear pieces between
+     doors). real07's C0053 is not reached (its edge is part of a 9.2 m wall; S2 proposes the split).
+   Score gate holds (never --update): synthetic overall 96.0 -> 96.5 (the 27 projects as before, synthetic-24, 25, 26
+   at 100), real10 94.2 -> 95.8 (C0085 and C0091 hold: the two sliding windows of L-1), real06, 07, 09, 17 as before
+   (real07 C0053, real10 C0035, C0086, C0089 still open).
+   Regress (19 real projects, real08 left out): against the stored baselines the same pre-existing differences as the
+   last rounds (real03, 06, 07, 10, 12, 15, 19, 21; real12's critical findings 9 -> 10 is there at bb96f999 too);
+   against the bb96f999 readings made in this round (the same drawings, the code snapshot), 17 projects read the same
+   counts (real02 and real18, where the first stair-edge versions fired, also the same walls and openings), real10 L-1 doors 30 -> 28 and windows 14 -> 16 (C0085, C0091) and real14
+   L1-L5 (and their b variants) one 2.36 m sliding element on the window layer in a bedroom's outer wall 3 m up, no
+   tag, no balcony label: a window now (RC17 door_into_air 63 -> 52, RC14 door_to_air 9 -> 4), its L6 balcony door
+   split into a 0.80 m door and a 1.65 m side part (doors 35 -> 36; the balcony label's MTEXT box lies 6 m off, so the
+   text check could not see it), all within the tolerance. New regression baselines: synthetic-24, 25, 26.
+3. **Read twice: no value found.** `python -m wenart.reading_check twice run|value` (`twice.py`): each real project read
+   again with its layers renamed and mirrored (the R8 variants; 10 DXF projects: real02, 03, 06, 07, 09, 10, 17, 19,
+   20, 21; real01 is a PDF, the other eight were not reached in the round's CPU time); every element the second reading does not reproduce
+   and every place it adds one is marked `reading_confidence: low` with the reason (`reading_check/read_twice.json`,
+   with `--write` in `building.json`); `bandit.question_list` adds 0.25 uncertainty to a question at such a place (only
+   where a reading was read twice). Measured on the five projects with the user's corrections: 107 of 162 correction
+   entries (26 of 41 records) fall on a low place against 108.0 expected by chance (lift 0.99; layers alone 0.96, mirror
+   alone 1.02); of the 12 entries today's reading still gets wrong, 1 against 7.5 by chance (lift 0.13: the reader is
+   stable where it is wrong). Renamed layers change most of real09, real10, real17, real19, real20, real21 (hundreds of
+   places each: the reading leans on layer names, S5), so the signal says nothing about where the user corrects. The
+   mirrored real07 crashed the reader (GEOS TopologyException "unable to assign free hole to a shell"): a robustness
+   fault, open. Record `results/read_twice/value_20261122.json`.
+4. **Rule suggestions**: `results/rule_suggestions.md`, six proposals with their evidence and a draft synthetic test (S1
+   kitchen daylight, S2 a flight's open side on a long wall, S3 an upper-floor door onto nothing, S4 a fire stair's
+   enclosure is closed, S5 layer names are no evidence for walls, S6 a window-high tag types door-layer sliding leaves).
+   None implemented: the user picks.
+5. **RL pilot prepared, not started** (the pod needs the user's OK). CPU side `rl_pilot.py`, job
+   `scripts/jobs/rl_pilot.sh`. Training set built now (deterministic, rebuilt on the pod from the committed RC15 inputs):
+   763 close-up questions from the synthetic exact truth (opening_kind door/window/opening/wall 402, room_window 119,
+   stair_here 119, room_here 123), 646 to train on (13 projects), 117 held out (synthetic-09, 16, 19), crops 13.4 MB,
+   5168 answers to sample (8 per question at temperature 0.8); `results/rl_pilot/training_set_20261122.json`. Exam,
+   never trained on: the RC15 calls of today's measurement (sets before, after, synth, judge) scored by `critic
+   calibrate` against the user's 25 marks and `known_errors.json`, against today's 66 of 73 known errors, 11 false
+   findings and the judge's 51 of 62. Arms: (a) rejection-sampling LoRA (rank 16, 2 epochs) on the BF16 base
+   Qwen/Qwen3.8-27B (rev 1d4bf0f2), served beside it by vLLM 0.30.0 (`--enable-lora --max-lora-rank 16 --lora-modules
+   wenart-rs=<dir>`, asked as `CRITIC_SERVED_MODEL`); (b) the questions answered all right or all wrong dropped; (c) the
+   BF16 base alone as the control, held-out synthetic accuracy for both; (d) zero training: the user's marks as few-shot
+   verdicts in the checks' system prompt (`CRITIC_FEWSHOT`), two folds so no arm is examined on its own examples (fold 0:
+   14 examples, 11 marks examined). Versions checked on PyPI: trl 1.17.1 (30 Oct), peft 0.21.3 (13 Nov), transformers
+   5.18.0, accelerate 1.15.0, datasets 5.1.0, vllm 0.30.0; TRL's VLM prompt-completion format and `max_length=None`
+   and vLLM's LoRA flags read from their docs at those tags. Pod plan: one RTX PRO 6000 (96 GB), at most 90 min, about
+   $2.7/h, worst case about $4.05 (`scripts/gpu_run.py run --job scripts/jobs/rl_pilot.sh --max-minutes 90`): setup 12
+   min, build 1, phase A (FP8 agent: sampling, held-out base, few-shot exam) 25, filter, LoRA training 15, phase C
+   (BF16 + LoRA: held-out, LoRA exam, BF16 control exam when 15 min are left) 25.
+
+Tests: `tests/test_selfimprove_20261122.py` (23: the tunable thresholds, the split and the keep rule, the rank, the
+three projects read exactly, the sash, swing and stair-edge rules with their free-standing condition, read twice and
+the question picker, the RL verification, rejection sampling, few-shot folds and the pod job's flow with fakes); with
+the failure-class set (synthetic-24-26 added), the openings, ranker, core-rule, bandit, critic, job-flow and synthetic
+tests: 422 passed, 23 xfailed. Lesson UL353.

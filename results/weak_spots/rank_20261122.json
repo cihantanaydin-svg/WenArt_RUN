@@ -1,0 +1,338 @@
+{
+ "date": "2026-11-22",
+ "commit_readings": "bb96f999",
+ "command": "python -m wenart.reading_check weak rank --work <score work>,<readings>; weak hunt --work DIR",
+ "sources": {
+  "bench": {
+   "wall_split": 1722,
+   "wall_invented": 1549,
+   "wall_thickness": 783,
+   "wall_missed": 988,
+   "door_missed": 406,
+   "window_missed": 328,
+   "window_invented": 315,
+   "angled_wall": 527,
+   "room_split": 181,
+   "room_merged": 151,
+   "door_invented": 140,
+   "room_invented": 258,
+   "room_missed": 419,
+   "opening_type": 108,
+   "room_label": 50,
+   "frame_offset": 37,
+   "level_wrong": 37,
+   "stair_missed": 32
+  },
+  "known_errors": {
+   "room_missed": 8,
+   "door_invented": 20,
+   "room_invented": 16,
+   "stair_missed": 4,
+   "angled_wall": 8,
+   "window_missed": 14,
+   "opening_type": 19,
+   "level_wrong": 1
+  },
+  "user_corrections": {
+   "wall_invented": 1,
+   "door_invented": 1,
+   "opening_type": 3,
+   "opening_invented": 1
+  },
+  "synthetic": {
+   "wall_invented": 21,
+   "door_missed": 13,
+   "window_invented": 14,
+   "wall_missed": 13,
+   "opening_invented": 4,
+   "room_missed": 12,
+   "door_invented": 7,
+   "window_missed": 11,
+   "stair_missed": 1,
+   "stair_invented": 1
+  },
+  "checks": {
+   "wall_invented": 396,
+   "door_invented": 86,
+   "opening_off_wall": 54,
+   "wall_missed": 18,
+   "angled_wall": 27,
+   "door_missed": 83,
+   "room_missed": 8
+  }
+ },
+ "rank": [
+  {
+   "kind": "wall_invented",
+   "score": 1.165,
+   "count": 1967,
+   "sources": {
+    "bench": [
+     1549,
+     0.193
+    ],
+    "user_corrections": [
+     1,
+     0.167
+    ],
+    "synthetic": [
+     21,
+     0.216
+    ],
+    "checks": [
+     396,
+     0.589
+    ]
+   }
+  },
+  {
+   "kind": "opening_type",
+   "score": 0.724,
+   "count": 130,
+   "sources": {
+    "bench": [
+     108,
+     0.013
+    ],
+    "known_errors": [
+     19,
+     0.211
+    ],
+    "user_corrections": [
+     3,
+     0.5
+    ]
+   }
+  },
+  {
+   "kind": "door_invented",
+   "score": 0.606,
+   "count": 254,
+   "sources": {
+    "bench": [
+     140,
+     0.017
+    ],
+    "known_errors": [
+     20,
+     0.222
+    ],
+    "user_corrections": [
+     1,
+     0.167
+    ],
+    "synthetic": [
+     7,
+     0.072
+    ],
+    "checks": [
+     86,
+     0.128
+    ]
+   }
+  },
+  {
+   "kind": "window_missed",
+   "score": 0.31,
+   "count": 353,
+   "sources": {
+    "bench": [
+     328,
+     0.041
+    ],
+    "known_errors": [
+     14,
+     0.156
+    ],
+    "synthetic": [
+     11,
+     0.113
+    ]
+   }
+  },
+  {
+   "kind": "door_missed",
+   "score": 0.309,
+   "count": 502,
+   "sources": {
+    "bench": [
+     406,
+     0.051
+    ],
+    "synthetic": [
+     13,
+     0.134
+    ],
+    "checks": [
+     83,
+     0.124
+    ]
+   }
+  },
+  {
+   "kind": "wall_missed",
+   "score": 0.284,
+   "count": 1019,
+   "sources": {
+    "bench": [
+     988,
+     0.123
+    ],
+    "synthetic": [
+     13,
+     0.134
+    ],
+    "checks": [
+     18,
+     0.027
+    ]
+   }
+  },
+  {
+   "kind": "room_missed",
+   "score": 0.277,
+   "count": 447,
+   "sources": {
+    "bench": [
+     419,
+     0.052
+    ],
+    "known_errors": [
+     8,
+     0.089
+    ],
+    "synthetic": [
+     12,
+     0.124
+    ],
+    "checks": [
+     8,
+     0.012
+    ]
+   }
+  },
+  {
+   "kind": "wall_split",
+   "score": 0.214,
+   "count": 1722,
+   "sources": {
+    "bench": [
+     1722,
+     0.214
+    ]
+   }
+  },
+  {
+   "kind": "room_invented",
+   "score": 0.21,
+   "count": 274,
+   "sources": {
+    "bench": [
+     258,
+     0.032
+    ],
+    "known_errors": [
+     16,
+     0.178
+    ]
+   }
+  },
+  {
+   "kind": "opening_invented",
+   "score": 0.208,
+   "count": 5,
+   "sources": {
+    "user_corrections": [
+     1,
+     0.167
+    ],
+    "synthetic": [
+     4,
+     0.041
+    ]
+   }
+  },
+  {
+   "kind": "angled_wall",
+   "score": 0.195,
+   "count": 562,
+   "sources": {
+    "bench": [
+     527,
+     0.066
+    ],
+    "known_errors": [
+     8,
+     0.089
+    ],
+    "checks": [
+     27,
+     0.04
+    ]
+   }
+  },
+  {
+   "kind": "window_invented",
+   "score": 0.183,
+   "count": 329,
+   "sources": {
+    "bench": [
+     315,
+     0.039
+    ],
+    "synthetic": [
+     14,
+     0.144
+    ]
+   }
+  }
+ ],
+ "top3": [
+  "wall_invented",
+  "opening_type",
+  "door_invented"
+ ],
+ "hunt": {
+  "head_bb96f999": [
+   {
+    "project": "synthetic-24-sliding-windows",
+    "kind": "opening_type",
+    "total": 93.73,
+    "faults": [
+     "L0 doors invented: d_L0_001 1.6 m at [2.0, 0.125]",
+     "L0 doors invented: d_L0_003 1.4 m at [9.5, 0.125]",
+     "L0 doors invented: d_L0_009 1.4 m at [9.2, 8.876]",
+     "L0 windows missed: win_L0_001 1.6 m at [2.0, 0.125]",
+     "L0 windows missed: win_L0_003 1.4 m at [9.5, 0.125]",
+     "L0 windows missed: win_L0_007 1.4 m at [9.2, 8.875]"
+    ]
+   },
+   {
+    "project": "synthetic-25-stair-edge",
+    "kind": "wall_invented",
+    "total": 99.7,
+    "faults": [
+     "L0 walls invented: w_L0_002 [2.6, 3.251]-[6.6, 3.251] t=0.05"
+    ]
+   },
+   {
+    "project": "synthetic-26-corner-shower",
+    "kind": "door_invented",
+    "total": 98.82,
+    "faults": [
+     "L0 doors invented: d_L0_007 0.8 m at [6.025, 8.876]"
+    ]
+   }
+  ],
+  "after": {
+   "synthetic-24-sliding-windows": 100.0,
+   "synthetic-25-stair-edge": 100.0,
+   "synthetic-26-corner-shower": 100.0
+  }
+ },
+ "rules": [
+  "sliding sashes on a window or glass layer are a sliding window unless a door-high size tag, a door word or a balcony or terrace label beside them says door (openings.sliding_sashes, sliding_door_by_text)",
+  "an arc on a sanitary or finish layer is never a door swing (openings.swing_layer_ok)",
+  "a thin pair standing free at both ends at whose one face a flight's treads end, as long as the flight, is its open side, never a wall (walls._drop_stair_edge_pairs, walls.free_standing)"
+ ]
+}
