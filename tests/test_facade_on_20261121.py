@@ -384,3 +384,163 @@ def test_a_checks_calibration_after_the_stale_mark_counts():
                "checks_calibration": {"date": "2026-11-21"}}
     (h,) = CR.apply_trust(finding(), trusted)
     assert h["severity"] == "major"
+
+
+# ------------------------------------------------------- 21 Nov 2026 (coordinator review): no closed space is opened
+@pytest.mark.parametrize("name", ["real13_L0_union_20261121.json", "real13_L3_union_20261121.json"])
+def test_the_slit_closing_never_fills_a_room(name):
+    """real13 with the facade line on: GEOS's mitred erosion of the grown wall union (L0), or its buffer itself (L3),
+    filled the lift shaft's hole and no lift room was built. ``topology.close_slits`` keeps every hole the raw union has
+    (an erosion never reaches past what was grown; no closing reaches a hole's core)."""
+    from pathlib import Path
+
+    from shapely.geometry import Point, Polygon
+    from shapely.ops import unary_union
+
+    from wenart.ingest.generic import topology as TP
+
+    doc = json.loads((Path(__file__).parent / "fixtures" / name).read_text(encoding="utf-8"))
+    u = unary_union([Polygon(p) for p in doc["polygons"]])
+    label = Point(doc["label"])
+    raw = [Polygon(r).area for g in getattr(u, "geoms", [u]) for r in g.interiors if Polygon(r).contains(label)]
+    closed = TP.close_slits(u)
+    kept = [Polygon(r).area for g in getattr(closed, "geoms", [closed]) for r in g.interiors
+            if Polygon(r).contains(label)]
+    assert raw and kept and kept[0] == pytest.approx(raw[0], abs=0.12)                # (L3: the core, 1.5 cm in)
+    assert closed.difference(u.buffer(TP.SLIT_CLOSE_M, join_style=2)).area <= TP.CLOSE_ARTEFACT_M2
+
+
+def test_a_lift_shaft_against_a_glazed_facade_stays_a_room():
+    """A lift shaft beside a living room whose facade is drawn as frames: the room is closed on the drawn facade line
+    and the shaft stays a closed face holding its label."""
+    from shapely.geometry import Point
+
+    from wenart.ingest.generic import topology as TP
+    from wenart.ingest.generic.model import Stroke
+    from wenart.ingest.model import WallItem
+
+    def wall(s, e, t=0.2):
+        return WallItem(start=s, end=e, thickness=t, box=[0, 0, 0, 0], evidence={"file": "x.dwg", "entity": "W"},
+                        entity="W")
+
+    def line(k, a, b):
+        return Stroke(id=f"LINE:{k}", kind="line", pts=[a, b], layer="kapı-pencere")
+
+    walls = [wall((-0.2, 4.1), (6.2, 4.1)), wall((4.1, 4.2), (4.1, -0.2)), wall((4.2, -0.1), (-0.2, -0.1)),
+             wall((-0.1, -0.2), (-0.1, 0.6)), wall((-0.1, 3.4), (-0.1, 4.2)),
+             wall((4.0, 1.9), (6.2, 1.9)), wall((6.1, 1.8), (6.1, 4.2))]                      # the lift shaft
+    strokes = [line(1, (-0.15, 0.7), (-0.15, 3.3)), line(2, (-0.1, 0.7), (-0.1, 3.3)),
+               line(3, (-0.05, 0.7), (-0.05, 3.3)), line(4, (0.03, 0.7), (0.03, 3.3))]
+    lift = Point(5.1, 3.0)
+    assert any(f.contains(lift) for f in TP.faces(walls))
+    for snap in (True, False):
+        faces, _ = FC.close_rooms(walls, strokes, [(2.0, 2.0)], snap=snap)
+        new = FC.facade_wall_items(walls, [faces[0]], [], "x.dwg", None)
+        after = TP.faces(walls + new)
+        assert any(f.contains(lift) for f in after) and any(f.contains(Point(2.0, 2.0)) for f in after)
+
+
+def test_a_lift_stair_or_shaft_label_outside_every_room_is_raised():
+    from wenart.reading_check import structure as SR
+
+    def bld(places, rooms=()):
+        return {"levels": [{"id": "L0", "order": 0, "elevation": 0.0, "reading_places": places}], "rooms": list(rooms),
+                "walls": [], "openings": []}
+
+    lift = {"kind": "unplaced_label", "text": "HİDROLİK ASANSÖR", "at": [1.0, 1.0]}
+    (f,) = SR.core_spaces_unbuilt(bld([lift]))
+    assert f["check"] == "RC17" and f["rule"] == "core_space_unbuilt" and f["severity"] == "major"
+    assert f["place"] == [1.0, 1.0] and f in SR.findings(bld([lift]))
+    for text in ("MERDİVEN", "ŞAFT", "Stairs", "lift lobby"):
+        assert len(SR.core_spaces_unbuilt(bld([dict(lift, text=text)]))) == 1, text
+    assert SR.core_spaces_unbuilt(bld([dict(lift, text="SALON")])) == []
+    room = {"id": "r", "level_id": "L0", "polygon": [[0, 0], [2, 0], [2, 2], [0, 2]]}
+    assert SR.core_spaces_unbuilt(bld([lift], [room])) == []                    # it found its room later
+    assert SR.core_spaces_unbuilt(bld([dict(lift, kind="undecided_gap")])) == []
+
+
+def test_an_empty_gap_with_one_wall_face_drawn_across_is_the_wall():
+    """real09 L3, C0090 ("it is a drawing mistake"): the wall's outer face runs on across a 1.25 m gap, its inner face is
+    missing there and nothing else is drawn: the wall continues, no opening of any kind. Without the face line, or with
+    a line on another layer, the gap stays an opening."""
+    walls = [R.wall((0, 0), (2, 0)), R.wall((3.25, 0), (5.25, 0))]
+    face = R.stroke([(-0.5, 0.1), (5.75, 0.1)])
+    face.layer = "duvar"
+    _, openings, log, _ = _run(walls, [face])
+    assert openings == [] and [e["class"] for e in log if e["kind"] == "run"] == ["closed"]
+    assert [o.kind for o in _run(walls, [])[1]] == ["opening"]
+    other = R.stroke([(-0.5, 0.1), (5.75, 0.1)])                                # a railing on another layer
+    other.layer = "korkuluk"
+    assert [o.kind for o in _run(walls, [other])[1]] == ["opening"]
+
+
+def test_a_negated_opening_holds_only_with_no_door_window_or_opening_there():
+    """C0090: the user's 'neither a window nor an opening' fails on a window read at the place, as on an opening; a
+    door a present entry of the truth takes there is the user's own and does not count."""
+    def rec(rid, op):
+        return {"id": rid, "date": "2026-11-21", "project": "p", "level": "L0", "place": None,
+                "element_kind": op["kind"], "reader_answer": "", "right_answer": "", "user_words": "w", "lesson": None,
+                "note": "t", "source": "user_review", "status": "accepted",
+                "truth_action": {"op": op["op"], "elements": [op]}}
+
+    def read(**per):
+        out = {"levels": [{"id": "L0", "label": "Z", "order": 0, "elevation": 0.0}],
+               "per_level": {"L0": {t: [] for t in TR.ELEMENT_TYPES + TR.SPARSE_KINDS}}}
+        for t, els in per.items():
+            out["per_level"]["L0"][t] = list(els)
+        return out
+
+    neg = rec("C0090", {"op": "remove", "kind": "opening", "level": "L0", "center": [1.0, 0.0]})
+    t = TR.build_sparse("p", [neg])
+    assert SC.match(t, read())["total"] == 100.0
+    for kind in ("windows", "doors", "openings"):
+        assert SC.match(t, read(**{kind: [{"id": "x", "center": [1.1, 0.0]}]}))["total"] == 0.0, kind
+    door = rec("C0091", {"op": "add", "kind": "door", "level": "L0", "center": [1.1, 0.0]})
+    t2 = TR.build_sparse("p", [neg, door])
+    assert SC.match(t2, read(doors=[{"id": "d", "center": [1.1, 0.0]}]))["total"] == 100.0
+
+
+def test_one_own_face_running_across_a_span_is_solid_wall_for_a_mirror_copy():
+    """real09 L3: the reader closes the gap C0090 names (one face drawn across); the mirror step must not copy the twin
+    half's opening back onto it. One of the wall's own face lines running across the span is solid wall; a span both
+    faces break at is not."""
+    from types import SimpleNamespace
+
+    from wenart.ingest.generic import mirror as MR
+    from wenart.ingest.model import WallItem
+
+    host = WallItem(start=(0.0, 0.0), end=(6.0, 0.0), thickness=0.2, box=[0, 0, 1, 1], entity="LINE:a,LINE:b,LINE:c",
+                    evidence={"method": "vector", "entity": "LINE:a,LINE:b,LINE:c"})
+    outer = SimpleNamespace(id="LINE:a", pts=[(0.0, 0.1), (6.0, 0.1)])                 # runs across the span
+    inner_l = SimpleNamespace(id="LINE:b", pts=[(0.0, -0.1), (2.0, -0.1)])             # breaks at the span
+    inner_r = SimpleNamespace(id="LINE:c", pts=[(3.25, -0.1), (6.0, -0.1)])
+    assert MR.solid_span(host, (2.625, 0.0), 1.25, [outer, inner_l, inner_r])
+    outer_l = SimpleNamespace(id="LINE:a", pts=[(0.0, 0.1), (2.0, 0.1)])
+    outer_r = SimpleNamespace(id="LINE:b", pts=[(3.25, 0.1), (6.0, 0.1)])
+    assert not MR.solid_span(host, (2.625, 0.0), 1.25, [outer_l, outer_r, inner_l, inner_r])
+
+
+def test_a_closed_face_of_another_size_at_a_labelled_rooms_mirror_place_takes_its_label():
+    """real09 L2: once the light wells stayed open the plan was two mirrored halves at the strict share; the left
+    kitchen (drawn 2.44 m wide, its twin 'MUTFAK' 1.84 m) closed at a mirror seed and lost the label the loose-axis twin
+    seed gave it. A face with no label of its own at a labelled room's mirror place, of another size (the same size is
+    ``twins.mirror_labels``'s), that passes ``twin_evidence`` is the twin, whichever step closed it."""
+    from shapely.geometry import box
+
+    from wenart.ingest.generic import core as GC
+
+    axis = ("x", 10.0)
+    twin = box(14.0, 0.0, 15.84, 3.0)                       # 'MUTFAK', its label at (14.9, 1.5)
+    face = box(4.16, 0.0, 6.6, 3.0)                         # the left kitchen, 0.6 m wider toward the axis
+    blocks = [SimpleNamespace(name="MUTFAK", anchor=(14.9, 1.5))]
+    door = SimpleNamespace(kind="door", virtual=False, center=(6.6, 1.5))
+    got = GC._closed_mirror_twins([face], [face, twin], blocks, [(14.9, 1.5)], axis, [], [door], [], [])
+    assert len(got) == 1 and got[0]["label"] == "MUTFAK" and got[0]["seed"] == [5.1, 1.5] \
+        and got[0]["of"] == [14.9, 1.5] and any("door" in e for e in got[0]["evidence"])
+    # the same size: left to twins.mirror_labels
+    same = box(4.16, 0.0, 6.0, 3.0)
+    assert GC._closed_mirror_twins([same], [same, twin], blocks, [(14.9, 1.5)], axis, [], [door], [], []) == []
+    # a face with a label of its own, or with nothing drawn that marks a room there, is not the twin
+    own = [SimpleNamespace(name="MUTFAK", anchor=(14.9, 1.5)), SimpleNamespace(name="ODA", anchor=(5.5, 1.0))]
+    assert GC._closed_mirror_twins([face], [face, twin], own, [(14.9, 1.5), (5.5, 1.0)], axis, [], [door], [], []) == []
+    assert GC._closed_mirror_twins([face], [face, twin], blocks, [(14.9, 1.5)], axis, [], [], [], []) == []

@@ -597,6 +597,7 @@ def match_sparse(truth: dict, read: dict, building: Optional[dict] = None) -> di
         have = rid is not None and rid in r_levels
         rl = rper.get(rid) or {} if have else {}
         ceiling = (r_levels.get(rid) or {}).get("ceiling_height") if have else None
+        matched: dict = {}                               # the reading elements a present entry of their type took
         for t in TR.ELEMENT_TYPES + TR.SPARSE_KINDS:
             ents = []
             for e in lv.get(t) or []:
@@ -659,7 +660,14 @@ def match_sparse(truth: dict, read: dict, building: Optional[dict] = None) -> di
             for i, e in enumerate(pres):
                 note(e, lid, t, i in ok_idx, f"no {TR.TYPE_KIND[t]} within {tol} m" + (
                     f" with {', '.join(sorted(e['attrs']))}" if e.get("attrs") else ""))
+            matched[t] = set(used)
             left = [r for j, r in enumerate(rr) if j not in used]
+            if t == "openings":
+                # 21 Nov 2026 (C0090, real09 L3: "it is a drawing mistake", neither a window nor an opening): a negated
+                # opening is a gap the user says is none: no door, window or opening of any kind may stand there (a
+                # door or window a present entry of the truth took is the user's own, never this gap)
+                left += [r for k in ("doors", "windows") for j, r in enumerate(rl.get(k) or [])
+                         if j not in matched.get(k, set())]
             for e in absn:
                 hit = next((r for r in left if r.get("center") and e.get("center")
                             and _dist(r["center"], e["center"]) <= tol), None)

@@ -3810,8 +3810,8 @@ Open: the user's OK to locate C0001's walls on the drawn facade line (then rule 
    case that still falls). `truth add --reading` now also stores the place in the drawing's frame.
    Side effects found by the regression set and fixed with general rules: a window read on an inferred facade wall
    where its own door swing is hinged at a jamb is that door (`facade.swing_doors`; real13's 'K2 90/210').
-   Open: real13 L0-L3's lift shaft ('HİDROLİK ASANSÖR') is no longer closed under the facade line (the reading check
-   reports its label outside every room); next round.
+   real13 L0-L3's lift shaft ('HİDROLİK ASANSÖR') had lost its room under the facade line: fixed, see the review
+   below.
 2. **Kitchen windows.** real09 L2 (r_L2_mutfak, "There is a window and there is a door"): the drawing shows a 1.50 m
    window in the facade (two casements of 0.60 and 0.80 m with a post, frames on 'kapı-pencere', jambs at x 14.68 and
    16.18 m, the '150' dimension); the reader had read it as a sliding door. Record C0096 (`truth add --kind window`,
@@ -3852,3 +3852,44 @@ excluded drawing); real11 L0-L4 two inferred doors on door leaves gone; real13 a
 facade-line walls, the lift shaft's gap left an opening (the open lift room above); the synthetic baselines ok. Lessons
 UL348-UL351; `tests/test_facade_on_20261121.py`; synthetic-20-glazed-corner's counts per level read right now (its
 strict xfail lifted, its geometry still xfail). Images: `outputs/facade_on/`.
+
+### Review of the facade-line round (22 Nov 2026, the coordinator's review of a22ac82c)
+
+1. **real13's lift shaft** ('HİDROLİK ASANSÖR', L0-L3) had lost its room under the facade line. Cause: the wall union's
+   slit closing (`topology.bridged_union`), not the new walls themselves: GEOS's mitred erosion of the grown union
+   filled a hole whole (L0-L2), and on L3 the dilation of one part with twelve holes covered the shaft. Fix (general,
+   `topology.close_slits`): the round erosion closes the slits where the mitred one reaches past what was grown, and no
+   closing covers a hole's core (a part standing free in the hole keeps its ring): a reader change can no longer close
+   away a space the walls leave open. The lift rooms are back (L0-L2 2.35 m², L3 2.30 m²) and the 1.80 m window at the
+   shaft's facade is a window again (a22ac82c: an opening onto the open shaft). Tests: a lift shaft against a glazed
+   facade (synthetic), the closing on real13's L0 and L3 wall unions (fixtures), a free-standing wall in a room.
+2. **RC17 `core_space_unbuilt`** (major, advisory, `reading_check.structure`): a lift, stair or shaft label (ASCII-folded
+   words) left outside every room. On the 19 readings: 8 on 3 projects, all there before the facade line (real13 L-1
+   'ASMA BACA' x2, real14 L7 'DEMİR MERDİVEN', real20 L0-L4 'ŞAFT'; next round); a22ac82c had 12 (real13 L0-L3's lift).
+3. **C0090** (real09 L3, the user: neither a window nor an opening, "a drawing mistake"): an empty gap where one face
+   line of its wall, on a wall layer, runs on across it from jamb to jamb is the wall drawn with one face
+   (`openings._one_face_across`, in the gap cascade and for the run gaps); the mirror step no longer copies the twin
+   half's opening onto it (`mirror.solid_span`: one own face line across the span is solid wall). The place is empty
+   on the current reading (L3 stays excluded from the questions and the calibration only). The score checks a negated
+   opening as no door, window or opening of any kind there (`score.match_sparse`; a door or window a present entry of
+   the truth took is the user's own and does not count).
+4. **Side effects, each looked at on the drawing.** The one-face rule closes empty gaps with one face drawn across:
+   real11 L0-L4 (two 0.41 m gaps per floor), real14 L6/L7 (0.52, 0.66 m), real15 L0 (0.80 m beside the fireplace).
+   The union that keeps its holes opens real09's light wells, labelled 'Işıklık' in the drawing (L0/L1 3.25 m², L2
+   2.31 m²; RC18 light_well_size reports them under the 4.50 m² minimum, the drawing's size). With them real09 L2 is
+   two mirrored halves at the strict share, and the left kitchen (2.44 m wide, its twin 1.84 m), closed at a mirror
+   seed, lost its twin's 'Mutfak' (`twins.mirror_labels` wants the same area): a face with no label of its own at a
+   labelled room's mirror place, of another size, that passes `twin_evidence`, takes the label whichever step closed
+   it (`core._closed_mirror_twins`). With two kitchens on L2, RC18 judges real09 as a building of several dwellings,
+   storey by storey (before: one dwelling, whose best bathroom was L-1's 3.51 m²): the 2.42 m² bathrooms (narrow side
+   1.37 m) of L0 and L2 are under the 3.00 m² minimum (room_min_size, advisory), the drawing's size. real13 L-3
+   (since a22ac82c): the 1.02 m recess between the two air shafts, nothing drawn across it (the chain
+   '20|20 102 20|20'), is outside; before, an undecided-gap opening closed it and it took the level's one 'DEPO'
+   label (the 0.95 m² storeroom keeps it); the two shafts carry their 'Hava Bacası'.
+5. **Numbers** (fresh CPU readings of the 19 section-0 projects, this code; before: the readings before the facade
+   line): RC17 inferred_wall_off_facade 133 -> 45 (as a22ac82c); RC18 94 -> 97 (light_well_size 19 -> 23, real09's
+   wells and real13's facade rooms; room_min_size 18 -> 17, real09's two bathrooms of point 4 among them); section-0
+   grade mean 47.1 -> 47.6 (real13 35.7, a22ac82c 35.1). Score gate holds (never --update): synthetic overall 96.0, real09 100 (C0001 7/7 at its new place, C0090 as
+   any kind, C0096), real10 94.2, real06, 07, 17 as before. Regress (real08 left out) against a22ac82c's: only real15 L0
+   openings 11 -> 10 (the 0.80 m gap; within the tolerance). Lesson UL352. Image:
+   `outputs/facade_on/real13_L0_lift_shaft_a22ac82c_vs_now.png`.

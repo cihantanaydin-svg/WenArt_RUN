@@ -43,6 +43,7 @@ CLOSE_M = 0.002
 # real opening is never narrower than 5 cm). (real10's 4 cm plaster slits close where they are: a face-pair wall end
 # stopping up to 5 cm short of a perpendicular wall face is moved onto it, ``walls._close_face_joints``.)
 SLIT_CLOSE_M = 0.015
+CLOSE_ARTEFACT_M2 = 1e-4        # 21 Nov 2026: an erosion reaching this far past the grown union filled a hole (GEOS)
 HULL_SHARE = 0.99
 WING_NEAR_M = 1.5               # real10: a wall part within 1.5 m of the labelled building holding a room label inside
                                 # its outline (a kitchen open to the hall) is a wing of the building
@@ -122,8 +123,40 @@ def bridged_union(walls: list, openings: list = (), separators: list = ()):
             polys.append(separator_polygon(line))
     if not polys:
         return Polygon()
-    u = unary_union(polys)
-    return u.buffer(SLIT_CLOSE_M, join_style=2).buffer(-SLIT_CLOSE_M, join_style=2)
+    return close_slits(unary_union(polys))
+
+
+def close_slits(u):
+    """The union ``u`` with its slits narrower than ``2 x SLIT_CLOSE_M`` closed (a mitred closing; pure)."""
+    grown = u.buffer(SLIT_CLOSE_M, join_style=2)
+    closed = grown.buffer(-SLIT_CLOSE_M, join_style=2)
+    # 21 Nov 2026 (real13 L0-L3: with the facade-line walls the lift shaft's face vanished, its label 'outside every
+    # room'): GEOS's mitred erosion of the grown union can fill one of its holes whole, a closed room or shaft. An
+    # erosion never reaches past what was grown; when it does, the round erosion closes the slits instead, so the
+    # closing never opens a space nor fills one (``CLOSE_ARTEFACT_M2``)
+    if closed.difference(grown).area > CLOSE_ARTEFACT_M2:
+        closed = grown.buffer(-SLIT_CLOSE_M, join_style=1)
+    # ... and its dilation can fill a hole too (real13 L3: the buffer of one valid 25 m2 part with 12 holes covered the
+    # shaft): no closing reaches a hole's core (its points farther than SLIT_CLOSE_M from its edge); a core the result
+    # covers is taken out again (the space keeps its place, 1.5 cm in from its walls)
+    parts = _parts(u)
+    cores = []
+    for g in parts:
+        for r in g.interiors:
+            hole = Polygon(r)
+            c = hole.buffer(-SLIT_CLOSE_M * 1.01, join_style=2)
+            if c.is_empty:
+                continue
+            nested = [p for p in parts if p is not g and p.intersects(hole)]      # a free-standing wall in the room
+            if nested:
+                c = c.difference(unary_union([p.buffer(SLIT_CLOSE_M * 1.01, join_style=2) for p in nested]))
+            if not c.is_empty:
+                cores.append(c)
+    if cores:
+        core = unary_union(cores)
+        if closed.intersection(core).area > CLOSE_ARTEFACT_M2:
+            closed = closed.difference(core)
+    return closed
 
 
 def _parts(geom) -> list[Polygon]:

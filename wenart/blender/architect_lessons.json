@@ -4128,6 +4128,16 @@
    "request": "The AI-check kinds the user marked wrong every time they were asked (storey_no_stair_access, flat_no_entrance, lift_door_into_flat, plan_not_read for labels outside the walls, stair_no_landing_door; room_missing for a balcony label, a kind otherwise right) write their findings as info until a calibration shows them right on at least TRUST_MIN of the judged findings (21 Nov 2026); a checks calibration made after the trust file's stale mark is not stale",
    "lesson": "The AI-check kinds the user marked wrong every time they were asked (storey_no_stair_access, flat_no_entrance, lift_door_into_flat, plan_not_read for labels outside the walls, stair_no_landing_door; room_missing for a balcony label, a kind otherwise right) write their findings as info until a calibration shows them right on at least TRUST_MIN of the judged findings (21 Nov 2026); a checks calibration made after the trust file's stale mark is not stale",
    "question": null
+  },
+  {
+   "id": "UL352",
+   "date": "2026-11-21",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "No reader change may open a space that was closed (21 Nov 2026, coordinator review of the facade-line rule: real13's lift shaft vanished): the slit closing of the wall union never fills a hole (GEOS's mitred erosion did; the round erosion closes the slits then), and RC17 core_space_unbuilt raises any lift, stair or shaft label left outside every room. An empty gap with only one of its wall's face lines running across it on a wall layer is the wall drawn with one face, not an opening (real09 L3, C0090: 'it is a drawing mistake'); a negated opening holds only when no door, window or opening stands there",
+   "lesson": "No reader change may open a space that was closed (21 Nov 2026, coordinator review of the facade-line rule: real13's lift shaft vanished): the slit closing of the wall union never fills a hole (GEOS's mitred erosion did; the round erosion closes the slits then), and RC17 core_space_unbuilt raises any lift, stair or shaft label left outside every room. An empty gap with only one of its wall's face lines running across it on a wall layer is the wall drawn with one face, not an opening (real09 L3, C0090: 'it is a drawing mistake'); a negated opening holds only when no door, window or opening stands there",
+   "question": null
   }
  ]
 }

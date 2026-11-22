@@ -189,6 +189,7 @@ PANEL_TRACK_M = 0.01            # ... on two tracks this far apart across
 # x the gap; at least two of them in a chain, each joint a mullion ``PANE_JOINT_M`` wide (leaves that touch or overlap
 # are a door's), neighbours with the same across extent (``PANE_TRACK_M``: leaves on shifted tracks are a sliding
 # door's, real10's entrance '140/230'), the chain covering ``WINDOW_COVER`` of the gap.
+ONE_FACE_REACH_M = 0.05           # 21 Nov 2026: a wall's face line across an empty gap runs on past each jamb this far
 PANE_MIN_M = 0.20
 PANE_SHARE = 0.5                  # the lines of one pane share at least this share of the shorter one's span
 PANE_TRACK_M = 0.005
@@ -1015,13 +1016,48 @@ def _classify_gap_rules(g: Gap, index: StrokeIndex, owned_global: set) -> None:
         (inner[0], inner[1] + shrink, inner[2], inner[3] - shrink)
     content = [it for it in index.query(inner) if it.st.id not in owned_global and it.geom.length > 0.005]
     swings = [it for it, arc in arcs if _door_like(g, arc)]
+    face = _one_face_across(g, index) if not swings else None
+    if face is not None and all(it.st.id == face.st.id for it in content):
+        content = []
     if not content and not swings:
+        if face is not None:
+            # 21 Nov 2026 (real09 L3, C0090, the user: "it is a drawing mistake"): nothing in the gap but one of the
+            # wall's own face lines, on a wall layer, running on across it from jamb to jamb: the wall drawn with one
+            # face, a drafting slip; the wall continues (no opening of any kind)
+            g.cls = "closed"
+            g.found = {"faces": [face.st.id], "note": f"one face of the wall ({face.st.layer}: {face.st.id}) runs on "
+                                                      f"across the {g.width:.2f} m gap and nothing else is drawn in "
+                                                      f"it: the wall drawn with one face, it continues"}
+            return
         g.cls = "empty"
         return
     g.cls = "unclassified"
     g.found = {"content": content + [it for it in swings if it not in content]}
     if no_glass:
         g.found["no_glass"] = no_glass
+
+
+def _one_face_across(g: Gap, index: StrokeIndex):
+    """A straight line on a wall layer (``dxf_generic.is_wall_hint_layer``) lying on one face of the empty gap ``g``
+    (within ``BAND_SLACK_M`` of it), spanning it from jamb to jamb and running on past at least one jamb by
+    ``ONE_FACE_REACH_M`` (it continues the wall; a threshold ends at the jambs), or None (the wall's own face lines
+    count: the gap is a stretch where only its other face is missing; real09 L3's starts at a column). 21 Nov 2026."""
+    from wenart.ingest.dxf_generic import is_wall_hint_layer
+
+    for it in index.query(g.rect(grow_face=BAND_SLACK_M)):
+        if len(it.pts) != 2 or it.st.arc is not None or not is_wall_hint_layer(it.st.layer):
+            continue
+        p, q = it.pts
+        if not _parallel(p, q, g.axis):
+            continue
+        off = abs(g.across(((p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0)))
+        if abs(off - g.t / 2.0) > BAND_SLACK_M:
+            continue
+        lo, hi = sorted((g.along(p), g.along(q)))
+        if lo <= g.a + BAND_SLACK_M and hi >= g.b - BAND_SLACK_M \
+                and (lo <= g.a - ONE_FACE_REACH_M or hi >= g.b + ONE_FACE_REACH_M):
+            return it
+    return None
 
 
 def _framed_glass(framed: set, glass: set) -> bool:
@@ -1867,6 +1903,18 @@ def gaps_and_openings_frame(walls: list[WallItem], strokes_m: list[Stroke], file
     _trim_into_bands(out_walls, theta)
 
     exterior = _exterior_test(out_walls)
+    if ctx.rest_index is not None:
+        # 21 Nov 2026 (real09 L3, C0090: "it is a drawing mistake"): an empty run gap one of whose wall faces is drawn
+        # on across it (the wall's own face line, among the wall primitives' strokes) is the wall drawn with one face
+        for g in gaps:
+            if g.kind != "end" and g.cls == "empty":
+                face = _one_face_across(g, ctx.rest_index)
+                if face is not None:
+                    g.cls = "closed"
+                    g.found = {"faces": [face.st.id], "note": f"one face of the wall ({face.st.layer}: {face.st.id}) "
+                                                              f"runs on across the {g.width:.2f} m gap and nothing "
+                                                              f"else is drawn in it: the wall drawn with one face, it "
+                                                              f"continues"}
     if decisions is not None:
         # 5 Nov 2026 (Milestone 14 R3): every gap is classified and the walls are merged: the records get the exterior
         # test and the mirror twin's answer, and the ranker may re-type a run gap the cascade left empty or
