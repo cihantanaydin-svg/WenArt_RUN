@@ -1,0 +1,40 @@
+{
+ "held_lora": {
+  "questions": 117,
+  "answered": 117,
+  "accuracy": 1.0,
+  "per_kind": {
+   "opening_kind": 1.0,
+   "room_window": 1.0,
+   "room_here": 1.0,
+   "stair_here": 1.0
+  }
+ },
+ "held_base_bf16": {
+  "questions": 117,
+  "answered": 117,
+  "accuracy": 0.8974,
+  "per_kind": {
+   "opening_kind": 0.9524,
+   "room_window": 1.0,
+   "room_here": 0.7222,
+   "stair_here": 0.7778
+  }
+ },
+ "exam_lora": {
+  "asked": 553,
+  "answered": 553,
+  "failed": 0,
+  "skipped": 0,
+  "started": 1795344756.100633,
+  "seconds": 632.2
+ },
+ "exam_base_bf16": {
+  "asked": 556,
+  "answered": 556,
+  "failed": 0,
+  "skipped": 0,
+  "started": 1795345388.426468,
+  "seconds": 670.5
+ }
+}
