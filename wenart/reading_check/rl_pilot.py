@@ -411,7 +411,7 @@ LORA_NAME = "wenart-rs"
 
 
 def _exam(url: str, key: str, out: Path, served: Optional[str] = None, fewshot: Optional[Path] = None,
-          deadline: Optional[float] = None, workers: int = 8) -> dict:
+          deadline: Optional[float] = None, workers: int = 8, arms: Optional[tuple] = None) -> dict:
     """One exam arm: the RC15 calls of today's measurement asked at ``url`` (``critic.ask``), the LoRA by its served
     name, the few-shot block by its fold file; scored afterwards on the CPU (``critic calibrate``)."""
     import os
@@ -430,7 +430,7 @@ def _exam(url: str, key: str, out: Path, served: Optional[str] = None, fewshot: 
         if served:
             model.model = served
         res = CR.ask(CR.load_index(), model, CR.INPUTS_DIR, Path(out), deadline=deadline,
-                     sets=EXAM_SETS.split(","), which=tuple(EXAM_WHICH.split(",")))
+                     sets=EXAM_SETS.split(","), which=tuple(EXAM_WHICH.split(",")), arms=arms)
         return res.get("stats") or {}
     finally:
         for k, v in old.items():
@@ -462,6 +462,29 @@ def phase_sample(train_dir: Path, out: Path, *, key: str = "agent", server_flags
             rep["exam_fewshot"] = _exam(url, key, out / "exam_fewshot", fewshot=fewshot, deadline=deadline)
             log(f"rl_pilot: few-shot exam {rep['exam_fewshot']}")
     (out / "phase_sample.json").write_text(json.dumps(rep, indent=1) + "\n", encoding="utf-8")
+    return rep
+
+
+def exam_ab(out: Path, *, keys: tuple = ("agent", "bakeoff.bf16"), fewshot: Optional[Path] = None,
+            server_flags: str = "", deadline: Optional[float] = None, log=print) -> dict:
+    """22 Nov 2026 (user: "start the test pod"; the RL pilot asked its exam without the drawing text): the exam with
+    the drawing text (arm ``1``, today's default; the judge with images only) per model key, each model on its own
+    server, without and then with the few-shot block of ``fewshot`` (a fold file: scored afterwards only on the marks
+    of its own fold, never on its examples). ``exam_ab.json`` in ``out`` after every arm."""
+    from wenart.run import servers as SV
+
+    out = Path(out)
+    out.mkdir(parents=True, exist_ok=True)
+    rep: dict = {}
+    for key in keys:
+        tag = key.replace(".", "_")
+        with SV.server(key, deadline, extra_flags=server_flags) as url:
+            for name, fs in ((tag, None), (f"{tag}_fewshot", fewshot)):
+                if name.endswith("_fewshot") and fewshot is None:
+                    continue
+                rep[name] = _exam(url, key, out / name, fewshot=fs, deadline=deadline, arms=("1",))
+                log(f"rl_pilot: exam {name} {rep[name]}")
+                (out / "exam_ab.json").write_text(json.dumps(rep, indent=1) + "\n", encoding="utf-8")
     return rep
 
 
@@ -567,6 +590,12 @@ def main(argv=None) -> int:
     pc.add_argument("--server-flags", default="")
     pc.add_argument("--deadline", type=float, default=None)
     pc.add_argument("--rank", type=int, default=16)
+    ea = sub.add_parser("exam-ab")
+    ea.add_argument("--out", required=True)
+    ea.add_argument("--keys", default="agent,bakeoff.bf16")
+    ea.add_argument("--fewshot", default=None)
+    ea.add_argument("--server-flags", default="")
+    ea.add_argument("--deadline", type=float, default=None)
     fs = sub.add_parser("fewshot")
     fs.add_argument("--out", required=True)
     args = ap.parse_args(argv)
@@ -593,6 +622,11 @@ def main(argv=None) -> int:
     if args.cmd == "phase-exam":
         print(json.dumps(phase_exam(Path(args.train), Path(args.adapter), Path(args.out), rank=args.rank,
                                     server_flags=args.server_flags, deadline=args.deadline)))
+        return 0
+    if args.cmd == "exam-ab":
+        print(json.dumps(exam_ab(Path(args.out), keys=tuple(k for k in args.keys.split(",") if k),
+                                 fewshot=Path(args.fewshot) if args.fewshot else None,
+                                 server_flags=args.server_flags, deadline=args.deadline)))
         return 0
     if args.cmd == "train":
         print(json.dumps(train(Path(args.train), args.base, args.revision, Path(args.out), epochs=args.epochs,

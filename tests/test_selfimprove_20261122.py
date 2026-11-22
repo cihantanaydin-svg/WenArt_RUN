@@ -348,3 +348,29 @@ def test_rl_pilot_lora_targets_language_model_only():
                        ("model.visual.blocks.0.attn.qkv", False), ("model.visual.blocks.0.mlp.linear_fc1", False),
                        ("mtp.layers.0.mlp.down_proj", False), ("lm_head", False)]:
         assert bool(re.fullmatch(LORA_TARGETS, name)) == want, name
+
+
+def test_exam_ab_asks_every_arm_with_the_drawing_text(tmp_path, monkeypatch):
+    """22 Nov 2026: the exam A/B asks per model key without and with the few-shot block, always with arm '1'."""
+    import contextlib
+
+    from wenart.reading_check import rl_pilot as RP
+    from wenart.run import servers as SV
+
+    calls = []
+
+    @contextlib.contextmanager
+    def fake_server(key, deadline, extra_flags=""):
+        yield f"http://127.0.0.1:1/{key}/v1"
+
+    def fake_exam(url, key, out, served=None, fewshot=None, deadline=None, workers=8, arms=None):
+        calls.append((key, fewshot is not None, arms))
+        return {"asked": 1}
+
+    monkeypatch.setattr(SV, "server", fake_server)
+    monkeypatch.setattr(RP, "_exam", fake_exam)
+    rep = RP.exam_ab(tmp_path, fewshot=tmp_path / "fold0.json", log=lambda *_: None)
+    assert list(rep) == ["agent", "agent_fewshot", "bakeoff_bf16", "bakeoff_bf16_fewshot"]
+    assert calls == [("agent", False, ("1",)), ("agent", True, ("1",)), ("bakeoff.bf16", False, ("1",)),
+                     ("bakeoff.bf16", True, ("1",))]
+    assert (tmp_path / "exam_ab.json").is_file()
