@@ -72,6 +72,10 @@ RULE_CONFIDENCE: dict[str, float] = {
                                    # its one face, parting nothing (its sides joined round it, no other room's label in
                                    # sight beyond it, walls.split_stair_edges): the piece is split
                                    # at the flight's ends, the parts beyond stay wall pieces
+    "open_passage": 0.70,          # 22 Nov 2026 (UL363, C0053): a doorless gap with nothing drawn in it (no wall line,
+                                   # leaf, swing, sill, jamb mark or lintel; ``openings.passage_marks``) in an inner
+                                   # partition between two rooms, none wet: open up to the ceiling
+                                   # (``twins.open_passages``)
     "wall_chosen_layer": 0.80,     # a primary pair on the layer the labels chose (walls.PAIR_CONFIDENCE)
     "wall_document_layer": 0.50,   # a primary pair on a layer taken from the document's other plans (too few labels)
     "secondary_pair": 0.40,        # a pair under PAIR_OVERLAP_M on a chosen layer that the network takes (as long as it

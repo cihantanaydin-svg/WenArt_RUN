@@ -220,6 +220,33 @@ def match_walls(truth: list, read: list) -> list:
     return _greedy(pairs)
 
 
+def match_attrs(kind: str, truth: list, read: list, building: Optional[dict] = None) -> list:
+    """22 Nov 2026 (UL363, synthetic-34-open-passage): the matched pairs of one level's openings or stairs when truth
+    entries assert attributes (``attrs``, as in a sparse truth: ``{"open_passage": true}``): the truth entries grouped
+    by their attributes, each group matched (``match_points``) among the reading elements not taken yet that carry them
+    (``attrs_ok``); an entry without ``attrs`` matches any element. The reading needs the sparse fields
+    (``reading_for``)."""
+    tol = STAIR_CENTER_M if kind == "stairs" else OPENING_CENTER_M
+    groups: dict = {}
+    for i, e in enumerate(truth):
+        groups.setdefault(json.dumps(e.get("attrs") or {}, sort_keys=True), []).append(i)
+    used: set = set()
+    out = []
+    for key, idx in sorted(groups.items(), key=lambda kv: (kv[0] == "{}", kv[0])):   # asserted attributes first
+        a = json.loads(key)
+        cand = [j for j, r in enumerate(read) if j not in used and attrs_ok(a, r, building)]
+        for i, j in match_points([truth[i] for i in idx], [read[j] for j in cand], tol):
+            out.append((idx[i], cand[j]))
+            used.add(cand[j])
+    return out
+
+
+def has_attrs(truth: dict) -> bool:
+    """A truth with an entry that asserts attributes (``attrs``; pure)."""
+    return any(e.get("attrs") for lv in (truth.get("per_level") or {}).values() for t in TR.ELEMENT_TYPES
+               for e in lv.get(t) or [])
+
+
 def match_kind(kind: str, truth: list, read: list) -> list:
     if kind == "rooms":
         return match_rooms(truth, read)
@@ -257,7 +284,9 @@ def match(truth: dict, read: dict, building: Optional[dict] = None) -> dict:
             all_t, rr = tl.get(kind) or [], rl.get(kind) or []
             tt = TR.positives(all_t)
             absent = [e for e in all_t if e.get("absent")]
-            m = match_kind(kind, tt, rr)
+            # 22 Nov 2026 (UL363): an entry asserting attributes (an open passage) needs an element carrying them
+            m = match_attrs(kind, tt, rr, building) if kind not in ("rooms", "walls") and \
+                any(e.get("attrs") for e in tt) else match_kind(kind, tt, rr)
             hits = 0
             if absent:
                 left = [r for j, r in enumerate(rr) if j not in {j for _i, j in m}]
@@ -550,7 +579,9 @@ def reading_for(truth: dict, building: dict, project: Optional[str] = None) -> d
     21 Nov 2026: the critic's known errors (``critic_checks.sparse_known``) matched the user's corrections on an extract
     without the sparse fields, so every outdoor space the user asked for read as missing (C0008, real09's left balcony,
     'does not hold' on the after reading that has it, while the score said it holds); both read the reading here."""
-    return TR.extract(building, project=project, leave_out=truth.get("levels_left_out") or [], attrs=TR.is_sparse(truth))
+    # 22 Nov 2026 (UL363): a synthetic truth whose entries assert attributes (synthetic-34's open passage) needs them too
+    return TR.extract(building, project=project, leave_out=truth.get("levels_left_out") or [],
+                      attrs=TR.is_sparse(truth) or has_attrs(truth))
 
 
 def match_sparse(truth: dict, read: dict, building: Optional[dict] = None) -> dict:

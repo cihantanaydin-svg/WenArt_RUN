@@ -1090,6 +1090,149 @@ def _one_face_across(g: Gap, index: StrokeIndex):
     return None
 
 
+# 22 Nov 2026 (the user's "build the open-passage rule"; C0053 on real07 L1; lesson UL363, the general form of UL327): a
+# partition that ends short of the next wall or column with nothing drawn in the gap leaves an open passage up to the
+# ceiling. What is drawn in a doorless gap (``passage_marks``) tells such a passage from an opening with a head: only
+# floor hatch and tiles, the notation (axes, dimensions, texts; left out of the index already), diagonal or crossing
+# lines that end outside the band (a stair's tread, a roof's hip, a column's outline) and small symbols may be there.
+PASSAGE_ANGLE_DEG = 3.0          # a line within this of the wall's axis runs along the gap ...
+PASSAGE_ALONG_REACH_M = 0.10     # ... lying within the band widened by this (a lintel drawn on or just off a face) ...
+PASSAGE_ALONG_SHARE = 0.4        # ... covering this share of the gap at one offset (joined): a wall line, a sill, a
+#                                  threshold, a closed leaf, or dashed a lintel or beam: the gap has a head or a filling
+PASSAGE_DASH_MIN = 3             # this many pieces at one offset, each under half the gap: a dashed line (a PDF's dashes)
+PASSAGE_CROSS_DEG = 10.0         # a line within this of the across direction ...
+PASSAGE_JAMB_M = 0.10            # ... within this of a jamb, confined to the widened band: a jamb or frame mark
+PASSAGE_ARC_MIN_R = 0.25         # an arc this large in the band: a swing or a curve drawn in the gap
+PASSAGE_TEXT_REACH_M = 0.8       # a size tag or an arch / lintel word this near the gap names its head; the tag is the
+PASSAGE_TAG_NARROWER_M = DOOR_FRAME_M   # gap's own when its width is the gap's, down to a frame's allowance narrower
+PASSAGE_TAG_WIDER_M = 0.10       # ... or this much wider (a '90/210' by a 2.23 m gap is a neighbouring door's)
+PASSAGE_FLOOR_ROLES = ("hatch", "finish")          # floor hatch and tiles: nothing drawn in the gap
+PASSAGE_MARK_ROLES = ("door", "window", "glass", "sill")   # a stroke of these in the band: a door or window drawn
+PASSAGE_HEAD_WORDS = ("KEMER", "LENTO", "KIRIS", "KIRISI", "ARCH", "ARCHWAY", "LINTEL", "BEAM", "HEADER", "STURZ",
+                      "LINTEAU", "ARCO", "BOGEN", "UNTERZUG", "POUTRE", "DINTEL", "ARCHITRAVE")
+PASSAGE_SOLID_LINETYPES = ("", "CONTINUOUS", "BYLAYER", "BYBLOCK", "SOLID", "STANDARD")
+
+
+def _dashed(linetype) -> bool:
+    """A stroke drawn with a broken linetype (DASHED, HIDDEN, ACAD_ISO02W100 ...); None (PDF, raster) is solid."""
+    return linetype is not None and str(linetype).strip().upper() not in PASSAGE_SOLID_LINETYPES
+
+
+def passage_marks(g: Gap, items: list, caps=(), texts=None, wall_ids=frozenset(),
+                  linetypes=None) -> tuple[str, str, list]:
+    """``(verdict, note, ids)`` of what is drawn in the doorless gap ``g`` (pure; 22 Nov 2026, UL363). ``items``: the
+    strokes (``_S``, aligned frame) around the gap, the notation left out; ``caps``: the end caps of the page
+    (``end_caps``: frames and nubs at wall ends); ``texts``: the level's texts in the aligned frame
+    (``decisions.DecisionLog.texts_aligned``) or None; ``wall_ids``: the ids of the wall primitives' strokes (a wall
+    end's own closing line is no jamb mark, whatever its layer is called); ``linetypes``: ``{stroke id: linetype}``
+    where the strokes carry none (the page's, ``core``). Verdicts, the first that holds:
+
+    - ``swing``: an arc of at least ``PASSAGE_ARC_MIN_R`` in the band (a door swing the classifier could not hinge);
+    - ``jambs``: a cap at a jamb, a short line across the band at a jamb on a layer that draws no wall, or a door
+      layer's stroke in the band: the frame of a door whose leaf is not drawn;
+    - ``lintel``: a dashed line (or a run of dashes) along the gap within the widened band, or an arch, lintel or beam
+      word (``PASSAGE_HEAD_WORDS``) by the gap: an opening with a head;
+    - ``tag``: a size tag by the gap (its height is drawn: an opening of that height);
+    - ``lines``: a solid line along the gap, or a window, glass or sill stroke in the band (a wall line, a sill, a
+      threshold, a closed leaf);
+    - ``clear``: nothing else; floor hatch and tiles (``PASSAGE_FLOOR_ROLES``), diagonal lines, lines crossing the band
+      that end beyond it and arcs and circles under ``PASSAGE_ARC_MIN_R`` (symbols, glyphs) do not count."""
+    from wenart.ingest.generic import layer_names as LN
+
+    width = g.width
+    if width <= 0:
+        return "lines", "a gap of no width", []
+    reach = g.t / 2.0 + PASSAGE_ALONG_REACH_M
+    sin_along = math.sin(math.radians(PASSAGE_ANGLE_DEG))
+    cos_cross = math.cos(math.radians(90.0 - PASSAGE_CROSS_DEG))
+    found: dict[str, list] = {}
+    along: list[tuple[float, float, float, bool, str]] = []      # (offset, lo, hi, dashed, id)
+    zone = sbox(*g.rect(grow_face=PASSAGE_ALONG_REACH_M, grow_along=PASSAGE_JAMB_M))
+    band = sbox(*g.rect(grow_face=BAND_SLACK_M))
+    for it in items:
+        st = it.st
+        role = LN.layer_role(st.layer)
+        if role in PASSAGE_FLOOR_ROLES or not it.geom.intersects(zone):
+            continue
+        if role == "door" or (role in PASSAGE_MARK_ROLES and it.geom.intersects(band)):
+            found.setdefault("jambs" if role == "door" else "lines", []).append(st.id)
+            continue
+        arcs = _arcs_in([it])
+        if arcs or st.arc is not None:
+            radius = arcs[0][1]["radius"] if arcs else float((st.arc or {}).get("radius") or 0.0)
+            if radius >= PASSAGE_ARC_MIN_R:
+                found.setdefault("swing", []).append(st.id)
+            continue
+        pts = list(it.pts) + ([it.pts[0]] if st.closed and len(it.pts) > 2 else [])
+        for p, q in zip(pts, pts[1:]):
+            seg = math.dist(p, q)
+            if seg <= 1e-6:
+                continue
+            ux, uy = (q[0] - p[0]) / seg, (q[1] - p[1]) / seg
+            cross = abs(uy) if g.axis == "h" else abs(ux)          # the share of the piece across the wall
+            if cross <= sin_along:
+                off = g.across(((p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0))
+                lo, hi = sorted((g.along(p), g.along(q)))
+                lo, hi = max(lo, g.a), min(hi, g.b)
+                if abs(off) <= reach and hi > lo:
+                    lt = getattr(st, "linetype", None) or (linetypes or {}).get(st.id)
+                    along.append((off, lo, hi, _dashed(lt), st.id))
+            elif cross >= cos_cross and role not in LN.WALL_ROLES and st.id not in wall_ids:
+                s = (g.along(p) + g.along(q)) / 2.0
+                a0, a1 = sorted((g.across(p), g.across(q)))
+                if min(abs(s - g.a), abs(s - g.b)) <= PASSAGE_JAMB_M and -reach <= a0 and a1 <= reach \
+                        and a1 - a0 >= g.t / 2.0:
+                    found.setdefault("jambs", []).append(st.id)
+    for c in caps or ():
+        if c.axis != g.axis or abs(c.c - g.c) > g.t / 2.0:
+            continue
+        if any(c.a <= end + PASSAGE_JAMB_M and c.b >= end - PASSAGE_JAMB_M for end in (g.a, g.b)):
+            found.setdefault("jambs", []).append(str(c.wall.entity).split(",")[0])
+    # the lines along the gap, one offset at a time (pieces within 2 cm across are one line)
+    along.sort()
+    rows: list[list] = []
+    for rec in along:
+        if rows and abs(rec[0] - rows[-1][-1][0]) <= 0.02:
+            rows[-1].append(rec)
+        else:
+            rows.append([rec])
+    for row in rows:
+        spans = sorted((lo, hi) for _o, lo, hi, _d, _i in row)
+        cover, end = 0.0, g.a
+        for lo, hi in spans:
+            lo = max(lo, end)
+            if hi > lo:
+                cover += hi - lo
+                end = hi
+        if cover < PASSAGE_ALONG_SHARE * width:
+            continue
+        dashes = len(row) >= PASSAGE_DASH_MIN and max(hi - lo for lo, hi in spans) < 0.5 * width
+        key = "lintel" if dashes or any(d for _o, _lo, _hi, d, _i in row) else "lines"
+        found.setdefault(key, []).extend(dict.fromkeys(i for _o, _lo, _hi, _d, i in row))
+    for t in texts or ():
+        s, off = g.along(t.at), g.across(t.at)
+        if not (g.a - PASSAGE_TEXT_REACH_M <= s <= g.b + PASSAGE_TEXT_REACH_M
+                and abs(off) <= g.t / 2.0 + PASSAGE_TEXT_REACH_M):
+            continue
+        words = set(B.fold_ascii(str(t.text or "")).upper().replace("-", " ").replace("_", " ").split())
+        if words & set(PASSAGE_HEAD_WORDS):
+            found.setdefault("lintel", []).append(f"text '{t.text}'")
+        elif getattr(t, "size_tag", None) is not None \
+                and width - PASSAGE_TAG_NARROWER_M <= float(t.size_tag[0]) <= width + PASSAGE_TAG_WIDER_M:
+            found.setdefault("tag", []).append(f"text '{t.text}'")         # its own tag (a neighbour's is narrower)
+    why = {"swing": "an arc drawn in it (a door swing)",
+           "jambs": "jamb or frame marks at its ends (a door whose leaf is not drawn)",
+           "lintel": "a lintel, beam or arch drawn or written over it",
+           "tag": "a size tag by it (its height is drawn)",
+           "lines": "lines along it (a wall line, a sill, a threshold or a closed leaf)"}
+    for verdict in ("swing", "jambs", "lintel", "tag", "lines"):
+        if found.get(verdict):
+            ids = list(dict.fromkeys(found[verdict]))
+            return verdict, f"{why[verdict]}: {', '.join(ids[:6])}", ids
+    return "clear", (f"nothing drawn in the {width:.2f} m gap but floor hatch, notation or lines that end beyond its band "
+                     f"(no wall line, leaf, swing, sill, jamb mark or lintel)"), []
+
+
 def _framed_glass(framed: set, glass: set) -> bool:
     """Fix round after P6b: the window's own lines (offsets ``framed``, ``glass`` among them) make a window: >=
     ``WINDOW_LINES_MIN`` offsets, >= ``GLASS_MIN_LINES`` glass, and two glass lines or one between two lines of the
@@ -1525,7 +1668,8 @@ def angled_frames(walls: list[WallItem], theta: float) -> list[float]:
 
 def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: str, page_no: int,
                       units_to_m: Optional[float] = None, dimension_ids=frozenset(), wall_strokes=(), outdoor_points=(),
-                      room_points=(), decisions=None) -> tuple[list[WallItem], list[OpeningItem], list[dict], set[str]]:
+                      room_points=(), decisions=None, linetypes=None
+                      ) -> tuple[list[WallItem], list[OpeningItem], list[dict], set[str]]:
     """``gaps_and_openings_frame`` in the plan's dominant frame, then (20 Nov 2026, rule R35 ``angled_wall``) once in
     the frame of each wall direction off it (``angled_frames``): the runs, gaps, doors and windows of a wall drawn at
     an angle are read in its own frame, as the axis walls are in theirs (real20's angled hall doors were lost once
@@ -1535,7 +1679,7 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
 
     out_walls, openings, log, owned = gaps_and_openings_frame(
         walls, strokes_m, file_rel, page_no, units_to_m, dimension_ids, wall_strokes, outdoor_points, room_points,
-        decisions=decisions)
+        decisions=decisions, linetypes=linetypes)
     if not RG.active("angled_wall"):
         return out_walls, openings, log, owned
     for ang in angled_frames(out_walls, dominant_angle(out_walls)):
@@ -1679,8 +1823,8 @@ def _moved_entry(e: dict, moved: dict) -> dict:
 
 def gaps_and_openings_frame(walls: list[WallItem], strokes_m: list[Stroke], file_rel: str, page_no: int,
                             units_to_m: Optional[float] = None, dimension_ids=frozenset(), wall_strokes=(),
-                            outdoor_points=(), room_points=(), theta: Optional[float] = None, decisions=None
-                            ) -> tuple[list[WallItem], list[OpeningItem], list[dict], set[str]]:
+                            outdoor_points=(), room_points=(), theta: Optional[float] = None, decisions=None,
+                            linetypes=None) -> tuple[list[WallItem], list[OpeningItem], list[dict], set[str]]:
     """Merge wall runs, find and classify gaps, extend free-end walls that host a drawn door or window.
 
     ``strokes_m`` are the page's strokes in page metres **without** the wall primitives (hatch lines, fills).
@@ -1693,6 +1837,8 @@ def gaps_and_openings_frame(walls: list[WallItem], strokes_m: list[Stroke], file
     ``decisions`` (5 Nov 2026, Milestone 14 R3): the level's ``decisions.DecisionLog``; every classified gap and every
     gap open by its width becomes a record in it (the gaps under ``GAP_MIN_M`` are cracks, not candidates, and stay
     out); only the pass in the plan's dominant frame records (an angled pass's gaps are in its own frame).
+    ``linetypes`` (22 Nov 2026, UL363): ``{stroke id: DXF linetype}`` of the page (the strokes in metres carry none),
+    for ``passage_marks``'s dashed lintels.
     """
     leaf_log: list[dict] = []
     leaves = leaf_walls(walls, wall_strokes, strokes_m)
@@ -1959,10 +2105,29 @@ def gaps_and_openings_frame(walls: list[WallItem], strokes_m: list[Stroke], file
     openings: list[OpeningItem] = []
     log: list[dict] = []
     gap_pos: dict[int, int] = {}
+    texts = decisions.texts_aligned() if decisions is not None else None
+    wall_ids = frozenset(st.id for st in wall_strokes or ())
     for g in gaps:
         entry = _log_entry(g, theta, piece_out)
         if g.cls in ("door", "window") or (g.kind != "end" and g.cls in ("empty", "unclassified")):
-            openings.append(_opening(g, ctx, exterior))
+            item = _opening(g, ctx, exterior)
+            if item.kind == "opening" and g.cls in ("empty", "unclassified") and ctx.rest_index is not None \
+                    and not raster:
+                # 22 Nov 2026 (UL363): what is drawn in the doorless gap, for the open-passage rule
+                # (``twins.open_passages``); the frame's own pass only (it has the wall strokes and the texts)
+                verdict, why, ids = passage_marks(
+                    g, ctx.rest_index.query(g.rect(grow_face=PASSAGE_ALONG_REACH_M + BAND_SLACK_M,
+                                                   grow_along=PASSAGE_JAMB_M)), cap_pieces, texts, wall_ids,
+                    linetypes)
+                if verdict == "clear" and ((g.decision or {}).get("features") or {}).get("twin_door"):
+                    # the gap's mirror twin across the plan's mirror axis is a drawn door: the mirrored half's door
+                    # drawn once (synthetic-12), never an open passage
+                    verdict, why = "twin_door", "its mirror twin across the plan's mirror axis is a drawn door"
+                item.evidence["passage"] = verdict
+                item.evidence["passage_note"] = why
+                if ids:
+                    item.evidence["passage_marks"] = ids[:12]
+            openings.append(item)
             entry["opening"] = len(openings) - 1
         if g.cls == "closed" and g.found.get("note"):
             entry["note"] = g.found["note"]

@@ -121,6 +121,8 @@ class Opening:
     truth_type: Optional[str] = None      # the truth's "type" (default from kind)
     jamb_start: str = "closed"            # closed | stubs (two short stubs side by side) | cap (a frame cap)
     jamb_end: str = "closed"
+    # 22 Nov 2026 (UL363): attributes the truth asserts and the score matches ({"open_passage": True}: no wall over it)
+    truth_attrs: dict = field(default_factory=dict)
 
 
 @dataclass
@@ -725,6 +727,8 @@ def plan_truth(plan: Plan, lid: str) -> dict:
         kind = op.truth_type or {"door": "door", "sliding": "door", "garage": "door", "window": "window",
                                  "opening": "opening"}[op.kind]
         rec = {"id": "", "width": r6(op.width), "center": rp(c), "type": kind}
+        if op.truth_attrs:
+            rec["attrs"] = dict(op.truth_attrs)
         if op.kind in ("sliding", "garage"):
             rec["subtype"] = {"sliding": "sliding_door", "garage": "garage_door"}[op.kind]
         {"door": doors, "window": windows, "opening": openings}[kind].append(rec)

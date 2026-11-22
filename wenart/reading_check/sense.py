@@ -114,6 +114,8 @@ RULES = {
     # 22 Nov 2026 (the user's "build S2 and double-wall rule")
     "stair_edge_wall": "a thin wall along a flight's side with no room of its own behind the flight (its open side)",
     "double_leaf_walls": "a facade's two leaves read as two walls, or an empty gap outside a facade facing its opening",
+    # 22 Nov 2026 (the user's "build the open-passage rule", UL363)
+    "open_passage": "a doorless gap with nothing drawn in it left at door height: a wet room's only way in, or walled",
 }
 TRUST_PATH = Path(__file__).resolve().parent / "models" / "sense_trust.json"
 TRUST_MIN = 0.7                # a rule judged right on less than this share of its findings writes them as info
@@ -1369,7 +1371,8 @@ def wall_across_passage(building: dict) -> list:
                 if sy.get("level_id") == lid and sy.get("kind") == "door_arc" and (sy.get("footprint") or {})
                 .get("center")]
         for o, w, touched in opening_rooms(building, lid):
-            if o.get("virtual") or o.get("type") != "opening" or w is None or w.get("exterior"):
+            # 22 Nov 2026 (UL363): a gap the reading opened up to the ceiling is walled no more
+            if o.get("virtual") or o.get("type") != "opening" or w is None or w.get("exterior") or o.get("open_passage"):
                 continue
             width = float(o.get("width") or 0.0)
             if not (lo - EPS <= width <= hi + EPS) or len(touched) != 2:
@@ -2306,6 +2309,39 @@ def double_leaf_walls(building: dict) -> list:
     return out
 
 
+def open_passage(building: dict) -> list:
+    """Rule 21 (pure; 22 Nov 2026, the user's "build the open-passage rule", UL363, C0053, synthetic-34): a doorless gap
+    with nothing drawn in it (``twins.passage_clear``) that the reading leaves at door height: the only way into a WC
+    or a bathroom (minor: a door is needed for privacy and its leaf may be missing from the drawing; the open-passage
+    rule keeps the opening), or a gap the rule opens up to the ceiling that the reading walls over (major: the rule did
+    not run on it)."""
+    from wenart.ingest import twins as TW
+
+    walls = {w.get("id"): w for w in building.get("walls") or [] if isinstance(w, dict)}
+    openings = building.get("openings") or []
+    rooms = building.get("rooms") or []
+    out = []
+    for o in openings:
+        if o.get("type") != "opening" or o.get("virtual") or o.get("open_passage") or not TW.passage_clear(o):
+            continue
+        case = TW.passage_case(o, rooms, walls, openings)
+        width = float(o.get("width") or 0.0)
+        ids = [o.get("id"), o.get("wall_id")]
+        if case["wet_only"] is not None:
+            r = case["wet_only"]
+            out.append(_finding("open_passage", "minor", o.get("level_id"),
+                                f"{o.get('id')}, a {width:.2f} m gap with nothing drawn in it, is the only way into the "
+                                f"{r.get('room_type')} {r.get('id')} '{_label(r)}': kept as an opening at door height (a "
+                                f"door is needed for privacy; its leaf may be missing from the drawing)",
+                                o["center"][:2], ids + [r.get("id")], width_m=width))
+        elif case["open"]:
+            out.append(_finding("open_passage", "major", o.get("level_id"),
+                                f"{o.get('id')} {case['why']}, yet the reading builds a wall over it "
+                                f"({float(o.get('height') or 0.0):.2f} m high): an open passage up to the ceiling",
+                                o["center"][:2], ids + [r.get("id") for r in case["sides"] if r], width_m=width))
+    return out
+
+
 # --------------------------------------------------------------------------------------------------------- the run
 def run(building: dict, texts_by_level: Optional[dict] = None, trust: Optional[dict] = None,
         apply: bool = True) -> list:
@@ -2346,6 +2382,7 @@ def run(building: dict, texts_by_level: Optional[dict] = None, trust: Optional[d
     out += twin_notch(building) + slab_cover(building) + terrace_support(building) + door_to_air(building)  # R09-1
     out += wall_in_wall(building)                                                                        # R09-11
     out += stair_edge_wall(building) + double_leaf_walls(building)                                    # 22 Nov 2026
+    out += open_passage(building)                                                          # 22 Nov 2026 (UL363)
     return apply_trust(out, trust if trust is not None else load_trust()) if apply else out
 
 

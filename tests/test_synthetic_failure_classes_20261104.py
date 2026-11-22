@@ -116,6 +116,8 @@ EXPECTED_NAMES = [
     "synthetic-32-sliding-window-tag",
     # 22 Nov 2026: the double-wall rule (the user's C0086)
     "synthetic-33-double-wall",
+    # 22 Nov 2026: the open-passage rule (the user's C0053, UL363)
+    "synthetic-34-open-passage",
 ]
 
 

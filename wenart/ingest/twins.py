@@ -2666,14 +2666,123 @@ DRESSING_WORDS = ("GIYINME", "SOYUNMA", "DRESSING", "WALK-IN", "WALK IN", "GARDE
 PASSAGE_REACH_M = 0.35
 
 
-def open_passages(rooms: list[dict], openings: list[dict], levels: list[dict]) -> list[str]:
+# 22 Nov 2026 (the user's "build the open-passage rule"; C0053 on real07 L1; lesson UL363): UL327's general form. A
+# partition that ends short of the next wall or column with nothing drawn in the gap (``openings.passage_marks``:
+# ``passage: "clear"`` in the opening's evidence) leaves an open passage up to the ceiling, never a wall with a
+# door-high opening across it. Not in the outline (a facade gap with nothing drawn is a drawing or reading error), not
+# in a wall thicker than a partition (structure, a party wall: its gap has a head), not into a shaft, a technical room,
+# a garage or a balcony, not narrower than a way through, and not into a wet room (a door is needed for privacy: kept
+# at door height; the RC14 check ``open_passage`` names the gap that is a WC's or bathroom's only way in).
+OPEN_PASSAGE_MIN_M = 0.6       # a clear gap narrower than this is no way through (a slot): kept as read
+# a wall thicker than this is no partition (a 10-13.5 cm brick and its plaster: 0.10-0.20 m) but structure, a stair or
+# lift core, a party wall or a facade (0.25 m and more): its gap has a head (real21's 0.25 m stair-core walls, real18's
+# 0.25 m shelter wall: openings in real walls)
+OPEN_PASSAGE_WALL_MAX_M = 0.20
+OPEN_PASSAGE_PROBE_M = 0.25    # the rooms on either side are read this far past the wall's faces
+OPEN_PASSAGE_WET_TYPES = ("bathroom", "wc")
+OPEN_PASSAGE_CLOSED_TYPES = ("shaft", "technical", "garage", "balcony")
+OPEN_PASSAGE_CLOSED_WORDS = ("SIGINAK", "SHELTER", "SCHUTZRAUM", "ABRI")   # a shelter's way in has a blast door
+OPEN_PASSAGE_CONFIDENCE = 0.7  # = ``decisions.RULE_CONFIDENCE["open_passage"]`` (a test keeps them equal)
+
+
+def passage_clear(o: dict) -> bool:
+    """The openings reader found nothing drawn in the opening's gap (``openings.passage_marks``: ``clear``)."""
+    return any(isinstance(e, dict) and e.get("passage") == "clear" for e in o.get("evidence") or [])
+
+
+def passage_sides(o: dict, wall: Optional[dict], rooms: list) -> list:
+    """The rooms (or None) just beyond both faces of an opening's wall at its centre (``OPEN_PASSAGE_PROBE_M`` past the
+    faces; pure)."""
+    if wall is None or not o.get("center"):
+        return [None, None]
+    (x0, y0), (x1, y1) = wall["start"][:2], wall["end"][:2]
+    length = math.hypot(x1 - x0, y1 - y0)
+    if length <= 1e-9:
+        return [None, None]
+    nx, ny = -(y1 - y0) / length, (x1 - x0) / length
+    reach = float(wall.get("thickness") or 0.1) / 2.0 + OPEN_PASSAGE_PROBE_M
+    cx, cy = (float(v) for v in o["center"][:2])
+    out = []
+    for s in (1.0, -1.0):
+        q = Point(cx + s * nx * reach, cy + s * ny * reach)
+        out.append(next((r for r in rooms if r.get("level_id") == o.get("level_id")
+                         and len(r.get("polygon") or []) >= 3 and Polygon(r["polygon"]).contains(q)), None))
+    return out
+
+
+def ways_in(room: dict, openings: list, skip: Optional[str] = None) -> list:
+    """The doors and doorless openings (virtual separators too) on a room's outline, but ``skip`` (pure)."""
+    ring = Polygon(room["polygon"]).exterior
+    return [o for o in openings if o.get("level_id") == room.get("level_id") and o.get("id") != skip
+            and o.get("type") in ("door", "opening") and o.get("center")
+            and ring.distance(Point(o["center"][:2])) <= PASSAGE_REACH_M]
+
+
+def passage_case(o: dict, rooms: list, walls_by_id: dict, openings: list) -> dict:
+    """What the open-passage rule makes of a doorless opening (pure; UL363): ``{"open": bool, "why": str, "sides":
+    [room, room], "wet": the wet room it opens into or None, "wet_only": that room when the gap is its only way in}``.
+    ``open`` only for a gap with nothing drawn in it (``passage_clear``) in an inner partition between two rooms, none
+    of them wet or closed (``OPEN_PASSAGE_WET_TYPES``, ``OPEN_PASSAGE_CLOSED_TYPES``, ``OPEN_PASSAGE_CLOSED_WORDS``), at
+    least ``OPEN_PASSAGE_MIN_M`` wide."""
+    out = {"open": False, "why": "", "sides": [None, None], "wet": None, "wet_only": None}
+    if o.get("type") != "opening" or o.get("virtual") or not o.get("center") or not passage_clear(o):
+        out["why"] = "no doorless gap with nothing drawn in it"
+        return out
+    wall = walls_by_id.get(o.get("wall_id"))
+    if wall is None:
+        out["why"] = "on no wall"
+        return out
+    if wall.get("exterior") or wall.get("party_wall"):
+        out["why"] = "in the building's outline or a party wall (a gap with nothing drawn there is a drawing error)"
+        return out
+    if float(wall.get("thickness") or 0.0) > OPEN_PASSAGE_WALL_MAX_M + 1e-6:
+        out["why"] = (f"in a {float(wall['thickness']):.2f} m wall (thicker than a partition: structure or a party wall, "
+                      f"its gap has a head)")
+        return out
+    if float(o.get("width") or 0.0) < OPEN_PASSAGE_MIN_M - 1e-6:
+        out["why"] = f"{float(o.get('width') or 0.0):.2f} m wide: no way through"
+        return out
+    sides = passage_sides(o, wall, rooms)
+    out["sides"] = sides
+    if any(r is None for r in sides):
+        out["why"] = "not between two rooms (open air or no room beyond a face)"
+        return out
+    types = [str(r.get("room_type") or "") for r in sides]
+    wet = [r for r, t in zip(sides, types) if t in OPEN_PASSAGE_WET_TYPES]
+    if wet:
+        lone = next((r for r in wet if not ways_in(r, openings, skip=o.get("id"))), None)
+        out["wet"], out["wet_only"] = (lone or wet[0]), lone
+        out["why"] = (f"into the {out['wet'].get('room_type')} {out['wet'].get('id')}: a door is needed for privacy, "
+                      f"kept at door height" + (" (its only way in)" if lone is not None else ""))
+        return out
+    closed = [t for t in types if t in OPEN_PASSAGE_CLOSED_TYPES]
+    from wenart.sheets import titles as TI
+    closed += [w.lower() for r in sides for w in OPEN_PASSAGE_CLOSED_WORDS
+               if w in TI.fold(" ".join(str(r.get(k) or "") for k in ("label", "label_raw")))]
+    if closed:
+        out["why"] = f"into a {closed[0]} (a door or a closed wall there)"
+        return out
+    out["open"] = True
+    out["why"] = ((f"between {sides[0].get('id')} and {sides[1].get('id')}" if sides[0] is not sides[1] else
+                   f"inside {sides[0].get('id')}") + ": nothing drawn in the "
+                  f"{float(o.get('width') or 0.0):.2f} m gap (no wall line, leaf, swing, sill, jamb mark or lintel)")
+    return out
+
+
+def open_passages(rooms: list[dict], openings: list[dict], levels: list[dict],
+                  walls: Optional[list] = None) -> list[str]:
     """4 Nov 2026 (real07 L1, user: "there is no wall here and the section on the left of that none existing wall is
     giyinme soyunma, a place for dressing"; lesson UL327): a doorless opening between a dressing room and the room it
     belongs to is an open passage up to the ceiling (no wall over it): its height is the level's ceiling height.
-    Returns a note per passage."""
+
+    22 Nov 2026 (UL363, the general form; ``walls`` given): any doorless gap with nothing drawn in it in an inner
+    partition between two rooms is such a passage (``passage_case``); a wet room's gap stays at door height; a dressing
+    room's gap too needs ``OPEN_PASSAGE_MIN_M`` (a way through, not a slot). Returns a
+    note per passage and per wet room's gap kept."""
     from wenart.sheets import titles as TI
 
     ceil = {lv["id"]: float(lv.get("ceiling_height") or 2.7) for lv in levels or []}
+    walls_by_id = {w.get("id"): w for w in walls or [] if isinstance(w, dict)}
     notes = []
     for o in openings:
         if o.get("type") != "opening" or o.get("virtual") or not o.get("center"):
@@ -2683,12 +2792,29 @@ def open_passages(rooms: list[dict], openings: list[dict], levels: list[dict]) -
                 and Polygon(r["polygon"]).exterior.distance(c) <= PASSAGE_REACH_M]
         dress = [r for r in near if any(w in TI.fold(" ".join(str(r.get(k) or "") for k in ("label", "label_raw")))
                                         for w in DRESSING_WORDS)]
-        if not dress or len(near) < 2:
-            continue
         h = ceil.get(o.get("level_id"), 2.7)
+        # 22 Nov 2026 (UL363): a passage is a way through; a slot under ``OPEN_PASSAGE_MIN_M`` stays as read (real15
+        # L1's 0.25 m gap beside its dressing room was opened up to the ceiling before)
+        if dress and len(near) >= 2 and float(o.get("width") or 0.0) >= OPEN_PASSAGE_MIN_M - 1e-6:
+            o["height"] = round(h, 3)
+            o["open_passage"] = True
+            notes.append(f"{o.get('level_id')}: {o['id']} into the dressing room {dress[0]['id']}: an open passage up to "
+                         f"the ceiling ({h:.2f} m), no wall over it")
+            continue
+        if walls is None:
+            continue
+        case = passage_case(o, rooms, walls_by_id, openings)
+        if case["wet"] is not None:                 # nothing changes; never silent
+            notes.append(f"{o.get('level_id')}: {o['id']} {case['why']}")
+            continue
+        if not case["open"]:
+            continue
         o["height"] = round(h, 3)
         o["open_passage"] = True
-        notes.append(f"{o.get('level_id')}: {o['id']} into the dressing room {dress[0]['id']}: an open passage up to the "
-                     f"ceiling ({h:.2f} m), no wall over it")
+        o.setdefault("evidence", []).append({"file": "building.json", "method": "inferred",
+                                             "confidence": OPEN_PASSAGE_CONFIDENCE, "rule": "open_passage",
+                                             "text": f"UL363: {case['why']}: an open passage up to the ceiling"})
+        notes.append(f"{o.get('level_id')}: {o['id']} {case['why']}: an open passage up to the ceiling ({h:.2f} m), "
+                     f"no wall over it")
     return notes
 

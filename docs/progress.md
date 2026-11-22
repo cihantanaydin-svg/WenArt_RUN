@@ -4106,3 +4106,62 @@ stored baselines the pre-existing differences of HEAD (real03, real12, real15, r
 baselines: synthetic-28, synthetic-33. Tests: the touched modules' files 410 + 704 passed (22 xfailed; the
 test_plausibility timing test failed once while four readings ran beside it and passes alone), the new file 15 passed.
 Lessons UL361, UL362.
+
+## 22 Nov 2026, open-passage round (the user: "build the open-passage rule"; CPU only, no pod)
+
+One general reader rule (UL338), the general form of UL327, with its synthetic project in the gated set, an RC14
+machine check, a test (`tests/test_rules_open_passage_20261122.py`) and lesson UL363. Base 73e94a23.
+
+- **The rule (UL363).** A partition that ends short of the next wall or column with nothing drawn in the gap leaves an
+  open passage up to the ceiling, never a wall with a door-high opening across it. The openings reader now records
+  what is drawn in every doorless gap (`openings.passage_marks`, in the opening's evidence as `passage`): `clear` when
+  only floor hatch or tiles, the notation (axes, dimensions, texts) and lines that end beyond the wall band (a stair's
+  tread, a roof's dashed hip, a column's outline) are there; else `swing` (an arc), `jambs` (a frame cap, a jamb line,
+  an end cap or a door layer's stroke at a jamb), `lintel` (a dashed line or a PDF's dashes along the gap, or an arch,
+  lintel or beam word: KEMER, LENTO, KİRİŞ ...), `tag` (a size tag of the gap's own width), `lines` (a solid line along
+  it, a window, glass or sill stroke) or `twin_door` (its mirror twin is a drawn door). `twins.open_passages` (UL327's
+  one mechanism, now run on single drawings too) opens a `clear` gap up to the level's ceiling (`open_passage`, the
+  height, an `open_passage` evidence entry, a warning) when it lies in an inner partition (not exterior, no party wall,
+  at most 0.20 m thick) between two rooms, is at least 0.60 m wide and opens into no shaft, technical room, garage,
+  balcony, shelter (SIĞINAK) or wet room. A WC's or bathroom's gap stays at door height (a note); the dressing-room
+  passages of UL327 stay (a slot under 0.60 m beside one no longer: real15 L1's 0.25 m gap). Rule confidence 0.70
+  (`decisions.RULE_CONFIDENCE["open_passage"]`).
+- **C0053 (real07 L1) is this case and is satisfied.** On the drawing the span 9.75-11.98 m at y 5.69 holds only the
+  axis (AKS), the floor hatch (TARAMA, the same tiles run through), dimension lines, two stair tread numbers, a level
+  mark, the roof's dashed hip diagonals (ÇATI) and the column's hatch (KOLTAR) at its far end: the BANYO's corner ends
+  short of the column. o_L1_001 (2.23 m) is now an open passage 2.70 m high; real07 95.5 -> 100. The KEMER arches of
+  real07 L0 (o_L0_004, o_L0_008) keep their heads (`lintel`), the 90/210-tagged gaps theirs (`tag`).
+- **Check RC14 `open_passage`** (not calibrated, info only): a clear gap that is a WC's or bathroom's only way in (a
+  door is needed; its leaf may be missing from the drawing), or a clear gap the rule would open that the reading walls
+  over. It names real15 L0 o_L0_001 (kitchen | salon, 2.22 m): its wall was still marked exterior when the rule ran, so
+  the rule kept the opening (a known miss, conservative). `wall_across_passage` no longer fires on an opened passage.
+- **synthetic-34-open-passage** (gated set): the corridor's lower partition ends 2.33 m short of the next wall with only
+  floor hatch and a grid axis in the gap; beside it a 1.20 m gap under a dashed beam (KIRIS, DASHED), the BANYO's only
+  way in drawn empty and an empty facade gap. The truth asserts `open_passage` on the passage (the score's dense
+  matching now honours a truth entry's `attrs`, as the sparse one does; no other synthetic truth carries any). Read with
+  the HEAD code 97.6, now 100.
+- **Misfires found and fixed** (crops looked at): real21's stair-core openings (1.40 m in 0.25 m walls, five floors)
+  and real18's shelter (2.05 m, 0.25 m wall) and floor hall (1.50 m, 0.25 m wall), real11 L-1's 2.15 m gap in a 0.25 m
+  wall: the partition limit went from 0.25 to 0.20 m and shelters were added to the closed rooms; synthetic-12's
+  mirrored half's doors (drawn once) are `twin_door`; a dressing-room slot of 0.25 m (real15). A name collision
+  (`PASSAGE_MIN_M`, the fire-stair rule's 0.75 m) was caught by its test and renamed (`OPEN_PASSAGE_*`); no reading had
+  an opening it could decide.
+- **Where it fires on the real projects** (19 read, real08 left out): real03 L0-L12 the three 1.40 m corridor gaps in
+  0.10 m walls (39; the calibration judged them phantom walls across the corridor), real06 L1 o_L1_001 (2.0 m, the stair
+  hall open to the bedrooms' hall), real07 L1 o_L1_001 (C0053), real14 L7b/L7d (1.81 m between two shaft stacks on the
+  roof, inside one room), real15 L0 o_L0_005 (salon | entrance hall, 1.98 m) and o_L0_006 (kitchen | hall, 0.85 m, no
+  frame, no tag), real18 L3 o_L3_005 (2.40 m across the U stair's landing, a phantom wall). Counts change nowhere: the
+  rule only raises the gap's height and marks it (read with the HEAD code and the new code: real03, real06, real07,
+  real14, real15, real18 the same rooms, walls, doors, windows and openings per level).
+
+Gate: `score --gate` holds against 381016c0 (never --update): synthetic overall (gated) 97.2 -> 97.3 (the 31 projects
+unchanged, synthetic-34 new at 100); real07 95.5 -> 100 (C0053 satisfied), real06, real09, real17 100 and real10 99.2
+as before (C0089 still open), no project falls. Regress (19 real projects, real08 left out; the stored baselines date
+from 12 Nov): the 11 synthetic baselines hold; real01, 02, 04, 09, 11, 13, 14, 16, 17, 18, 20 hold; real03, 06, 07, 10,
+12, 15, 19 and 21 differ from their 12 Nov baselines as they did before this round (the HEAD code reads real03, 06, 07,
+14, 15 and 18 with the same counts as the new code; real09, 10 and 11 were read twice with the same counts; real12, 19
+and 21 have no open passage). New regression baseline: synthetic-34-open-passage. Tests: the touched modules' 45 files
+1553 passed, 24 xfailed, 2 failed: the fire-stair test caught the constant collision (fixed, then the nine closest files
+451 passed); `test_mirror_halves_20261105::...[real10]` compares the real10 truth with a stored fixture and fails
+with no code this round changed (its stored fixture predates the C0086 truth move). The new file 14 passed.
+Lesson UL363.

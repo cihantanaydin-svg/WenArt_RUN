@@ -395,6 +395,14 @@
    "small_sample": true,
    "by_status": {}
   },
+  "open_passage": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
   "well_type": {
    "findings": 0,
    "judged_right": 0,

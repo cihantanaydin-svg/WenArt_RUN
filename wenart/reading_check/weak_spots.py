@@ -211,14 +211,15 @@ def hunt(work: Path, kinds: Optional[list] = None) -> list:
         PL.run_project(pdir, rdir, no_ai=True)
         truth = json.loads((pdir / FC.TRUTH_FILE).read_text(encoding="utf-8"))
         b = json.loads((rdir / "building.json").read_text(encoding="utf-8"))
-        read = TR.extract(b, project=proj.name)
+        read = SC.reading_for(truth, b, proj.name)        # 22 Nov 2026: with the fields a truth's attrs assert
         res = SC.match(truth, read, b)
         faults = []
         for lid, tl in (truth.get("per_level") or {}).items():
             rl = (read.get("per_level") or {}).get(lid) or {}
             for t in TR.ELEMENT_TYPES:
                 tt, rr = TR.positives(tl.get(t) or []), rl.get(t) or []
-                m = SC.match_kind(t, tt, rr)
+                m = SC.match_attrs(t, tt, rr, b) if t not in ("rooms", "walls") and any(e.get("attrs") for e in tt) \
+                    else SC.match_kind(t, tt, rr)
                 mi, mj = {i for i, _ in m}, {j for _, j in m}
                 faults += [f"{lid} {t} missed: {_where(t, e)}" for i, e in enumerate(tt) if i not in mi]
                 faults += [f"{lid} {t} invented: {_where(t, e)}" for j, e in enumerate(rr) if j not in mj]

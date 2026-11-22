@@ -14,6 +14,11 @@ check RC14 `stair_edge_wall`, synthetic-28-stair-edge-run, `tests/test_rules_s2_
 double-wall rule (UL362, `ingest.generic.double_leaf`, check RC14 `double_leaf_walls`, synthetic-33-double-wall).
 C0053 is no S2 case after all (see S2 below); S1 stays open.
 
+**Update 22 Nov 2026 (the user: "build the open-passage rule"): the open-passage rule, C0053's case, is BUILT** (lesson
+UL363, UL327's general form: `openings.passage_marks` + `twins.open_passages`; check RC14 `open_passage`;
+synthetic-34-open-passage; `tests/test_rules_open_passage_20261122.py`; `docs/progress.md`, "22 Nov 2026,
+open-passage round"). C0053 is satisfied (real07 95.5 -> 100). See the note under S2 below.
+
 How they were found: records grouped by element kind and by what the user said ("no wall", "it is a window", "kitchen
 ... window", "not a real room"); records still unsatisfied on today's reading (`score`: real07 C0053, real10 C0035,
 C0086, C0089; C0085 and C0091 were fixed in this round, part 2, by the sash rule); the marks the user gave per AI-check kind; open
@@ -61,6 +66,14 @@ lessons with no check.
   gap into the wall run w_L1_023 with a 2.23 m opening 2.10 m high. It is UL327's general form ("where a drawn
   partition simply ends short of the next wall, with no door and no frame in the gap, the gap is an open passage from
   floor to ceiling"), built so far only for dressing rooms (`twins.open_passages`).
+- **The open-passage rule: BUILT 22 Nov 2026 (UL363, the user: "build the open-passage rule").** The openings reader
+  records what is drawn in every doorless gap (`openings.passage_marks`: `clear` when only floor hatch, tiles, the
+  notation and lines that end beyond the wall band are there; else swing, jambs, lintel, tag or lines); a clear gap in
+  an inner partition (not exterior, not a party wall, at most 0.20 m thick) between two rooms, at least 0.60 m wide and
+  not into a shaft, technical room, garage, balcony, shelter or wet room, becomes an open passage up to the ceiling
+  (`twins.open_passages`, the dressing-room case of UL327 kept); a wet room's gap stays at door height and its only
+  way in is an RC14 `open_passage` info finding. real07 L1's o_L1_001 (C0053) is open now; the KEMER arches of real07
+  L0 keep their heads.
 
 - **Rule.** Where the treads of a flight end on one face of a wall piece and nothing ends on its other face, the part
   of the piece along the flight (from the first to the last tread, within 0.35 m) is the stair's edge (stringer and

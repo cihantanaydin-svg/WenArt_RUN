@@ -4507,7 +4507,9 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
                                                            wall_strokes=[st for st in strokes_m
                                                                          if st.id in wall_strokes],
                                                            outdoor_points=outdoor_points, room_points=room_points,
-                                                           decisions=decisions)
+                                                           decisions=decisions,
+                                                           linetypes={st.id: st.linetype for st in page.strokes
+                                                                      if getattr(st, "linetype", None)})
     walls2, openings = _faces_through_gaps(ex, where, walls2, openings, strokes_m)
     openings = _door_blocks_in_gaps(ex, where, walls2, openings, strokes_m, owned, texts_m, file_rel, page_no, s)
     for e in gap_log:

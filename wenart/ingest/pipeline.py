@@ -2714,6 +2714,17 @@ def _face_lines_by_level(build: ProjectBuild, attr: str = "face_lines_m") -> dic
     return out
 
 
+def _open_passages(build: ProjectBuild) -> None:
+    """4 Nov 2026 (UL327: a dressing room's doorless gap); 22 Nov 2026 (UL363, the general form: a doorless gap with
+    nothing drawn in it in an inner partition): open passages up to the ceiling (``twins.open_passages``), for every
+    building, whatever its sheets (a single drawing never reached the multi-region steps); every one is a warning."""
+    from wenart.ingest import twins as TW
+
+    b = build.building
+    for line in TW.open_passages(b["rooms"], b["openings"], b["levels"], b["walls"]):
+        build.warn(f"open passage: {line}")
+
+
 def _lift_rules(build: ProjectBuild) -> None:
     """The lift shafts' rules (13 Nov 2026, building-sense review S1-03b: real03's single drawing never reached the
     multi-region steps, so its twin lifts and their landing doors were never read): the drawn lift cars, the landing
@@ -2807,8 +2818,7 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
         build.warn(f"garage door: {line}")
     for line in TW.chamfer_frames(b["rooms"], b["openings"], b["walls"]):   # 4 Nov 2026 (UL328)
         build.warn(f"chamfer frame: {line}")
-    for line in TW.open_passages(b["rooms"], b["openings"], b["levels"]):    # 4 Nov 2026 (UL327)
-        build.warn(f"open passage: {line}")
+    _open_passages(build)                    # 4 Nov 2026 (UL327); 22 Nov 2026 (UL363, the general form)
     for second, info in TW.twin_transforms(b["rooms"], b["openings"], b["furniture"]).items():
         room = next(r for r in b["rooms"] if r["id"] == second)
         room["twin_of"], room["twin_transform"], room["twin_residual_m"] = (info["twin_of"], info["transform"],
@@ -3357,6 +3367,7 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
         _building_m10(build, project_dir)
     else:
         _lift_rules(build)           # 13 Nov 2026 (S1-03b): a single drawing's lifts too
+        _open_passages(build)        # 22 Nov 2026 (UL363): a single drawing's open passages too
     # Milestone 12 (docs/milestone12.md §3, §4.1, contract §13.2): the level marks (track L), then the furniture
     # reading (track R), before the type inference.
     from wenart.ingest.generic import levels as LV, reading as RD, twin_walls as TW

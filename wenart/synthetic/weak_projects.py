@@ -22,6 +22,9 @@ corrections and the reading checks, each as a share), built on the failure-class
 - ``synthetic-33-double-wall`` (the user's C0086 on real10): a facade drawn as two leaves (0.20 m, a 0.04 m cavity,
   0.10 m) with a sliding window in the inner leaf's gap, a door through both, and a shaft wall 0.15 m inside it. Truth:
   one wall of the total thickness, one window, one door, the shaft wall kept.
+- ``synthetic-34-open-passage`` (UL363, the user's C0053 on real07): the corridor's lower partition ends 2.3 m short of
+  the next wall with nothing in the gap but floor hatch and a grid axis, beside a doorless gap under a dashed beam, the
+  bathroom's only way in drawn empty, and an empty facade gap. Truth: an open passage up to the ceiling there only.
 """
 from __future__ import annotations
 
@@ -320,6 +323,57 @@ def project_33() -> FailureProject:
                           extra_truth={"weak_kind": "opening_invented", "records": ["C0086"]})
 
 
+def _hatch(x0: float, y0: float, x1: float, y1: float, pitch: float = 0.25) -> list:
+    """Floor hatch: 45-degree lines ``pitch`` apart on TARAMA, clipped to the box (the drafter's tile hatch)."""
+    from shapely.geometry import LineString, box
+
+    clip, out, k = box(x0, y0, x1, y1), [], 0
+    while True:
+        c = x0 - (y1 - y0) + k * pitch          # the line y - y0 = x - c
+        if c > x1:
+            return out
+        seg = LineString([(c, y0), (c + (y1 - y0) + (x1 - x0), y1 + (x1 - x0))]).intersection(clip)
+        if seg.length > 0.05:
+            (a, b) = list(seg.coords)[0], list(seg.coords)[-1]
+            out.append(Prim("line", "TARAMA", [(r6(a[0]), r6(a[1])), (r6(b[0]), r6(b[1]))]))
+        k += 1
+
+
+def project_34() -> FailureProject:
+    """synthetic-34-open-passage (22 Nov 2026, the user's "build the open-passage rule"; C0053 on real07 L1, UL363): the
+    base flat whose SALON opens to the HOL where the corridor's lower partition ends 2.325 m short of the SALON |
+    YATAK ODASI wall (nothing in the gap but the floor hatch on TARAMA and the grid axis B on AKS). Beside it the
+    cases that keep their opening: the MUTFAK's 1.20 m doorless gap with a dashed beam (KIRIS, DASHED) along both
+    faces, the BANYO's only way in drawn as an empty 0.80 m gap (a door is needed: RC14 open_passage, info), and an
+    empty 0.80 m gap in the MUTFAK's outer wall (an outline gap: closed as before, the reader's possible undrawn
+    window). Truth: the passage an opening with no wall over it (``attrs: open_passage``), the beam's gap and the
+    BANYO's openings with a head, the facade gap the window the reader closes the outline with; none of the three an
+    open passage."""
+    plan = base_house()
+    plan.openings = [op for op in plan.openings if op.id not in ("d_salon", "d_mutfak", "d_banyo")]
+    x_end = 7.0 - FC.INT_T / 2                  # the face of i3 (SALON | YATAK ODASI)
+    x0 = 4.6                                     # the corridor's lower partition ends here, short of i3
+    plan.openings += [
+        FC.Opening("p_salon", "opening", "i1", r6((x0 + x_end) / 2), r6(x_end - x0), draw_symbol=False,
+                   truth_attrs={"open_passage": True}),
+        FC.Opening("g_beam", "opening", "i2", 2.0, 1.2, draw_symbol=False, truth_attrs={"open_passage": False}),
+        FC.Opening("g_banyo", "opening", "i2", 5.2, 0.8, draw_symbol=False, truth_attrs={"open_passage": False}),
+        FC.Opening("g_facade", "opening", "e4", 1.6, 0.8, draw_symbol=False, truth_type="window",   # e4: s = 9 - y
+                   truth_attrs={"open_passage": False}),
+    ]
+    h = FC.INT_T / 2
+    plan.prims += [Prim("line", "KIRIS", [(1.4, r6(5.8 - h)), (2.6, r6(5.8 - h))], linetype="DASHED"),
+                   Prim("line", "KIRIS", [(1.4, r6(5.8 + h)), (2.6, r6(5.8 + h))], linetype="DASHED")]
+    plan.prims += _hatch(x0 + 0.1, 3.9, x_end - 0.1, 4.9)
+    plan.prims += FC.axis_grid([], [4.4], (-2.0, -2.0, 14.0, 11.0), [], ["B"])
+    return FailureProject("synthetic-34-open-passage", "open_passage", "UL363",
+                          "a partition ending short of the next wall with nothing in the gap but hatch and an axis (an "
+                          "open passage up to the ceiling), beside a gap under a dashed beam, a bathroom's empty way in "
+                          "and an empty facade gap (none of them an open passage)", [plan], [GROUND], BRIEF,
+                          extra_truth={"weak_kind": "wall_invented", "records": ["C0053"]})
+
+
 PROJECTS = (("opening_type", project_24), ("wall_invented", project_25), ("door_invented", project_26),
             ("stair_edge_run", project_28), ("upper_floor_door", project_29), ("fire_stair", project_30),
-            ("layer_names", project_31), ("sliding_window_tag", project_32), ("double_wall", project_33))
+            ("layer_names", project_31), ("sliding_window_tag", project_32), ("double_wall", project_33),
+            ("open_passage", project_34))
