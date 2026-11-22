@@ -4165,3 +4165,87 @@ and 21 have no open passage). New regression baseline: synthetic-34-open-passage
 451 passed); `test_mirror_halves_20261105::...[real10]` compares the real10 truth with a stored fixture and fails
 with no code this round changed (its stored fixture predates the C0086 truth move). The new file 14 passed.
 Lesson UL363.
+
+## 22 Nov 2026, C0089 round (the user: "yes start C0089"; CPU only, no pod)
+
+One general reader rule (UL338) for the user's last open correction, C0089 (real10 L-1 at (11.19, 16.595): "it is not a
+real room and there is no doors to outside"), aimed at the general class `door_invented` (the third weak spot of the
+self-improvement ranking) as the user asked ("do not only focus on the projects I gave"), with its synthetic project in
+the gated set, an RC14 machine check, a test (`tests/test_rules_c0089_20261122.py`) and lesson UL365 (the id may be
+renumbered at merge). Base e7a2e5b4.
+
+- **The real cause (drawing looked at).** The "room" is the light slot between two flats (1.72 x 3.73 m): on the normal
+  floors the same strip is an open facade recess (the outline steps in, 5.4 m deep), the two bathrooms' 50/50 windows
+  open onto it on every floor. On L-1 its sides are real walls (the 0.25 m shear walls on kolon / DUVAR with their SIVA
+  faces), its facade end is closed by a grille on the furniture layer TEFRİŞ: 32 equal bars 0.64 m long, in pairs 2 cm
+  apart at a 0.10 m pitch, standing from the facade's outer face 0.37 m into the slot, inside a SIVA box. The open-leaf
+  rule (doors drawn open at 90 degrees with no swing arc) took two bar pairs 1.30 m apart for a 1.80 m double
+  door's leaves (d_L-1_006, `door_open_leaf`), and the face typing then made the slot a hall ('Oda', touched by that
+  door and the bathroom wall's opening). The earlier hypothesis holds for the door (grille lines read as leaves), not for
+  the room: its outline is no line of furniture or landscape but real walls, so no "room of non-wall lines" rule is
+  needed. The same grille was the "7-riser stair" RC16 step b already turned down (`symbols._grille`).
+- **The rule (UL365).** `openings._grille_bars`: a gap across which a grille stands (at least five equal bars, both ends
+  level within 3 cm, each within 0.20 m of the next, finer than any stair's going, spanning 60 % of the gap, crossing
+  half the wall's band and standing out of it by 0.10 m on one side only, none of the set within 0.5 m beyond the jambs,
+  at most 1.5 m long, not on a wall, plaster, structure, hatch, finish, stair, section, site or notation layer) is a fixed
+  grille: a window (`window_grille`, confidence 0.80, operation fixed, the bars in its note), checked after the swing
+  arc and the named door, before the open leaves. `openings.blocked_passage`: a doorway's passage is clear: leaves
+  opened at 90 degrees with two or more bars of their own length (both ends within 3 cm) standing between them are bars
+  of a grille, slats, treads or a window's lines, no door (`Gap.blocked`, written to the gap's log entry, its decision
+  record and the opening's evidence `leaves_blocked`; the ranker may then not type the gap a door,
+  `ranker.allowed_answers`). With the door gone the existing light-well rule would type the slot (a doorless face other
+  rooms' windows open onto); on real10 the bathroom wall's two 50/50 windows are read as one 1.52 m unclassified
+  opening (a separate window reading fault), so the slot stays an unlabelled 'Oda' of type unknown. In synthetic-35 it
+  is the light well.
+- **C0089 is satisfied**: d_L-1_006 is win_L-1_003, a 1.80 m fixed grille; real10 99.2 -> 100. Every user correction
+  the score holds is now satisfied (real06, 07, 09, 10, 17 at 100).
+- **Check RC14 `unnamed_exit`** (not calibrated, info): an outer door that nothing in the drawing names a door (no swing
+  arc among its strokes, no door block, no door-high size tag) and that is the only door of a face no label names. It
+  names d_L-1_006 on the HEAD reading of real10 and nothing on the new one; on the 19 real projects nothing else; on the
+  bench one place, swiss-b2383 L0 o_L0_011, a 2.90 m door the wide-gap rule inferred into a 1.9 m2 face, which the
+  bench's truth counts as an invented door and an invented room (a true finding; the reader rule does not reach it). A
+  first version also named swiss-b1479's door typed by its '105/210' tag: a door-high tag now counts as drawn.
+- **synthetic-35-grille-slot** (gated set): a 1.8 m light slot between two bedrooms closed at the facade by real10's
+  grille (16 flat bars 0.64 m long on TEFRIS), the bedrooms' windows onto its sides; beside it the cases that keep their
+  kind: the entrance drawn open at 90 degrees with no arc above a step on MERDIVEN, a French window to a BALKON (a swing
+  arc, a balustrade's bars drawn across the band on KORKULUK), the kitchen's 1.20 m doorless way in crossed by floor
+  boards on ZEMIN running from the HOL into the kitchen. HEAD reads the grille as a 1.80 m double door and the slot as an
+  'Oda' (98.2); now 100 (the grille a fixed window, the slot 'Işıklık' a light well, the others as drawn).
+- **Must-not-fire cases** (tests, pure): balcony and terrace doors with a swing over balustrade bars (the swing comes
+  first), French windows over a railing, basement doors onto a light well or an outside stair and doors with a step or
+  stair drawn on another layer (treads along the wall, a flight along the facade, a step's outline), a garage door on a
+  ramp (grooves, ramp sides, arrows), real unlabelled rooms bounded by walls (a closet stays storage), a wall's hatch from
+  face to face, a floor drawn on through a doorway (both sides), a floor pattern running on past the jambs, a stair's
+  treads at 0.28 m, tiles on a finish layer.
+- **The general class (door_invented), measured.** Where the two tests fire (every reading traced with both helpers wrapped): on the 19 real
+  projects only real10 L-1 (C0089's grille) and real18 (one open-leaf candidate of a door turned down while another
+  candidate of the same door was taken: real18 read with both codes has the same walls, openings and door attributes);
+  on the 33 synthetic projects only synthetic-35; on the bench's 107 projects only swiss-b1747, where the clear-passage
+  test turned down a 'door' read in a 0.54 m end gap from the lines of the 65/150 window round the corner: the end gap
+  no longer carries the wall on across, its own 40/140 window and the stair behind it are read (65.63 -> 73.13; five
+  invented walls fewer, three balcony parapet walls lost). Invented doors removed: real10 d_L-1_006 (C0089),
+  synthetic-35's double door and swiss-b1747's end-gap door (it made no door element, only its wall); real doors removed:
+  none (the bench reads 3438 doors and matches 2857 before and after; no other real or synthetic opening changes). The
+  rest of the class is other mechanisms the rule does not reach: in the bench projects looked at (b1074, b1118, b1128,
+  b1167) the invented doors are swing-arc doors the truth places elsewhere and doors the reader infers (a lift's
+  sliding door; a wide gap's 2.90 m door in swiss-b2383, which RC14 unnamed_exit names); the AI checks' known doors
+  into the air (real09 L1-L3) and RC17/RC14 door_to_air are upper-floor doors with a drawn swing or tag (S3's domain)
+  and are unchanged.
+
+Gate: `score --gate` holds against 381016c0 (never --update): synthetic overall (gated) 97.3 -> 97.4 (97.32 -> 97.37) on 33 projects
+(synthetic-35 new at 100; HEAD reads it 98.2, the other 32 read alike); real10 99.2 -> 100
+(C0089 satisfied), real06, real07, real09, real17 100 as before; no project falls. Regress (19 real projects, real08
+left out; the stored baselines date from 12 Nov): the 12 synthetic baselines hold (synthetic-35's written);
+real01, 02, 04, 09, 11, 13, 14, 16, 17, 18, 20 hold; real03, 06, 07, 10, 12, 15, 19 and 21 differ from their 12 Nov
+baselines as before this round. Against the HEAD code only real10 changes: L-1 doors 28 -> 27, windows 16 -> 17 (the
+grille; crops of the gap, the slot and the normal floor's recess looked at); the traces show nothing else changes. New regression baseline: synthetic-35-grille-slot. Bench
+(107 Swiss Dwellings projects in a Turkish drafting style, `/home/user/bench_data`, baseline e7a2e5b4 read by the
+coordinator): one project reads differently, swiss-b1747
+(65.63 -> 73.13, above); mean total 73.54 -> 73.61; doors recall 0.792, precision 0.831, F1 0.811 unchanged (read
+3438, matched 2857), door invented 123 -> 123; windows matched 2034 -> 2035, stairs 29 -> 30, walls invented 1452 ->
+1449, parapet walls missed 171 -> 174; swiss-b2440 fails to read in both (not this rule); no project falls. Report
+`/home/user/bench_data/bench_c0089.md`. Tests: the new file 13 passed; the touched modules' 13 files 316 passed, 1 skipped, 1
+xfailed; `test_mirror_halves_20261105` 16 passed (its real10 fixture holds: the truth stands on places); the failure-
+class set 277 passed, 22 xfailed, 1 failed on the first truth label of synthetic-35 (IŞIKLIK gives room type other,
+the reader's light well is a shaft: the truth now says HAVA BOŞLUĞU, a shaft; the drawing is unchanged), then
+passed. Lesson UL365.

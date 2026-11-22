@@ -1,0 +1,50 @@
+{
+ "project": "synthetic-35-grille-slot",
+ "status": "ok",
+ "heights": {
+  "L0": {
+   "elevation": 0.0,
+   "source": null
+  }
+ },
+ "datum": null,
+ "slabs": {
+  "sl_L0": 0.0
+ },
+ "entrances": {
+  "d_L0_004": "steps"
+ },
+ "levels": [
+  "L0"
+ ],
+ "levels_left_out": [],
+ "low_confidence": {},
+ "per_level": {
+  "L0": {
+   "rooms": 8,
+   "walls": 14,
+   "doors": 6,
+   "windows": 11,
+   "openings": 1,
+   "room_area": 94.2
+  }
+ },
+ "check": {
+  "verdict": "ready",
+  "counts": {
+   "critical": 0,
+   "major": 1,
+   "minor": 0,
+   "advisory": {
+    "major": 0,
+    "minor": 0,
+    "info": 1
+   },
+   "regulations": {
+    "minor": 0,
+    "info": 0
+   }
+  },
+  "stacking": {}
+ }
+}

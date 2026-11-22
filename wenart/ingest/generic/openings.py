@@ -53,7 +53,12 @@ wall, and its two bedroom doors share one run gap that the end of the wall betwe
   loose or in a window block, none on a door layer or in a door block, are a sliding window's sashes
   (``sliding_sashes``; operation sliding), unless a door-high tag, a door word or a balcony label beside them says door
   (``sliding_door_by_text``). An arc on a sanitary or finish layer (a corner shower's curved front) is never a door
-  swing (``swing_layer_ok``; synthetic-26-corner-shower).
+  swing (``swing_layer_ok``; synthetic-26-corner-shower). 22 Nov 2026 (UL365, the user's C0089 on real10 L-1, "there is
+  no doors to outside"): a grille across a gap (``_grille_bars``: equal bars at a pitch finer than any stair's going,
+  filling it, standing out of the wall on one side only) is a fixed grille (a window, operation fixed), checked after
+  the swing and the named door, before the open leaves; leaves opened at 90 degrees need a clear passage
+  (``blocked_passage``: bars of their own length between them make them bars of a grille, slats or treads, no door;
+  ``Gap.blocked``, and the ranker may then not type the gap a door).
 - Walls drawn as face lines (real02) put two walls of one axis line far apart with perpendicular walls crossing the
   gap between them (the bedroom walls of a semi-detached pair, a corridor and a bathroom between them): a run gap
   that perpendicular walls running through the band split is one wall with openings only when every part holds a
@@ -530,6 +535,9 @@ class Gap:
     rule_cls: str = ""
     run_len: float = 0.0
     decision: Optional[dict] = None
+    # 22 Nov 2026 (UL365): leaves opened at 90 degrees that fitted the gap but stood in a run of bars of their own
+    # length (a grille, slats, treads): the number of bars between them (``blocked_passage``), for the record
+    blocked: Optional[int] = None
 
     @property
     def width(self) -> float:
@@ -693,9 +701,12 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set, log=None) -> Non
 
     features = gap_features(g, index, owned_global, log)
     rule, confidence = gap_rule(g, features, raster=bool(getattr(log, "raster", False)))
-    log.add_gap(g, {"kind": DEC.KIND_GAP, "id": None, "gap": g.kind, "features": features, "rule": rule,
-                    "rule_answer": DEC._answer_of_class(g.cls), "rule_confidence": confidence,
-                    "final_answer": None, "decided_by": DEC.DECIDED_RULE})
+    rec = {"kind": DEC.KIND_GAP, "id": None, "gap": g.kind, "features": features, "rule": rule,
+           "rule_answer": DEC._answer_of_class(g.cls), "rule_confidence": confidence,
+           "final_answer": None, "decided_by": DEC.DECIDED_RULE}
+    if g.blocked and g.cls != "door":
+        rec["leaves_blocked"] = g.blocked          # 22 Nov 2026 (UL365): an end gap makes no item; the record keeps it
+    log.add_gap(g, rec)
     # the ranker decides later, once every gap is classified and the walls are merged (``gaps_and_openings``: the
     # exterior test and the mirror twin's answer are features it needs)
 
@@ -808,6 +819,8 @@ def gap_rule(g: Gap, features: dict, raster: bool = False) -> tuple[str, float]:
     elif cls == "window":
         if found.get("by_name"):
             rule = "window_named"
+        elif found.get("grille"):
+            rule = "window_grille"
         elif found.get("sliding_window"):
             rule = "window_sliding_sashes"
         elif raster:
@@ -839,6 +852,8 @@ def _apply_ranker(g: Gap, rec: dict) -> None:
     from wenart.reading_check import ranker as RK
 
     f = rec["features"]
+    if g.blocked:
+        rec["leaves_blocked"] = g.blocked             # 22 Nov 2026 (UL365): leaves turned down by the clear passage
     allowed = RK.allowed_answers(rec)                 # the hard constraints, in one place (ranker.allowed_answers)
     model = RK.load_model(rec["kind"])
     answer, by, margin, scores = RK.decide(rec["kind"], f, rec["rule_answer"], rec["rule_confidence"],
@@ -943,6 +958,14 @@ def _classify_gap_rules(g: Gap, index: StrokeIndex, owned_global: set) -> None:
         g.cls = "door"
         g.found = {"arcs": [], "arc": [], "hinges": [], "leaves": leaves, "leaf": True, "swing": 0.0,
                    "radius": None, "double": False, "sliding": True, "by_name": op}
+        return
+    # 22 Nov 2026 (UL365; the user's C0089 on real10 L-1, "it is not a real room and there is no doors to outside"): a
+    # grille across the gap (equal bars at a pitch finer than any stair's going, filling it) is a fixed grille, never
+    # a door: before the open leaves, two of whose bars were read as a double door's leaves
+    grille = _grille_bars(g, index, owned_global)
+    if grille is not None:
+        g.cls = "window"
+        g.found = {"lines": grille["bars"], "glass": [], "grille": {k: v for k, v in grille.items() if k != "bars"}}
         return
     # real10 (1 Nov 2026): a door drawn open at 90 degrees without a swing arc (the building entrance's two leaves,
     # the flats' doors): one leaf standing at a gap end as long as the gap, or two at both ends each half of it.
@@ -1438,7 +1461,7 @@ def _open_leaves(g: Gap, zone: list) -> Optional[tuple[list, list, float, bool]]
         end = next((e for e in (g.a, g.b) if abs(x - e) <= LEAF_START_M + LEAF_WIDTH_M + DOOR_FRAME_M), None)
         if end is None:
             continue
-        rows.append((end, abs(far - near), 1.0 if far > 0 else -1.0, items, x))
+        rows.append((end, abs(far - near), 1.0 if far > 0 else -1.0, items, x, min(near, far), max(near, far)))
 
     def fits(length: float, r: float, frames: bool) -> bool:
         # As for a swing arc, the frames may take up to ``DOOR_FRAME_M`` of a single leaf's gap (real10's "85/230"
@@ -1449,9 +1472,19 @@ def _open_leaves(g: Gap, zone: list) -> Optional[tuple[list, list, float, bool]]
     def inset(row) -> float:
         return max(0.0, abs(row[4] - row[0]) - LEAF_START_M - LEAF_WIDTH_M)
 
-    single = [r for r in rows if fits(r[1], g.width - inset(r), True)]
+    def clear(rows_: list, lo: float, hi: float) -> bool:
+        # 22 Nov 2026 (UL365, C0089): a doorway's passage is clear; bars of the leaves' own length standing between
+        # them (a grille, slats, a run of treads) make the 'leaves' two bars of that run, no door
+        own = {id(it) for r in rows_ for it in r[3]}
+        n = blocked_passage(g, zone, lo, hi, min(r[5] for r in rows_), max(r[6] for r in rows_), own)
+        if n is not None:
+            g.blocked = max(g.blocked or 0, n)
+        return n is None
+
+    single = [r for r in rows if fits(r[1], g.width - inset(r), True)
+              and clear([r], *sorted((r[4], g.b if r[0] == g.a else g.a)))]
     if single:
-        end, _, side, items, _ = min(single, key=lambda r: abs(r[1] - (g.width - inset(r))))
+        end, _, side, items, *_ = min(single, key=lambda r: abs(r[1] - (g.width - inset(r))))
         return items, [g.point(end)], side, False
     halves = {}
     for r in rows:
@@ -1460,9 +1493,97 @@ def _open_leaves(g: Gap, zone: list) -> Optional[tuple[list, list, float, bool]]
         for ra in halves.get((g.a, side), []):
             for rb in halves.get((g.b, side), []):
                 half = abs(rb[4] - ra[4]) / 2.0          # the opening between the two hinges, a leaf each
-                if fits(ra[1], half, False) and fits(rb[1], half, False):
+                if fits(ra[1], half, False) and fits(rb[1], half, False) and clear([ra, rb], ra[4], rb[4]):
                     return ra[3] + rb[3], [g.point(g.a), g.point(g.b)], side, True
     return None
+
+
+PASSAGE_BARS_MIN = 2           # 22 Nov 2026 (UL365): this many bars of a leaf's length between the leaves block the way
+BAR_END_M = 0.03               # ... a bar is of the leaf's (or the grille's) length when both its ends lie this close
+GRILLE_BARS_MIN = 5            # a grille: at least this many equal bars across the gap ...
+GRILLE_PITCH_MAX_M = 0.20      # ... none farther than this from the next (finer than any stair's going, >= 0.22 m) ...
+GRILLE_COVER = 0.6             # ... spanning at least this share of the gap ...
+GRILLE_OUT_M = 0.10            # ... standing out of the band by this on one side (face to face: a hatch, a jamb) ...
+GRILLE_BAR_MAX_M = 1.5         # ... none longer than this (a floor pattern runs on) ...
+GRILLE_FACE_M = 0.02           # ... the other end at a face or inside the band (a floor drawn on through a doorway
+                               # runs out beyond both faces) ...
+GRILLE_REACH_M = 0.5           # ... and none of the set within this beyond the gap's ends (it stops at its jambs)
+GRILLE_SKIP_ROLES = frozenset(("wall", "plaster", "structure", "hatch", "finish", "dimension", "axis", "text",
+                               "section", "stair", "site"))
+
+
+def _cross_bars(g: Gap, items, skip_roles=frozenset()) -> list[tuple[float, float, float, "_S"]]:
+    """Straight strokes standing across the gap's wall (parallel to its across direction), as ``(lo, hi, along, item)``
+    with ``lo``/``hi`` their across extent from the wall's centre line (pure)."""
+    from wenart.ingest.generic import layer_names as LN
+
+    out = []
+    for it in items:
+        if len(it.pts) != 2 or it.st.arc is not None:
+            continue
+        p0, p1 = it.pts
+        run, cross = abs(g.across(p1) - g.across(p0)), abs(g.along(p1) - g.along(p0))
+        if run <= 0 or cross > 1e-3 * run:
+            continue
+        if skip_roles and LN.layer_roles(it.st.layer) & skip_roles:
+            continue
+        lo, hi = sorted((g.across(p0), g.across(p1)))
+        out.append((lo, hi, (g.along(p0) + g.along(p1)) / 2.0, it))
+    return out
+
+
+def blocked_passage(g: Gap, zone: list, lo: float, hi: float, near: float, far: float,
+                    own=frozenset()) -> Optional[int]:
+    """22 Nov 2026 (UL365; the user's C0089, real10 L-1: two bars of a 32-bar grille read as a double door's leaves):
+    the number of distinct bars standing across the wall between ``lo`` and ``hi`` along it (more than a leaf's width
+    from both) whose ends both lie within ``BAR_END_M`` of the leaves' across extent ``near``..``far``, when there are
+    at least ``PASSAGE_BARS_MIN``: the way between the leaves is blocked by a run of the leaves' kind (a grille, slats,
+    treads); None when it is clear (pure)."""
+    xs = sorted({round(x, 3) for b0, b1, x, it in _cross_bars(g, zone) if id(it) not in own
+                 and abs(b0 - near) <= BAR_END_M and abs(b1 - far) <= BAR_END_M
+                 and lo + LEAF_WIDTH_M < x < hi - LEAF_WIDTH_M})
+    n = len([x for k, x in enumerate(xs) if k == 0 or x - xs[k - 1] > 0.005])
+    return n if n >= PASSAGE_BARS_MIN else None
+
+
+def _grille_bars(g: Gap, index: "StrokeIndex", owned_global: set) -> Optional[dict]:
+    """22 Nov 2026 (UL365; the user's C0089 on real10 L-1: a light slot's grille on the furniture layer TEFRİŞ, 32
+    bars 0.64 m long in pairs 2 cm apart at a 0.10 m pitch, across the facade gap, was read as a double door): a gap
+    across which a grille stands is a fixed grille, never a door or a doorless opening. A grille is a set of at least
+    ``GRILLE_BARS_MIN`` equal bars (straight strokes across the wall, both ends level within ``BAR_END_M``, at most
+    ``GRILLE_BAR_MAX_M`` long, not on a wall, hatch, finish, stair or notation layer) crossing at least half of the
+    wall's band and standing out of it by ``GRILLE_OUT_M`` on one side only (the other end at a face or inside the band,
+    ``GRILLE_FACE_M``: a floor drawn on through a doorway runs out on both sides), each within ``GRILLE_PITCH_MAX_M`` of
+    the next, spanning ``GRILLE_COVER`` of the gap, none of the set within ``GRILLE_REACH_M`` beyond its ends.
+    ``{bars, count, spacing (the mean), length, layers}`` or None (pure)."""
+    h = g.t / 2.0
+    items = [it for it in index.query(g.rect(grow_face=ZONE_M, grow_along=GRILLE_REACH_M))
+             if it.st.id not in owned_global]
+    bars = [b for b in _cross_bars(g, items, GRILLE_SKIP_ROLES)
+            if b[1] - b[0] <= GRILLE_BAR_MAX_M and min(b[1], h) - max(b[0], -h) >= 0.5 * g.t
+            and (b[0] <= -h - GRILLE_OUT_M or b[1] >= h + GRILLE_OUT_M)
+            and (b[0] >= -h - GRILLE_FACE_M or b[1] <= h + GRILLE_FACE_M)]
+    best = None
+    seen: set = set()
+    for b0, b1, _x, it in sorted(bars, key=lambda b: (b[0], b[1])):
+        if id(it) in seen:
+            continue
+        group = [b for b in bars if abs(b[0] - b0) <= BAR_END_M and abs(b[1] - b1) <= BAR_END_M]
+        seen.update(id(b[3]) for b in group)
+        if any(b[2] < g.a - LEAF_WIDTH_M or b[2] > g.b + LEAF_WIDTH_M for b in group):
+            continue                                    # the set runs on past the gap: a floor pattern, not its grille
+        xs = sorted(b[2] for b in group)
+        xs = [x for k, x in enumerate(xs) if k == 0 or x - xs[k - 1] > 0.005]
+        if len(xs) < GRILLE_BARS_MIN or xs[-1] - xs[0] < GRILLE_COVER * g.width:
+            continue
+        steps = [q - p for p, q in zip(xs, xs[1:])]
+        if max(steps) > GRILLE_PITCH_MAX_M:
+            continue
+        if best is None or len(xs) > best["count"]:
+            best = {"bars": [b[3] for b in group], "count": len(xs),
+                    "spacing": round((xs[-1] - xs[0]) / (len(xs) - 1), 3), "length": round(b1 - b0, 3),
+                    "layers": sorted({str(b[3].st.layer) for b in group})}
+    return best
 
 
 def _perp_leaves(g: Gap, zone: list) -> list[tuple[list, list]]:
@@ -2111,6 +2232,11 @@ def gaps_and_openings_frame(walls: list[WallItem], strokes_m: list[Stroke], file
         entry = _log_entry(g, theta, piece_out)
         if g.cls in ("door", "window") or (g.kind != "end" and g.cls in ("empty", "unclassified")):
             item = _opening(g, ctx, exterior)
+            if g.blocked and item.kind != "door":
+                # 22 Nov 2026 (UL365): never silent: the open leaves the clear-passage test turned down
+                item.evidence["leaves_blocked"] = (f"two lines fitted a door's leaves opened at 90 degrees, but "
+                                                   f"{g.blocked} bars of their length stand between them (a grille, "
+                                                   f"slats or treads): no door")
             if item.kind == "opening" and g.cls in ("empty", "unclassified") and ctx.rest_index is not None \
                     and not raster:
                 # 22 Nov 2026 (UL363): what is drawn in the doorless gap, for the open-passage rule
@@ -2931,6 +3057,13 @@ def _opening(g: Gap, ctx: _Ctx, exterior) -> OpeningItem:
         named = operation_word([n for it in g.found["lines"] if it.st.block for n in it.st.block.split("/")])
         if named is not None:
             set_operation(item, named, "block_name")
+        elif g.found.get("grille"):
+            gr = g.found["grille"]
+            ev["note"] = (f"a grille across the gap: {gr['count']} equal bars {gr['length']:.2f} m long, "
+                          f"{gr['spacing']:.2f} m apart on average ({', '.join(gr['layers'][:3])}): a fixed grille, "
+                          f"no door (UL365)")
+            ev["rule"] = "grille"
+            set_operation(item, "fixed", "geometry")
         elif g.found.get("sliding_window") and g.found.get("by_text"):
             ev["note"] = (f"{len(ids)} sliding leaf/leaves drawn parallel to the wall without a swing arc, and "
                           f"{g.found['by_text']}: a sliding window (S6)")
@@ -3001,6 +3134,8 @@ def _log_entry(g: Gap, theta: float, piece_out: dict) -> dict:
         entry["strokes"] = [it.st.id for it in g.found.get("content", [])]
     if g.found.get("split_reason"):
         entry["note"] = g.found["split_reason"]
+    if g.blocked and g.cls != "door":
+        entry["leaves_blocked"] = g.blocked
     if g.found.get("lining"):
         entry["lining"] = {k: v for k, v in g.found["lining"].items() if k != "note"}
     # Fix round after P6b: the rule that decided a gap the old reading took for a window or an opening (the core lists

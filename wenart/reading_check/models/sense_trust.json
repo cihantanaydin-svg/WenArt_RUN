@@ -403,6 +403,14 @@
    "small_sample": true,
    "by_status": {}
   },
+  "unnamed_exit": {
+   "findings": 0,
+   "judged_right": 0,
+   "precision": null,
+   "trusted": false,
+   "small_sample": true,
+   "by_status": {}
+  },
   "well_type": {
    "findings": 0,
    "judged_right": 0,

@@ -19,6 +19,11 @@ UL363, UL327's general form: `openings.passage_marks` + `twins.open_passages`; c
 synthetic-34-open-passage; `tests/test_rules_open_passage_20261122.py`; `docs/progress.md`, "22 Nov 2026,
 open-passage round"). C0053 is satisfied (real07 95.5 -> 100). See the note under S2 below.
 
+**Update 22 Nov 2026 (the user: "yes start C0089"): the grille rule, C0089's case, is BUILT** (S7 below; lesson UL365,
+`openings._grille_bars` + `openings.blocked_passage`; check RC14 `unnamed_exit`; synthetic-35-grille-slot;
+`tests/test_rules_c0089_20261122.py`; `docs/progress.md`, "22 Nov 2026, C0089 round"). C0089 is satisfied (real10 99.2
+-> 100): it was no S3 case (L-1 stands at the ground) but a grille read as a door.
+
 How they were found: records grouped by element kind and by what the user said ("no wall", "it is a window", "kitchen
 ... window", "not a real room"); records still unsatisfied on today's reading (`score`: real07 C0053, real10 C0035,
 C0086, C0089; C0085 and C0091 were fixed in this round, part 2, by the sash rule); the marks the user gave per AI-check kind; open
@@ -133,6 +138,23 @@ lessons with no check.
   opening), C0087 (real10 L-2, "it is a sliding door for the lift").
 - **Draft synthetic test.** `synthetic-24` with one door-layer sliding pair tagged 160/140 (truth: a window) beside the
   lift's sliding door tagged 90/210 (truth: a door).
+
+## S7. A grille is no door (BUILT, 22 Nov 2026, UL365)
+
+- **Rule.** Equal bars across a wall gap at a pitch finer than any stair's going (a grille, louvres, slats), filling it,
+  standing out of the wall on one side only and ending at its jambs, on any layer but a wall, hatch, finish, stair or
+  notation layer, are a fixed grille: the gap is a window (operation fixed), never a door. A door drawn open at 90
+  degrees with no swing arc needs a clear passage: bars of the leaves' own length standing between them make them bars
+  of a grille, slats, treads or a window's lines, no door (and the ranker may not type the gap a door). A drawn swing, a
+  door block or a door tag keeps the door.
+- **Evidence.** C0089 (real10 L-1, "it is not a real room and there is no doors to outside"): a light slot's grille on
+  TEFRİŞ, 32 bars 0.64 m long in pairs at a 0.10 m pitch, read as a 1.80 m double door opened at 90 degrees; the same
+  grille RC16 step b turned down as a stair (`symbols._grille`). The general class `door_invented` (weak-spot rank 3).
+  On the bench the clear-passage test also turned down a 'door' read from the lines of the window round the corner in
+  an end gap (swiss-b1747), which found its own 40/140 window and the stair behind it.
+- **Test.** `synthetic-35-grille-slot` (gated): the grille slot (truth: a window, the slot a light well), beside an
+  entrance drawn open with no arc above a step, a French window over a balustrade's bars and a doorless way in crossed
+  by floor boards (truth: each as drawn). Check: RC14 `unnamed_exit`.
 
 ## Seen but covered (no suggestion)
 

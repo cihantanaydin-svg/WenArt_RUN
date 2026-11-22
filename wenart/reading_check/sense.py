@@ -116,6 +116,8 @@ RULES = {
     "double_leaf_walls": "a facade's two leaves read as two walls, or an empty gap outside a facade facing its opening",
     # 22 Nov 2026 (the user's "build the open-passage rule", UL363)
     "open_passage": "a doorless gap with nothing drawn in it left at door height: a wet room's only way in, or walled",
+    # 22 Nov 2026 (the user's C0089, "yes start C0089", UL365)
+    "unnamed_exit": "an outer door with no swing, door block or door tag drawn, the only door of a face no label names",
 }
 TRUST_PATH = Path(__file__).resolve().parent / "models" / "sense_trust.json"
 TRUST_MIN = 0.7                # a rule judged right on less than this share of its findings writes them as info
@@ -2342,6 +2344,63 @@ def open_passage(building: dict) -> list:
     return out
 
 
+EXIT_TAG_RE = re.compile(r"^\s*[a-z]?\s*(\d{2,3})\s*/\s*(\d{2,3})\s*$", re.I)
+EXIT_TAG_DOOR_CM = 200          # a size tag this high or higher names a door
+
+
+def _drawn_door(o: dict) -> bool:
+    """A door the drawing says is a door (pure): a swing arc (an ARC among the strokes it was read from), a door block
+    (its evidence's block name says door) or a door-high size tag ('105/210', its evidence rule ``size_tag``)."""
+    from wenart.ingest.generic import layer_names as LN
+
+    for e in o.get("evidence") or []:
+        if any(str(x).strip().upper().startswith("ARC:") for x in str(e.get("entity") or "").split(",")):
+            return True
+        for name in str(e.get("block") or e.get("block_name") or "").split("/"):
+            if name and LN.layer_role(name) == "door":
+                return True
+        m = EXIT_TAG_RE.match(str(e.get("text") or ""))
+        if e.get("rule") == "size_tag" or (m and int(m.group(2)) >= EXIT_TAG_DOOR_CM):
+            return True
+    return False
+
+
+def unnamed_exit(building: dict) -> list:
+    """Rule 22 (pure; 22 Nov 2026, the user's C0089 on real10 L-1, "it is not a real room and there is no doors to
+    outside", UL365, synthetic-35): a door on an exterior wall that nothing in the drawing names a door (no swing arc,
+    no door block, no door-high size tag: its strokes lines only, leaves opened at 90 degrees or a sliding leaf;
+    ``_drawn_door``), that is the only door of a face no label names (no
+    ``label_raw``): a way out of a space the drawing does not name (a light slot, a recess, a shaft), often a grille, a
+    railing or a gate read as a door. Major (an exit the building may not have). A typical floor's copies are left
+    out."""
+    out = []
+    ops = {o.get("id"): o for o in building.get("openings") or [] if o.get("id")}
+    for lv in base_levels_by_height(building):
+        if lv.get("typical_of"):
+            continue
+        lid = lv["id"]
+        rooms = {r["id"]: r for r in _rooms_of(building, lid)}
+        access, _links, outer, _loose = room_access(building, lid)
+        for rid, oids in sorted(outer.items()):
+            r = rooms.get(rid)
+            if r is None or r.get("label_raw"):
+                continue
+            doors = [ops[x] for x in access.get(rid) or [] if (ops.get(x) or {}).get("type") == "door"]
+            exits = [ops[x] for x in oids if (ops.get(x) or {}).get("type") == "door" and not ops[x].get("virtual")]
+            if len(doors) != 1 or len(exits) != 1 or _drawn_door(exits[0]):
+                continue
+            o = exits[0]
+            p = _poly(r.get("polygon"))
+            area = f"{p.area:.1f} m2" if p is not None else "?"
+            out.append(_finding("unnamed_exit", "major", lid,
+                                f"door {o.get('id')} ({float(o.get('width') or 0):.2f} m), drawn without a swing arc, "
+                                f"a door block or a door tag, is the only door of {rid} ({area}), a face no label names, "
+                                f"and leads outside: a way out of a space the drawing does not name (a light slot, a "
+                                f"recess, a shaft), often a grille, a railing or a gate read as a door",
+                                o["center"][:2] if o.get("center") else _centre(r), [o.get("id"), rid]))
+    return out
+
+
 # --------------------------------------------------------------------------------------------------------- the run
 def run(building: dict, texts_by_level: Optional[dict] = None, trust: Optional[dict] = None,
         apply: bool = True) -> list:
@@ -2383,6 +2442,7 @@ def run(building: dict, texts_by_level: Optional[dict] = None, trust: Optional[d
     out += wall_in_wall(building)                                                                        # R09-11
     out += stair_edge_wall(building) + double_leaf_walls(building)                                    # 22 Nov 2026
     out += open_passage(building)                                                          # 22 Nov 2026 (UL363)
+    out += unnamed_exit(building)                                                  # 22 Nov 2026 (UL365, C0089)
     return apply_trust(out, trust if trust is not None else load_trust()) if apply else out
 
 

@@ -118,6 +118,8 @@ EXPECTED_NAMES = [
     "synthetic-33-double-wall",
     # 22 Nov 2026: the open-passage rule (the user's C0053, UL363)
     "synthetic-34-open-passage",
+    # 22 Nov 2026: the grille rule (the user's C0089, UL365)
+    "synthetic-35-grille-slot",
 ]
 
 
