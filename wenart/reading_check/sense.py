@@ -111,6 +111,9 @@ RULES = {
     "terrace_support": "a terrace standing on no built storey",
     "door_to_air": "a door in an outer wall above the ground with no balcony, terrace or room behind it",
     "wall_in_wall": "a wall lying inside the band of thicker parallel walls (a line inside a wall read as a wall)",
+    # 22 Nov 2026 (the user's "build S2 and double-wall rule")
+    "stair_edge_wall": "a thin wall along a flight's side with no room of its own behind the flight (its open side)",
+    "double_leaf_walls": "a facade's two leaves read as two walls, or an empty gap outside a facade facing its opening",
 }
 TRUST_PATH = Path(__file__).resolve().parent / "models" / "sense_trust.json"
 TRUST_MIN = 0.7                # a rule judged right on less than this share of its findings writes them as info
@@ -2219,6 +2222,90 @@ def wall_in_wall(building: dict) -> list:
     return out
 
 
+STAIR_EDGE_SIDE_M = 0.15        # stair_edge_wall: a wall's face this close to a flight's long side runs along it
+STAIR_EDGE_ALONG = 0.6          # ... over this share of the flight's length
+STAIR_EDGE_BEYOND_M = 0.25      # ... the rooms read this far beyond its faces
+
+
+def stair_edge_wall(building: dict) -> list:
+    """Rule 19 (pure; S2, 22 Nov 2026, synthetic-28): a thin wall (``walls.STAIR_EDGE_MAX_W``) along a stair flight's
+    long side (its face within ``STAIR_EDGE_SIDE_M`` of the side, over ``STAIR_EDGE_ALONG`` of the flight) with no
+    room of its own behind the flight: the room on the flight's side is the room beyond the wall, or a room with no
+    label drawn (the flight's strip closed off as a room of its own). The reader splits such a piece at the flight's ends
+    (``walls.split_stair_edges``), so a finding is one it missed."""
+    from wenart.ingest.generic import walls as WL
+
+    out = []
+    for lv in building.get("levels") or []:
+        lid = lv["id"]
+        rooms = [(r, p) for r in _rooms_of(building, lid) for p in [_poly(r.get("polygon"))] if p is not None]
+
+        def room_at(q):
+            pt = Point(q)
+            return next((r for r, p in rooms if p.contains(pt)), None)
+        for f in building.get("furniture") or []:
+            if f.get("level_id") != lid or f.get("type") != "stair":
+                continue
+            for fl in ((f.get("stair") or {}).get("flights") or []):
+                try:
+                    (x0, y0), (x1, y1), width = fl["start"][:2], fl["end"][:2], float(fl.get("width") or 0.0)
+                except (KeyError, TypeError, ValueError):
+                    continue
+                length = math.hypot(x1 - x0, y1 - y0)
+                if length < 0.5 or width <= 0:
+                    continue
+                ux, uy = (x1 - x0) / length, (y1 - y0) / length
+                for w in _walls_of(building, lid):
+                    t = float(w.get("thickness") or 0.0)
+                    if not 0.0 < t <= WL.STAIR_EDGE_MAX_W + EPS:
+                        continue
+                    (a0, b0), (a1, b1) = w["start"][:2], w["end"][:2]
+                    wl = math.hypot(a1 - a0, b1 - b0)
+                    if wl < 1e-6 or abs(ux * (b1 - b0) / wl - uy * (a1 - a0) / wl) > math.sin(math.radians(3.0)):
+                        continue
+                    off = ((a0 + a1) / 2.0 - x0) * -uy + ((b0 + b1) / 2.0 - y0) * ux
+                    side = 1.0 if off > 0 else -1.0
+                    if abs(abs(off) - t / 2.0 - width / 2.0) > STAIR_EDGE_SIDE_M + EPS:
+                        continue
+                    s0, s1 = sorted(((a0 - x0) * ux + (b0 - y0) * uy, (a1 - x0) * ux + (b1 - y0) * uy))
+                    along = min(length, s1) - max(0.0, s0)
+                    if along < STAIR_EDGE_ALONG * length - EPS:
+                        continue
+                    sm = (max(0.0, s0) + min(length, s1)) / 2.0
+
+                    def at(o, sm=sm, side=side):
+                        return (x0 + ux * sm - uy * side * o, y0 + uy * sm + ux * side * o)
+                    here = room_at(at(abs(off) - t / 2.0 - STAIR_EDGE_BEYOND_M))
+                    there = room_at(at(abs(off) + t / 2.0 + STAIR_EDGE_BEYOND_M))
+                    if here is None or there is None or (here is not there and here.get("label_raw")):
+                        continue                  # outside, or a room of its own on each side: a stair-hall wall
+                    out.append(_finding("stair_edge_wall", "major", lid,
+                                        f"wall {w['id']} ({t:.2f} m) runs along the side of the flight of {f.get('id')} "
+                                        f"over {along:.2f} of its {length:.2f} m with "
+                                        + ("the same room" if here is there else f"an unlabelled room {here.get('id')}")
+                                        + f" behind the flight and {there.get('id')} beyond: the flight's open side "
+                                          f"(stringer and balustrade) read as a wall", at(abs(off)),
+                                        [w["id"], f.get("id")] + ([here.get("id")] if here is not there else [])))
+    return out
+
+
+def double_leaf_walls(building: dict) -> list:
+    """Rule 20 (pure; 22 Nov 2026, the user's C0086, synthetic-33): what the double-leaf rule
+    (``wenart.ingest.generic.double_leaf``) would still change on the reading: two leaves of one facade read as two
+    walls (major when they carry openings that face each other: one opening read twice), or an empty gap in a band
+    outside a facade facing its door or window. The reader merges them, so a finding is one it missed."""
+    import copy
+
+    from wenart.ingest.generic import double_leaf as DL
+
+    b = copy.deepcopy({k: building.get(k) or [] for k in ("walls", "openings", "rooms")})
+    out = []
+    for rec in DL.merge_double_leaves(b) + DL.facing_gaps(b):
+        out.append(_finding("double_leaf_walls", "major" if rec["openings"] else "minor", rec["level_id"],
+                            rec["text"], rec["place"], rec["walls"] + rec["openings"]))
+    return out
+
+
 # --------------------------------------------------------------------------------------------------------- the run
 def run(building: dict, texts_by_level: Optional[dict] = None, trust: Optional[dict] = None,
         apply: bool = True) -> list:
@@ -2258,6 +2345,7 @@ def run(building: dict, texts_by_level: Optional[dict] = None, trust: Optional[d
     out += narrow_landing(building)            # 13 Nov 2026
     out += twin_notch(building) + slab_cover(building) + terrace_support(building) + door_to_air(building)  # R09-1
     out += wall_in_wall(building)                                                                        # R09-11
+    out += stair_edge_wall(building) + double_leaf_walls(building)                                    # 22 Nov 2026
     return apply_trust(out, trust if trust is not None else load_trust()) if apply else out
 
 

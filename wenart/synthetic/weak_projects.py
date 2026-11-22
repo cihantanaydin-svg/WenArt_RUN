@@ -16,6 +16,12 @@ corrections and the reading checks, each as a share), built on the failure-class
   quarter-round corner cabinet in the MUTFAK (an arc of 0.60 m on TEFRIS) beside the window gaps. Truth: the base
   house (6 doors, 9 windows), no door at the curves (the rule keys on the sanitary layer; furniture layers may hold
   doors: real03).
+- ``synthetic-28-stair-edge-run`` (S2, wall_invented): synthetic-25's flight whose open side runs on past its top end
+  as the faces of a 0.10 m partition up to the next wall (one wall piece in the drawing). Truth: the partition beyond
+  the flight is a wall, no wall along the flight.
+- ``synthetic-33-double-wall`` (the user's C0086 on real10): a facade drawn as two leaves (0.20 m, a 0.04 m cavity,
+  0.10 m) with a sliding window in the inner leaf's gap, a door through both, and a shaft wall 0.15 m inside it. Truth:
+  one wall of the total thickness, one window, one door, the shaft wall kept.
 """
 from __future__ import annotations
 
@@ -222,6 +228,98 @@ def project_32() -> FailureProject:
                           extra_truth={"weak_kind": "opening_type", "records": ["C0086", "C0087"]})
 
 
+def project_28() -> FailureProject:
+    """synthetic-28-stair-edge-run (S2, 22 Nov 2026; the rule the user's C0053 suggested): synthetic-25's straight
+    flight of 16 treads along the SALON's inner wall, its open side (stringer and balustrade) drawn as two lines 0.10 m
+    apart on the wall layer that run on, past the flight's top end, as the faces of a 0.10 m partition 1.5 m long up to
+    the SALON | YATAK ODASI wall (one wall piece in the drawing). Truth: the stair, the partition beyond the flight is a
+    wall, no wall along the flight."""
+    plan = base_house()
+    going, n = 0.25, 16
+    x_end = 7.0 - FC.INT_T / 2                   # the face of i3 (SALON | YATAK ODASI)
+    x1 = x_end - 1.5                             # the flight's top end, 1.5 m short of i3
+    x0 = x1 - n * going
+    y_wall = 4.4 - FC.INT_T / 2 - 0.05          # 5 cm clear of the inner wall's face
+    y_edge = y_wall - 1.0                        # a 1.0 m wide flight
+    t = 0.10
+    prims = [Prim("poly", FC.L_STAIR, [(r6(x0), y_edge), (r6(x1), y_edge), (r6(x1), y_wall), (r6(x0), y_wall)],
+                  closed=True)]
+    for k in range(1, n):
+        x = r6(x0 + k * going)
+        prims.append(Prim("line", FC.L_STAIR, [(x, y_edge), (x, y_wall)]))
+    ym = (y_edge + y_wall) / 2
+    prims += [Prim("line", FC.L_STAIR, [(r6(x0 + 0.1), ym), (r6(x1 - 0.1), ym)]),
+              Prim("line", FC.L_STAIR, [(r6(x1 - 0.1), ym), (r6(x1 - 0.25), ym + 0.08)]),
+              Prim("line", FC.L_STAIR, [(r6(x1 - 0.1), ym), (r6(x1 - 0.25), ym - 0.08)])]
+    # the open side and the partition: two lines 0.10 m apart on the wall layer from the flight's foot to i3's face
+    prims += [Prim("line", FC.L_WALL, [(r6(x0), r6(y_edge)), (r6(x_end), r6(y_edge))]),
+              Prim("line", FC.L_WALL, [(r6(x0), r6(y_edge - t)), (r6(x_end), r6(y_edge - t))])]
+    plan.prims += prims
+    # the partition stands in the truth; its faces are the two lines above (not drawn a second time)
+    plan.walls.append(FC.Wall("p1", (r6(x1), r6(y_edge - t / 2)), (r6(x_end), r6(y_edge - t / 2)), t, drawn=False))
+    plan.stairs.append(StairTruth("s_{L}_001", "straight", ((x0 + x1) / 2, ym), n + 1,
+                                  extra={"treads": n, "box": [FC.rp((x0, y_edge)), FC.rp((x1, y_wall))]}))
+    for lb in plan.labels:
+        if lb.text == "SALON":
+            lb.at = (2.0, 1.6)
+    return FailureProject("synthetic-28-stair-edge-run", "stair_edge_run", "S2",
+                          "a straight flight whose open side (stringer and balustrade) runs on past its top end as the "
+                          "faces of a 0.10 m partition: one wall piece in the drawing", [plan], [GROUND], BRIEF,
+                          extra_truth={"weak_kind": "wall_invented", "records": ["C0053"]})
+
+
+def _leaf_pieces(y0: float, y1: float, x0: float, x1: float, gaps: list) -> list:
+    """The closed outlines of one facade leaf (y0..y1) from x0 to x1 on the wall layer, cut at ``gaps``."""
+    out, x = [], x0
+    for g0, g1 in sorted(gaps) + [(x1, x1)]:
+        if g0 - x > 1e-6:
+            out.append(Prim("poly", FC.L_WALL, [(r6(x), r6(y0)), (r6(g0), r6(y0)), (r6(g0), r6(y1)),
+                                                (r6(x), r6(y1))], closed=True))
+        x = g1
+    return out
+
+
+def project_33() -> FailureProject:
+    """synthetic-33-double-wall (22 Nov 2026; the user's C0086 on real10 L0, "it is a sliding window"): the base flat
+    whose bottom facade is drawn as two leaves, an inner 0.20 m leaf, a 0.04 m cavity and an outer 0.10 m skin (the
+    build-up of a Turkish double wall with its insulation gap). The SALON's first window is a sliding window, its two
+    sashes in the inner leaf's gap (the outer leaf's gap facing it is empty), its second opening a swung door through
+    both leaves; the YATAK ODASI has a 0.10 m shaft wall 0.15 m inside the facade, parallel to it. Truth: one facade
+    wall of the total thickness (0.34 m), one window, one door, the shaft wall a wall of its own."""
+    plan = base_house()
+    inner_t, cavity, outer_t = 0.20, 0.04, 0.10
+    total = inner_t + cavity + outer_t
+    e1 = plan.wall("e1")
+    e1.a, e1.b, e1.t, e1.drawn = (0.0, r6(total / 2)), (12.0, r6(total / 2)), r6(total), False
+    plan.wall("i3").a = (7.0, r6(total))         # SALON | YATAK ODASI ends on the inner leaf's face
+    plan.openings = [op for op in plan.openings if op.id != "w_yatak1"]
+    gaps = []
+    for op in plan.openings:
+        if op.wall != "e1":
+            continue
+        if op.id == "w_salon1":                  # the sliding window: two sashes on two tracks in the inner leaf
+            op.draw_symbol = False
+            s0, s1 = op.s - op.width / 2, op.s + op.width / 2
+            mid, yc, q = (s0 + s1) / 2, outer_t + cavity + inner_t / 2, inner_t / 4
+            for (a, b), track in (((s0, mid + 0.035), yc - q), ((mid - 0.035, s1), yc + q)):
+                lo, hi = track - 0.0125, track + 0.0125
+                plan.prims.append(Prim("poly", FC.L_WINDOW, [(r6(a), r6(lo)), (r6(b), r6(lo)), (r6(b), r6(hi)),
+                                                             (r6(a), r6(hi))], closed=True))
+        if op.id == "w_salon2":                  # a swung door to the garden through both leaves
+            op.kind, op.width, op.hinge, op.side = "door", 0.9, "start", 1
+        gaps.append((op.s - op.width / 2, op.s + op.width / 2))
+    x0, x1 = FC.EXT_T, 12.0 - FC.EXT_T           # the inner faces of e4 and e2
+    plan.prims += _leaf_pieces(outer_t + cavity, total, x0, x1, gaps)      # the inner leaf
+    plan.prims += _leaf_pieces(0.0, outer_t, x0, x1, gaps)                 # the outer skin
+    # the shaft wall: 0.10 m thick, 0.15 m inside the facade's inner face, from x 9.5 to e2's inner face
+    ys = r6(total + 0.15 + 0.05)
+    plan.walls.append(FC.Wall("sh1", (9.5, ys), (x1, ys), 0.10))
+    return FailureProject("synthetic-33-double-wall", "double_wall", "UL361",
+                          "a facade drawn as two leaves (0.20 m, a 0.04 m cavity, 0.10 m) with a sliding window and a "
+                          "door through both, and a shaft wall 0.15 m inside it", [plan], [GROUND], BRIEF,
+                          extra_truth={"weak_kind": "opening_invented", "records": ["C0086"]})
+
+
 PROJECTS = (("opening_type", project_24), ("wall_invented", project_25), ("door_invented", project_26),
-            ("upper_floor_door", project_29), ("fire_stair", project_30), ("layer_names", project_31),
-            ("sliding_window_tag", project_32))
+            ("stair_edge_run", project_28), ("upper_floor_door", project_29), ("fire_stair", project_30),
+            ("layer_names", project_31), ("sliding_window_tag", project_32), ("double_wall", project_33))
