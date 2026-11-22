@@ -1,0 +1,34 @@
+{
+ "agent": {
+  "asked": 525,
+  "answered": 524,
+  "failed": 1,
+  "skipped": 0,
+  "started": 1795350487.5400448,
+  "seconds": 482.7
+ },
+ "agent_fewshot": {
+  "asked": 524,
+  "answered": 524,
+  "failed": 0,
+  "skipped": 0,
+  "started": 1795350970.324671,
+  "seconds": 482.7
+ },
+ "bakeoff_bf16": {
+  "asked": 538,
+  "answered": 538,
+  "failed": 0,
+  "skipped": 0,
+  "started": 1795351544.3478224,
+  "seconds": 737.9
+ },
+ "bakeoff_bf16_fewshot": {
+  "asked": 521,
+  "answered": 521,
+  "failed": 0,
+  "skipped": 0,
+  "started": 1795352282.4324744,
+  "seconds": 735.9
+ }
+}

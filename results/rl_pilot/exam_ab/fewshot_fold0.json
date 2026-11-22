@@ -1,0 +1,103 @@
+{
+ "fold": 0,
+ "examples": [
+  {
+   "id": "after/real09/L-1|inventory|room_missing:3",
+   "kind": "plan_not_read",
+   "description": "the drawing labels 'MUTFAK' here; it lies outside the level's walls: a plan the reading did not read (nearest room 1.6 m away)",
+   "right": false
+  },
+  {
+   "id": "after/real09/L-1|inventory|room_missing:5",
+   "kind": "plan_not_read",
+   "description": "the drawing labels 'TERAS' here; it lies outside the level's walls: a plan the reading did not read (nearest room 1.2 m away)",
+   "right": false
+  },
+  {
+   "id": "after/real09/L1#text|plausibility|P3:r_L1_antre",
+   "kind": "flat_no_entrance",
+   "description": "r_L1_antre: a flat with no entrance door from the common hall (The storey contains two distinct flat layouts (implied by duplicate room types and separate circulation). Flat 1 (centered on r_L1_oda_3) and Flat 2 (centered r)",
+   "right": false
+  },
+  {
+   "id": "after/real09/L1#text|plausibility|P3:r_L1_oda_3",
+   "kind": "flat_no_entrance",
+   "description": "r_L1_oda_3: a flat with no entrance door from the common hall (The storey contains two distinct flat layouts (implied by duplicate room types and separate circulation). Flat 1 (centered on r_L1_oda_3) and Flat 2 (centered r)",
+   "right": false
+  },
+  {
+   "id": "after/real10/L-1#text|plausibility|P5:o_L-1_004",
+   "kind": "lift_door_into_flat",
+   "description": "o_L-1_004: a lift door into a flat (The lift door o_L-1_004 opens into r_L-1_oda_4_hall (Kat Holü), which is a common hall/landing, not a private flat room. Wait, the question asks for doors that )",
+   "right": false
+  },
+  {
+   "id": "after/real10/L-1#text|plausibility|P8:d_L-1_006",
+   "kind": "door_into_air",
+   "description": "d_L-1_006: an exterior door above the ground with nothing to step onto (d_L-1_001, d_L-1_006, d_L-1_008, and d_L-1_019 are exterior doors. d_L-1_001 is the main entrance. d_L-1_006, d_L-1_008, and d_L-1_019 lead to bedrooms. None of)",
+   "right": true
+  },
+  {
+   "id": "after/real10/L-1#text|plausibility|P8:d_L-1_019",
+   "kind": "door_into_air",
+   "description": "d_L-1_019: an exterior door above the ground with nothing to step onto (d_L-1_001, d_L-1_006, d_L-1_008, and d_L-1_019 are exterior doors. d_L-1_001 is the main entrance. d_L-1_006, d_L-1_008, and d_L-1_019 lead to bedrooms. None of)",
+   "right": true
+  },
+  {
+   "id": "after/real10/L-2#text|plausibility|P7:r_L-2_siginak",
+   "kind": "storey_no_stair_access",
+   "description": "6 room(s) with no way to a stair: r_L-2_siginak, r_L-2_oda, r_L-2_oda_2, r_L-2_elk_pano_odasi, r_L-2_w_c, r_L-2_oda_hall (The stair room (r_L-2_oda) is not connected to any other room via doors or openings. Therefore, no room can reach the stair. All rooms are listed.)",
+   "right": false
+  },
+  {
+   "id": "after/real10/L7#text|plausibility|P7:r_L7_asansor_mahali",
+   "kind": "storey_no_stair_access",
+   "description": "5 room(s) with no way to a stair: r_L7_asansor_mahali, r_L7_oda, r_L7_isiklik, r_L7_oda_2, r_L7_oda_hall (The stair is in 'r_L7_oda'. No doors or openings connect 'r_L7_oda' to any other room. Therefore, no room can reach the stair. All rooms are listed.)",
+   "right": false
+  },
+  {
+   "id": "after/real20/L1#text|plausibility|P1:r_L1_mutfak",
+   "kind": "habitable_no_window",
+   "description": "r_L1_mutfak: a habitable room with no window (r_L1_mutfak is a kitchen (habitable) with 0 windows. It has a door to a balcony (d_L1_016), but the question asks for rooms with NO exterior window AND NO door.)",
+   "right": true
+  },
+  {
+   "id": "after/real20/L1#text|plausibility|P6:f_L1_001",
+   "kind": "stair_no_landing_door",
+   "description": "f_L1_001: a stair with no landing door (The stair is in r_L1_oda_4. The drawing for r_L1_oda_4 says 'nothing on its outline or inside'. The model lists no doors or openings for r_L1_oda_4. Thus, th)",
+   "right": false
+  },
+  {
+   "id": "after/real20/L1|inventory|room_missing:0",
+   "kind": "room_missing",
+   "description": "the drawing labels 'BALKON' here; the reading has no room there (nearest room 1.8 m away)",
+   "right": false
+  },
+  {
+   "id": "question|real10|L-1|gap_kind|2.1,14.7",
+   "kind": "gap_door",
+   "description": "is it a window (the AI) or a door (the reading)?",
+   "right": true
+  },
+  {
+   "id": "question|real10|L-2|gap_kind|9.8,8.4",
+   "kind": "gap_door",
+   "description": "is it a window (the AI) or a door (the reading)?",
+   "right": false
+  }
+ ],
+ "exam": [
+  "after/real09/L2#text|plausibility|P1:r_L2_mutfak",
+  "after/real10/L-1#text|plausibility|P8:d_L-1_001",
+  "after/real10/L-1#text|plausibility|P8:d_L-1_008",
+  "after/real10/L-1|compare|q21",
+  "after/real10/L-2|inventory|room_missing:1",
+  "after/real10/L-2|inventory|room_missing:2",
+  "after/real20/L0#text|plausibility|P1:r_L0_mutfak",
+  "after/real20/L0#text|plausibility|P7:r_L0_oda",
+  "after/real21/L1#text|plausibility|P6:f_L1_016",
+  "after/real21/L4#text|plausibility|P7:r_L4_salon",
+  "question|real10|L0|gap_kind|20.8,14.7"
+ ],
+ "text": "Past verdicts of the architect on findings like yours (learn what counts as a real error):\n- plan_not_read: the drawing labels 'MUTFAK' here; it lies outside the level's walls: a plan the reading did not read (nearest room 1.6 m away) -> not an error (the reading was right, the finding was wrong)\n- plan_not_read: the drawing labels 'TERAS' here; it lies outside the level's walls: a plan the reading did not read (nearest room 1.2 m away) -> not an error (the reading was right, the finding was wrong)\n- flat_no_entrance: r_L1_antre: a flat with no entrance door from the common hall (The storey contains two distinct flat layouts (implied by duplicate room type -> not an error (the reading was right, the finding was wrong)\n- flat_no_entrance: r_L1_oda_3: a flat with no entrance door from the common hall (The storey contains two distinct flat layouts (implied by duplicate room type -> not an error (the reading was right, the finding was wrong)\n- lift_door_into_flat: o_L-1_004: a lift door into a flat (The lift door o_L-1_004 opens into r_L-1_oda_4_hall (Kat Holü), which is a common hall/landing, not a pr -> not an error (the reading was right, the finding was wrong)\n- door_into_air: d_L-1_006: an exterior door above the ground with nothing to step onto (d_L-1_001, d_L-1_006, d_L-1_008, and d_L-1_019 are exterior doors. d -> a real error of the reading (the finding was right)\n- door_into_air: d_L-1_019: an exterior door above the ground with nothing to step onto (d_L-1_001, d_L-1_006, d_L-1_008, and d_L-1_019 are exterior doors. d -> a real error of the reading (the finding was right)\n- storey_no_stair_access: 6 room(s) with no way to a stair: r_L-2_siginak, r_L-2_oda, r_L-2_oda_2, r_L-2_elk_pano_odasi, r_L-2_w_c, r_L-2_oda_hall (The stair room (r_ -> not an error (the reading was right, the finding was wrong)\n- storey_no_stair_access: 5 room(s) with no way to a stair: r_L7_asansor_mahali, r_L7_oda, r_L7_isiklik, r_L7_oda_2, r_L7_oda_hall (The stair is in 'r_L7_oda'. No doo -> not an error (the reading was right, the finding was wrong)\n- habitable_no_window: r_L1_mutfak: a habitable room with no window (r_L1_mutfak is a kitchen (habitable) with 0 windows. It has a door to a balcony (d_L1_016), bu -> a real error of the reading (the finding was right)\n- stair_no_landing_door: f_L1_001: a stair with no landing door (The stair is in r_L1_oda_4. The drawing for r_L1_oda_4 says 'nothing on its outline or inside'. The  -> not an error (the reading was right, the finding was wrong)\n- room_missing: the drawing labels 'BALKON' here; the reading has no room there (nearest room 1.8 m away) -> not an error (the reading was right, the finding was wrong)\n- gap_door: is it a window (the AI) or a door (the reading)? -> a real error of the reading (the finding was right)\n- gap_door: is it a window (the AI) or a door (the reading)? -> not an error (the reading was right, the finding was wrong)"
+}
