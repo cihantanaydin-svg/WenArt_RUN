@@ -150,7 +150,10 @@ export HF_HUB_OFFLINE=1
 run_step build "$PY" -m wenart.reading_check rl_pilot build --out "$TRAIN" || exit 1
 run_step fewshot "$PY" -m wenart.reading_check rl_pilot fewshot --out "$TRAIN" || true
 
-A_ARGS=(--train "$TRAIN" --out "$OUT/phase_a" --server-flags "$RL_SERVER_FLAGS" --fewshot "$TRAIN/fewshot_fold0.json")
+A_ARGS=(--train "$TRAIN" --out "$OUT/phase_a" --server-flags "$RL_SERVER_FLAGS")
+# RL_FEWSHOT=0 skips the few-shot exam (22 Nov 2026: the rerun after pod 1p2wukgcbep0d8, whose few-shot exam answered 555
+# of 555 calls; only the sampling failed)
+if [ "${RL_FEWSHOT:-1}" = "1" ]; then A_ARGS+=(--fewshot "$TRAIN/fewshot_fold0.json"); fi
 if [ -n "${WENART_DEADLINE:-}" ]; then A_ARGS+=(--deadline "$WENART_DEADLINE"); fi
 run_step phase-a "$PY" -m wenart.reading_check rl_pilot phase-sample "${A_ARGS[@]}" || true
 

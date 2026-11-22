@@ -323,3 +323,12 @@ def test_the_rl_pilot_job_reaches_its_end_with_fakes(tmp_path):
     for step in ("step start: setup", "step start: build", "step start: phase-a", "step start: filter",
                  "step start: train", "step start: phase-c", "all steps ok"):
         assert step in out, f"missing {step!r}:\n{out[-3000:]}"
+
+
+def test_rl_pilot_chat_url_on_the_server_root():
+    """22 Nov 2026 (pod 1p2wukgcbep0d8): the sampling posted to /v1/v1/chat/completions (404 on every call)."""
+    from wenart.reading_check.rl_pilot import chat_url
+
+    assert chat_url("http://127.0.0.1:8000/v1") == "http://127.0.0.1:8000/v1/chat/completions"
+    assert chat_url("http://127.0.0.1:8000/v1/") == "http://127.0.0.1:8000/v1/chat/completions"
+    assert chat_url("http://127.0.0.1:8000") == "http://127.0.0.1:8000/v1/chat/completions"

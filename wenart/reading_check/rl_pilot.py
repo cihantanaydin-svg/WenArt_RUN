@@ -344,6 +344,12 @@ def load_questions(path: Path) -> dict:
 
 # --- the pod side (vLLM's OpenAI server; TRL + PEFT) ----------------------------------------------------------------
 
+def chat_url(url: str) -> str:
+    """The chat completions route of an OpenAI server given as ``http://host:port`` or ``http://host:port/v1`` (pure)."""
+    root = url.rstrip("/")
+    return (root[:-3] if root.endswith("/v1") else root) + "/v1/chat/completions"
+
+
 def _image_url(path: Path) -> str:
     import base64
     return "data:image/jpeg;base64," + base64.b64encode(Path(path).read_bytes()).decode("ascii")
@@ -366,7 +372,9 @@ def sample(train_dir: Path, url: str, model: str, out: Path, *, n: int = N_SAMPL
                     {"type": "image_url", "image_url": {"url": _image_url(Path(train_dir) / q["crop"])}},
                     {"type": "text", "text": PROMPTS[q["kind"]]}]}],
                 "chat_template_kwargs": {"enable_thinking": False}}
-        req = urllib.request.Request(url.rstrip("/") + "/v1/chat/completions", data=json.dumps(body).encode(),
+        # 22 Nov 2026 (pod 1p2wukgcbep0d8: 763 of 763 calls "HTTP Error 404"): ``servers.server`` yields the ``/v1``
+        # base URL; the route goes on the server's root
+        req = urllib.request.Request(chat_url(url), data=json.dumps(body).encode(),
                                      headers={"Content-Type": "application/json"})
         try:
             with urllib.request.urlopen(req, timeout=300) as r:
