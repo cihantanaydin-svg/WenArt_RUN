@@ -21,6 +21,8 @@ lessons with no check.
 
 ## S1. Kitchen daylight
 
+- **Update 22 Nov 2026 (UL354).** The user marked the real20 kitchens' 1.20 m '120/210' unit to the balcony: "this marked section could be seen as window or a door". That unit is the window meant; real20 needs no added window. If S1 is built, a kitchen opening to a balcony or terrace counts as its daylight, read as door or window.
+
 - **Rule.** A kitchen (room type kitchen) whose walls hold no window, and whose only outer wall holds a door to a
   balcony or terrace, gets its window looked for again: (1) a window symbol or frame lines in the rest of that outer wall
   on any layer, (2) a window size tag (W/H, H < 2.0 m) within 1.2 m, (3) the elevation of that facade (a window drawn
