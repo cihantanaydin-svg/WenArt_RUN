@@ -1,0 +1,22 @@
+{
+ "train": {
+  "questions": 646,
+  "answered": 0,
+  "accuracy": null,
+  "per_kind": {}
+ },
+ "held_base_fp8": {
+  "questions": 117,
+  "answered": 0,
+  "accuracy": null,
+  "per_kind": {}
+ },
+ "exam_fewshot": {
+  "asked": 555,
+  "answered": 555,
+  "failed": 0,
+  "skipped": 0,
+  "started": 1795340173.038785,
+  "seconds": 436.8
+ }
+}
