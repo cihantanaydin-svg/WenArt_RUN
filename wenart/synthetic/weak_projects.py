@@ -20,7 +20,7 @@ corrections and the reading checks, each as a share), built on the failure-class
 from __future__ import annotations
 
 from wenart.synthetic import failure_classes as FC
-from wenart.synthetic.failure_classes import FailureProject, Prim, StairTruth, r6
+from wenart.synthetic.failure_classes import FailureProject, Prim, StairTruth, TruthLevel, r6
 from wenart.synthetic.failure_projects import BRIEF, GROUND, base_house
 
 SASH_T = 0.025               # m, a sash profile across the wall
@@ -113,4 +113,115 @@ def project_26() -> FailureProject:
                           extra_truth={"weak_kind": "door_invented"})
 
 
-PROJECTS = (("opening_type", project_24), ("wall_invented", project_25), ("door_invented", project_26))
+def project_31() -> FailureProject:
+    """synthetic-31-plain-layers (S5, 22 Nov 2026; read twice with renamed layers: real09 lost 290 of 388 walls): the
+    base flat with every layer renamed L1, L2 ... (layer 0 kept), so no layer name says wall, door, window or text.
+    Truth: the base house (6 rooms, 6 doors, 9 windows), as with the named layers."""
+    plan = base_house()
+    return FailureProject("synthetic-31-plain-layers", "plain_layers", "S5",
+                          "the base flat with its layers renamed L1, L2 ...: the layer names say nothing", [plan],
+                          [GROUND], BRIEF, extra_truth={"weak_kind": "layer_names"}, plain_layers=True)
+
+
+def _tag(plan, op, text: str, off: tuple) -> Prim:
+    at = plan.wall(op.wall).at(op.s)
+    return Prim("text", FC.L_TEXT, [(r6(at[0] + off[0]), r6(at[1] + off[1]))], text=text, height=0.12)
+
+
+def project_29() -> FailureProject:
+    """synthetic-29-upper-floor-door (S3, 22 Nov 2026; the user's C0089, RC17 door_into_air on real06 L1): a
+    two-storey house (the stair house twice, a section naming ZEMİN KAT ±0.00 and 1. KAT +3.00). The upper floor's
+    SALON facade carries (a) a 1.6 m pair of sliding leaves on the window layer PENCERE with a door-high tag '160/220'
+    (read as a sliding door, like real06's '220/230') with nothing outside to step onto: truth a window; and (b) the
+    bedroom's swung door onto a drawn balcony (BALKON, a 0.10 m parapet round it): truth a door."""
+    from wenart.synthetic.failure_projects import stair_house, upper_floor
+
+    g = stair_house("p0", (10.0, 10.0), "ZEMİN KAT PLANI")
+    u = stair_house("p1", (30.0, 10.0), "1. KAT PLANI")
+    upper_floor(u)
+    for op in u.openings:
+        if op.id == "w_salon1":
+            op.draw_symbol = False
+            u.prims += sliding_window_prims(u, op)
+            u.prims.append(_tag(u, op, "160/220", (0.0, 0.45)))
+        if op.id == "w_yatak1":
+            op.kind, op.width, op.hinge, op.side = "door", 0.9, "start", 1
+    t = FC.INT_T * 2 / 3
+    u.walls += [FC.Wall("b1", (8.5 + t / 2, 0.0), (8.5 + t / 2, -1.3), t),
+                FC.Wall("b2", (8.5, -1.3 + t / 2), (10.5, -1.3 + t / 2), t),
+                FC.Wall("b3", (10.5 - t / 2, -1.3), (10.5 - t / 2, 0.0), t)]
+    u.labels.append(FC.Label("BALKON", (9.5, -0.65)))
+    storeys = [("ZEMİN KAT", 0.0), ("1. KAT", 3.0)]
+    section = FC.section_prims((50.0, 10.0), 12.0, storeys, ("ÇATI", 6.0), "A-A KESİTİ")
+    levels = [TruthLevel("L0", "Zemin Kat", 0.0, 0, "p0"), TruthLevel("L1", "1. Kat", 3.0, 1, "p1")]
+    return FailureProject("synthetic-29-upper-floor-door", "upper_floor_door", "S3",
+                          "an upper-floor sliding pair on the window layer tagged door-high with nothing outside "
+                          "(a window) and a swung door onto a drawn balcony (a door)", [g, u], levels, BRIEF,
+                          sheet_prims=section, extra_truth={"weak_kind": "door_invented", "records": ["C0089"]})
+
+
+def project_30() -> FailureProject:
+    """synthetic-30-fire-stair (S4, 22 Nov 2026; the user's C0035, C0040, UL307, UL316): the stair house's typical
+    floor (a ground floor plan and '1-3. NORMAL KAT PLANI' for three storeys, a section naming them) with a second U
+    stair, the fire escape, in a closed enclosure labelled YANGIN MERDİVENİ (the BANYO's place): its 1.40 m door to the
+    hall drawn as a bare gap with the tag '140/230' over it, and one empty 0.9 m gap (nothing drawn in it) to the flat's
+    MUTFAK. Truth: the door, no opening at the empty gap, on every floor."""
+    from wenart.synthetic.failure_projects import _relabel, stair_house
+
+    def plan(key, origin, title):
+        p = stair_house(key, origin, title)
+        _relabel(p, {"BANYO": "YANGIN MERDİVENİ"})
+        for lb in p.labels:
+            if lb.text == "YANGIN MERDİVENİ":
+                lb.at = (5.25, 6.4)
+        prims, truth = FC.u_stair(4.15, 6.75, 6.35, 8.75, 0.25, 6, 6, winders=5, numbers=True)
+        p.prims += prims
+        p.stairs.append(StairTruth("s_{L}_002", "u_winder", ((4.15 + 6.35) / 2, (6.75 + 8.75) / 2),
+                                   truth["treads"], extra=truth))
+        for op in p.openings:
+            if op.id == "d_banyo":
+                op.width, op.draw_symbol = 1.4, False
+                p.prims.append(_tag(p, op, "140/230", (0.0, 0.40)))
+        p.openings.append(FC.Opening("g_empty", "opening", "i4", 1.6, 0.9, draw_symbol=False, truth_type="absent"))
+        return p
+    g = plan("p0", (10.0, 10.0), "ZEMİN KAT PLANI")
+    t = plan("p1", (30.0, 10.0), "1-3. NORMAL KAT PLANI")
+    t.openings = [op for op in t.openings if op.id != "entrance"]
+    t.openings.append(FC.Opening("w_hol", "window", "e4", 3.9, 1.0))
+    storeys = [("ZEMİN KAT", 0.0)] + [(f"{k}. NORMAL KAT", 3.0 * k) for k in range(1, 4)]
+    section = FC.section_prims((50.0, 10.0), 12.0, storeys, ("ÇATI", 12.0), "A-A KESİTİ")
+    levels = [TruthLevel("L0", "Zemin Kat", 0.0, 0, "p0")] + [
+        TruthLevel(f"L{k}", f"{k}. Normal Kat", 3.0 * k, k, "p1") for k in range(1, 4)]
+    return FailureProject("synthetic-30-fire-stair", "fire_stair", "S4",
+                          "a second U stair in a closed fire-escape enclosure: a tagged 1.40 m door to the hall and "
+                          "an empty gap to a flat (no opening)", [g, t], levels, BRIEF, sheet_prims=section,
+                          extra_truth={"weak_kind": "opening_invented", "records": ["C0035", "C0040"],
+                                       "typical_plan": {"title": "1-3. NORMAL KAT PLANI",
+                                                        "levels": ["L1", "L2", "L3"]}})
+
+
+def project_32() -> FailureProject:
+    """synthetic-32-sliding-window-tag (S6, 22 Nov 2026; the user's C0086 "it is a sliding window", C0087 "it is a
+    sliding door for the lift"): synthetic-24's flat with the SALON's second window drawn as a pair of sliding leaves on
+    the door layer KAPI with the window-high tag '160/140' beside it (truth: a window), and the MUTFAK turned into the
+    lift (ASANSÖR) whose sliding door on KAPI carries '90/210' (truth: a door)."""
+    from wenart.synthetic.failure_projects import _relabel
+
+    plan = base_house()
+    _relabel(plan, {"MUTFAK": "ASANSÖR"})
+    for op in plan.openings:
+        if op.id == "w_salon2":
+            op.kind, op.truth_type = "sliding", "window"
+            plan.prims.append(_tag(plan, op, "160/140", (0.0, 0.45)))
+        if op.id == "d_mutfak":
+            op.kind = "sliding"
+            plan.prims.append(_tag(plan, op, "90/210", (0.0, 0.40)))
+    return FailureProject("synthetic-32-sliding-window-tag", "sliding_window_tag", "S6",
+                          "door-layer sliding leaves with a window-high tag (a window) beside a lift's tagged sliding "
+                          "door (a door)", [plan], [GROUND], BRIEF,
+                          extra_truth={"weak_kind": "opening_type", "records": ["C0086", "C0087"]})
+
+
+PROJECTS = (("opening_type", project_24), ("wall_invented", project_25), ("door_invented", project_26),
+            ("upper_floor_door", project_29), ("fire_stair", project_30), ("layer_names", project_31),
+            ("sliding_window_tag", project_32))

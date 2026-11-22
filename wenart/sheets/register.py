@@ -54,6 +54,7 @@ from shapely import affinity
 from shapely.geometry import LineString, MultiPolygon, Polygon
 from shapely.ops import unary_union
 
+from wenart.ingest.generic import layer_names as LN
 from wenart.sheets import classify as SC
 from wenart.sheets import titles as TI
 from wenart.sheets import units_check as UC
@@ -475,7 +476,7 @@ def stair_segments(region, mpu: float) -> tuple[np.ndarray, list]:
     out, layers = [], set()
     for e in region.ents:
         name = TI.fold(" ".join(x for x in (e.block or "", e.layer or "") if x))
-        if not SC.STAIR_RE.search(name):
+        if not (SC.STAIR_RE.search(name) or LN.geometry_role(e.layer) == "stair"):      # 22 Nov 2026 (S5)
             continue
         layers.add(e.block or e.layer)
         for st in e.strokes:

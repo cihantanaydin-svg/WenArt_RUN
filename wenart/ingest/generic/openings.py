@@ -678,6 +678,14 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set, log=None) -> Non
             g.cls = "door"
             g.found = {"arcs": [], "arc": [], "hinges": [], "leaves": g.found["lines"], "leaf": True, "swing": 0.0,
                        "radius": None, "double": False, "sliding": True, "by_text": why}
+    elif g.cls == "door" and g.found.get("sliding") and not g.found.get("by_name") and log is not None \
+            and not sliding_sashes([it.st for it in g.found.get("leaves") or []]):
+        why = sliding_window_by_text(g, log)
+        if why is not None:
+            # 22 Nov 2026 (S6, the reverse of the sash rule; the user's C0086 "it is a sliding window"): sliding leaves
+            # on a door layer or a layer with no role, with a window-high size tag of the gap's width beside them
+            g.cls = "window"
+            g.found = {"lines": g.found.get("leaves") or [], "glass": [], "sliding_window": True, "by_text": why}
     g.rule_cls = g.cls
     if log is None:
         return
@@ -2758,6 +2766,10 @@ def _opening(g: Gap, ctx: _Ctx, exterior) -> OpeningItem:
         named = operation_word([n for it in g.found["lines"] if it.st.block for n in it.st.block.split("/")])
         if named is not None:
             set_operation(item, named, "block_name")
+        elif g.found.get("sliding_window") and g.found.get("by_text"):
+            ev["note"] = (f"{len(ids)} sliding leaf/leaves drawn parallel to the wall without a swing arc, and "
+                          f"{g.found['by_text']}: a sliding window (S6)")
+            set_operation(item, "sliding", "geometry")
         elif g.found.get("sliding_window"):
             ev["note"] = (f"{len(ids)} sash line(s) on a window layer drawn parallel to the wall on two tracks: a sliding "
                           f"window")
@@ -3327,6 +3339,62 @@ def sliding_door_by_text(g: "Gap", log) -> Optional[str]:
     if DEC.text_features(log.texts_aligned(), centre, normal, g.width).get("outdoor_within_2m"):
         return "a balcony or terrace label within 2 m: a door onto it"
     return None
+
+
+SLIDING_WINDOW_TAG_H_CM = 180    # 22 Nov 2026 (S6): a size tag lower than this beside sliding leaves ...
+SLIDING_WINDOW_TAG_W_M = 0.15    # ... whose width is the gap's within this makes them a sliding window
+LIFT_REACH_M = 2.0               # ... unless a lift's label lies this near (the lift's sliding door, C0087)
+SLIDING_WINDOW_ROLES = ("door", None)
+
+
+def sliding_window_by_text(g: "Gap", log) -> Optional[str]:
+    """22 Nov 2026 (S6; the user's C0086 "it is a sliding window", C0087 "it is a sliding door for the lift"): why
+    sliding leaves read as a door are a sliding window, or None (pure but for the decision log's texts): every leaf on a
+    door layer or a layer with no role (``SLIDING_WINDOW_ROLES``; the window layer's sashes are ``sliding_sashes``'), a
+    size tag 'W/H' (or W over H, ``core.paired_size_tags``) within ``SLIDING_TEXT_REACH_M`` of the gap's centre whose W
+    is the gap's width within ``SLIDING_WINDOW_TAG_W_M`` and whose H is under ``SLIDING_WINDOW_TAG_H_CM`` (the nearest
+    such tag of the gap's width decides: a door-high one keeps the door; a tag on the door layer names a door), and no
+    lift label within ``LIFT_REACH_M``."""
+    from wenart.ingest import completion as CPL
+    from wenart.ingest.generic import core as CORE
+    from wenart.ingest.generic import decisions as DEC
+    from wenart.ingest.generic import layer_names as LN
+
+    leaves = [it.st for it in (g.found or {}).get("leaves") or []]
+    if not leaves or any(LN.layer_role(st.layer) not in SLIDING_WINDOW_ROLES and not _on_door_layer(st)
+                         for st in leaves):
+        return None
+    centre = g.point((g.a + g.b) / 2.0)
+    texts = list(getattr(log, "texts", None) or [])
+    theta = float(getattr(log, "_theta", 0.0) or 0.0)
+    best = None
+    for t in texts + CORE.paired_size_tags(texts):
+        box = getattr(t, "box", None)
+        if not box:
+            continue
+        at = DEC._rot(((box[0] + box[2]) / 2.0, (box[1] + box[3]) / 2.0), -theta)
+        d = math.dist(at, centre)
+        text = str(getattr(t, "text", "") or "")
+        if d <= LIFT_REACH_M and CPL.LIFT_RE.search(" ".join(B_fold(text).split())):
+            return None
+        if d > SLIDING_TEXT_REACH_M:
+            continue
+        ev = getattr(t, "evidence", None) or []
+        if ev and isinstance(ev[0], dict) and LN.layer_role(ev[0].get("layer")) == "door":
+            continue                    # a size tag on the door layer names a door (real11's shaft hatches '50/50')
+        m = DEC.SIZE_TAG_RE.match(text)
+        if m and abs(int(m.group(1)) / 100.0 - g.width) <= SLIDING_WINDOW_TAG_W_M and (best is None or d < best[0]):
+            best = (d, text, int(m.group(2)))
+    if best is None or best[2] >= SLIDING_WINDOW_TAG_H_CM:
+        return None
+    return (f"the size tag '{best[1]}' {best[0]:.2f} m away gives the {g.width:.2f} m gap a window's height "
+            f"({best[2]} cm < {SLIDING_WINDOW_TAG_H_CM} cm)")
+
+
+def B_fold(text: str) -> str:
+    from wenart import building as B
+
+    return B.fold_ascii(str(text or "")).lower()
 
 
 # 22 Nov 2026: layers whose curves are fixtures, never door swings. Not furniture: real03's typical-floor door is an

@@ -3998,3 +3998,62 @@ three projects read exactly, the sash, swing and stair-edge rules with their fre
 the question picker, the RL verification, rejection sampling, few-shot folds and the pod job's flow with fakes); with
 the failure-class set (synthetic-24-26 added), the openings, ranker, core-rule, bandit, critic, job-flow and synthetic
 tests: 422 passed, 23 xfailed. Lesson UL353.
+
+## 22 Nov 2026, S3-S6 round (the user's pick: "build S5, S3, S4, S6"; CPU only, no pod)
+
+Four reader rules from `results/rule_suggestions.md`, each general (UL338) with its synthetic project in the gated set,
+its test (`tests/test_rules_s3_s6_20261122.py`) and a lesson. Base 32799d88.
+
+- **S5, layer names are no evidence (UL355).** `wenart/ingest/generic/layer_geometry.py`: a drawing whose layer names
+  give a role to less than 20 % of its drawing (renamed L1, L2 ..., numbered or pen-width layers) gets each layer's role
+  from what it draws: door swings (a quarter arc with its leaf from the centre), window bundles standing between the
+  walls' jambs, tread runs, hatch runs, column boxes, dimension / grid-label / word texts, centre linetypes, block names,
+  and for the walls the layer whose long lines pair at a wall's thickness over the greatest length plus those pairing
+  along its walls. The sheets stage
+  registers the roles after its unit check (`sheets.json` `layer_roles_geometry`, a warning lists them); every rule that
+  asks `layer_names.layer_role` gets them; a name always wins; a plain layer whose strokes pair along the chosen walls
+  joins them like a wall-named one (`walls.face_pair_walls`); the sheets stage's stair and window name tests take the
+  geometry roles too. Named drawings are not touched (no inference, no cost). Measured with renamed layers
+  (`stability` layers variant against the HEAD reading, total of the matcher): real10 86.9 -> 94.0, real17 84.1 ->
+  84.8, real09 66.9 -> 77.2 (the role oracle, the names' own roles, reaches 84.8), and with the first version of the
+  classifier (before the hatch, stair-number and jamb tests) real06 94.7 -> 95.8, real07 93.1 -> 98.5, real20 86.1 ->
+  91.8; synthetic-10 98.5 -> 100, synthetic-20 91.6 -> 100, synthetic-24 93.7 -> 100. The variant tool copies only
+  the DXFs, so synthetic-01 and -03 lose their PDF and scan levels by construction (not the reader). Validation of the
+  classifier against the names of the 17 real DXFs (names hidden): precise for text, axis, door, structure, the main
+  wall layer; window layers are found only where their bundles stand at the wall layer's jambs (the synthetic ones, not
+  yet real10's or real17's PENCERE: the plain variant reads their windows as before). real18's own names say nothing
+  (layers 02, 05, 07 ...): its original reading now takes the geometry roles: its L-1 gains the walls of the pen-width
+  layer 07 (59 -> 68 walls, within the regress tolerance, crops looked at: the stair core reads as before). Not reached:
+  sanitary and furniture layers (no geometry test: synthetic-26's shower arc stays a door with plain layers), the
+  balcony layer word of `outdoor.SPACE_LAYER_RE`, real09's roof storey registration (its stair layer's treads are no
+  even runs).
+- **S3, an upper-floor door onto nothing (UL356).** `sense_rules.doors_onto_nothing`: a door RC17 finds opening into
+  the air, with no swing arc and no door block drawn, is a window when its gap lies on a window layer or it carries a
+  window's evidence (a French window, sill 0, when door-high); else it stays and becomes a `needs_review`
+  `door_onto_nothing` question. synthetic-29-upper-floor-door 99.1 -> 100. Real: real06 L1 d_L1_001 (the 2.15 m
+  sliding glazing of the parents' bedroom onto nothing, 43 of 59 strokes on PENCERE, tag 220/230: a French window) and
+  d_L1_010 (0.45 m in the shower's outer wall, on PENCERE) become windows (crops looked at); real15 L1 d_L1_011 becomes
+  a question. C0089 (real10 L-1) is not reached: L-1 stands at the drawn ground line (-3.00), so nothing is "into the
+  air"; its "door" is four of 30 furniture lines (a grille on TEFRİŞ at 0.10 m pitch) read as leaves: a separate rule.
+- **S4, a fire stair's enclosure is closed (UL357).** `sense_rules.fire_stairs`: a stair room with a fire word, or each
+  stair room of a storey with two or more and a common area, has no doorless opening: a gap on a stacked wall run in a
+  door's span is that door read again (merged), one with a door-high tag is its door, an empty one into a flat's room
+  closes, the stair's only way to the hall becomes its entrance. synthetic-30-fire-stair 94.1 -> 100. Real: real10's
+  fire stair door (140/230, a three-leaf wall stack) had its two other leaves' gaps read as openings on L0-L6; they
+  merge into the door: C0035's seven absent-opening entries are now satisfied (real10 95.8 -> 98.5).
+- **S6, a window-high tag on sliding leaves (UL358).** `openings.sliding_window_by_text`: door-layer (or role-less)
+  sliding leaves with a W/H tag of the gap's width under 1.80 m within 1.2 m are a sliding window; a door-high tag or a
+  lift label within 2 m keeps the door, and so does a tag on the door layer. synthetic-32-sliding-window-tag 97.9 ->
+  100. Misfire found and fixed: real11's shaft hatches (0.47 m, tag '50/50' on KAPI 0.88 m away) became windows on
+  every floor; a tag on the door layer names a door. C0086 (real10 L0) is not reached and is no S6 case: the facade is
+  one thick wall read as two (an inner 0.20 m leaf holding the PENCERE sashes, drawn as four loose lines each, and a
+  0.10 m outer skin whose empty gap is read as an opening at the user's place 0.39 m outside the sashes); it needs a
+  double-leaf rule.
+
+Gate: `score --gate` holds against 381016c0; synthetic overall (gated) 96.7 -> 97.0 on the same 34 projects (29-32
+included in both), real10 95.8 -> 98.5, no project falls (real10 still misses C0086, C0089; real07 C0053). Regress
+(without real08) against today's HEAD readings: changed only real06 (L1 doors 11 -> 9, windows 9 -> 11, S3), real10
+(L0-L6 openings 13 -> 11, S4) and real18 (L-1 walls 59 -> 68, S5); real06, real10 and real21 were already off their
+stored baselines at HEAD. Tests: the touched modules' files 731 passed (5 failures fixed: rule ids, the class list, the
+plain layers, synthetic-30's stair; the pre-existing real10 id fixture failure stays), the new file 8 passed. Lessons
+UL355-UL358.

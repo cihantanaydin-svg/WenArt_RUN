@@ -64,6 +64,7 @@ from wenart import building as B
 from wenart import geometry as G
 from wenart.ingest import completion as CP
 from wenart.ingest import rule_guards as RG
+from wenart.ingest.generic import layer_names as _LN
 
 # a flat's rooms (a storage room, a shelter or a laundry may be the building's own, reached from the core)
 PRIVATE = ("bedroom", "living", "kitchen", "bathroom", "wc", "shower", "toilet", "dining", "office", "study")
@@ -789,7 +790,8 @@ def _gap_window(level: "CP.Level", o: dict, drawn, texts: list) -> Optional[dict
     lines = []
     if drawn is not None:
         for s in drawn.segments(box):
-            if not WINDOW_LAYER_RE.search(B.fold_ascii(str(s.get("layer") or "")).lower()):
+            if not WINDOW_LAYER_RE.search(B.fold_ascii(str(s.get("layer") or "")).lower()) \
+                    and _LN.geometry_role(s.get("layer")) not in ("window", "glass"):      # 22 Nov 2026 (S5)
                 continue
             d = (s["b"][0] - s["a"][0], s["b"][1] - s["a"][1])
             if s["length"] > 0.05 and abs(d[0] * n[0] + d[1] * n[1]) <= 0.1 * s["length"]:

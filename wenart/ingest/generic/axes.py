@@ -39,8 +39,11 @@ def _fold(text) -> str:
 
 def is_axis_style(layer, linetype) -> bool:
     """True for a grid layer or a centre / dash-dot linetype (the module docstring)."""
+    from wenart.ingest.generic import layer_names as LN
+
     return bool((layer and AXIS_LAYER_RE.search(_fold(layer).replace("_", " ")))
-                or (linetype and AXIS_LINETYPE_RE.search(_fold(linetype))))
+                or (linetype and AXIS_LINETYPE_RE.search(_fold(linetype)))
+                or LN.geometry_role(layer) == "axis")       # 22 Nov 2026 (S5): a grid layer by its geometry
 
 
 def bubbles(strokes: Iterable, texts: Iterable) -> list[tuple[float, float, float]]:

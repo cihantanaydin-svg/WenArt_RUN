@@ -31,6 +31,12 @@ the building in place and returns the record written to ``level_inference.sense_
    and a review record is written (never a door through a solid drawn wall, never a tagged window retyped: review
    POD-01, REG-06, CS1-03, MF2). A level read with low confidence is left as it is. A shallower balcony is a service
    balcony (an AC ledge reached through its window): its window stays (audit real03-14).
+5. **An upper-floor door onto nothing** (``doors_onto_nothing``, 22 Nov 2026, S3, UL356): a door that RC17 finds
+   opening into the air, drawn without a swing or a door block, is a window when its gap lies on a window layer or it
+   carries a window's evidence; else it stays and becomes a question (``needs_review`` kind ``door_onto_nothing``).
+6. **A fire stair's enclosure is closed** (``fire_stairs``, 22 Nov 2026, S4, UL357): a doorless gap of a fire stair's
+   enclosure is its door read again on a stacked wall run (merged), its door (a door-high tag, or the only way to the
+   hall when empty), or wall (empty, to a flat).
 
 Why: the audit's real21-4 and real20-9 (interior walls flagged exterior, where inferred windows would go), real10-5 (a
 stair copied onto the top normal floor rising onto the open roof), real20-11, real03-4 and real06-10 (shafts read as
@@ -48,6 +54,7 @@ from typing import Optional
 from shapely.geometry import Point
 
 from wenart import building as B
+from wenart import common_areas as CA
 from wenart import geometry as G
 from wenart.ingest import completion as CP
 from wenart.ingest import rule_guards as RG
@@ -413,13 +420,20 @@ def swing_at(o: dict, wall: dict, drawn) -> Optional[dict]:
     return None
 
 
+def _glazing_by_geometry(layer) -> bool:
+    """22 Nov 2026 (S5): a layer whose name says nothing and whose geometry draws windows (``layer_names``)."""
+    from wenart.ingest.generic import layer_names as LN
+
+    return LN.geometry_role(layer) in ("window", "glass")
+
+
 def window_evidence(o: dict, texts: list) -> Optional[str]:
     """The drawn evidence that an opening is a window (pure): a W/H size tag with a height under 1.8 m at it, an entity
     on a window layer, or a window block; None without one (review POD-01, MF2)."""
     for e in o.get("evidence") or []:
         layer = B.fold_ascii(str(e.get("layer") or "")).lower()
         block = B.fold_ascii(str(e.get("block") or e.get("block_name") or "")).lower()
-        if WINDOW_LAYER_RE.search(layer):
+        if WINDOW_LAYER_RE.search(layer) or _glazing_by_geometry(e.get("layer")):
             return f"its entity on the window layer '{e.get('layer')}'"
         if WINDOW_LAYER_RE.search(block):
             return f"the window block '{e.get('block') or e.get('block_name')}'"
@@ -533,14 +547,234 @@ def balcony_doors(b: dict, next_id, drawn_by_level: Optional[dict] = None,
 
 
 
+GLAZING_ROLES = ("window", "glass", "sill")
+GAP_LAYER_SHARE = 0.5           # S3: this share of the strokes drawn in a door's gap on a window layer: it lies on it
+NOTHING_ASK = ("Is this an exterior door onto a balcony, a terrace or a roof the drawing does not show, or a window? "
+               "Nothing is drawn outside it to step onto.")
+
+
+def _gap_strokes(o: dict, wall: dict, drawn) -> list:
+    """The drawn straight pieces inside an opening's gap (between its jambs, within its wall's band)."""
+    from shapely.geometry import Polygon
+
+    a, u, _ = CP._axis(wall)
+    n = (-u[1], u[0])
+    c = o["center"][:2]
+    hw, ht = float(o.get("width") or 0.0) / 2.0 - 0.02, float(wall.get("thickness") or 0.2) / 2.0 + 0.02
+    if hw <= 0:
+        return []
+    pts = [(c[0] + u[0] * s + n[0] * t, c[1] + u[1] * s + n[1] * t) for s, t in ((-hw, -ht), (hw, -ht), (hw, ht),
+                                                                                  (-hw, ht))]
+    return drawn.segments(Polygon(pts)) if drawn is not None else []
+
+
+def _door_block(o: dict) -> Optional[str]:
+    from wenart.ingest.generic import layer_names as LN
+
+    for e in o.get("evidence") or []:
+        for name in str(e.get("block") or e.get("block_name") or "").split("/"):
+            if name and LN.layer_role(name) == "door":
+                return name
+    return None
+
+
+def doors_onto_nothing(b: dict, drawn_by_level: Optional[dict] = None, texts_by_level: Optional[dict] = None) -> list:
+    """Rule 5 (22 Nov 2026, S3; the user's C0089 "there is no doors to outside", RC17 ``door_into_air``): a door in an
+    outer wall of a storey above the ground with nothing outside to step onto (``reading_check.structure.doors_into_air``:
+    no balcony, terrace or open-air room of its storey, not the roof of the storey right under it), drawn without a
+    swing arc (``swing_at``) or a door block (its leaves as lines only), is a window when it lies on a window layer
+    (``GAP_LAYER_SHARE`` of the strokes in its gap on a window, glass or sill layer) or carries a window's evidence
+    (``window_evidence``: a W/H tag under 1.8 m, a window layer or block); otherwise it stays a door and becomes a
+    question for the user (``needs_review`` kind ``door_onto_nothing``), never silently built as a door into the air.
+    A door with a drawn swing or door block is left as drawn (RC17 still names it). Returns the records."""
+    from wenart.ingest.generic import layer_names as LN
+    from wenart.reading_check import structure as STR
+
+    out = []
+    levels = {lv["id"]: lv for lv in b.get("levels") or []}
+    walls = {w["id"]: w for w in b.get("walls") or [] if w.get("id")}
+    ops = {o["id"]: o for o in b.get("openings") or [] if o.get("id")}
+    for f in STR.doors_into_air(b):
+        lid = f.get("level_id")
+        o = ops.get((f.get("element_ids") or [None])[0])
+        if o is None or o.get("type") != "door" or o.get("virtual"):
+            continue
+        w = walls.get(o.get("wall_id"))
+        lv = levels.get(lid) or {}
+        base = levels.get(lv.get("typical_of")) if lv.get("typical_of") else None
+        if w is None or (base or lv).get("reading_confidence") == "low":
+            continue
+        drawn = (drawn_by_level or {}).get(lid)
+        texts = (texts_by_level or {}).get(lid) or []
+        if drawn is None:
+            continue
+        swing = swing_at(o, w, drawn)
+        block = _door_block(o)
+        if swing is not None or block:
+            continue
+        segs = _gap_strokes(o, w, drawn)
+        glazing = [s for s in segs if LN.layer_roles(s.get("layer")) & set(GLAZING_ROLES)]
+        why = None
+        if segs and len(glazing) >= GAP_LAYER_SHARE * len(segs):
+            why = (f"{len(glazing)} of the {len(segs)} strokes in its gap lie on a window layer "
+                   f"({', '.join(sorted({str(s.get('layer')) for s in glazing})[:3])})")
+        else:
+            why = window_evidence(o, texts)
+        if why and RG.blocked("door_onto_nothing", b, {"level_id": lid, "opening": o["id"]}):
+            continue
+        if why:
+            reason = (f"the door {o['id']} ({float(o.get('width') or 0):.2f} m) in an outer wall of {lid} has nothing "
+                      f"outside to step onto and no swing or door block drawn; {why}: it is a window (adjusted_by_ai)")
+            high = float(o.get("height") or 0.0) >= 1.9           # a door-high glazing: a French window, sill 0
+            o.update(drawn_type="door", type="window", adjusted_by_ai={"by": "code", "rule": "door_onto_nothing",
+                                                                     "reason": reason},
+                     sill_height=0.0 if high else (o.get("sill_height") or 0.9),
+                     height=float(o.get("height") or 0.0) if high else min(float(o.get("height") or 1.4), 1.5))
+            out.append({"opening": o["id"], "level_id": lid, "how": "door to window", "reason": reason})
+            continue
+        reason = (f"the door {o['id']} ({float(o.get('width') or 0):.2f} m) in an outer wall of {lid} has nothing "
+                  f"outside to step onto, no swing or door block, and nothing says window: kept as drawn, asked")
+        b.setdefault("needs_review", []).append({"id": f"door_onto_nothing:{o['id']}", "kind": "door_onto_nothing",
+                                                 "reason": reason, "ask": NOTHING_ASK, "crop": None, "room_id": None,
+                                                 "level_id": lid, "element_ids": [o["id"]], "place": f.get("place")})
+        out.append({"opening": o["id"], "level_id": lid, "how": "question", "reason": reason})
+    return out
+
+
+FIRE_STAIR_RE = re.compile(r"(?<![a-z])(?:yangin|kacis|fire|escape|evacuation|notausgang|nottreppe|"
+                           r"sicherheitstreppe|secours|incendio|emergencia)")
+STAIR_LABEL_RE = re.compile(r"(?<![a-z])(?:merdiven\w*|stair\w*|treppe\w*|escalier\w*|escalera\w*|scala)(?![a-z])")
+ENCLOSURE_REACH_M = 0.35       # S4: an opening this near a stair room's outline (plus half its wall) is in its enclosure
+STACK_ACROSS_M = 0.6           # ... and a doorless gap this far across from a door of the enclosure, in its span, ...
+DOOR_TAG_H_CM = 200            # ... is the door read again; a size tag this high names a door
+
+
+def _is_stair_room(r: dict) -> bool:
+    return str(r.get("room_type") or "") == "stair" or bool(STAIR_LABEL_RE.search(_fold(r.get("label"))))
+
+
+def fire_stairs(b: dict, texts_by_level: Optional[dict] = None) -> list:
+    """Rule 6 (22 Nov 2026, S4; the user's C0035 "There should have been fire escape ladders here, and a door to reach
+    there via Hall halls the common use area", C0040, UL307, UL316): a fire stair (a stair room labelled with a fire
+    word, ``FIRE_STAIR_RE``: YANGIN MERDİVENİ, KAÇIŞ, fire escape ...; or, on a storey with two or more stair rooms,
+    each of them: the second stair of a core) is a closed enclosure: its only openings are doors. A doorless gap in its
+    enclosure (``ENCLOSURE_REACH_M``) whose centre lies in the span of a door of the enclosure on a stacked wall run
+    (``STACK_ACROSS_M``) is that door read again (merged into it, ``openings_merged``); one with a door-high size tag
+    beside it is its door; an empty one (nothing drawn in it) becomes wall, except the stair's only way to a hall or
+    corridor, which becomes its entrance door (inferred). A gap with drawn content stays (listed). Every typical storey
+    gets the rule on its own openings. Returns the records."""
+    out = []
+    ops = b.get("openings") or []
+    merged = b.setdefault("openings_merged", [])
+    walls = {w["id"]: w for w in b.get("walls") or [] if w.get("id")}
+    by_level: dict = {}
+    for r in b.get("rooms") or []:
+        if _is_stair_room(r) and len(r.get("polygon") or []) >= 3:
+            by_level.setdefault(r.get("level_id"), []).append(r)
+    for lid, stairs in sorted(by_level.items(), key=lambda kv: str(kv[0])):
+        texts = (texts_by_level or {}).get(lid) or []
+        rooms = [r for r in b.get("rooms") or [] if r.get("level_id") == lid and len(r.get("polygon") or []) >= 3]
+        # the second stair of a core: two stair rooms on a storey of a building of flats (a common area on it)
+        core = len(stairs) >= 2 and any(CA.is_common_room(r) for r in rooms)
+        fire = [r for r in stairs if FIRE_STAIR_RE.search(_fold(r.get("label")))] or (stairs if core else [])
+        for f in fire:
+            poly = CP._poly(f.get("polygon"))
+            if poly is None:
+                continue
+
+            def near(o):
+                w = walls.get(o.get("wall_id")) or {}
+                return poly.exterior.distance(Point(o["center"][:2])) <= ENCLOSURE_REACH_M + \
+                    float(w.get("thickness") or 0.2) / 2.0
+            mine = [o for o in ops if o.get("level_id") == lid and o.get("center") and not o.get("virtual") and near(o)]
+            doors = [o for o in mine if o.get("type") == "door"]
+            # the doorless gaps of the enclosure, and those of the stacked wall runs at one of its doors (the far leaf of
+            # a thick wall stack lies beyond the enclosure's reach: real10's 140/230 door, C0035)
+            cands = [o for o in mine if o.get("type") == "opening"] + [
+                o for o in ops if o.get("level_id") == lid and o.get("type") == "opening" and o.get("center")
+                and not o.get("virtual") and o not in mine
+                and any(G.distance(o["center"][:2], d["center"][:2]) <= STACK_ACROSS_M for d in doors)]
+            for g in cands:
+                if RG.blocked("fire_stair_closed", b, {"level_id": lid, "opening": g["id"], "stair_room": f["id"]}):
+                    continue
+                gw = walls.get(g.get("wall_id"))
+                host = None
+                for d in doors:
+                    dw = walls.get(d.get("wall_id"))
+                    if gw is None or dw is None:
+                        continue
+                    _a, u, _l = CP._axis(dw)
+                    v = (g["center"][0] - d["center"][0], g["center"][1] - d["center"][1])
+                    along, across = abs(v[0] * u[0] + v[1] * u[1]), abs(-v[0] * u[1] + v[1] * u[0])
+                    _a2, u2, _l2 = CP._axis(gw)
+                    if abs(u[0] * u2[0] + u[1] * u2[1]) >= 0.98 and along <= float(d.get("width") or 0) / 2.0 \
+                            and across <= STACK_ACROSS_M:
+                        host = d
+                        break
+                label = f"{f['id']} '{f.get('label')}'"
+                if host is not None:
+                    reason = (f"the doorless gap {g['id']} lies in the span of the door {host['id']} of the fire stair "
+                              f"{label} on a stacked wall run: the same door read again, merged into it")
+                    ops.remove(g)
+                    merged.append(dict(g, merged_into=host["id"], corrected_by_ai={"by": "code", "rule": "fire_stair_closed",
+                                                                                    "reason": reason}))
+                    host.setdefault("evidence", []).append({"file": "building.json", "method": "derived",
+                                                            "confidence": 0.8, "rule": "fire_stair_closed",
+                                                            "note": f"{g['id']} merged into it (S4)"})
+                    out.append({"opening": g["id"], "level_id": lid, "how": "merged into door", "reason": reason})
+                    continue
+                if g not in mine:
+                    continue                            # a stacked run beyond the enclosure: merged or left
+                tag = None
+                for t in texts:
+                    m = TAG_RE.match(B.fold_ascii(str(t.get("text") or "")).lower())
+                    if m and int(m.group(2)) >= DOOR_TAG_H_CM and "x" in t and \
+                            G.distance((t["x"], t["y"]), g["center"][:2]) <= float(g.get("width") or 0) / 2.0 + 0.6:
+                        tag = t["text"]
+                        break
+                notes = " ".join(str(e.get("note") or "") for e in g.get("evidence") or [])
+                empty = "gap content" not in notes and not any(e.get("layer") or e.get("text")
+                                                               for e in g.get("evidence") or [])
+                beyond = [r for r in rooms if r is not f and CP._poly(r.get("polygon")) is not None
+                          and CP._poly(r.get("polygon")).distance(Point(g["center"][:2])) <= 0.6]
+                to_hall = any(str(r.get("room_type") or "") in ("hall", "corridor") or CA.is_common_room(r)
+                              for r in beyond)
+                hall_door = any(any(str(r.get("room_type") or "") in ("hall", "corridor")
+                                    and CP._poly(r.get("polygon")).distance(Point(d["center"][:2])) <= 0.6
+                                    for r in rooms if r is not f) for d in doors)
+                if tag or (empty and to_hall and not hall_door):
+                    why = (f"the door-high size tag '{tag}' beside it" if tag else
+                           "its only way to the shared hall: the entrance (inferred)")
+                    reason = f"the doorless gap {g['id']} in the enclosure of the fire stair {label}: {why}: a door"
+                    g.update(drawn_type="opening", type="door", height=max(float(g.get("height") or 0), 2.1),
+                             adjusted_by_ai={"by": "code", "rule": "fire_stair_closed", "reason": reason})
+                    doors.append(g)
+                    out.append({"opening": g["id"], "level_id": lid, "how": "opening to door", "reason": reason})
+                elif empty and beyond and not to_hall:            # to a flat's room only (never to the outside)
+                    reason = (f"the empty gap {g['id']} (nothing drawn in it) in the enclosure of the fire stair "
+                              f"{label}: a fire stair has no doorless opening, the wall is closed there")
+                    ops.remove(g)
+                    merged.append(dict(g, merged_into=None, closed=True, corrected_by_ai={
+                        "by": "code", "rule": "fire_stair_closed", "reason": reason}))
+                    out.append({"opening": g["id"], "level_id": lid, "how": "closed", "reason": reason})
+                else:
+                    out.append({"opening": g["id"], "level_id": lid, "how": "listed",
+                                "reason": f"the gap {g['id']} in the enclosure of the fire stair {label} has drawn "
+                                          f"content and no door: kept (review)"})
+    return out
+
+
 def apply(build, texts_by_level: dict, drawn_by_level: Optional[dict] = None) -> dict:
-    """The four rules (the module docstring); the record for ``level_inference.sense_rules``."""
+    """The six rules (the module docstring); the record for ``level_inference.sense_rules``."""
     b = build.building
     rec = {"shafts": shafts(b, texts_by_level), "stairs": stairs_over_nothing(b, texts_by_level),
            "balconies": balcony_doors(b, build.ids.next, drawn_by_level, texts_by_level),
            # the staged per-stretch rule (exterior.apply, before the windows) replaces this one when switched on
            "exterior": [] if RG.active("exterior_spans", b) else exterior_flags(b)}
-    for k, word in (("shafts", "shaft"), ("stairs", "stair"), ("balconies", "balcony")):
+    rec["doors_onto_nothing"] = doors_onto_nothing(b, drawn_by_level, texts_by_level)
+    rec["fire_stairs"] = fire_stairs(b, texts_by_level)
+    for k, word in (("shafts", "shaft"), ("stairs", "stair"), ("balconies", "balcony"),
+                    ("doors_onto_nothing", "door onto nothing"), ("fire_stairs", "fire stair")):
         for x in rec[k]:
             build.warn(f"{word}: {x['reason']}")
     if rec["exterior"]:

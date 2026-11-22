@@ -2495,6 +2495,10 @@ def _sheets_for(project_dir: Path, out_dir: Path, build: ProjectBuild) -> Option
     try:
         doc = SH.load(out_dir)
         if doc is not None and doc.get("inputs") == SH.inputs_of(project_dir):
+            from wenart.ingest.generic import layer_names as LN
+            for d in doc.get("documents") or []:            # 22 Nov 2026 (S5): the roles the geometry gave
+                if isinstance(d.get("layer_roles_geometry"), dict):
+                    LN.set_geometry_roles(d.get("file") or "?", d["layer_roles_geometry"])
             return doc
         if doc is not None:
             build.warn(f"{SH.SHEETS_JSON} was made from other documents or another brief: the sheets stage ran again")
@@ -3116,6 +3120,8 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
     project_dir = Path(project_dir)
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+    from wenart.ingest.generic import layer_names as _LN
+    _LN.clear_geometry_roles()          # 22 Nov 2026 (S5): the layer roles by geometry are per project (sheets stage)
     brief = None
     brief_path = project_dir / "brief.yaml"
     if brief_path.is_file():

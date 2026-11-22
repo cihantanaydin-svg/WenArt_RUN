@@ -23,6 +23,7 @@ side by side on one sheet; each sits at its own sheet offset and its truth is in
 """
 from __future__ import annotations
 
+import dataclasses
 import json
 import math
 from dataclasses import dataclass, field
@@ -198,6 +199,9 @@ class FailureProject:
     brief: dict
     sheet_prims: list = field(default_factory=list)   # in sheet metres (sections, frames, notes)
     extra_truth: dict = field(default_factory=dict)    # class-specific truth (site, sections, recesses ...)
+    # 22 Nov 2026 (S5): every layer written as L1, L2 ... in the order of the layer table (layer 0 kept): a drawing
+    # whose layer names say nothing
+    plain_layers: bool = False
 
 
 # --------------------------------------------------------------------------
@@ -652,8 +656,13 @@ def write_dxf(project: FailureProject, path: Path) -> tuple:
         drawn = [(plan, plan_prims(plan)) for plan in project.plans]
         known = {name for name, _ in LAYERS}
         extra = sorted({p.layer for _, prims in drawn for p in prims} | {p.layer for p in project.sheet_prims})
-        for name, colour in list(LAYERS) + [(name, 7) for name in extra if name not in known]:
-            doc.layers.add(name, color=colour)      # the class's own layers (KOLON, HAVUZ, ASANSOR ...) too
+        table = list(LAYERS) + [(name, 7) for name in extra if name not in known]
+        plain = {name: f"L{k}" for k, (name, _c) in enumerate(table, start=1)} if project.plain_layers else {}
+        for name, colour in table:
+            doc.layers.add(plain.get(name, name), color=colour)   # the class's own layers (KOLON, HAVUZ ...) too
+        if plain:
+            drawn = [(plan, [dataclasses.replace(p, layer=plain.get(p.layer, p.layer)) for p in prims])
+                     for plan, prims in drawn]
         msp = doc.modelspace()
         xs, ys = [], []
         for plan, prims in drawn:
@@ -663,7 +672,7 @@ def write_dxf(project: FailureProject, path: Path) -> tuple:
                     xs.append(plan.origin[0] + q[0])
                     ys.append(plan.origin[1] + q[1])
         for p in project.sheet_prims:
-            _emit(msp, p, (0.0, 0.0))
+            _emit(msp, dataclasses.replace(p, layer=plain.get(p.layer, p.layer)), (0.0, 0.0))
             for q in p.pts:
                 xs.append(q[0])
                 ys.append(q[1])
@@ -710,6 +719,8 @@ def plan_truth(plan: Plan, lid: str) -> dict:
     doors, windows, openings = [], [], []
     for op in plan.openings:
         w = plan.wall(op.wall)
+        if op.truth_type == "absent":
+            continue                    # 22 Nov 2026 (S4): a gap drawn that is no opening (the wall closes there)
         c = w.at(op.s)
         kind = op.truth_type or {"door": "door", "sliding": "door", "garage": "door", "window": "window",
                                  "opening": "opening"}[op.kind]
