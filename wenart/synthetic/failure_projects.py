@@ -530,6 +530,9 @@ def project_23() -> FailureProject:
 
 
 def failure_projects() -> list[FailureProject]:
+    # 22 Nov 2026: synthetic-24 ... 26, the weak-spot hunter's projects (``wenart.synthetic.weak_projects``)
+    from wenart.synthetic import weak_projects as WP
+
     return [project_08(), project_09(), project_10(), project_11(), project_12(), project_13(), project_14(),
             project_15(), project_16(), project_17(), project_18(), project_19(), project_20(), project_21(),
-            project_22(), project_23()]
+            project_22(), project_23()] + [fn() for _kind, fn in WP.PROJECTS]

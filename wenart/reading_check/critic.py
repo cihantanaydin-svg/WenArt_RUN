@@ -496,6 +496,16 @@ def _vector(which: str, item: dict, images_root: Path, base_prompt: str, answer_
     return blk
 
 
+def fewshot_block(env: Optional[dict] = None) -> str:
+    """22 Nov 2026 (the RL pilot's zero-training arm, ``rl_pilot fewshot``): ``CRITIC_FEWSHOT`` names a fold file whose
+    examples (the user's past verdicts, never the fold's exam) are added to the checks' system prompt; empty when
+    unset."""
+    path = (env if env is not None else os.environ).get("CRITIC_FEWSHOT")
+    if not path:
+        return ""
+    return "\n\n" + json.loads(Path(path).read_text(encoding="utf-8"))["text"]
+
+
 def _check_messages(which: str, item: dict, images_root: Path, part: int, max_side: int,
                     marked_dir: Optional[Path], vt: str = "0", meta: Optional[dict] = None) -> tuple:
     """The messages and schema of one call of checks 1, 2, 4 (``critic_checks``): inventory image 1 only, compare both
@@ -507,7 +517,7 @@ def _check_messages(which: str, item: dict, images_root: Path, part: int, max_si
     from wenart.reading_check import critic_judge as CJ
     from wenart.reading_check import vector_text as VT
 
-    system = {"role": "system", "content": CC.SYSTEM_TEXT}
+    system = {"role": "system", "content": CC.SYSTEM_TEXT + fewshot_block()}
     meta = meta if meta is not None else {}
     tags = vt == "1"
 
@@ -778,6 +788,10 @@ def serve_and_ask(key: str, index: dict, images_root: Path, out: Path, *, deadli
         (out / "server.json").write_text(json.dumps(dict(stats[-1], url=url, gpu_mem_mib=mem, key=key),
                                                     indent=1), encoding="utf-8")
         model = AM.from_check_yaml(url, key, timeout_s=900.0, parallel=seqs)
+        # 22 Nov 2026 (RL pilot, scripts/jobs/rl_pilot.sh): a LoRA served beside the base model (``--enable-lora
+        # --lora-modules <name>=<dir>`` in ``server_flags``) is asked by its served name
+        if os.environ.get("CRITIC_SERVED_MODEL"):
+            model.model = os.environ["CRITIC_SERVED_MODEL"]
         return ask(index, model, images_root, out, deadline=deadline, sets=sets, which=which, arms=arms, log=log)
 
 
@@ -1437,6 +1451,8 @@ def _cmd_ask(args) -> int:
     if args.vlm_url:
         from wenart.agent import model as AM
         model = AM.from_check_yaml(args.vlm_url, args.key, timeout_s=900.0, parallel=args.workers or 1)
+        if os.environ.get("CRITIC_SERVED_MODEL"):               # 22 Nov 2026: a LoRA served beside its base
+            model.model = os.environ["CRITIC_SERVED_MODEL"]
         res = ask(index, model, Path(args.inputs), out, deadline=deadline, sets=sets, which=which, arms=arms)
     else:
         res = serve_and_ask(args.key, index, Path(args.inputs), out, deadline=deadline, server_flags=args.server_flags,

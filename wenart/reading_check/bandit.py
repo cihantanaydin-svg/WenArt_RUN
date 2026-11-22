@@ -525,7 +525,38 @@ def all_labels(work: Path, projects: Optional[list] = None) -> dict:
     questions = json.loads((qdir / "questions.json").read_text(encoding="utf-8")) if qdir else {}
     um = user_mark_labels(records, questions, marks or {})
     return {"truth": truth, "agreement": agree, "user_marks": um, "ai": ai, "flags": flags, "records": records,
-            "disagreements": dis}
+            "disagreements": dis, "unstable": unstable_places(Path(work), projects)}
+
+
+def unstable_places(work: Path, projects: Optional[list] = None) -> dict:
+    """``{project: [low place]}`` of the readings in ``work`` that were read twice (``twice.py``,
+    ``reading_check/read_twice.json``; 22 Nov 2026): the places a harmless change of the drawing changes."""
+    from wenart.reading_check import twice as TW
+
+    out = {}
+    names = projects or (sorted(x.name for x in Path(work).iterdir() if x.is_dir()) if Path(work).is_dir() else [])
+    for p in names:
+        low = TW.load_low(Path(work) / p)
+        if low:
+            out[p] = low
+    return out
+
+
+def instability(q: dict, unstable: Optional[dict]) -> Optional[dict]:
+    """The low place (read twice) a question stands at: on its level within ``twice.REACH_M`` of its place (pure)."""
+    from wenart.reading_check import twice as TW
+
+    at = q.get("at")
+    if not unstable or not isinstance(at, (list, tuple)) or len(at) < 2 or not isinstance(at[0], (int, float)):
+        return None
+    best, best_d = None, None
+    for p in unstable.get(q.get("project")) or []:
+        if p.get("level") != q.get("level_id") or p.get("at") is None:
+            continue
+        d = math.dist([float(at[0]), float(at[1])], [float(p["at"][0]), float(p["at"][1])])
+        if d <= TW.REACH_M and (best_d is None or d < best_d):
+            best, best_d = p, d
+    return best
 
 
 def latest_questions() -> Optional[Path]:
@@ -538,7 +569,9 @@ def question_list(labels: dict, top: int = 15, include_findings: bool = True,
                   excluded: Optional[dict] = None) -> list:
     """Loop A's questions (pure given the labels and ``excluded``): every gap disagreement and every unjudged RC15
     finding of the newest calibration, scored by uncertainty (1 - the decision's margin; for a finding, nearness of its
-    confidence to 0.5) times impact (``IMPACT``), the highest ``top``. 21 Nov 2026 (real09 L3, the user: "this drawing
+    confidence to 0.5) times impact (``IMPACT``), the highest ``top``; a question at a place the reading does not
+    reproduce when read twice (``labels["unstable"]``, ``twice.py``; 22 Nov 2026) gets ``twice.INSTABILITY_BONUS`` more
+    uncertainty (capped at 1) and says why (``unstable``). 21 Nov 2026 (real09 L3, the user: "this drawing
     is not good we can ignore this drawing"): nothing is asked about a level the user excluded (``excluded``:
     ``truth.excluded_levels()``, ``{project: {level: record}}``; the store's when None)."""
     from wenart.reading_check import critic as CR
@@ -573,6 +606,16 @@ def question_list(labels: dict, top: int = 15, include_findings: bool = True,
                        "description": str(f.get("description") or "")[:110]})
     _ = CR
     qs = [q for q in qs if not TR.is_excluded(excluded, q.get("project"), q.get("level_id"))]
+    # 22 Nov 2026 (read twice): a question at a place a harmless change of the drawing changes is more uncertain
+    from wenart.reading_check import twice as TW
+    for q in qs:
+        low = instability(q, labels.get("unstable"))
+        if low is None:
+            continue
+        imp = IMPACT.get(q["kind"], 1.0)
+        u = q["score"] / imp if imp else 0.0
+        q["score"] = round(min(1.0, u + TW.INSTABILITY_BONUS) * imp, 3)
+        q["unstable"] = low["reason"]
     qs.sort(key=lambda q: (-q["score"], q["id"]))
     # one question settles its like: at most two of a kind per project and four of a kind in all, no repeated text
     out, per, seen = [], {}, set()

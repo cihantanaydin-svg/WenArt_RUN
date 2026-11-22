@@ -49,6 +49,7 @@ RULE_CONFIDENCE: dict[str, float] = {
     "window_glass_3_lines": 0.90,  # three or more line offsets of the window's own, glass between the faces
     "window_2_lines": 0.60,        # two offsets only: a frame and one glass line, or two outlines (real03's 43 ghosts)
     "window_named": 0.85,          # a window block across the gap (real17's fm-win1)
+    "window_sliding_sashes": 0.75, # 22 Nov 2026 (UL346, real10 C0085/C0091): sliding leaves on a window layer: sashes
     "window_raster": 0.60,         # a scan's traced lines (their ends and offsets carry the tracing's error)
     "closed_narrow": 0.95,         # a gap under GAP_MIN_M: a drawing crack, never an opening
     "closed_inside_wall": 0.90,    # other wall pieces cover the whole band: concrete, not an opening (real03's core)
@@ -65,6 +66,8 @@ RULE_CONFIDENCE: dict[str, float] = {
     "tread_run": 0.90,             # four or more parallel lines at an even tread pitch: a stair, slats or a hatch
     "wide_band": 0.80,             # three or more short strokes side by side wider than any wall: rails, a newel
     "flight": 0.80,                # a band crossed by three or more treads at an even pitch: a stair flight
+    "stair_edge": 0.75,            # 22 Nov 2026 (C0053): a thin band at whose one face a flight's treads end, as long
+                                   # as the flight: its open side (stringer and balustrade)
     "wall_chosen_layer": 0.80,     # a primary pair on the layer the labels chose (walls.PAIR_CONFIDENCE)
     "wall_document_layer": 0.50,   # a primary pair on a layer taken from the document's other plans (too few labels)
     "secondary_pair": 0.40,        # a pair under PAIR_OVERLAP_M on a chosen layer that the network takes (as long as it

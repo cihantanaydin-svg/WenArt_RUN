@@ -1,7 +1,7 @@
 {
  "_note": "What the user asked and corrected while this project was built, each turned into a general lesson the architect applies to every project (wenart/blender/architect_lessons.py; user request of 25 Oct 2026: 'the architect should ask the questions and corrections I was asking all along the build; use AI to understand what I was asking and keep developing with the future requests'). checks: the architect rules that check it on every build (architect.ORDER ids) or 'build' (the build does it by itself); status: rule (a rule checks it), built (code does it), open (no automatic check yet: the AI architect looks for it on every run and it is the next rule to write), process (how we work). Add a new request with: python -m wenart.agent.lessons add \"<the request>\"",
  "version": 1,
- "updated": "2026-11-21",
+ "updated": "2026-11-22",
  "lessons": [
   {
    "id": "UL01",
@@ -4137,6 +4137,16 @@
    "checks": [],
    "request": "No reader change may open a space that was closed (21 Nov 2026, coordinator review of the facade-line rule: real13's lift shaft vanished): the slit closing of the wall union never fills a hole (GEOS's mitred erosion did; the round erosion closes the slits then), and RC17 core_space_unbuilt raises any lift, stair or shaft label left outside every room. An empty gap with only one of its wall's face lines running across it on a wall layer is the wall drawn with one face, not an opening (real09 L3, C0090: 'it is a drawing mistake'); a negated opening holds only when no door, window or opening stands there",
    "lesson": "No reader change may open a space that was closed (21 Nov 2026, coordinator review of the facade-line rule: real13's lift shaft vanished): the slit closing of the wall union never fills a hole (GEOS's mitred erosion did; the round erosion closes the slits then), and RC17 core_space_unbuilt raises any lift, stair or shaft label left outside every room. An empty gap with only one of its wall's face lines running across it on a wall layer is the wall drawn with one face, not an opening (real09 L3, C0090: 'it is a drawing mistake'); a negated opening holds only when no door, window or opening stands there",
+   "question": null
+  },
+  {
+   "id": "UL353",
+   "date": "2026-11-22",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "22 Nov 2026 (self-improvement round, user-approved queue item: the structure reader and the AI checks improve themselves with as little of the user's time as possible, every gain measured): the weak-spot hunter ranks the reader's error kinds over the bench, the AI checks' known errors, the user's corrections and the reading checks, each as a share, and makes a synthetic project for the top kinds (synthetic-24 sliding windows, 25 stair edge, 26 corner shower). Three general rules they exposed: sliding leaves or sashes drawn on a window or glass layer (loose or in a window block, none on a door layer or in a door block) are a sliding window, never a sliding door (UL346; real10 C0085, C0091); an arc on a sanitary or finish layer (a corner shower's curved front) is never a door swing (a furniture layer may hold a door: real03); a thin face pair standing free at both ends, at whose one face a flight's treads end, as long as the flight, is the flight's open side (stringer and balustrade), never a wall (C0053); sliding sashes with a door-high size tag, a door word or a balcony label beside them stay a sliding door. A threshold change (tune search) or an uncertainty signal (read twice) ships only with a held-out gain; rule ideas the data shows go to results/rule_suggestions.md for the user to pick.",
+   "lesson": "22 Nov 2026 (self-improvement round, user-approved queue item: the structure reader and the AI checks improve themselves with as little of the user's time as possible, every gain measured): the weak-spot hunter ranks the reader's error kinds over the bench, the AI checks' known errors, the user's corrections and the reading checks, each as a share, and makes a synthetic project for the top kinds (synthetic-24 sliding windows, 25 stair edge, 26 corner shower). Three general rules they exposed: sliding leaves or sashes drawn on a window or glass layer (loose or in a window block, none on a door layer or in a door block) are a sliding window, never a sliding door (UL346; real10 C0085, C0091); an arc on a sanitary or finish layer (a corner shower's curved front) is never a door swing (a furniture layer may hold a door: real03); a thin face pair standing free at both ends, at whose one face a flight's treads end, as long as the flight, is the flight's open side (stringer and balustrade), never a wall (C0053); sliding sashes with a door-high size tag, a door word or a balcony label beside them stay a sliding door. A threshold change (tune search) or an uncertainty signal (read twice) ships only with a held-out gain; rule ideas the data shows go to results/rule_suggestions.md for the user to pick.",
    "question": null
   }
  ]

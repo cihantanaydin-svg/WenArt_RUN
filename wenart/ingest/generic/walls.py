@@ -1017,6 +1017,86 @@ def _drop_flight_pairs(pairs: list[_Pair], cross: list) -> list[_Pair]:
     return out
 
 
+STAIR_EDGE_MAX_W = 0.12          # 22 Nov 2026: a pair this thin or thinner ...
+STAIR_EDGE_END_M = 0.03          # ... at whose one face >= FLIGHT_MIN_TREADS treads end (within this) at an even pitch,
+STAIR_EDGE_REACH_M = 0.35        # ... the treads reaching both its ends (within this), none ending at its other face,
+                                 # is the open side of a flight (its stringer and balustrade), never a wall
+
+
+def _tread_run(ts: list) -> int:
+    """The longest run of steps at an even tread pitch (``TREAD_PITCH_M``, each within ``TREAD_EVEN``) among the
+    along-positions ``ts`` (pure; positions within 2 cm are one)."""
+    ts = sorted(ts)
+    uniq = [t for k, t in enumerate(ts) if k == 0 or t - ts[k - 1] > 0.02]
+    steps = [b - a for a, b in zip(uniq, uniq[1:])]
+    run = best = 0
+    for k, d in enumerate(steps):
+        if TREAD_PITCH_M[0] <= d <= TREAD_PITCH_M[1] and (run == 0 or abs(d - steps[k - 1]) <= TREAD_EVEN * d):
+            run += 1
+        else:
+            run = 1 if TREAD_PITCH_M[0] <= d <= TREAD_PITCH_M[1] else 0
+        best = max(best, run)
+    return best
+
+
+def _drop_stair_edge_pairs(pairs: list[_Pair], treads: list) -> tuple[list[_Pair], list[_Pair]]:
+    """22 Nov 2026 (the user's C0053 on real07, "no wall: the stair's edge"; synthetic-25-stair-edge): a thin pair
+    (<= ``STAIR_EDGE_MAX_W``) at one of whose faces the treads of a flight end (>= ``FLIGHT_MIN_TREADS`` lines across
+    it, each with one end within ``STAIR_EDGE_END_M`` of that face and the other end away from the band, at an even
+    pitch), the treads reaching both of its ends (within ``STAIR_EDGE_REACH_M``) and none ending at its other face, is
+    the open side of the flight: its stringer and balustrade, never a wall. A wall beside a flight runs on past it (a
+    landing, the enclosure), and a U stair's well has treads at both faces: both stay walls. ``treads``: (a, b) pieces
+    across the pairs' direction. Returns (kept, dropped)."""
+    if not treads or not pairs:
+        return pairs, []
+    keep, drop = [], []
+    for p in pairs:
+        if p.width > STAIR_EDGE_MAX_W + 1e-9:
+            keep.append(p)
+            continue
+        o0, o1 = p.lines[0].off, p.lines[1].off
+        sides: dict = {0: [], 1: []}
+        for a, b in treads:
+            ta, tb = a[0] * p.u[0] + a[1] * p.u[1], b[0] * p.u[0] + b[1] * p.u[1]
+            if abs(ta - tb) > 0.1 * math.dist(a, b):
+                continue
+            t = (ta + tb) / 2.0
+            if not p.lo - STAIR_EDGE_END_M <= t <= p.hi + STAIR_EDGE_END_M:
+                continue
+            oa, ob = a[0] * p.n[0] + a[1] * p.n[1], b[0] * p.n[0] + b[1] * p.n[1]
+            near, far = (oa, ob) if min(abs(oa - o0), abs(oa - o1)) <= min(abs(ob - o0), abs(ob - o1)) else (ob, oa)
+            if abs(near - o0) <= STAIR_EDGE_END_M and far < o0 - STAIR_EDGE_END_M:
+                sides[0].append(t)
+            elif abs(near - o1) <= STAIR_EDGE_END_M and far > o1 + STAIR_EDGE_END_M:
+                sides[1].append(t)
+        edge = False
+        for side, other in ((0, 1), (1, 0)):
+            ts = sides[side]
+            if len(sides[other]) >= 2 or _tread_run(ts) + 1 < FLIGHT_MIN_TREADS:
+                continue
+            if min(ts) <= p.lo + STAIR_EDGE_REACH_M and max(ts) >= p.hi - STAIR_EDGE_REACH_M:
+                edge = True
+        (drop if edge else keep).append(p)
+    return keep, drop
+
+
+STAIR_EDGE_FREE_M = 0.05         # 22 Nov 2026: a stair-edge pair's end this close to another wall piece is joined
+
+
+def free_standing(cands: list[_Pair], pairs: list[_Pair]) -> list[_Pair]:
+    """The candidates of ``_drop_stair_edge_pairs`` whose two ends touch no other wall piece of the layer (pure): a
+    balustrade stands free, while a wall piece that a door's gap cut to the flight's length meets a wall at its other
+    end (real02 L1's stair-hall wall)."""
+    out = []
+    for c in cands:
+        others = [q.polygon() for q in pairs if q is not c]
+        o0, o1 = c.lines[0].off, c.lines[1].off
+        caps = [LineString([c.point(s_, o0), c.point(s_, o1)]) for s_ in (c.lo, c.hi)]
+        if all(not any(cap.distance(g) <= STAIR_EDGE_FREE_M for g in others) for cap in caps):
+            out.append(c)
+    return out
+
+
 def stepped_runs(pairs: list[_Pair]) -> None:
     """A wall pier whose other face steps (real06: a 0.85 m pier between two windows, drawn as a 0.35 m piece of the
     25 cm wall between two 0.25 m pieces 45 cm thick, the pilasters at the jambs) is one wall piece: pairs that share
@@ -1547,6 +1627,7 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
         groups = [(u, n, _merge_lines(group, u, n)) for u, n, group in _direction_groups(pieces)]
         considered: list[_Pair] = []
         dropped: dict[int, str] = {}
+        edge_cands: list[_Pair] = []
         all_lines: list[_Line] = []
         for u, n, lines in groups:
             all_lines.extend(lines)
@@ -1565,12 +1646,22 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
                 before = found
                 found = _drop_flight_pairs(found, cross)
                 dropped.update({id(p): "flight" for p in before if id(p) not in {id(q) for q in found}})
+            # 22 Nov 2026: a thin pair at whose one face a flight's treads end, as long as the flight (its open side);
+            # dropped below, once every direction's pairs are known (its two ends must touch no other wall piece)
+            if any(p.width <= STAIR_EDGE_MAX_W for p in found):
+                across = [(a, b) for a, b in tread_like
+                          if abs((b[0] - a[0]) * u[0] + (b[1] - a[1]) * u[1]) < 0.1 * math.dist(a, b)]
+                edge_cands.extend(_drop_stair_edge_pairs(found, across)[1])
             pairs.extend(found)
             in_pairs = {id(ln) for p in found if p.primary for ln in p.lines}
             for ln in lines:
                 if ln.s1 - ln.s0 >= PAIR_OVERLAP_M:
                     long_lines += 1
                     paired += id(ln) in in_pairs
+        edges = free_standing(edge_cands, pairs)
+        if edges:
+            pairs = [p for p in pairs if id(p) not in {id(e) for e in edges}]
+            dropped.update({id(p): "stair_edge" for p in edges})
         if decisions is not None:
             cands.append({"layer": layer, "pairs": considered, "dropped": dropped, "lines": all_lines,
                           "notation": False, "dimension_pieces": len(dims)})

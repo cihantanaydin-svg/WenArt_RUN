@@ -1,0 +1,46 @@
+{
+ "questions": 763,
+ "train": 646,
+ "held_out": 117,
+ "projects_held_out": [
+  "synthetic-09-jamb-stubs",
+  "synthetic-16-open-recess",
+  "synthetic-19-symmetric-house"
+ ],
+ "projects_train": [
+  "synthetic-08-spaced-labels",
+  "synthetic-10-glazed-facade",
+  "synthetic-11-dimension-chains",
+  "synthetic-12-mirrored-halves",
+  "synthetic-13-typical-floor",
+  "synthetic-14-elevation-title",
+  "synthetic-15-winder-stair",
+  "synthetic-17-garage-lift",
+  "synthetic-18-sheet-frame",
+  "synthetic-20-glazed-corner",
+  "synthetic-21-parapet",
+  "synthetic-22-curved-stair",
+  "synthetic-23-size-tags"
+ ],
+ "counts": {
+  "opening_kind|held|door": 18,
+  "opening_kind|held|wall": 16,
+  "opening_kind|held|window": 29,
+  "opening_kind|train|door": 100,
+  "opening_kind|train|wall": 88,
+  "opening_kind|train|window": 151,
+  "room_here|held|True": 18,
+  "room_here|train|False": 4,
+  "room_here|train|True": 101,
+  "room_window|held|False": 3,
+  "room_window|held|True": 15,
+  "room_window|train|False": 17,
+  "room_window|train|True": 84,
+  "stair_here|held|False": 18,
+  "stair_here|train|False": 91,
+  "stair_here|train|True": 10
+ },
+ "crops_mb": 13.4,
+ "samples_per_question": 8,
+ "calls": 5168
+}

@@ -37,7 +37,15 @@ DELEGATED = {"remark": ("wenart.reading_check.remark", "main"), "stability": ("w
              # label; ``evaluate`` because the sandbox refuses the word eval)
              "ranker": ("wenart.reading_check.ranker", "main"),
              # 20 Nov 2026: loops A and B (labels from agreement, questions, the ranker as a contextual bandit)
-             "bandit": ("wenart.reading_check.bandit", "main")}
+             "bandit": ("wenart.reading_check.bandit", "main"),
+             # 22 Nov 2026: the self-tuning of the reader's thresholds (``tune list|search|read``)
+             "tune": ("wenart.reading_check.tune", "main"),
+             # 22 Nov 2026: read twice (a harmless change of the drawing; what differs is low confidence)
+             "twice": ("wenart.reading_check.twice", "main"),
+             # 22 Nov 2026: the RL pilot's CPU side (``rl_pilot build|filter|fewshot``; ``sample|train`` on the pod)
+             "rl_pilot": ("wenart.reading_check.rl_pilot", "main"),
+             # 22 Nov 2026: the weak-spot hunter (``weak rank|hunt``)
+             "weak": ("wenart.reading_check.weak_spots", "main")}
 
 
 def main(argv=None) -> int:

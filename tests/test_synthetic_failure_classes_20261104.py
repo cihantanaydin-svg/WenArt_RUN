@@ -103,6 +103,10 @@ EXPECTED_NAMES = [
     "synthetic-21-parapet",
     "synthetic-22-curved-stair",
     "synthetic-23-size-tags",
+    # 22 Nov 2026: the weak-spot hunter's projects (wenart.synthetic.weak_projects)
+    "synthetic-24-sliding-windows",
+    "synthetic-25-stair-edge",
+    "synthetic-26-corner-shower",
 ]
 
 

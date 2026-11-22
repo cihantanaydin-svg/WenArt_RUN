@@ -48,7 +48,12 @@ wall, and its two bedroom doors share one run gap that the end of the wall betwe
   before the window rule (drawn closed, a leaf's two sides would read as glass). Windows get an operation only from
   a block name (else null: swing, assumed). 21 Nov 2026 (real09's kitchen windows, the user: "There is a window and
   there is a door"): a window's glass drawn as panes end to end on one line with mullions between them, each pane
-  shorter than the gap, is a window, checked before the sliding leaves (``_window_panes``).
+  shorter than the gap, is a window, checked before the sliding leaves (``_window_panes``). 22 Nov 2026 (UL346,
+  real10's C0085 and C0091, "it is not a door it is sliding window"): sliding leaves drawn on a window or glass layer,
+  loose or in a window block, none on a door layer or in a door block, are a sliding window's sashes
+  (``sliding_sashes``; operation sliding), unless a door-high tag, a door word or a balcony label beside them says door
+  (``sliding_door_by_text``). An arc on a sanitary or finish layer (a corner shower's curved front) is never a door
+  swing (``swing_layer_ok``; synthetic-26-corner-shower).
 - Walls drawn as face lines (real02) put two walls of one axis line far apart with perpendicular walls crossing the
   gap between them (the bedroom walls of a semi-detached pair, a corridor and a bathroom between them): a run gap
   that perpendicular walls running through the band split is one wall with openings only when every part holds a
@@ -665,6 +670,14 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set, log=None) -> Non
     closed or open, never an end gap, never against a hard constraint). Without a log nothing else happens (the unit
     tests' direct calls)."""
     _classify_gap_rules(g, index, owned_global)
+    if g.cls == "window" and g.found.get("sliding_window") and log is not None:
+        why = sliding_door_by_text(g, log)
+        if why is not None:
+            # 22 Nov 2026: sashes alone cannot tell a sliding window from a sliding door; the drawing's text decides
+            # (real10's '240/230' balcony doors, real07's 'SÜRGÜ KAPI' to its BALKON, real06's '220' over '230')
+            g.cls = "door"
+            g.found = {"arcs": [], "arc": [], "hinges": [], "leaves": g.found["lines"], "leaf": True, "swing": 0.0,
+                       "radius": None, "double": False, "sliding": True, "by_text": why}
     g.rule_cls = g.cls
     if log is None:
         return
@@ -787,6 +800,8 @@ def gap_rule(g: Gap, features: dict, raster: bool = False) -> tuple[str, float]:
     elif cls == "window":
         if found.get("by_name"):
             rule = "window_named"
+        elif found.get("sliding_window"):
+            rule = "window_sliding_sashes"
         elif raster:
             rule = "window_raster"
         elif features.get("glass_lines", 0) >= 1 and features.get("parallel_offsets", 0) >= 3:
@@ -994,6 +1009,13 @@ def _classify_gap_rules(g: Gap, index: StrokeIndex, owned_global: set) -> None:
     # Sliding door (Milestone 10): no swing arc, but one or two leaves (thin closed shapes) parallel to the wall,
     # shorter than the gap, in the band or just beside it.
     leaves = _sliding_leaves(g, zone)
+    if leaves and sliding_sashes([it.st for it in leaves]):
+        # 22 Nov 2026 (UL346; the user's C0085 and C0091 on real10, "it is not a door it is sliding window";
+        # synthetic-24-sliding-windows): sliding leaves drawn on a window or glass layer, loose or in a window block,
+        # none on a door layer or in a door block, are a sliding window's sashes
+        g.cls = "window"
+        g.found = {"lines": leaves, "glass": [], "sliding_window": True}
+        return
     if leaves:
         g.cls = "door"
         g.found = {"arcs": [], "arc": [], "hinges": [], "leaves": leaves, "leaf": True, "swing": 0.0,
@@ -2685,6 +2707,9 @@ def _opening(g: Gap, ctx: _Ctx, exterior) -> OpeningItem:
         if g.found.get("by_name"):
             chain = g.found["leaves"][0].st.block
             ev["note"] = f"door by its block name '{chain}' ({g.found['by_name']}, no swing arc)"
+        elif g.found.get("by_text"):
+            ev["note"] = (f"{len(ids)} sash line(s) on a window layer drawn parallel to the wall without a swing arc: a "
+                          f"sliding door ({g.found['by_text']})")
         else:
             ev["note"] = f"{len(ids)} leaf/leaves drawn parallel to the wall without a swing arc: a sliding door"
         item = OpeningItem(kind="door", width=width, center=_r(center), rotation_deg=round(axis_deg % 360.0, 3),
@@ -2733,6 +2758,10 @@ def _opening(g: Gap, ctx: _Ctx, exterior) -> OpeningItem:
         named = operation_word([n for it in g.found["lines"] if it.st.block for n in it.st.block.split("/")])
         if named is not None:
             set_operation(item, named, "block_name")
+        elif g.found.get("sliding_window"):
+            ev["note"] = (f"{len(ids)} sash line(s) on a window layer drawn parallel to the wall on two tracks: a sliding "
+                          f"window")
+            set_operation(item, "sliding", "geometry")
         return item
     if g.cls == "empty":
         ev = ctx.evidence("derived", CONF_DOORLESS, f"gap:{names}", box_units=box)
@@ -3114,7 +3143,7 @@ def _continuous_symbols(walls: list[WallItem], index: StrokeIndex, owned: set, t
     pieces, _ = pieces_of(walls, theta)
     doors: list[OpeningItem] = []
     # Doors: arc + leaf with the end-point rule, hinged in a wall band.
-    arcs = [(it, arc) for it, arc in _arcs_in(index.items) if it.st.id not in owned
+    arcs = [(it, arc) for it, arc in _arcs_in(index.items) if it.st.id not in owned and swing_layer_ok(it.st)
             and (CONTINUOUS_RADIUS_M[0] if _on_door_layer(it.st) else CONTINUOUS_RADIUS_ANY_M) <= arc["radius"]
             <= CONTINUOUS_RADIUS_M[1] and SWEEP_DEG[0] <= arc["sweep"] <= SWEEP_DEG[1]]
     # 12 Nov 2026 (review B-r10-dups: real10 L-1 draws two doors twice, identical arcs on one layer; the gap took one
@@ -3251,6 +3280,68 @@ def _window_block(st: Stroke) -> bool:
     from wenart.ingest.generic import layer_names as LN
 
     return any(LN.layer_roles(n) & GLAZING_ROLES for n in (st.block or "").split("/") if n)
+
+
+def sliding_sashes(strokes) -> bool:
+    """22 Nov 2026 (UL346, real10 C0085/C0091): sliding leaves that are a window's sashes (pure): every stroke on a
+    window or glass layer (``layer_names.layer_roles``), drawn loose or inside a block named for a window, none on a
+    door layer or inside a block named for a door. A leaf in a neutral block keeps the door (real15's balcony sliding
+    doors are blocks on the window layer)."""
+    from wenart.ingest.generic import layer_names as LN
+
+    sts = list(strokes or ())
+    return bool(sts) and all((bool(LN.layer_roles(st.layer) & GLAZING_ROLES) or _window_block(st))
+                             and not _on_door_layer(st) and (not st.block or _window_block(st)) for st in sts)
+
+
+SLIDING_TEXT_REACH_M = 1.2       # 22 Nov 2026: a door-high size tag or a door word this close to sliding sashes ...
+SLIDING_DOOR_TAG_H_CM = 200      # ... (a tag at least this high, written as 'W/H' or as W over H) makes them a door
+
+
+def sliding_door_by_text(g: "Gap", log) -> Optional[str]:
+    """22 Nov 2026: why sliding sashes on a window layer are a sliding door after all, or None (the drawing's text, from
+    the decision log's texts): a size tag at least ``SLIDING_DOOR_TAG_H_CM`` high ('240/230', or '220' over '230',
+    ``core.paired_size_tags``) or a text with a door word (KAPI, DOOR: 'SÜRGÜ KAPI') within ``SLIDING_TEXT_REACH_M`` of
+    the gap's centre, or a balcony or terrace label within 2 m (``decisions.text_features``: a door onto it)."""
+    from wenart.ingest.generic import core as CORE
+    from wenart.ingest.generic import decisions as DEC
+
+    centre = g.point((g.a + g.b) / 2.0)
+    texts = list(getattr(log, "texts", None) or [])
+    theta = float(getattr(log, "_theta", 0.0) or 0.0)
+    for t in texts + CORE.paired_size_tags(texts):
+        box = getattr(t, "box", None)
+        if not box:
+            continue
+        at = DEC._rot(((box[0] + box[2]) / 2.0, (box[1] + box[3]) / 2.0), -theta)
+        d = math.dist(at, centre)
+        if d > SLIDING_TEXT_REACH_M:
+            continue
+        text = str(getattr(t, "text", "") or "")
+        m = DEC.SIZE_TAG_RE.match(text)
+        if m and int(m.group(2)) >= SLIDING_DOOR_TAG_H_CM:
+            return f"the size tag '{text}' {d:.2f} m away is a door's height"
+        if any(w in text.translate(_FOLD).upper() for w in DOOR_WORDS):
+            return f"the text '{text}' {d:.2f} m away names a door"
+    normal = (0.0, 1.0) if g.axis == "h" else (1.0, 0.0)
+    if DEC.text_features(log.texts_aligned(), centre, normal, g.width).get("outdoor_within_2m"):
+        return "a balcony or terrace label within 2 m: a door onto it"
+    return None
+
+
+# 22 Nov 2026: layers whose curves are fixtures, never door swings. Not furniture: real03's typical-floor door is an
+# anonymous block (leaf and 0.74 m arc) inserted on the furniture xref layer 'SAA_TEFRİS'
+NO_SWING_ROLES = ("sanitary", "finish")
+
+
+def swing_layer_ok(st: Stroke) -> bool:
+    """22 Nov 2026 (synthetic-26-corner-shower): an arc drawn on a sanitary or finish layer (a corner shower's curved
+    front, a tile pattern) is no door swing, unless it lies in a block named for a door (pure)."""
+    from wenart.ingest.generic import layer_names as LN
+
+    if _on_door_layer(st):
+        return True
+    return LN.layer_role(st.layer) not in NO_SWING_ROLES
 
 
 def _on_door_layer(st: Stroke) -> bool:

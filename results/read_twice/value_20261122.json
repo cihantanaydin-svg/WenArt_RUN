@@ -1,0 +1,260 @@
+{
+ "date": "2026-11-22",
+ "commit": "bb96f999 (the readings) ",
+ "command": "python -m wenart.reading_check twice run --projects ... --variants layers,mirror --write; python -m wenart.reading_check twice value --work DIR [--variants v]",
+ "projects": [
+  "real06",
+  "real07",
+  "real09",
+  "real10",
+  "real17"
+ ],
+ "arms": {
+  "both": {
+   "projects": {
+    "real06": {
+     "entries": 3,
+     "on_low_same": 2,
+     "on_low_any": 2,
+     "wrong": 0,
+     "wrong_on_low": 0,
+     "chance": 0.211,
+     "chance_n": 19
+    },
+    "real07": {
+     "entries": 10,
+     "on_low_same": 0,
+     "on_low_any": 1,
+     "wrong": 1,
+     "wrong_on_low": 1,
+     "chance": 0.355,
+     "chance_n": 203
+    },
+    "real09": {
+     "entries": 21,
+     "on_low_same": 18,
+     "on_low_any": 20,
+     "wrong": 0,
+     "wrong_on_low": 0,
+     "chance": 0.96,
+     "chance_n": 555
+    },
+    "real10": {
+     "entries": 122,
+     "on_low_same": 19,
+     "on_low_any": 78,
+     "wrong": 11,
+     "wrong_on_low": 0,
+     "chance": 0.651,
+     "chance_n": 2884
+    },
+    "real17": {
+     "entries": 6,
+     "on_low_same": 6,
+     "on_low_any": 6,
+     "wrong": 0,
+     "wrong_on_low": 0,
+     "chance": 0.714,
+     "chance_n": 56
+    }
+   },
+   "entries": 162,
+   "on_low_same": 45,
+   "on_low_any": 107,
+   "expected": 108.0,
+   "lift": 0.99,
+   "wrong": 12,
+   "wrong_on_low": 1,
+   "wrong_expected": 7.5,
+   "wrong_lift": 0.13,
+   "records": 41,
+   "records_on_low": [
+    "C0001",
+    "C0003",
+    "C0006",
+    "C0013",
+    "C0016",
+    "C0017",
+    "C0020",
+    "C0023",
+    "C0027",
+    "C0028",
+    "C0034",
+    "C0035",
+    "C0037",
+    "C0038",
+    "C0040",
+    "C0043",
+    "C0053",
+    "C0064",
+    "C0068",
+    "C0069",
+    "C0087",
+    "C0088",
+    "C0090",
+    "C0093",
+    "C0094",
+    "C0096"
+   ]
+  },
+  "layers": {
+   "projects": {
+    "real06": {
+     "entries": 3,
+     "on_low_same": 2,
+     "on_low_any": 2,
+     "wrong": 0,
+     "wrong_on_low": 0,
+     "chance": 0.211,
+     "chance_n": 19
+    },
+    "real07": {
+     "entries": 10,
+     "on_low_same": 0,
+     "on_low_any": 1,
+     "wrong": 1,
+     "wrong_on_low": 1,
+     "chance": 0.355,
+     "chance_n": 203
+    },
+    "real09": {
+     "entries": 21,
+     "on_low_same": 13,
+     "on_low_any": 16,
+     "wrong": 0,
+     "wrong_on_low": 0,
+     "chance": 0.917,
+     "chance_n": 555
+    },
+    "real10": {
+     "entries": 122,
+     "on_low_same": 7,
+     "on_low_any": 59,
+     "wrong": 11,
+     "wrong_on_low": 0,
+     "chance": 0.499,
+     "chance_n": 2884
+    },
+    "real17": {
+     "entries": 6,
+     "on_low_same": 6,
+     "on_low_any": 6,
+     "wrong": 0,
+     "wrong_on_low": 0,
+     "chance": 0.571,
+     "chance_n": 56
+    }
+   },
+   "entries": 162,
+   "on_low_same": 28,
+   "on_low_any": 84,
+   "expected": 87.7,
+   "lift": 0.96,
+   "wrong": 12,
+   "wrong_on_low": 1,
+   "wrong_expected": 5.8,
+   "wrong_lift": 0.17,
+   "records": 41,
+   "records_on_low": [
+    "C0001",
+    "C0003",
+    "C0006",
+    "C0013",
+    "C0016",
+    "C0017",
+    "C0020",
+    "C0023",
+    "C0027",
+    "C0034",
+    "C0035",
+    "C0037",
+    "C0038",
+    "C0043",
+    "C0053",
+    "C0064",
+    "C0090",
+    "C0093",
+    "C0094",
+    "C0096"
+   ]
+  },
+  "mirror": {
+   "projects": {
+    "real06": {
+     "entries": 3,
+     "on_low_same": 0,
+     "on_low_any": 0,
+     "wrong": 0,
+     "wrong_on_low": 0,
+     "chance": 0.0,
+     "chance_n": 19
+    },
+    "real07": {
+     "entries": 10,
+     "on_low_same": 0,
+     "on_low_any": 0,
+     "wrong": 1,
+     "wrong_on_low": 0,
+     "chance": 0.0,
+     "chance_n": 203
+    },
+    "real09": {
+     "entries": 21,
+     "on_low_same": 9,
+     "on_low_any": 10,
+     "wrong": 0,
+     "wrong_on_low": 0,
+     "chance": 0.604,
+     "chance_n": 555
+    },
+    "real10": {
+     "entries": 122,
+     "on_low_same": 12,
+     "on_low_any": 45,
+     "wrong": 11,
+     "wrong_on_low": 0,
+     "chance": 0.322,
+     "chance_n": 2884
+    },
+    "real17": {
+     "entries": 6,
+     "on_low_same": 0,
+     "on_low_any": 0,
+     "wrong": 0,
+     "wrong_on_low": 0,
+     "chance": 0.304,
+     "chance_n": 56
+    }
+   },
+   "entries": 162,
+   "on_low_same": 21,
+   "on_low_any": 55,
+   "expected": 53.8,
+   "lift": 1.02,
+   "wrong": 12,
+   "wrong_on_low": 0,
+   "wrong_expected": 3.5,
+   "wrong_lift": 0.0,
+   "records": 41,
+   "records_on_low": [
+    "C0001",
+    "C0006",
+    "C0013",
+    "C0017",
+    "C0020",
+    "C0023",
+    "C0028",
+    "C0034",
+    "C0037",
+    "C0040",
+    "C0068",
+    "C0069",
+    "C0087",
+    "C0088",
+    "C0090",
+    "C0096"
+   ]
+  }
+ },
+ "finding": "the read-twice signal does not concentrate on the user's corrections: 107 of 162 correction entries (26 of 41 records) fall on a place the second reading changes, against 108.0 expected by chance (lift 0.99; layers alone 0.96, mirror alone 1.02); of the 12 entries today's reading still gets wrong 1 falls on such a place against 7.5 by chance (lift 0.13: the reader is stable where it is wrong). The question picker's bonus stays opt-in (only readings that were read twice carry it)."
+}
