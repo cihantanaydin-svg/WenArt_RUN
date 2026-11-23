@@ -4318,6 +4318,26 @@
    "request": "23 Nov 2026, RL try 2 (user: 'continue'; pod c06ymmikyhzz13): a rejection-sampling LoRA trained on 176 close-up questions about our own reader's errors on real bench buildings rose on held-out bench buildings (71 -> 80.5 % right, reader errors flagged 68 -> 101 of 123) but found fewer known errors on the real exam than both controls on the same pod (63 against 65 and 65 of 73), broke 18 of 91 compare calls (whitespace after the opening key) and fell on the judge (52 -> 46 of 62). With pilot 1 (synthetic close-ups, 64 -> 52) this is the second LoRA on short close-up answers that improves its own question format and harms the RC15 calls. Rule: do not train the AI checks' model on a question format other than the exam's own calls; a model change for the checks ships only on the real exam against same-pod controls (UL359, UL360); the default stays the FP8 agent model with the drawing text.",
    "lesson": "23 Nov 2026, RL try 2 (user: 'continue'; pod c06ymmikyhzz13): a rejection-sampling LoRA trained on 176 close-up questions about our own reader's errors on real bench buildings rose on held-out bench buildings (71 -> 80.5 % right, reader errors flagged 68 -> 101 of 123) but found fewer known errors on the real exam than both controls on the same pod (63 against 65 and 65 of 73), broke 18 of 91 compare calls (whitespace after the opening key) and fell on the judge (52 -> 46 of 62). With pilot 1 (synthetic close-ups, 64 -> 52) this is the second LoRA on short close-up answers that improves its own question format and harms the RC15 calls. Rule: do not train the AI checks' model on a question format other than the exam's own calls; a model change for the checks ships only on the real exam against same-pod controls (UL359, UL360); the default stays the FP8 agent model with the drawing text.",
    "question": null
+  },
+  {
+   "id": "UL371",
+   "date": "2026-11-23",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "23 Nov 2026, the user on real15 L1 d_L1_011 (answer 'Wall or column' to: a 0.50 m door from a drawn block in the outer wall between a bedroom and a bathroom, no swing arc, nothing outside to step onto): a 'door' narrower than any real door (under 0.60 m) with no swing and nothing outside is no door: it is wall or a column in the facade. Rule for every project: a block or gap that small with no swing, no door-high tag and nothing to step onto is never a door; the wall runs on (or the column stands) through it.",
+   "lesson": "23 Nov 2026, the user on real15 L1 d_L1_011 (answer 'Wall or column' to: a 0.50 m door from a drawn block in the outer wall between a bedroom and a bathroom, no swing arc, nothing outside to step onto): a 'door' narrower than any real door (under 0.60 m) with no swing and nothing outside is no door: it is wall or a column in the facade. Rule for every project: a block or gap that small with no swing, no door-high tag and nothing to step onto is never a door; the wall runs on (or the column stands) through it.",
+   "question": null
+  },
+  {
+   "id": "UL372",
+   "date": "2026-11-23",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "23 Nov 2026, the user on real15 L0 o_L0_006 (answer 'Open passage' to: a 0.85 m gap in the thin wall between the kitchen and the next space, nothing drawn in it, no arc, frame or tag): such a doorless gap between two rooms of one flat is an open passage, as the open-passage rule (UL363) reads it; it is not an undrawn door and not a wall to close. Its note must not call the wall exterior.",
+   "lesson": "23 Nov 2026, the user on real15 L0 o_L0_006 (answer 'Open passage' to: a 0.85 m gap in the thin wall between the kitchen and the next space, nothing drawn in it, no arc, frame or tag): such a doorless gap between two rooms of one flat is an open passage, as the open-passage rule (UL363) reads it; it is not an undrawn door and not a wall to close. Its note must not call the wall exterior.",
+   "question": null
   }
  ]
 }

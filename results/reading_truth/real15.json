@@ -1,0 +1,148 @@
+{
+ "project": "real15",
+ "source": "user_corrections",
+ "sparse": true,
+ "status": "sparse",
+ "commit": null,
+ "date": null,
+ "note": "The user's screenshot revisions only (user, 6 Nov 2026: \"Only consider my revision with the screenshot I have given into previous projects others I have not seen\"): every entry is an assertion of a correction record, present (the reading must have it) or absent (it must not); nothing the truth does not list is judged.",
+ "levels": [
+  {
+   "id": "L0",
+   "source": "user_correction"
+  },
+  {
+   "id": "L1",
+   "source": "user_correction"
+  }
+ ],
+ "levels_left_out": [],
+ "per_level": {
+  "L0": {
+   "rooms": [],
+   "doors": [],
+   "windows": [],
+   "openings": [
+    {
+     "id": "u_C0098_1",
+     "type": "opening",
+     "center": [
+      10.075,
+      15.775
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0098",
+     "added_on": "2026-11-23",
+     "frame": {
+      "file": "real15.dwg",
+      "page": 1,
+      "region": "r1",
+      "center": [
+       781687.7,
+       4161658.7
+      ]
+     },
+     "reader_id": "o_L0_006",
+     "corrections": [
+      "C0098"
+     ]
+    }
+   ],
+   "walls": [],
+   "stairs": []
+  },
+  "L1": {
+   "rooms": [],
+   "doors": [
+    {
+     "id": "u_C0097_1",
+     "type": "door",
+     "center": [
+      5.215,
+      25.169
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0097",
+     "frame": {
+      "file": "real15.dwg",
+      "page": 1,
+      "region": "r3",
+      "center": [
+       784720.2265,
+       4162601.0979
+      ]
+     },
+     "reader_id": "d_L1_011",
+     "corrections": [
+      "C0097"
+     ],
+     "absent": true,
+     "removed_on": "2026-11-23"
+    }
+   ],
+   "windows": [],
+   "openings": [],
+   "walls": [],
+   "stairs": []
+  }
+ },
+ "project_assertions": [],
+ "corrections": [
+  "C0097",
+  "C0098"
+ ],
+ "not_measurable": [],
+ "built_from": {
+  "reading": null,
+  "reading_commit": null,
+  "records": [
+   "C0097",
+   "C0098"
+  ],
+  "asserted": []
+ },
+ "build_report": {
+  "applied": [
+   {
+    "record": "C0097",
+    "n": 1,
+    "op": "remove",
+    "kind": "door",
+    "level": "L1",
+    "place": [
+     5.215,
+     25.169
+    ],
+    "state": "negated"
+   },
+   {
+    "record": "C0098",
+    "n": 1,
+    "op": "confirm",
+    "kind": "opening",
+    "level": "L0",
+    "place": [
+     10.075,
+     15.775
+    ],
+    "state": "asserted"
+   }
+  ],
+  "unmatched": [],
+  "asserted": [],
+  "not_replayed": [
+   {
+    "record": "C0073",
+    "why": "status 'proposed': waits for the user's confirmation"
+   },
+   {
+    "record": "C0079",
+    "why": "status 'proposed': waits for the user's confirmation"
+   }
+  ]
+ }
+}

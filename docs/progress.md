@@ -4458,3 +4458,18 @@ calls. The default stays the FP8 agent model with the drawing text. The training
 pod's own setup took 8 min). Found: the architect-style model image draws a stair with `details.stair` but no flights
 as an empty box (`critic_checks.draw_arch`), so the stair questions were left out; open. Tests
 `tests/test_rl_bench_20261123.py` (11). Lesson UL370.
+
+## 23 Nov 2026, the user's decisions on the open points (asked one by one)
+
+| # | Point | Decision |
+|---|---|---|
+| 1 | Old WIP folder (c87df9ad: B3C-08, REGX-3, BLD-09, handrail turns, REGX-4) | Re-check each fix against today's code, merge only what is still needed (gate + bench), then delete the folder |
+| 2 | real15 L1 d_L1_011, a 0.50 m "door" onto nothing | "Wall or column": C0097 (truth remove), lesson UL371; a general rule is still to build |
+| 3 | real15 L0 o_L0_006, a 0.85 m empty gap kitchen / next space | "Open passage" (as read): C0098 (truth confirm), lesson UL372; its note wrongly says "exterior wall" |
+| 4 | Next error class after the fair scorer and long walls | Stairs (with the AI-check drawing of a stair with no flights as an empty box) |
+| 5 | Older backlog | Keep only "AI design where the documents are silent" (#28 option 5); clean-up, #11 and #16 dropped |
+| 6 | Official regulation PDFs | Public summaries are enough; mevzuat.gov.tr does not answer from the cloud container and resmigazete.gov.tr is not on its allow-list, so the summaries stay |
+| 7 | Structure pod to see today's reader changes built | After the stairs round: one pod, real10, real15 and two others, one zip per project |
+
+Queue: fair wall scorer + long invented walls (running) -> stairs -> UL371 rule (narrow door onto nothing) and the
+old WIP re-check -> render pod -> AI design where the documents are silent.
