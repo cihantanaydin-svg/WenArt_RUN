@@ -1208,7 +1208,33 @@ BRIDGE_PIECE_ROLES = ("furniture", "sanitary")   # a bridge never runs through d
 BRIDGE_PIECE_END_M = 0.30       # ... along its middle (this far from its jambs)
 
 
-def _sound_bridges(ex, where: str, walls2: list, cands: list, strokes: list) -> list:
+def _labels_in_faces(bwalls: list, b_openings: list, labels: list) -> int:
+    """23 Nov 2026 (UL374): how many indoor room labels lie in a closed face of the building walls."""
+    faces = TP.faces(bwalls, b_openings)
+    return sum(1 for lb in labels if not getattr(lb, "exterior", False)
+               and any(TP._label_in(f, lb) for f in faces))
+
+
+def _labelled_both_sides(b: dict, t: float, faces: list, labels: list) -> bool:
+    """23 Nov 2026 (UL374): the two faces a bridge stands between (probes ``t / 2 + 0.05`` m off its middle) are two
+    faces and each holds a room label (indoor or outdoor): the drawing separates two rooms there."""
+    (x0, y0), (x1, y1) = b["start"], b["end"]
+    L = math.hypot(x1 - x0, y1 - y0)
+    if L <= 1e-9:
+        return False
+    nx, ny = -(y1 - y0) / L, (x1 - x0) / L
+    mx, my = (x0 + x1) / 2.0, (y0 + y1) / 2.0
+    found = []
+    for s_ in (1.0, -1.0):
+        q = Point(mx + s_ * nx * (t / 2.0 + 0.05), my + s_ * ny * (t / 2.0 + 0.05))
+        f = next((k for k, fc in enumerate(faces) if fc.contains(q)), None)
+        if f is None or not any(TP._label_in(faces[f], lb) for lb in labels):
+            return False
+        found.append(f)
+    return found[0] != found[1]
+
+
+def _sound_bridges(ex, where: str, walls2: list, cands: list, strokes: list, labels: Optional[list] = None) -> list:
     """19 Nov 2026 (review A3, OA3-05: real13's salons were cut along the column axis by wide-gap walls through the
     dining table and the sofa, 2.3 m inside their glazed facade, and a sliver room 0.34 m wide was left beside a drawn
     wall): a candidate bridge (``wide_gaps.bridges``) is dropped when its band crosses a line drawn on a furniture or
@@ -1227,6 +1253,7 @@ def _sound_bridges(ex, where: str, walls2: list, cands: list, strokes: list) -> 
             pieces.append(LineString(st.pts))
     tree = STRtree(pieces) if pieces else None
     out, dropped = [], []
+    faces = None
     for b in cands:
         w = walls2[b["wall"]]
         t = float(w.thickness)
@@ -1240,6 +1267,20 @@ def _sound_bridges(ex, where: str, walls2: list, cands: list, strokes: list) -> 
                                                          for i in tree.query(band, predicate="intersects")):
             dropped.append(f"{b['width']:.2f} m bridge from {b['start']}: it runs through drawn furniture")
             continue
+        # 23 Nov 2026 (UL374, the dataset bench's long invented walls: bridges across open passages and open sides of
+        # loggias): a wide gap with nothing drawn across it is open, not an opening whose kind the drawing leaves out;
+        # it is marked here and ``_outer_gaps`` keeps it only where the rooms need it to close
+        if b.get("rule") in (None, "wide_gap"):
+            from wenart.ingest.generic import wide_gaps as WG
+            drawn, why = WG.gap_drawn(b["start"], b["end"], t, strokes)
+            if not drawn:
+                if faces is None:                            # the faces with every candidate bridge, for the labels
+                    faces = TP.faces(WG.apply(walls2, [], cands)[0])
+                if _labelled_both_sides(b, t, faces, labels or []):
+                    ex.notes.append(f"{where}: the {b['width']:.2f} m bridge from {b['start']} spans an empty gap "
+                                    f"({why}) but stands between two labelled rooms: kept")
+                else:
+                    b = dict(b, empty_gap=why)
         if not b.get("from_free_end"):
             L = axis.length
             (x0, y0), (x1, y1) = axis.coords[0], axis.coords[-1]
@@ -1278,7 +1319,7 @@ def _outer_gaps(ex, where: str, walls2: list, openings: list, blocks: list, leve
     cands = WG.bridges(walls2)
     # 3 Nov 2026: the glazed runs (``joinery_bridges``) are left to the facade closure that follows (``facade``): its
     # walls follow the frames and carry the windows and doors drawn on them, where a run's bridge was a hole
-    cands = _sound_bridges(ex, where, walls2, cands, strokes or [])
+    cands = _sound_bridges(ex, where, walls2, cands, strokes or [], labels=blocks)
     if not cands:
         return None
     w3, o3 = WG.apply(walls2, openings, cands)
@@ -1296,6 +1337,28 @@ def _outer_gaps(ex, where: str, walls2: list, openings: list, blocks: list, leve
     before, after = _unclosed(site_warnings), _unclosed(sw4)
     if not (after < before or (problem is not None and problem4 is None and after <= before)):
         return None                                        # nothing closes: the drawn walls stay as they are
+    # 23 Nov 2026 (UL374): a bridge over an empty gap stays only where the rooms need it to close (the longest tried
+    # first); the others are open passages and open sides (no wall, no opening)
+    held4 = _labels_in_faces(bw4, b_open4, blocks) if any(b.get("empty_gap") for b in kept) else 0
+    for b in sorted([b for b in kept if b.get("empty_gap")], key=lambda b: (-b["width"], b["start"])):
+        trial = [x for x in kept if x is not b]
+        if not trial:
+            break
+        w5, o5 = WG.apply(walls2, openings, trial)
+        bw5, site5, sw5 = TP.split_plot(w5, o5, blocks, level_id=level_id)
+        idx5 = {o["index"] for o in site5["openings"]}
+        b_open5 = [o for k, o in enumerate(o5) if k not in idx5]
+        problem5 = TP.outer_loop_problem(bw5, b_open5)
+        held5 = _labels_in_faces(bw5, b_open5, blocks)
+        # (and no drawn wall leaves the building with it: swiss-b2294, a wing of thin walls the closure holds in)
+        if _unclosed(sw5) <= after and held5 >= held4 and len(bw5) >= len(bw4) - 1 and \
+                (problem5 is None or problem4 is not None):
+            held4 = held5
+            ex.notes.append(f"{where}: the {b['width']:.2f} m bridge from {b['start']} left out: an empty gap "
+                            f"({b['empty_gap']}) the rooms close without, an open passage")
+            kept = trial
+            w4, o4, bw4, site4, sw4, b_open4, problem4 = w5, o5, bw5, site5, sw5, b_open5, problem5
+            after = _unclosed(sw5)
     ex.notes.append(f"{where}: {len(kept)} wide gap(s) in the outer walls bridged by inferred walls with unverified "
                     f"openings (rule wide_gap: a sliding door, a garage door or an entrance the drawing gives no "
                     f"symbol the openings reader knows; rule glazed_run: a glazed run on a window, door or glass "

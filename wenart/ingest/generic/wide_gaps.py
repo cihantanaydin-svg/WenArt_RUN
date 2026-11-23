@@ -122,6 +122,62 @@ def bridges(walls: list) -> list[dict]:
     return out
 
 
+EMPTY_GAP_ROLES_IGNORED = ("dimension", "text", "axis")   # 23 Nov 2026 (UL374): annotations never close a gap
+EMPTY_GAP_END_M = 0.05          # the jambs' own face lines at the gap's ends are no evidence
+EMPTY_GAP_MIN_HALF_M = 0.05     # the band looked in: half the wall's thickness, at least this
+EMPTY_GAP_ANGLE_DEG = 15.0      # a line along the gap (within this angle) ...
+EMPTY_GAP_ALONG_SHARE = 0.25    # ... drawn along this share of it (all such lines together) closes the gap
+
+
+def gap_drawn(start, end, thickness: float, strokes: list, ignore_roles=EMPTY_GAP_ROLES_IGNORED) -> tuple[bool, str]:
+    """23 Nov 2026 (UL374, the dataset bench: 128 of the 142 wide-gap bridges that stood where the truth has no wall
+    spanned a gap with nothing drawn in it, against 8 of 35 right ones): whether the drawing shows anything closing a
+    wide gap: a line on any layer but an annotation (``EMPTY_GAP_ROLES_IGNORED``) running along the gap
+    (``EMPTY_GAP_ANGLE_DEG``) inside the wall's band (half its thickness, ``EMPTY_GAP_MIN_HALF_M`` at least) between
+    the jambs (``EMPTY_GAP_END_M`` off each), all such lines together along ``EMPTY_GAP_ALONG_SHARE`` of the gap (a
+    sliding door's leaves and tracks, a garage door's line, a glazed screen, a sill, a hatch boundary), or an arc
+    reaching the gap's band grown by ``EMPTY_GAP_END_M`` (a door's swing: its hinge at one jamb, its end at the other). ``(drawn, why)``; a line across the gap (a wall or railing running into it, a
+    jamb) is no evidence. ``ignore_roles``: the layer roles that are no evidence. Pure; ``strokes`` in the walls'
+    frame."""
+    from wenart.ingest.generic import layer_names as LN
+
+    L = math.dist(tuple(start), tuple(end))
+    if L <= 2 * EMPTY_GAP_END_M + 1e-6:
+        return True, "a gap too short to look into"
+    ux, uy = (end[0] - start[0]) / L, (end[1] - start[1]) / L
+    a = (start[0] + ux * EMPTY_GAP_END_M, start[1] + uy * EMPTY_GAP_END_M)
+    b = (end[0] - ux * EMPTY_GAP_END_M, end[1] - uy * EMPTY_GAP_END_M)
+    half = max(float(thickness) / 2.0, EMPTY_GAP_MIN_HALF_M)
+    band = LineString([a, b]).buffer(half, cap_style=2)
+    # a door's swing has its hinge at one jamb and ends at the other, on the wall's face: the whole gap, grown a little
+    swing_band = LineString([tuple(start), tuple(end)]).buffer(half + EMPTY_GAP_END_M, cap_style=2)
+    sin_max = math.sin(math.radians(EMPTY_GAP_ANGLE_DEG))
+    along = 0.0
+    layers = set()
+    for st in strokes:
+        pts = list(getattr(st, "pts", []) or [])
+        if len(pts) < 2 or LN.layer_role(getattr(st, "layer", None)) in ignore_roles:
+            continue
+        line = LineString(pts)
+        if getattr(st, "arc", None) or getattr(st, "kind", None) in ("arc", "curve"):
+            if line.intersects(swing_band):
+                return True, f"an arc on '{getattr(st, 'layer', None)}' reaches it (a door's swing)"
+            continue
+        if not line.intersects(band):
+            continue
+        for p, q in zip(pts, pts[1:]):
+            n = math.dist(p, q)
+            if n <= 1e-9 or abs((q[0] - p[0]) * uy - (q[1] - p[1]) * ux) / n > sin_max:
+                continue
+            part = LineString([p, q]).intersection(band)
+            if not part.is_empty:
+                along += part.length
+                layers.add(getattr(st, "layer", None))
+    if along >= EMPTY_GAP_ALONG_SHARE * L:
+        return True, f"lines along it on {sorted(str(x) for x in layers)} ({along:.2f} m of {L:.2f} m)"
+    return False, f"nothing drawn along it ({along:.2f} m of {L:.2f} m) and no arc across it"
+
+
 JOINERY_ROLES = ("window", "door", "glass")
 JOINERY_M = (0.6, 8.0)          # a glazed run this long (a window band to a storefront)
 JOINERY_REACH_M = 0.35          # ... with a wall within this of each of its ends

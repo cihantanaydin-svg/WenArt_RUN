@@ -4473,3 +4473,104 @@ as an empty box (`critic_checks.draw_arch`), so the stair questions were left ou
 
 Queue: fair wall scorer + long invented walls (running) -> stairs -> UL371 rule (narrow door onto nothing) and the
 old WIP re-check -> render pod -> AI design where the documents are silent.
+
+## 23 Nov 2026, fair wall scoring and long invented walls (the user's queue: "first a separate fix of the bench's wall scoring, then the next wall class"; CPU only, no pod)
+
+**Part 1, the bench's wall scoring** (`wenart/datasets/bench.py`: `bench_match_walls`, `wall_verdicts`,
+`truth_material`, `bench_wall_stats`; tests `tests/test_bench_wall_scoring_20261123.py`, 18; lesson UL373). The bench
+now scores walls with its own one-to-one matching; the gate's `score.match_walls` is not touched (`score --gate` holds
+against 381016c0 with the same numbers: synthetic overall 97.5, real06/07/09/10/17 100). Each fault of the wall round,
+fixed so that one error counts once and a correct reading is never counted wrong (moves counted on the light-well run):
+
+| fault | fix | moved |
+|---|---|---|
+| 1. ranked by the share of the shorter wall: a 4 cm piece took the truth wall from the 2.67 m wall (b1074 L0 w_L0_051) | ranked by overlap length x thickness agreement, then one swap per unmatched truth wall (a wall read twice on one line leaves no neighbour unmatched, b3431 L0) | 124 truth walls now matched by the wall that reads them, 65 'split' pieces now the match, 141 short matches now the split piece |
+| 2. a few-cm piece "read" a long truth wall (b15885 L0 w_L0_008) | a match covers 30 % of the truth wall (or the pieces of its thickness on its line cover half of it) | 277 truth walls were matched only by a piece under 30 % (116 under 10 %): now missed (136), read with another thickness (80), merged (113 with fault-1 moves), angled/thin missed (56) |
+| 3. a thickness misread counted twice | unmatched truth and read walls on one line paired one to one: one error, on the truth side | 206 read walls no longer 'split' |
+| 4. the truth lists no block (< 0.30 m or 1.5 x t) and no column | an unmatched read block on the drawing's wall material (the DXF wall and column hatches in the truth frame) is neither match nor error; on no material it stays invented | 1173 blocks (442 'split', 442 'invented', 116 'steps', 173 tiny matches) |
+| 5. overlapping truth walls (two railings, b3431 L1) | a read wall inside two overlapping truth walls, and a truth wall read with its twin (80 % of its length, half its footprint), are not counted | 144 read walls, 129 truth walls |
+
+A truth wall a matched read wall of its thickness also covers is now 'walls merged (read as part of a neighbouring wall
+on its line)' (406; before 'read with another thickness' or 'parapet missed'). Stored readings re-scored without
+re-reading (`bench rescore ... --out`, new folders `work_<tag>_s2`, nothing overwritten):
+
+| class | e7a2e5b4 old / new | c0089 old / new | walls old / new | lightwell old / new |
+|---|---|---|---|---|
+| wall split | 1714 / 572 | 1715 / 572 | 1151 / 476 | 1148 / 473 |
+| wall invented | 1452 / 718 | 1449 / 715 | 1089 / 628 | 1088 / 627 |
+| wall read with another thickness | 778 / 327 | 778 / 327 | 791 / 329 | 791 / 329 |
+| wall missed | 595 / 753 | 595 / 753 | 603 / 748 | 603 / 748 |
+| walls merged | - / 401 | - / 401 | - / 406 | - / 406 |
+| angled wall missed | 247 / 307 | 247 / 307 | 251 / 306 | 251 / 306 |
+| thin wall missed | 227 / 268 | 227 / 268 | 240 / 267 | 240 / 267 |
+| angled wall read as steps | 280 / 109 | 280 / 109 | 220 / 104 | 220 / 104 |
+| parapet wall missed | 171 / 142 | 174 / 145 | 174 / 145 | 174 / 145 |
+| walls F1 | 0.672 / 0.712 | 0.672 / 0.712 | 0.701 / 0.721 | 0.701 / 0.721 |
+| mean project total | 73.54 / 73.85 | 73.61 / 73.92 | 73.79 / 73.96 | 73.89 / 74.06 |
+
+The new-scorer baseline is `results/dataset_bench/swiss_20261123_lightwell_s2.{md,json}`. The trend between the runs
+is kept; the wall round's block rule shows less under the new scorer (its blocks are no error there) and still shows in
+'split' (1715 -> 1151 old, 572 -> 476 new). Length-weighted F1 is unchanged (0.834). Still counted on purpose: a
+doorway read as an untyped opening with a lintel where the truth splits its wall (b2974 L0: 'walls merged').
+
+**Part 2, long walls where none is drawn** (rules in `wenart/ingest/generic/wide_gaps.gap_drawn`, `core._sound_bridges`
+/ `_outer_gaps` / `_labels_in_faces` / `_labelled_both_sides`, `mirror.consistency`; tests
+`tests/test_rules_long_walls_20261123.py`, 16, most of them must-not-fire cases; lesson UL374). Judged with the new
+scorer against the light-well readings re-scored.
+
+- **Diagnosis (all 101 scored bench projects, the light-well readings, new scorer; crops looked at in b17068, b2486,
+  b1747, b787, b2383).** Of the 627 'wall invented', by where the wall comes from:
+
+  | subclass | count | real error or convention |
+  |---|---|---|
+  | wide-gap bridge (an inferred outer wall from a free wall end) over a gap with nothing drawn across it: an open passage inside one room (b17068 L0, b2486 L2: through the room 'ODA 15.50 m2', its label on the bridge), the open side of a loggia or balcony (b1747 L1), a notch outside the rooms | 128 (of 142 invented bridges; 54 of the 78 right or partly right bridges have lines along their gap) | real error (the bench draws every door and window) |
+  | glazed-facade wall on the inner frame line of a facade of narrow piers (b787 L0: 0.6 m windows, 0.3 m piers, the 0.5 m wall read as a 0.135 m wall 0.3 m inside) | 67 | real error, but drawn material: not this class |
+  | drawn walls off any truth line (thick fused readings, parapet offsets, a level's frame) | about 200 | other classes (thickness, fusion) |
+  | outline closure (the last closure pass) | 17 | mixed |
+  | mirror copy onto a band where this half draws nothing (b1737 L1/L2: 2.62 m through the kitchen, 0.73 m into the salon; b2095, b2035) | 10 | real error |
+  | short pieces on no material, chamfer frames | about 100 | real (juts, jogs) |
+
+  A wall drawn in two layers read as two walls (real10's 0.32 m slot wall): no case on the bench (the converter draws
+  one hatched outline per wall, no plaster layer); real10 has 12 touching parallel pairs (the slot wall and 0.28 + 0.06 m
+  pairs on every floor), real06 1, real17 2: not built this round (below).
+- **Rule 1, a wide gap with nothing drawn across it is open** (`wide_gaps.gap_drawn`, every source alike): a gap is
+  closed in the drawing when lines of any layer but dimensions, texts and axes run along it inside the wall's band
+  (within 15 degrees, together 25 % of it: a sliding door's leaves and tracks, a garage door's line, a glazed screen, a
+  sill, a hatch boundary) or an arc reaches it (a door's swing, its hinge at one jamb). A wide-gap bridge over an empty
+  gap is marked; after the closure check, each marked bridge (the longest first) is left out when the rooms close
+  without it: no more labels in no closed face, no fewer labels in closed faces, no drawn wall falling out of the
+  building, no outer-ring problem. A bridge between two labelled rooms is never marked. Each one left out is a note.
+- **Rule 2, a mirror copy needs lines** (`mirror.consistency`, missing walls): the copy stands only where this half draws
+  lines along it (wall, plaster, structure, joinery or unknown layers; not furniture, sanitary, finish, stair, section,
+  site or annotation layers); refusals are logged.
+- **Misfires found and fixed while measuring** (bench subsets of 52 projects): arcs looked for inside the trimmed band
+  missed door swings that meet the wall face only at the far jamb (b16820 L1: seven 0.8 m door gaps lost, b1480 L0 a
+  1.15 m door: now an arc reaching the gap's band grown by 5 cm counts); every empty-gap bridge left out (b2383: all 13
+  rooms lost, the ring no longer closed: now only bridges the rooms close without); a bridge that held a wing of thin
+  walls in the building (b2294: walls 37 -> 32 matched and the origin moved 2.92 m; b7276, b20 the same: now no drawn
+  wall may fall out of the building); the label count first measured with the 'outer walls do not close' reasons only
+  (a label outside every face is not one of them: now the labels in closed faces are counted too).
+- **Bench** (`/home/user/bench_data/bench_longwalls.md`, against `work_lightwell` re-scored, same scorer): mean 74.06 ->
+  74.23; 30 projects rise (0.02-2.08), none falls; wall invented 627 -> 570 (wide-gap bridges over empty gaps 131 ->
+  85, mirror copies 10 -> 0), room invented 131 -> 106, room split 171 -> 150, window invented 290 -> 267, door invented
+  120 -> 116, room invented in a cavity 122 -> 117, wall split 473 -> 471, window missed 297 -> 295; walls matched 8220 ->
+  8221, F1 0.721 -> 0.723 (length-weighted 0.834 -> 0.836), rooms F1 0.749 -> 0.755, windows 0.754 -> 0.757, doors 0.813
+  -> 0.814; rooms merged 149 -> 150, room missed (balcony) 108 -> 107, wall missed 748 -> 747. swiss-b2440 fails to read
+  in both.
+- **Gate:** `score --gate` holds against 381016c0 (never --update), every number as after Part 1 (synthetic overall
+  97.5, real06/07/09/10/17 100); the 39 gated readings are identical to the HEAD readings.
+- **Regress** (19 real projects, real08 left out): the 13 synthetic baselines hold; real01, 02, 04, 09, 11, 13, 14, 16,
+  18, 20 hold; real03, 06, 07, 10, 12, 15, 17, 19 and 21 differ from their 12 Nov baselines as after the earlier rounds.
+  Traced on every real reading: the rules fire in no real project (no bridge left out, no mirror copy refused; real07's
+  three wide-gap bridges, its sliding door, garage door and entrance, have lines or swings in their gaps; real10's one
+  mirror copy has lines along it), so every real reading is the HEAD reading. No regress baseline written; no synthetic
+  project added: the class is in the bench (56 walls left out in 30 projects) and in the 16 unit tests, and the
+  gated synthetic set does not change.
+- **Tests:** the new file 16 passed; the touched modules' files (facade, mirror halves, reader targets A and B, reading
+  2 and 3 Nov, soft seats, bench scoring, Swiss dataset) 339 passed; one expectation updated
+  (`test_reader_targets_a_20261106`: a free-end bridge over an empty gap now comes back marked).
+- **Open:** 85 wide-gap bridges over empty gaps stay because the rooms need them to close (the truth closes those rooms
+  elsewhere, mostly by railings the reader misses: b1747 L1, b2383 L0); the glazed-facade walls on the inner frame line
+  of facades of narrow piers (67, b787); the outline closure's free-end bridges are not checked for an empty gap (11
+  long invented); a wall drawn in two touching layers (real10's slot wall, 12 touching pairs in real10, 3 in real06 and
+  real17, none on the bench) is not merged: a synthetic project and a look at real10's 0.28 + 0.06 m pairs come first.

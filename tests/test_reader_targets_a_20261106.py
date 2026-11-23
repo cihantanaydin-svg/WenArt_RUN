@@ -1902,7 +1902,9 @@ def test_a_wide_gap_bridge_never_runs_through_drawn_furniture_or_beside_a_drawn_
     free = dict(run_on, from_free_end=True)
     ex = SimpleNamespace(notes=[])
     assert GC._sound_bridges(ex, "x", walls, [run_on], []) == []                     # beside wall c, 0.6 m off
-    assert GC._sound_bridges(ex, "x", walls, [free], []) == [free]                   # from a free end it stays
+    kept = GC._sound_bridges(ex, "x", walls, [free], [])                             # from a free end it stays ...
+    assert [{k: v for k, v in b.items() if k != "empty_gap"} for b in kept] == [free]
+    assert kept[0].get("empty_gap")                    # ... marked empty (23 Nov 2026, UL374: kept only if needed)
     table = _line((-0.5, 3.0), (0.5, 3.0), 77, layer="TEFRIS")
     assert GC._sound_bridges(ex, "x", walls[:2], [free], [table]) == []              # through a drawn table
     assert any("drawn furniture" in n for n in ex.notes)
