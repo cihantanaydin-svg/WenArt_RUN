@@ -4671,3 +4671,93 @@ stair reading rules) and UL376 (the storey height against the stairs). Tests `te
   flights stand either side of a thin wall is read as two straight stairs (b2485; two mirrored stairs 0.3 m apart look
   the same, so no rule yet); 9 U or L stairs read with one flight (their second flight under 5 lines or askew); the
   stair of a single plan copied onto guessed storeys counts against the bench's stairs (a level-guess convention).
+
+## 23 Nov 2026, narrow door, exterior test and old WIP re-check (the user's queue: "UL371 rule (narrow door onto nothing) and the old WIP re-check"; CPU only, no pod)
+
+**Part A1, C0097 (real15 L1 d_L1_011, the user: "Wall or column"; UL371).** Cause on the drawing (crops looked at):
+the facade has a 0.60 x 0.30 m column (Z_kolon, hatched, its plaster coat 2.5 cm in front) where the bedroom | bathroom
+partition meets it; the column's material is read as a wall piece of its own (w_L1_028) and the facade run has a 0.50 m
+gap beside the partition. A wardrobe block 'GARDOLAP 2' (Z_tefriş) stands against the column; three of its rails, 0.45 m
+long and 4 mm apart, stand across the wall at the gap's jamb. The open-leaf rule took them for the leaf of a door opened
+at 90 degrees, and that drawn 'leaf' kept the gap from the wall-material rule (`_inside_wall`). The same columns on L0,
+with no wardrobe, were already closed. Lessons UL378, UL379; tests `tests/test_rules_narrow_door_20261123.py` (15).
+
+- **Rule 1, furniture lines are no leaf** (`openings.furniture_line`, `_leaf_zone`, every drawing source with blocks): a
+  stroke of a block named for a piece of furniture (`symbols.keyword_type`: GARDOLAP, YATAK, KOMODİN ...; no door word in
+  the block chain) is never a door's leaf, opened at 90 degrees or sliding; the layer alone does not decide (real03 draws
+  doors on a furniture layer). Never silent: `Gap.furniture_leaf` in the gap log and the opening's evidence.
+- **Rule 2, a narrow door onto nothing** (`sense_rules.doors_onto_nothing`, rule key `narrow_door`, for drawings whose
+  layers and blocks say nothing: PDF, scans): an upper-storey door onto nothing narrower than `NARROW_DOOR_M` (0.60 m),
+  with no swing, door block, window evidence or door-high tag (`door_tag`), is closed (`openings_merged`,
+  `corrected_by_ai`) with what the drawing holds in its gap (`narrow_gap_content`: a column, wall material, a hatched
+  solid); the wall runs on. Fires on no reading now (rule 1 takes real15's first); unit tests and must-not-fire tests.
+- **Rule 3, no inferred door narrower than a door** (`twins.lift_doors`): the bench's 'door invented' under 0.60 m were
+  all inferred lift landing doors of 0.32-0.41 m on a shaft side of 0.42-0.51 m (b465, b960, b2974; nothing drawn there,
+  the truth has no door): a side too short for `LIFT_DOOR_MIN_W_M` gets no inferred door and a review record
+  (`lift_door_too_narrow`).
+- **The class measured** (narrow doors in general, < 0.60 m): bench 7 read (4 swing doors of 0.595-0.598 m: must not
+  fire, kept; 3 inferred lift doors: removed, all 'door invented'); real projects: real15 d_L1_011 (removed, C0097) and
+  real15 L0 d_L0_013 (0.55 m, one leaf on no furniture block: kept); synthetic: none before synthetic-37. Rule 1 also
+  removed real15 L1 d_L1_005, a 2.30 m 'sliding door' made of the sliding fronts of two GARDOLAP wardrobes standing in a
+  niche (crop: two wardrobes with hangers in front of the 0.15 m wall LWPOLYLINE:168579, which now runs on behind them as
+  a lined gap); no other reading changes. Real doors wrongly changed: none.
+- **Must not fire** (tests and synthetic-37): a narrow door with its swing (a WC or shaft access door), a narrow sliding
+  door with a door-high tag, two narrow leaves forming a wider door, a narrow window, a leaf in a block named for a door,
+  the same lines on a door layer or on a furniture layer with no block, a door between two rooms.
+- **synthetic-37-narrow-door** (gated, regress baseline written): the stair house twice; the upper facade has a
+  0.50 x 0.30 m column in a break of its faces with a wardrobe block's rails across the wall at its jamb, beside the
+  must-not-fire cases. HEAD 99.46 (a 0.50 m door at the column), now 100. The synthetic writer draws blocks (`Prim.block`).
+
+**Part A2, C0098 (real15 L0 o_L0_006, the open passage's note "empty gap in an exterior wall"; UL372).** Cause: the
+reader notes an empty gap 'possible undrawn door or window (empty gap in an exterior wall)' when it touches the outer
+ring of the walls read so far (`openings._exterior_test`); at that point the facade is still open (real15's facades are
+closed later from their window and door frames, `facade.py`), so every room behind it, the kitchen and the hall too,
+counts as outside. The bench: 63 of 100 such notes stood on walls the final outline calls interior (59 with rooms on both
+sides). The older open point real15 o_L0_001 is the same family, another test: the open-passage rule ran on the walls'
+early exterior flags (rooms.py, from the room-derivation union), which the outline rule (`sense_rules.exterior_flags`)
+clears only later. Fix (one definition of 'in the outline', the final building's): `sense_rules.empty_gap_notes`
+(rule 7) sets the note from the outline at the gap once the walls and flags are final (rooms on both sides: 'empty gap in
+an inner wall', no longer unverified; a room and the open air: the exterior note); `twins.passage_case` takes a wall
+flagged exterior as an inner partition where a room lies on both sides of the gap (`indoor_both_sides`). The gap-time
+test stays the ranker's `exterior` feature as it was trained (its transitions are untrusted, it decides nothing).
+Where it fires: real15 o_L0_006 and o_L1_005 (inner), o_L0_001 opens (crop: the open kitchen's 2.22 m pass to the dining
+room, nothing drawn but the floor hatch's edge, the counters and stools on the kitchen side: an open passage, UL363);
+real14 L7/L7b/L7d five notes (inner, stair and lift halls); bench 59 notes inner, 1 exterior, 15 passages opened in 9
+projects (10 on walls the outline rule clears later, 5 where the truth has no wall at all: b1747, b1118, b154).
+
+**Part B, the old WIP c87df9ad re-checked on today's code (the user: "Re-check, then merge").**
+
+| item | still needed? | today's case | done |
+|---|---|---|---|
+| B3C-08 (every rest of a door's gap kept) | no | fires on the bench only (b5133 L0 twice, b5460): the dropped rest is a pier between two doors drawn as wall hatch only (no face lines): keeping it makes a 0.42 m opening the truth does not have | not applied (tried, measured, reverted) |
+| REGX-3 (an arm from few lines takes the other arms' width) | no | real13 L3's stair now reads 1.15 / 1.15 and 0.87 / 0.90 m; no stair of any real or bench reading has arms more than 1.4 x apart | not applied |
+| BLD-09 (a frame mostly off its wall not built by default) | no, as written | 31 frames with a free jamb on real readings (real10's tagged '110/230' door on every floor, real07, real14), but the default 'not built' would drop drawn, tagged doors from the build; the right fix hosts them on the missed wall | not applied (open) |
+| side paths carry the stair's turns | yes | 25 stairs of 6 real readings (real07 L0/L1, real11 9 stairs, real13 L-1: 5 open legs stored of 19, real14 L7, real17 3, real18 8): the stored `sides` that `stair_rails.plan_guards` builds the balustrade from had no leg for a turn's open edge (a build-stage fault, no reading number) | applied (`parametric.stair_plan`), test |
+| REGX-4 (synthetic-23: a bare facade gap with a door-high tag stays a window) | yes | no synthetic exercised `core._outer_opening`: off in memory synthetic-23 still read 100; with the gap 97.91, on 100 | applied (synthetic-23 regenerated, truth unchanged but its summary) |
+
+- **Bench** (`/home/user/bench_data/bench_narrow.md`, `work_narrow`, against `work_stairs`, same scorer): mean 75.16 ->
+  75.16 (+0.005), scale read 78.88 -> 78.88; doors precision 0.8335 -> 0.8343 (F1 0.8135 -> 0.8139); 'door invented'
+  116 -> 113; every other class unchanged; three projects rise (b2974 +0.09, b465 +0.13, b960 +0.38), none falls;
+  swiss-b2440 fails to read in both.
+- **Gate:** `score --gate` holds against 381016c0 (never --update): synthetic overall 97.5 (synthetic-37 at 100, every
+  synthetic project as before or higher), real06/07/09/10/17 100, real15 33.3 -> 100 (C0097 satisfied, C0098 holds).
+- **Regress** (real08 left out): the 14 synthetic baselines hold, synthetic-37's baseline written (new project); the
+  real projects differ from their 12 Nov baselines exactly as at the base commit except real15 L1 (walls 66 -> 67, doors
+  21 -> 19: d_L1_011 and d_L1_005, room area +0.4 m2). Against readings of the base commit (239337e1) every real
+  reading is the same but real15 (above) and real14's five notes (L7, L7b, L7d: 'inner wall', stair and lift halls).
+- **Tests:** the new file 15 passed; the touched modules' files (generic openings, opening guards, reader targets A and
+  B, reading 4 Nov, review fixes 13 Nov, S1 fix, core and sense rules, rule guards, the rule files of 22-23 Nov, open
+  passage, stair rails, top stair, facade on, ranker, blender geometry, details and terraces, user findings, M13 site)
+  766 passed; the synthetic failure classes 298 passed (synthetic-37 listed); one expectation changed on purpose
+  (`test_rules_open_passage`: a wall flagged exterior with a room on both sides of the gap now opens; with the open air
+  beyond it stays shut).
+- **Misfires found while measuring:** B3C-08 re-applied as it was invented 0.42 m openings on the bench (the hatched
+  pier between two doors): reverted, not shipped. The first synthetic-37 drew the column on KOLON in the middle of the
+  facade: the wall reader joined it into the wall and HEAD read no door, so it tested nothing; the column now stands as
+  real15's does (its own wall piece), HEAD reads the 0.50 m door.
+- **Open:** real15 L0 d_L0_013, a 0.55 m 'sliding door' read from one loose thin rectangle on Z_tefriş (the end panel of
+  a wardrobe run with hangers, not in a block) at the chimney breast of the salon's fireplace (SÖMİNE), both wall faces
+  drawn on across the gap: likely no door, but a furniture layer alone cannot decide (real03's doors) and the gap is not
+  onto nothing; a rule needs its own measured round (or the user's look). BLD-09: frames with a free jamb need hosting on
+  the missed wall, not dropping. The ranker's gap-time `exterior` feature keeps the old test (a retrain would need the
+  final definition). An arc inside a furniture block (a wardrobe's door swing) is still a door candidate (not measured this round).
