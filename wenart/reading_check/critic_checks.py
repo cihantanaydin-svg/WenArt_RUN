@@ -1204,6 +1204,7 @@ def draw_arch(ax, building: dict, level: str, tf: list) -> None:
     lifts crossed; no colour, no legend."""
     from matplotlib.patches import Polygon as MPoly
 
+    from wenart.reading_check import sheets as SH
     from wenart.reading_check.sheets import _inverse
 
     inv = _inverse(tf)
@@ -1291,10 +1292,23 @@ def draw_arch(ax, building: dict, level: str, tf: list) -> None:
         ca, sa = math.cos(a), math.sin(a)
         pts = [inv(cx + ca * u - sa * v, cy + sa * u + ca * v) for u, v in ((-sx, -sy), (sx, -sy), (sx, sy), (-sx, sy))]
         xs, ys = zip(*(pts + pts[:1]))
-        ax.plot(xs, ys, color=k, lw=0.6, zorder=2)
-        for fl in ((f.get("details") or {}).get("stair") or f.get("stair") or {}).get("flights") or []:
-            if not (fl.get("start") and fl.get("end")):
-                continue
+        # 23 Nov 2026 (stairs round): the flights and landing of whichever record holds them (a fire-escape mark in
+        # ``details.stair`` hid the reader's flights: the box was drawn empty); a stair with no flights read is marked
+        # as such, never drawn as an empty box the model takes for a cupboard or a void
+        rec = SH.stair_record(f)
+        flights = [fl for fl in rec.get("flights") or [] if fl.get("start") and fl.get("end")
+                   and math.dist(fl["start"][:2], fl["end"][:2]) > 1e-6]
+        ax.plot(xs, ys, color=k, lw=0.6, zorder=2, ls="-" if flights else (0, (3, 2)))
+        land = (rec.get("landing") or {}).get("polygon") if isinstance(rec.get("landing"), dict) else None
+        if flights and isinstance(land, list) and len(land) >= 3:
+            lp = [inv(*p[:2]) for p in land]
+            lx, ly = zip(*(lp + lp[:1]))
+            ax.plot(lx, ly, color=k, lw=0.5, zorder=2)
+        if not flights:
+            c = inv(cx, cy)
+            ax.text(c[0], c[1], "stair, flights unread", fontsize=5.0, ha="center", va="center", color=k,
+                    clip_on=True, zorder=6, bbox={"boxstyle": "square,pad=0.15", "fc": "white", "ec": k, "lw": 0.4})
+        for fl in flights:
             s0, s1 = fl["start"][:2], fl["end"][:2]
             L = math.dist(s0, s1)
             if L <= 1e-6:

@@ -31,6 +31,23 @@ def _inverse(t):
     return lambda x, y: ((e * (x - c) - b * (y - f)) / det, (-d * (x - c) + a * (y - f)) / det)
 
 
+def stair_record(f: dict) -> dict:
+    """23 Nov 2026 (stairs round; the RL try's swiss-b2486 L1 stair drawn as an empty box): a stair piece's record
+    with its flights and landing, whichever of ``stair`` (the reader's record) and ``details.stair`` (marks added
+    later: a fire escape) holds them; a ``details.stair`` without flights never hides the reader's flights (pure)."""
+    recs = [r for r in ((f.get("details") or {}).get("stair"), f.get("stair")) if isinstance(r, dict)]
+    out: dict = {}
+    for r in reversed(recs):                                # the reader's record first, the later marks over it
+        out.update({k: v for k, v in r.items() if v not in (None, [], {})})
+    for r in recs:                                          # ... but the flights and landing of a record that has them
+        if r.get("flights"):
+            out["flights"] = [fl for fl in r["flights"] if isinstance(fl, dict)]
+            if isinstance(r.get("landing"), dict):
+                out["landing"] = r["landing"]
+            break
+    return out
+
+
 def _entities(doc, box):
     out = []
     for e in doc.modelspace():
@@ -305,7 +322,7 @@ def _draw_model(ax, building, level, tf, box, colour=True, labels=True):
         pts = [inv(cx + ca * u - sa * v, cy + sa * u + ca * v) for u, v in ((-sx, -sy), (sx, -sy), (sx, sy), (-sx, sy))]
         xs, ys = zip(*(pts + pts[:1]))
         ax.plot(xs, ys, color="#0d47a1", lw=1.0)
-        for fl in ((f.get("details") or {}).get("stair") or f.get("stair") or {}).get("flights") or []:
+        for fl in stair_record(f).get("flights") or []:
             if fl.get("start") and fl.get("end"):
                 p0, p1 = inv(*fl["start"]), inv(*fl["end"])
                 ax.annotate("", xy=p1, xytext=p0, arrowprops={"arrowstyle": "->", "color": "#0d47a1", "lw": 0.8})

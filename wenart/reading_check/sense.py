@@ -34,6 +34,9 @@ made before those corrections; every distance compared with a reach gets ``EPS``
 narrower than a landing needs, kept as its own room because a drawn way in opens into it (``narrow_landing`` on the
 room).
 
+23 Nov 2026 (the stairs round, UL376): 23. ``storey_stair_risers``: two storeys next to each other whose step no stair of
+the lower one can climb at 0.15-0.19 m a riser (``levels.model.storey_stairs``).
+
 Every finding is advisory: ``wenart.reading_check.check`` counts it under ``counts["advisory"]``, never in the
 verdict. Each rule's precision was judged one finding at a time on the readings of the 20 real and 21 synthetic
 projects (``models/sense_trust.json``, with every judgement and its reason); a rule below ``TRUST_MIN`` writes its
@@ -118,6 +121,8 @@ RULES = {
     "open_passage": "a doorless gap with nothing drawn in it left at door height: a wet room's only way in, or walled",
     # 22 Nov 2026 (the user's C0089, "yes start C0089", UL365)
     "unnamed_exit": "an outer door with no swing, door block or door tag drawn, the only door of a face no label names",
+    # 23 Nov 2026 (the stairs round, UL376)
+    "storey_stair_risers": "a storey whose height no stair of the storey under it can climb",
 }
 TRUST_PATH = Path(__file__).resolve().parent / "models" / "sense_trust.json"
 TRUST_MIN = 0.7                # a rule judged right on less than this share of its findings writes them as info
@@ -2401,6 +2406,37 @@ def unnamed_exit(building: dict) -> list:
     return out
 
 
+def storey_stair_risers(building: dict) -> list:
+    """Rule 23 (pure; 23 Nov 2026, the stairs round, lesson UL376; real15: L1 at +7.82 m from a section whose slab
+    bands were mapped onto two plans, its 17-tread stair climbing a 3.00 m storey): two storeys next to each other
+    whose step no stair of the lower one can climb (``levels.model.storey_stairs``: the stair's lines, one riser fewer
+    to two more, each riser 0.15-0.19 m): the storey height or the stair is misread. Major. The reader corrects the
+    step only where the plans' floor marks and the stair agree (``levels.model._storey_vs_stairs``); this check says
+    so for every reading, whatever gave the elevation."""
+    from wenart.levels import model as LMO
+
+    out = []
+    levels = [lv for lv in base_levels_by_height(building) if lv.get("order") is not None]
+    for a, c in zip(levels, levels[1:]):
+        if int(c["order"]) != int(a["order"]) + 1:
+            continue
+        step = _el(c) - _el(a)
+        stairs = LMO.storey_stairs(building, a["id"])
+        tol = LMO.STAIR_STOREY_TOL_M
+        if not stairs or any(lo - tol <= step <= hi + tol for _f, (lo, hi) in stairs):
+            continue
+        said = "; ".join(f"{f['id']} ({LMO.stair_lines(f)} lines: {lo:.2f}-{hi:.2f} m)" for f, (lo, hi) in stairs)
+        f0 = stairs[0][0]
+        out.append(_finding("storey_stair_risers", "major", a["id"],
+                            f"{c['id']} stands {step:.2f} m above {a['id']} ({c.get('elevation_source') or 'source '
+                            f'unknown'}), but no stair of {a['id']} climbs that at {LMO.STAIR_RISER_M[0]:.2f}-"
+                            f"{LMO.STAIR_RISER_M[1]:.2f} m a riser: {said}: the storey height or the stair is misread",
+                            ((f0.get("footprint") or {}).get("center") or [None, None])[:2]
+                            if (f0.get("footprint") or {}).get("center") else None,
+                            [a["id"], c["id"]] + [f["id"] for f, _r in stairs]))
+    return out
+
+
 # --------------------------------------------------------------------------------------------------------- the run
 def run(building: dict, texts_by_level: Optional[dict] = None, trust: Optional[dict] = None,
         apply: bool = True) -> list:
@@ -2443,6 +2479,7 @@ def run(building: dict, texts_by_level: Optional[dict] = None, trust: Optional[d
     out += stair_edge_wall(building) + double_leaf_walls(building)                                    # 22 Nov 2026
     out += open_passage(building)                                                          # 22 Nov 2026 (UL363)
     out += unnamed_exit(building)                                                  # 22 Nov 2026 (UL365, C0089)
+    out += storey_stair_risers(building)                                           # 23 Nov 2026 (stairs, UL376)
     return apply_trust(out, trust if trust is not None else load_trust()) if apply else out
 
 

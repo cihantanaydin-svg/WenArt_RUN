@@ -296,6 +296,151 @@ def whole_single_level(building: dict, params: dict, brief: Optional[dict], infe
 
 STOREY_MIN_M = 2.0             # 12 Nov 2026: two whole storeys stand at least this far apart (a floor of rooms and its slab)
 STOREY_MAX_M = 6.0             # ... and at most this far (a taller storey is a double-height space a section must give)
+# 23 Nov 2026 (stairs round, lesson UL376; real15: L1 at +7.82 m from a section whose 9 slab bands were mapped onto two
+# plans, its 17-tread stair and its floor marks +0.50 / +3.50 saying a 3.00 m storey): a stair's risers check the storey
+STAIR_RISER_M = (0.15, 0.19)   # a plausible riser
+STAIR_RISERS_EXTRA = (-1, 2)   # a flight drawn with L lines has L-1 to L+2 risers (its end lines drawn or not, a landing)
+STAIR_STOREY_MIN_LINES = 5     # a stair with fewer lines drawn says nothing about the storey
+STAIR_STOREY_TOL_M = 0.05
+
+
+def stair_lines(f: dict) -> int:
+    """The lines a stair piece draws: its flights' tread lines summed, or the steps its numbers count (pure)."""
+    recs = [r for r in ((f.get("details") or {}).get("stair"), f.get("stair")) if isinstance(r, dict)]
+    lines = max((sum(int(fl.get("lines") or 0) for fl in r.get("flights") or [] if isinstance(fl, dict))
+                 for r in recs), default=0)
+    steps = max((int(r.get("steps_drawn") or 0) for r in recs if isinstance(r.get("steps_drawn"), (int, float))),
+                default=0)
+    return max(lines, steps)
+
+
+def stair_rise_range(lines: int) -> Optional[tuple[float, float]]:
+    """The storey heights (m) a stair of ``lines`` drawn lines can climb: ``STAIR_RISERS_EXTRA`` around its lines,
+    each riser ``STAIR_RISER_M``; None for a stair of fewer than ``STAIR_STOREY_MIN_LINES`` lines (pure)."""
+    if lines < STAIR_STOREY_MIN_LINES:
+        return None
+    return (round((lines + STAIR_RISERS_EXTRA[0]) * STAIR_RISER_M[0], 3),
+            round((lines + STAIR_RISERS_EXTRA[1]) * STAIR_RISER_M[1], 3))
+
+
+def storey_stairs(b: dict, level_id: str) -> list[tuple[dict, tuple[float, float]]]:
+    """The stair pieces of a level with the storey heights each can climb (``stair_rise_range``) (pure)."""
+    out = []
+    for f in b.get("furniture") or []:
+        if f.get("type") == "stair" and f.get("level_id") == level_id:
+            rng = stair_rise_range(stair_lines(f))
+            if rng is not None:
+                out.append((f, rng))
+    return out
+
+
+def _floor_mark(b: dict, marks: list, level_id: str) -> Optional[tuple[float, int, int]]:
+    """The most common floor mark in a level's rooms: (z, its count, all floor marks) or None."""
+    rooms = {r["id"] for r in b.get("rooms") or [] if r.get("level_id") == level_id
+             and r.get("room_type") not in NO_FLOOR_ROOMS}
+    zs = [round(float(m["z"]), 2) for m in marks if m.get("kind") in FLOOR_KINDS and m.get("room_id") in rooms
+          and m.get("z") is not None]
+    if not zs:
+        return None
+    counts: dict = {}
+    for z in zs:
+        counts[z] = counts.get(z, 0) + 1
+    best = max(counts, key=lambda z: (counts[z], -abs(z)))
+    return best, counts[best], len(zs)
+
+
+def _storey_vs_stairs(b: dict, marks: list, params: dict, conflicts: list, inferred: list, warnings: list) -> None:
+    """Step 1b (23 Nov 2026, stairs round, UL376): a storey a section gives is checked against the stairs that climb
+    it. Two storeys next to each other (orders n and n + 1), the upper one's elevation from a section: when no stair of
+    the lower one (``storey_stairs``) can climb the step, it is a conflict (``storey_height_mismatch``). The step is
+    corrected only when the plans' own floor marks say otherwise: the most common floor mark of each storey's rooms
+    (two marks or more on the upper one), their difference a storey (``STOREY_MIN_M``-``STOREY_MAX_M``) that a stair
+    climbs; the storey further from the ground floor (which stays at building z 0: above it the upper storey, below it
+    the lower one) and the storeys beyond it then move by the difference, the lower storey's ceiling, walls and
+    openings of the old ceiling height and the moved slabs with them, the moved level's source a level mark (the
+    marks are source data; the section's bands stay as drawn, listed). Nothing changes silently: every check that
+    fails is a conflict and a warning, every move is inferred."""
+    tol = float(params["mark_tol"])
+    ordered = sorted((lv for lv in base_levels(b) if lv.get("order") is not None and lv.get("elevation") is not None),
+                     key=lambda x: int(x["order"]))
+    for a, c in zip(ordered, ordered[1:]):
+        if int(c["order"]) != int(a["order"]) + 1 or c.get("elevation_source") != "section":
+            continue
+        step = float(c["elevation"]) - float(a["elevation"])
+        stairs = storey_stairs(b, a["id"])
+        if not stairs or any(lo - STAIR_STOREY_TOL_M <= step <= hi + STAIR_STOREY_TOL_M for _f, (lo, hi) in stairs):
+            continue
+        said = "; ".join(f"{f['id']} ({stair_lines(f)} lines: {lo:.2f}-{hi:.2f} m)" for f, (lo, hi) in stairs)
+        ids = [a["id"], c["id"]] + [f["id"] for f, _r_ in stairs]
+        ma, mc = _floor_mark(b, marks, a["id"]), _floor_mark(b, marks, c["id"])
+        mstep = round(mc[0] - ma[0], 3) if ma and mc else None
+        fits = mstep is not None and mc[1] >= 2 and STOREY_MIN_M - tol <= mstep <= STOREY_MAX_M + tol and any(
+            lo - STAIR_STOREY_TOL_M <= mstep <= hi + STAIR_STOREY_TOL_M for _f, (lo, hi) in stairs)
+        what = (f"{c['id']} stands {step:.2f} m above {a['id']} (the section), but no stair of {a['id']} climbs that "
+                f"at {STAIR_RISER_M[0]:.2f}-{STAIR_RISER_M[1]:.2f} m a riser: {said}")
+        if not fits:
+            why = ("its floor marks say nothing" if mstep is None else
+                   f"the floor marks ({ma[0]:+.2f} / {mc[0]:+.2f}: {mstep:.2f} m) do not settle it")
+            conflicts.append({"kind": "storey_height_mismatch", "element_ids": ids, "description": what,
+                              "resolution": f"unresolved: the section's storey kept ({why})"})
+            warnings.append(f"levels: {what}; the section's storey kept ({why})")
+            continue
+        # the storey further from the ground floor moves (the ground floor stays at building z 0): above it the upper
+        # storey and those over it, below it the lower storey and those under it
+        gl = ground_level(b)
+        g_order = int(gl["order"]) if gl is not None and gl.get("order") is not None else int(a["order"])
+        change = round(mstep - step, 3)                    # the new storey less the section's
+        up = int(c["order"]) > g_order
+        mover = c if up else a
+        delta = change if up else -change
+        moved = {lv["id"] for lv in ordered if (int(lv["order"]) >= int(c["order"]) if up
+                                                else int(lv["order"]) <= int(a["order"]))}
+        old_m = float(mover["elevation"])
+        for lv in ordered:
+            if lv["id"] in moved:
+                lv["elevation"] = _r(float(lv["elevation"]) + delta)
+        mover["elevation_before"] = _r(old_m)
+        mover["elevation_source"] = "level_mark"
+        file = _file_of(b)
+        note = (f"{what}; the floor marks of {a['id']} ({ma[0]:+.2f}, {ma[1]} of {ma[2]}) and {c['id']} "
+                f"({mc[0]:+.2f}, {mc[1]} of {mc[2]}) give {mstep:.2f} m, which the stair climbs: {mover['id']} "
+                f"{old_m:+.2f} -> {float(mover['elevation']):+.2f} m and the storeys {'over' if up else 'under'} it by "
+                f"{delta:+.2f} m (the ground floor stays; the marks are source data; the section's slab bands stay as "
+                f"drawn)")
+        mover.setdefault("evidence", []).append(_evidence(file, "storey_vs_stairs", note, confidence=0.8))
+        conflicts.append({"kind": "storey_height_mismatch", "element_ids": ids, "description": what,
+                          "resolution": f"the floor marks and the stair: {mover['id']} at "
+                                        f"{float(mover['elevation']):+.2f} m (was {old_m:+.2f} m from the section)"})
+        warnings.append(f"level {mover['id']}: elevation {old_m:+.2f} m (section) -> "
+                        f"{float(mover['elevation']):+.2f} m ({note})")
+        inferred.append({"item": f"level {mover['id']} elevation", "value": _r(float(mover["elevation"])),
+                         "reason": note})
+        # the lower storey's ceiling, walls and openings of that ceiling height, its floor to floor; the moved slabs
+        old_ceiling = a.get("ceiling_height")
+        if isinstance(old_ceiling, (int, float)) and a.get("ceiling_height_source") == "section" \
+                and float(old_ceiling) + change >= STOREY_MIN_M:
+            new_ceiling = _r(float(old_ceiling) + change)
+            a["ceiling_height"] = new_ceiling
+            n_w = n_o = 0
+            for key in ("walls", "walls_merged", "openings"):
+                for e in b.get(key) or []:
+                    if isinstance(e, dict) and e.get("level_id") == a["id"] and isinstance(e.get("height"), (int, float)) \
+                            and abs(float(e["height"]) - float(old_ceiling)) <= 0.01:
+                        e["height"] = new_ceiling
+                        n_o += key == "openings"
+                        n_w += key != "openings"
+            inferred.append({"item": f"level {a['id']} ceiling height", "value": new_ceiling,
+                             "reason": f"its storey changed by {change:+.2f} m: {n_w} walls and {n_o} openings of the "
+                                       f"ceiling height {float(old_ceiling):.2f} m follow"})
+        if isinstance(a.get("floor_to_floor"), dict):
+            a["floor_to_floor"] = {"value": mstep, "method": "derived", "confidence": 0.8,
+                                   "evidence": [_evidence(file, "storey_vs_stairs", note, confidence=0.8)],
+                                   "note": f"was {a['floor_to_floor'].get('value')} m from the section: {note}"}
+        for sl in b.get("slabs") or []:
+            if isinstance(sl, dict) and sl.get("above_level_id") in moved and isinstance(sl.get("z_top"), (int, float)):
+                sl["z_top_before"] = _r(float(sl["z_top"]))
+                sl["z_top"] = _r(float(sl["z_top"]) + delta)
+                sl["z_top_source"] = "level_mark"
 
 
 def _plan_frame(b: dict, marks: list, gl: Optional[dict], tol: float, inferred: list, warnings: list) -> float:
@@ -1370,6 +1515,7 @@ def infer_levels(building: dict, brief: Optional[dict] = None) -> dict:
     if gl is None:
         return b
     record["ground_floor"] = gl["id"]
+    _storey_vs_stairs(b, marks, params, conflicts, inferred, warnings)       # 23 Nov 2026 (stairs round, UL376)
     _level_elevations(b, marks, params, inferred, warnings)
     record["single_level_whole"] = whole_single_level(b, params, brief, inferred)
     _room_floors(b, marks, params, conflicts, warnings)

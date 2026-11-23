@@ -228,6 +228,14 @@ TREAD_WALL_M = 0.03            # the tread area, shrunk by 30 mm, must hold no w
 NOSING_M = 0.06                # Milestone 10 (real02): a tread drawn as a nosing strip, two lines <= 60 mm apart
 LOOSE_TREAD_M = 0.4            # ... and treads cut by the stair's break line: the loose rule takes lines >= 0.4 m
 LOOSE_OVERLAP = 0.8            # ... whose extent overlaps the flight's by >= 80 % of the shorter
+# 23 Nov 2026 (stairs round, lesson UL375): the stair rule's general fixes, every drawing source alike
+STAIR_MAX_M = 6.0              # a stair's longest side (size table: 1.5-6.0 m): a straight flight of a whole storey (17-19
+                               # risers at 0.27-0.30 m, 4.6-5.7 m) is longer than any piece of furniture (MAX_SIDE_M)
+ANGLED_MIN_DEG = 1.0           # a flight turned at least this much off the plan's axes is read in its own frame
+ANGLED_BUCKET_DEG = 0.5        # ... the frame of its most numerous parallel lines (this wide a bucket)
+STAIR_GLYPH_MIN_M = 0.4        # a straight line on a stair layer this long under a text is a tread, never a glyph
+STRAIGHT_SKEW_DEG = 1.0        # a line this far askew is still on its axis for the stair rule (an outline drawn askew)
+STRAIGHT_SKEW = math.tan(math.radians(STRAIGHT_SKEW_DEG))
 COUNTER_END_M = 0.05
 COUNTER_DEPTH_M = (0.45, 0.75)
 FRONT_WALL_M = 0.25
@@ -1187,15 +1195,19 @@ def _frame(theta: float):
 
 
 def _straight(segs: list[Seg], to_f) -> list[tuple[str, float, float, float, Seg]]:
-    """Axis segments in the aligned frame: (axis, offset, lo, hi, seg); axis "h" lies along x."""
+    """Axis segments in the aligned frame: (axis, offset, lo, hi, seg); axis "h" lies along x. 23 Nov 2026 (stairs
+    round; bench swiss-b2383, swiss-b3431 L1: a flight's outline drawn 0.4-0.6 degrees askew lost its two end lines,
+    the flight kept 4 treads and was never read): a line askew by at most ``STRAIGHT_SKEW_DEG`` is on its axis too
+    (3 mm at the least, as before)."""
     out = []
     for s in segs:
         if s.curve or s.dot:
             continue
         a, b = to_f(s.pts[0]), to_f(s.pts[-1])
-        if abs(a[1] - b[1]) <= 0.003 and abs(a[0] - b[0]) > 0.003:
+        tol = max(0.003, math.hypot(b[0] - a[0], b[1] - a[1]) * STRAIGHT_SKEW)
+        if abs(a[1] - b[1]) <= tol and abs(a[0] - b[0]) > 0.003:
             out.append(("h", (a[1] + b[1]) / 2, min(a[0], b[0]), max(a[0], b[0]), s))
-        elif abs(a[0] - b[0]) <= 0.003 and abs(a[1] - b[1]) > 0.003:
+        elif abs(a[0] - b[0]) <= tol and abs(a[1] - b[1]) > 0.003:
             out.append(("v", (a[0] + b[0]) / 2, min(a[1], b[1]), max(a[1], b[1]), s))
     return out
 
@@ -1233,6 +1245,72 @@ def _tile_grid(cross: list, pitch: float) -> bool:
     return whole and on >= GRID_ON_PITCH * len(steps)
 
 
+ARROW_SHAFT_DEG = (5.0, 45.0)   # 23 Nov 2026: an arrow head's strokes leave its tip at this angle to the shaft
+LONG_STAIR_COVER = 0.7          # 23 Nov 2026: a long cluster is a stair when its flights and landing cover this much of it
+
+
+def stair_cover(stair: dict) -> float:
+    """The area (m2) a stair rule result's flights (one tread's spacing past each end line) and landing cover (pure)."""
+    from shapely.geometry import LineString as _LS
+
+    parts = []
+    for f in stair.get("flights") or []:
+        a, b = f.get("start"), f.get("end")
+        if not a or not b or math.dist(a, b) <= 1e-9:
+            continue
+        sp = float(f.get("spacing") or 0.0)
+        ux, uy = (b[0] - a[0]) / math.dist(a, b), (b[1] - a[1]) / math.dist(a, b)
+        line = _LS([(a[0] - ux * sp, a[1] - uy * sp), (b[0] + ux * sp, b[1] + uy * sp)])
+        parts.append(line.buffer(float(f.get("width") or 0.0) / 2.0, cap_style=2))
+    land = (stair.get("landing") or {}).get("polygon") if isinstance(stair.get("landing"), dict) else None
+    if land and len(land) >= 3:
+        parts.append(Polygon(land).buffer(0))
+    return unary_union(parts).area if parts else 0.0
+
+
+def arrow_end(seg, segs: list) -> bool:
+    """23 Nov 2026 (stairs round; bench swiss-b2891 L0: a 1.48 m flight with its walking line down the middle was read
+    as a U stair of two 0.74 m flights): a line that ends in an arrow head (two short strokes, ``ARROW_HEAD_M``, leaving
+    one of its ends back along it at ``ARROW_SHAFT_DEG``) is a walking line: it never splits the treads into two flights
+    (the line between the two flights of a U stair carries no arrow head) (pure)."""
+    if seg.curve or seg.dot or len(seg.pts) < 2:
+        return False
+    p0, p1 = seg.pts[0], seg.pts[-1]
+    for tip, back in ((p0, p1), (p1, p0)):
+        dx, dy = back[0] - tip[0], back[1] - tip[1]
+        n = math.hypot(dx, dy)
+        if n <= 1e-9:
+            continue
+        heads = 0
+        for s in segs:
+            if s is seg or s.curve or s.dot or not (ARROW_HEAD_M[0] <= s.length <= ARROW_HEAD_M[1]):
+                continue
+            a, b = s.pts[0], s.pts[-1]
+            if math.dist(a, tip) <= 0.01:
+                vx, vy = b[0] - a[0], b[1] - a[1]
+            elif math.dist(b, tip) <= 0.01:
+                vx, vy = a[0] - b[0], a[1] - b[1]
+            else:
+                continue
+            c = (vx * dx + vy * dy) / ((math.hypot(vx, vy) * n) or 1.0)
+            if ARROW_SHAFT_DEG[0] <= math.degrees(math.acos(max(-1.0, min(1.0, c)))) <= ARROW_SHAFT_DEG[1]:
+                heads += 1
+        if heads >= 2:
+            return True
+    return False
+
+
+def _stair_layer_line(s) -> bool:
+    """23 Nov 2026 (stairs round; bench swiss-b5460: the label 'Merdiven ALAN 1.89 M2' written over a flight hid one
+    tread as a glyph, the flight's even pitch broke and the stair was lost): a straight line on a stair layer at least
+    ``STAIR_GLYPH_MIN_M`` long (longer than any glyph stroke) is drawing, even wholly inside a text's box (pure)."""
+    from wenart.ingest.generic import layer_names as LN
+
+    if s.curve or s.dot or s.length < STAIR_GLYPH_MIN_M:
+        return False
+    return LN.layer_role(getattr(s.stroke, "layer", None)) == "stair"
+
+
 def _finish_share(segs: list) -> float:
     """The share of the straight lines' length on a floor-finish layer (``layer_names``: karo, tile, Fliesen ...)."""
     from wenart.ingest.generic import layer_names as LN
@@ -1258,7 +1336,53 @@ def _even(values: list, lo: float, hi: float) -> bool:
     return lo <= med <= hi and all(abs(st - med) <= max(STAIR_STEP_TOL * med, 0.02) for st in steps)
 
 
+def own_angle(cl: Cluster, theta: float) -> Optional[float]:
+    """23 Nov 2026 (stairs round; bench swiss-b2891 L0 and L3, swiss-b5481: flights turned 3-6 degrees off the plan's
+    axes in a wing of the building, never read): the angle (degrees) of the cluster's most numerous set of parallel
+    straight lines (``ANGLED_BUCKET_DEG`` wide, at least ``STAIR_MIN_TREADS`` lines of 0.3 m or more), when it stands at
+    least ``ANGLED_MIN_DEG`` off the plan's axes (``theta``); else None (pure)."""
+    angs = []
+    for s in cl.segs:
+        if s.curve or s.dot or s.length < 0.3:
+            continue
+        a, b = s.pts[0], s.pts[-1]
+        angs.append(math.degrees(math.atan2(b[1] - a[1], b[0] - a[0])) % 90.0)
+    if len(angs) < STAIR_MIN_TREADS:
+        return None
+    best = None
+    for a in angs:
+        near = [x for x in angs if min(abs(x - a), 90.0 - abs(x - a)) <= ANGLED_BUCKET_DEG / 2.0]
+        if best is None or len(near) > len(best[1]):
+            best = (a, near)
+    a, near = best
+    if len(near) < STAIR_MIN_TREADS:
+        return None
+    # the mean of the bucket around its first member (angles near 0 and 90 folded together)
+    mean = a + sum(((x - a + 45.0) % 90.0) - 45.0 for x in near) / len(near)
+    off = (mean - theta) % 90.0
+    if min(off, 90.0 - off) < ANGLED_MIN_DEG:
+        return None
+    return mean % 90.0
+
+
 def stair_rule(cl: Cluster, theta: float) -> Optional[dict]:
+    """Flights of evenly spaced tread lines (``_stair_rule_at`` in the plan's frame ``theta``); 23 Nov 2026 (stairs
+    round): a cluster whose lines stand at an angle to the plan's axes (``own_angle``) is read again in its own frame
+    (the stair's ``angled_deg`` says how far it turns off the plan's axes)."""
+    found = _stair_rule_at(cl, theta)
+    if found is not None:
+        return found
+    own = own_angle(cl, theta)
+    if own is None:
+        return None
+    found = _stair_rule_at(cl, own)
+    if found is not None:
+        off = (own - theta) % 90.0
+        found["angled_deg"] = round(off if off <= 45.0 else off - 90.0, 2)
+    return found
+
+
+def _stair_rule_at(cl: Cluster, theta: float) -> Optional[dict]:
     """Flights of evenly spaced tread lines (§2.8): ``{"flights", "landing", "bbox_f", "segs"}`` in the aligned
     frame, or None. 3 Nov 2026 (real09: the tile grids of the kitchens and bathrooms, layer 'karo', read as six
     stairs; one bathroom was named a stair): lines mostly on a floor-finish layer (``FINISH_SHARE``) are no stair,
@@ -1280,6 +1404,8 @@ def stair_rule(cl: Cluster, theta: float) -> Optional[dict]:
             # treads: (offset, lo, hi, members); o: (axis, offset, lo, hi, seg)
             crossing = [t for t in treads if t[1] + 0.01 < o[1] < t[2] - 0.01 and o[2] - 0.005 <= t[0] <= o[3] + 0.005]
             if len(crossing) >= STAIR_DIVIDER_SHARE * len(treads):
+                if o[4] is not None and arrow_end(o[4], cl.segs):
+                    continue       # 23 Nov 2026 (stairs round): the walking line, never the line between two flights
                 cuts.append(o[1])
         cuts = sorted(set(round(c, 3) for c in cuts))
         if len(cuts) >= GRID_CUTS and _even(cuts, STAIR_STEP_M[0] * (1 - STAIR_STEP_TOL),
@@ -1626,6 +1752,7 @@ def _merge_collinear(items) -> list[tuple[float, float, float, list]]:
 
 
 SPLIT_STRIP_TOL_M = 0.02        # 19 Nov 2026: two strips of one tread meet within this at the line that splits them
+SPLIT_COMMON_SHARE = 0.7        # 23 Nov 2026: strips with unequal treads share this much of each one's lines
 
 
 def _join_split_strips(flights: list) -> list:
@@ -1639,12 +1766,24 @@ def _join_split_strips(flights: list) -> list:
     while k + 1 < len(out):
         a, b = out[k], out[k + 1]
         if (a["v"] - a["u"] < FLIGHT_MIN_WIDTH_M and b["v"] - b["u"] < FLIGHT_MIN_WIDTH_M
-                and abs(a["v"] - b["u"]) <= SPLIT_STRIP_TOL_M and b["v"] - a["u"] >= FLIGHT_MIN_WIDTH_M
-                and a["lines"] == b["lines"]
-                and all(abs(x - y) <= SPLIT_STRIP_TOL_M for x, y in zip(a["offsets"], b["offsets"]))):
-            out[k:k + 2] = [dict(a, v=b["v"], segs=list(a.get("segs") or []) + list(b.get("segs") or []),
-                                 joined_at=round((a["v"] + b["u"]) / 2.0, 4))]
-            continue
+                and abs(a["v"] - b["u"]) <= SPLIT_STRIP_TOL_M and b["v"] - a["u"] >= FLIGHT_MIN_WIDTH_M):
+            segs = list(a.get("segs") or []) + list(b.get("segs") or [])
+            if a["lines"] == b["lines"] and all(abs(x - y) <= SPLIT_STRIP_TOL_M
+                                                for x, y in zip(a["offsets"], b["offsets"])):
+                out[k:k + 2] = [dict(a, v=b["v"], segs=segs, joined_at=round((a["v"] + b["u"]) / 2.0, 4))]
+                continue
+            # 23 Nov 2026 (stairs round; bench swiss-b16820 L1: a narrow strip drawn beside a flight touched two of its
+            # treads, so the walking line cut 9 treads on one side and 7 on the other and the flight was lost): the
+            # two strips are one flight on the treads they share, when they share at least STAIR_MIN_TREADS of them
+            # and SPLIT_COMMON_SHARE of each strip's lines, evenly spaced
+            common = [x for x in a["offsets"] if any(abs(x - y) <= SPLIT_STRIP_TOL_M for y in b["offsets"])]
+            steps = [q - p for p, q in zip(common, common[1:])]
+            if len(common) >= STAIR_MIN_TREADS and len(common) >= SPLIT_COMMON_SHARE * max(a["lines"], b["lines"]) \
+                    and steps and all(abs(st - statistics.median(steps)) <= STAIR_STEP_TOL * statistics.median(steps)
+                                      for st in steps):
+                out[k:k + 2] = [dict(a, v=b["v"], segs=segs, offsets=common, lines=len(common),
+                                     spacing=statistics.median(steps), joined_at=round((a["v"] + b["u"]) / 2.0, 4))]
+                continue
         k += 1
     return out
 
@@ -2303,6 +2442,8 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
                     inside = whole_in[s.stroke.id] = bool(len(tree.query(_stroke_geom(s.stroke), predicate="within")))
             else:
                 inside = bool(len(tree.query(s.geom, predicate="within")))
+            if inside and _stair_layer_line(s):
+                inside = False         # 23 Nov 2026 (stairs round): a tread under a room label is drawing
             flags.append(inside)
         # Bathroom sense of 26 Oct 2026 (module docstring): a short stroke of an outline that a text covers whole
         # (a "50" written over a basin's bowl) continues the outline on both sides: it is drawing, not a glyph.
@@ -2410,6 +2551,16 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
             continue
         fp = footprint([p for s in cl.segs for p in s.pts], ctx.theta)
         oversize = max(fp[1], fp[2]) > MAX_SIDE_M
+        if oversize and max(fp[1], fp[2]) <= STAIR_MAX_M and not numbered_stair(Polygon(fp[4]), texts_m):
+            # 23 Nov 2026 (stairs round; bench swiss-b263: a 4.51 m straight flight of 16 treads never reached the
+            # stair rule): a straight flight of a whole storey is longer than any piece of furniture; up to a stair's
+            # length (size table) the stair rule reads it before the cluster is split as an oversize group
+            long_stair = stair_rule(cl, ctx.theta)
+            if long_stair is not None and stair_cover(long_stair) >= LONG_STAIR_COVER * fp[1] * fp[2]:
+                pieces.append(_stair_item(cl, long_stair, fp, ctx, raster_page, notes))
+                continue
+            # (a flight with other lines in its cluster: the oversize split below parts them; its re-read takes a
+            # part up to a stair's length, so the flight keeps its own footprint)
         # Milestone 10 (real02): a kitchen whose counter run, appliances and bar stools touch is one cluster larger
         # than 4.5 m; its counter legs are still read, and the rest is split as usual.
         legs = run_legs(cl) if oversize else None
@@ -2615,6 +2766,9 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
     if line_ids:
         notes.append(f"{len(line_ids)} line details (minimum rectangle thinner than {LINE_DETAIL_M} m: single lines, "
                      f"not furniture) ignored: {_short_ids(line_ids)}")
+    # 23 Nov 2026 (stairs round, UL375): the drawer's stair layer read on its own (``stair_layer_pass``)
+    pieces, cands, outside = stair_layer_pass(segs, pieces, cands, outside, wall_polys, texts_m, ctx, raster_page,
+                                              notes)
     decor = _site_decor(outside, ctx, raster_page, notes, wall_geom)
     pieces = _m12_pass(pieces, cands, segs, texts_m, openings, ctx, raster_page, table, faces, wall_polys,
                        reread_symbols, notes, extra_out, symbols_out)
@@ -2756,6 +2910,9 @@ def _stair_item(cl: Cluster, stair: dict, fp, ctx: _Ctx, raster: bool, notes: li
                          "riser_m": None, "riser_source": None, "reason": reason}}
     if len(flights) >= 2:                  # 27 Oct 2026: the half landing's end is drawn only when deep enough
         details["stair"]["landing_assumed"] = bool(stair.get("landing_note"))
+    for key in ("angled_deg", "read_by"):  # 23 Nov 2026 (stairs round): a flight read in its own frame or pass
+        if stair.get(key) is not None:
+            details["stair"][key] = stair[key]
     ev = ctx.evidence(cl.stroke_ids(), raster=raster, box=box,
                       note=f"stair rule: {len(flights)} flight(s), {', '.join(str(f['lines']) for f in flights)} "
                            f"tread lines")
@@ -4062,6 +4219,87 @@ def raster_clusters(segs: list[Seg], dist: float = CLUSTER_M, px: float = 0.01) 
     return [Cluster(v) for v in groups.values()]
 
 
+STAIR_LAYER_HULL_SHARE = 0.8      # 23 Nov 2026: a stair-layer flight this much inside the building walls' hull
+STAIR_NUMBERS_MIN = 3             # ... with this many tread numbers in it is left to the numbered-stair reader
+
+
+def numbered_stair(poly, texts) -> bool:
+    """23 Nov 2026 (stairs round): ``STAIR_NUMBERS_MIN`` tread numbers or more stand in ``poly`` (page metres): the
+    numbered-stair reader (``stair_numbers``) reads that stair from its numbers, with its own footprint (pure)."""
+    if poly is None or poly.is_empty:
+        return False
+    zone = poly.buffer(0.1)
+    n = 0
+    for t in texts or ():
+        box = getattr(t, "box", None)
+        if box and STAIR_NUMBER_RE.match(str(t.text or "")) and \
+                float(getattr(t, "height", 0.0) or 0.0) <= STAIR_NUMBER_H_MAX_M and \
+                zone.contains(Point((box[0] + box[2]) / 2.0, (box[1] + box[3]) / 2.0)):
+            n += 1
+            if n >= STAIR_NUMBERS_MIN:
+                return True
+    return False
+
+
+def stair_layer_pass(segs: list[Seg], pieces: list, cands: list, outside: list[Seg], wall_polys: list, texts_m,
+                     ctx: "_Ctx", raster: bool, notes: list) -> tuple[list, list, list]:
+    """23 Nov 2026 (stairs round, lesson UL375; bench: 10 of the 29 missed stairs drawn on the stair layer stood outside
+    the building outline the walls closed, so their lines went to the site decor as 'steps'; others lost their side
+    lines to the wall-outline rule, so their end treads stood alone, or chained with other layers' lines into a cluster
+    longer than a stair): the drawer's stair layer is read on its own. Its lines (``layer_names`` role ``stair``,
+    before the wall-outline rule, glyphs out) are clustered by themselves; a cluster inside the building walls' convex
+    hull (``STAIR_LAYER_HULL_SHARE``), no longer than a stair (``STAIR_MAX_M``), that no stair piece covers yet and
+    that holds no tread numbers (``stair_numbers`` reads those), is a stair when the stair rule finds walkable flights
+    in it (``read_by: stair layer``; the narrow-flight and tile checks of ``check_rule_stairs`` follow in the core).
+    The candidates and non-stair pieces standing inside it (its own lines read as a piece) are dropped and its lines
+    leave the site decor. Vector pages only; nothing is added on a page without a stair layer. Returns ``(pieces,
+    cands, outside)``."""
+    from wenart.ingest.generic import layer_names as LN
+
+    if raster or not wall_polys:
+        return pieces, cands, outside
+    st_segs = [s for s in segs if LN.layer_role(getattr(s.stroke, "layer", None)) == "stair"]
+    if len(st_segs) < STAIR_MIN_TREADS:
+        return pieces, cands, outside
+    hull = unary_union([p for p in wall_polys if p is not None and not p.is_empty]).convex_hull.buffer(0.05)
+    taken = [_footprint_poly(p) for p in pieces if p.type == "stair"]
+    used: set = set()
+    for cl in clusters_of(st_segs):
+        pts = [p for s in cl.segs for p in s.pts]
+        if len(pts) < 4:
+            continue
+        fp = footprint(pts, ctx.theta)
+        if not (TREAD_LENGTH_M[0] <= max(fp[1], fp[2]) <= STAIR_MAX_M):
+            continue
+        poly = Polygon(fp[4]).buffer(0)
+        if poly.is_empty or poly.area <= 0 or poly.intersection(hull).area < STAIR_LAYER_HULL_SHARE * poly.area:
+            continue
+        if any(poly.intersection(q).area > 0.1 * min(poly.area, q.area) for q in taken):
+            continue
+        if numbered_stair(poly, texts_m):
+            continue
+        st = stair_rule(cl, ctx.theta)
+        if st is None:
+            continue
+        st["read_by"] = "stair layer"
+        item = _stair_item(cl, st, fp, ctx, raster, notes)
+        item.evidence["note"] = (item.evidence.get("note") or "") + "; read from the stair layer's own lines"
+        inside = poly.buffer(-0.05)
+        gone_p = [p for p in pieces if p.type != "stair" and inside.contains(Point(p.center))]
+        gone_c = [c for c in cands if inside.contains(Point(c["footprint"]["center"]))]
+        pieces = [p for p in pieces if p not in gone_p] + [item]
+        cands = [c for c in cands if c not in gone_c]
+        taken.append(_footprint_poly(item))
+        used.update(id(s) for s in cl.segs)
+        notes.append(f"stair layer: a stair at ({fp[0][0]:.2f}, {fp[0][1]:.2f}) read from the stair layer's own lines "
+                     f"({len(st['flights'])} flight(s)); the stair rule had not read it among the other lines"
+                     + (f"; {len(gone_p) + len(gone_c)} piece(s) read from its lines dropped" if gone_p or gone_c
+                        else ""))
+    if used:
+        outside = [s for s in outside if id(s) not in used]
+    return pieces, cands, outside
+
+
 def _site_decor(segs: list[Seg], ctx: _Ctx, raster: bool, notes: list, wall_geom=None) -> list[dict]:
     """Clusters outside the building: green fills or radial clusters -> plant; edge lines -> not decor; else other.
     Footprints leave out the parts of strokes lying on a wall face (an edge line continuing a house face)."""
@@ -4709,7 +4947,10 @@ def reread(cl: Cluster, ctx: "_Ctx", table: dict, walls: list, openings: list, w
             if max(part.size(ctx.theta)) < DETAIL_M:
                 continue
         fp = footprint([p for s in part.segs for p in s.pts], ctx.theta)
-        stair = stair_rule(part, ctx.theta) if max(fp[1], fp[2]) <= MAX_SIDE_M else None
+        # 23 Nov 2026 (stairs round): a part up to a stair's length (STAIR_MAX_M, a straight flight of a storey)
+        side = max(fp[1], fp[2])
+        stair = stair_rule(part, ctx.theta) if side <= MAX_SIDE_M or (
+            side <= STAIR_MAX_M and not numbered_stair(Polygon(fp[4]), texts)) else None
         if stair is not None:
             items.append(_stair_item(part, stair, fp, ctx, raster, notes))
             continue
