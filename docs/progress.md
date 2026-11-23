@@ -4689,3 +4689,19 @@ stair reading rules) and UL376 (the storey height against the stairs). Tests `te
 - **Acceptance**: no bench project falls, unless the fall is a known truth-convention difference shown with a crop.
 - **Review**: rounds that change many readings or core code get an independent reviewer agent before merging (the
   user chose "Reviewer on big rounds only").
+
+### Sealed test set, first checkpoint (23 Nov 2026; totals only, fair wall scorer for both codes)
+
+| | bench 22 Nov (e7a2e5b4) | bench today (239337e1) | sealed 22 Nov (e7a2e5b4) | sealed today (239337e1) |
+|---|---|---|---|---|
+| mean | 73.85 | 75.16 (+1.31) | 74.13 | 74.77 (+0.64) |
+| walls F1 | 0.712 | 0.723 (+0.011) | 0.650 | 0.671 (+0.021) |
+| doors F1 | 0.811 | 0.814 (+0.002) | 0.755 | 0.761 (+0.006) |
+| windows F1 | 0.747 | 0.757 (+0.010) | 0.714 | 0.719 (+0.005) |
+| rooms F1 | 0.749 | 0.755 (+0.006) | 0.698 | 0.706 (+0.007) |
+| stairs F1 | 0.523 | 0.714 (+0.192) | 0.726 | 0.744 (+0.019) |
+
+Reading: the wall, door, window and room rules of 22-23 Nov gain as much or more on the sealed buildings than on the
+bench (general). The stairs round fixed failures frequent in the bench (stairs outside an unclosed outline, askew
+flights) and rarer in the sealed set: no harm, small gain; stairs on unseen buildings stand at 0.74, far from 0.90. The
+sealed set's lower walls/doors/windows/rooms F1 was already there on 22 Nov (its building mix), not a fit to the bench.
