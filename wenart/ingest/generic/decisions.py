@@ -52,6 +52,8 @@ RULE_CONFIDENCE: dict[str, float] = {
     "window_sliding_sashes": 0.75, # 22 Nov 2026 (UL346, real10 C0085/C0091): sliding leaves on a window layer: sashes
     "window_grille": 0.80,         # 22 Nov 2026 (UL365, real10 C0089): equal bars across the gap at a fine pitch: a
                                    # fixed grille, never a door (``openings._grille_bars``)
+    "window_layer_lines": 0.75,    # 23 Nov 2026 (UL368, real10's bathroom windows): lines on a window layer confined to
+                                   # the gap that together span it (a frame in pieces round a sash)
     "window_raster": 0.60,         # a scan's traced lines (their ends and offsets carry the tracing's error)
     "closed_narrow": 0.95,         # a gap under GAP_MIN_M: a drawing crack, never an opening
     "closed_inside_wall": 0.90,    # other wall pieces cover the whole band: concrete, not an opening (real03's core)

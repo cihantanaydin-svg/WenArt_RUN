@@ -946,6 +946,61 @@ def twin_band_window(opening: OpeningItem, walls: list, openings: list) -> bool:
     return False
 
 
+# 23 Nov 2026 (UL369; real10 L-1, the user: "fix the light well"): a wall read in two layers, two parallel walls whose
+# bands touch (within ``STACK_GAP_M``; real10's 0.32 m wall between the bathrooms and the light slot read as the
+# bathrooms' 0.16 m wall and a 0.16 m layer of the slot's plaster beside it), holds one opening through both layers: an
+# untyped gap of one layer that windows of the other layer face (each lying at least half within it, together covering
+# ``STACK_SHARE`` of it) is those windows read again, no door, and they open onto the face beyond it.
+STACK_GAP_M = 0.02
+STACK_SHARE = 0.5
+
+
+def stacked_windows(opening: OpeningItem, walls: list, openings: list) -> list:
+    """The windows of a parallel wall standing flush against the wall that holds the untyped ``opening`` that face it
+    (module comment above; pure), or []. Only a gap of kind ``opening`` (a door is never another layer's window)."""
+    if opening.kind != "opening":
+        return []
+    k = host_wall(opening, walls)
+    if k is None:
+        return []
+    mine = _wall_view(walls[k])
+    rot = math.radians(opening.rotation_deg)
+    ux, uy = math.cos(rot), math.sin(rot)
+    lo, hi = -float(opening.width) / 2.0, float(opening.width) / 2.0
+    (sx, sy), (ex, ey) = mine["start"], mine["end"]
+    length = math.hypot(ex - sx, ey - sy)
+    if length <= 1e-9:
+        return []
+    nx, ny = -(ey - sy) / length, (ex - sx) / length
+    out, spans = [], []
+    for j, w in enumerate(walls):
+        if j == k:
+            continue
+        other = _wall_view(w)
+        (ox, oy), (qx, qy) = other["start"], other["end"]
+        olen = math.hypot(qx - ox, qy - oy)
+        if olen <= 1e-9 or abs((qx - ox) / olen * nx + (qy - oy) / olen * ny) > math.sin(math.radians(3.0)):
+            continue                         # not parallel
+        apart = abs(((ox + qx) / 2.0 - sx) * nx + ((oy + qy) / 2.0 - sy) * ny)
+        if abs(apart - (mine["thickness"] + other["thickness"]) / 2.0) > STACK_GAP_M:
+            continue                         # the bands do not touch
+        for o in openings:
+            if o is opening or o.kind != "window" or host_wall(o, walls) != j:
+                continue
+            c = (o.center[0] - opening.center[0]) * ux + (o.center[1] - opening.center[1]) * uy
+            w0, w1 = c - float(o.width) / 2.0, c + float(o.width) / 2.0
+            cover = min(hi, w1) - max(lo, w0)
+            if cover >= 0.5 * float(o.width) - 1e-6:
+                out.append(o)
+                spans.append((max(lo, w0), min(hi, w1)))
+    total, reach = 0.0, lo
+    for s0, s1 in sorted(spans):
+        if s1 > reach:
+            total += s1 - max(s0, reach)
+            reach = s1
+    return out if out and total >= STACK_SHARE * float(opening.width) - 1e-6 else []
+
+
 def unlabelled_face_type(face, walls: list, openings: list, stairs: list = (), others: Optional[list] = None,
                          texts: list = ()) -> tuple[str, str]:
     """``("hall", reason)`` when an unlabelled face holds a stair or touches >= 2 doors/openings, else
@@ -966,6 +1021,8 @@ def unlabelled_face_type(face, walls: list, openings: list, stairs: list = (), o
         if poly.contains(Point(c)):
             return "hall", "unlabelled face holding the stair"
     touching = glassless = twins = 0
+    through: list = []                   # 23 Nov 2026 (UL369): the other layer's windows behind a gap of this face
+    n_stacked = 0
     for o in openings:
         if o.kind == "window":
             continue
@@ -976,12 +1033,18 @@ def unlabelled_face_type(face, walls: list, openings: list, stairs: list = (), o
             glassless += 1
         elif twin_band_window(o, walls, openings):
             twins += 1                   # 12 Nov 2026 (round-2 review, F6): the window of the wall it lies in
+        elif (behind := stacked_windows(o, walls, openings)):
+            n_stacked += 1               # 23 Nov 2026 (UL369): one opening through a wall read in two layers
+            through += [w for w in behind if w not in through]
         else:
             touching += 1
     left_out = f" ({glassless} gap(s) without glass not counted as doors)" if glassless else ""
     if twins:
         left_out += (f" ({twins} gap(s) on a wall read inside another wall's band, where that wall's window is, not "
                      f"counted as doors)")
+    stack_note = (f" ({n_stacked} gap(s) in a layer of a wall read in two layers, facing {len(through)} window(s) "
+                  f"of the other layer, not counted as doors)") if n_stacked else ""
+    left_out += stack_note
     # 3 Nov 2026 (real09, user: the space beside the bathroom is "a light well (ışıklık)"): a small face no door
     # reaches that the windows of other rooms open onto is a light well (open to the sky, no room)
     if touching == 0 and poly.area <= LIGHT_WELL_MAX_M2:
@@ -990,7 +1053,7 @@ def unlabelled_face_type(face, walls: list, openings: list, stairs: list = (), o
             if o.kind != "window":
                 continue
             p = opening_polygon(o, walls)
-            if p is None or p.distance(poly) > 0.02:
+            if p is None or (p.distance(poly) > 0.02 and o not in through):
                 continue
             if others is None or any(g is not face and not g.equals(poly) and p.buffer(0.15).intersects(g)
                                      for g in others):
@@ -1007,9 +1070,9 @@ def unlabelled_face_type(face, walls: list, openings: list, stairs: list = (), o
                                f"|{word.strip()}")
             if kind == "air_shaft":
                 return "shaft", (f"air shaft: a face of {poly.area:.2f} m2 that no door reaches and {onto} window(s) "
-                                 f"of other rooms open onto, {why} (hava bacası, no light well)")
+                                 f"of other rooms open onto, {why} (hava bacası, no light well){stack_note}")
             return "shaft", (f"light well: a face of {poly.area:.2f} m2 that no door reaches and {onto} window(s) of "
-                             f"other rooms open onto (ışıklık; {why})")
+                             f"other rooms open onto (ışıklık; {why}){stack_note}")
     if touching >= 2:
         return "hall", f"unlabelled face touching {touching} doors/openings{left_out}"
     # 3 Nov 2026 (real10, user: "red sections are small closets (small rooms with a door to store some stuff

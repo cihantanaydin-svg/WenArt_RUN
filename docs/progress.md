@@ -4332,3 +4332,102 @@ Two general reader rules (UL338, UL364) for the two largest error classes of the
   that are real drawn material and cannot fold (jogs, duct closures, columns at railing ends: a convention of the truth);
   pieces on the centre line of a thicker wall (RC14 wall_in_wall decides nothing yet); the scorer issues above (not
   changed this round).
+
+## 23 Nov 2026, light well and paired windows round (the user: "after walls, fix the light well and the two bathroom windows"; CPU only, no pod)
+
+Three general reader rules for the two faults the C0089 round found on real10 L-1, each judged on its whole error class
+over the synthetic projects, the real projects and the 107-building dataset bench, with a synthetic project
+(synthetic-36-light-well-piers, gated), a test file (`tests/test_rules_lightwell_windows_20261123.py`, 25 tests, most of
+them must-not-fire cases) and lessons UL367-UL369. No truth entry or correction record was added (the user accepted a
+machine finding, no screenshot revision). Base b6c88adf.
+
+- **Cause of the two windows read as one (drawing looked at).** real10's bathroom wall onto the light slot holds two
+  0.50 m windows ('50' tags) with a 0.60 m pier between them: the T-head of the 0.25 m partition between the two
+  bathrooms, drawn on DUVAR with its face on the bathrooms' side cut by the partition (two 0.175 m pieces). A face pair
+  shorter than it is thick is a cap line to the wall reading, so the pier is no wall piece, and the gap split rule only
+  cuts at wall pieces reaching into the band: the run gap ran from column to column (1.80 m, 'unclassified'). The same
+  on every normal floor (L0-L6: one 1.80 m window typed by the recess rule). The dataset's drawings lose their piers
+  the same way by another path: a closed DUVAR box with its hatch between two windows (0.2-0.4 m, or 1.5 m between
+  thick facade piers), a mask component shorter than three times its thickness that touches no kept wall, is dropped.
+  real10's windows also have no line spanning 80 % of a 0.50 m opening (a frame in 7 cm corner pieces round sash lines
+  of 0.30-0.40 m), so even a split part was no window by the line rule, and two 5 cm frame lines drawn twice fitted a
+  double door's open leaves.
+- **Rule UL367, a drawn pier splits its gap** (`openings._drawn_piers`, `_pier_parts`, every vector source): inside a
+  run gap, an interval between jamb lines on a wall or structure layer crossing 60 % of the band, carrying wall,
+  structure or plaster lines (or the end of a perpendicular wall) along half of it, confined to the gap, no line of
+  another layer strictly inside the band across it, 0.10-1.5 m wide; material at a gap end (a jamb stub, a plaster
+  return) trims that end. Kept only when every part is an opening's width and a door or window by its own symbol, only
+  in gaps up to 3 m (a gap open by its width stays open, see the misfires), and never along a wall read twice (another
+  run on the axis whose band holds
+  the gap's line has a wall piece, as long as it is thick, at both ends of the gap: that wall's gaps read the
+  openings). The pier's lines are owned (wall, never a door's leaves or furniture); the opening's evidence and the gap
+  log say `pier`.
+- **Rule UL368, a window drawn on the window layer in a pier part** (`openings._window_layer_lines`): in a part of a
+  split gap, lines on a window or glass layer within the band and the part, at two or more offsets (one strictly
+  inside), spanning 80 % of it together, are its window (rule `window_layer_lines`, 0.75), before the open leaves. A
+  first version applied it to every gap and turned real10's 0.40 m closet doors and its '140/230' glazed door (C0020,
+  C0035) into windows: real10 fell to 94.9; it is now limited to pier parts.
+- **Cause of the light slot read as a room.** With the windows a door was no longer counted, but the slot's own side of
+  the wall is read as a second wall: the 0.32 m slot wall is the bathrooms' 0.16 m wall (w_L-1_055, 12.41-12.57) and a
+  0.16 m layer from the slot's plaster lines (w_L-1_058, 12.5675-12.7275), whose 1.52 m untyped gap faced the windows.
+  The existing light-well rule (a doorless face that windows of other rooms open onto, 3 Nov 2026) counted that gap as a
+  door.
+- **Rule UL369, a wall read in two layers holds one opening** (`topology.stacked_windows`, in `unlabelled_face_type`):
+  two parallel walls whose bands touch (within 2 cm) are one wall in two layers; an untyped gap of one layer that
+  windows of the other layer face (each at least half within it, together half of it) is those windows read again: no
+  door, and they open onto the face beyond. A door in either layer, layers apart, a gap no window faces keep the face a
+  room; a labelled face (a lift shaft) is never typed here.
+- **real10 L-1:** the bathroom wall has two windows of 0.50 m (the drawn width, frame to frame), the slot is 'Işıklık',
+  a light well (room type shaft, not lived in); L0-L6: the 1.80 m window is two 0.50 m windows. real10 stays at 100.
+- **The class, measured.** Paired openings (two truth windows on one line, a pier of 0.03-1.0 m between them) on the
+  bench: 486 pairs, both read 361 -> 379; door pairs 442, both read 336 -> 339. The pier rule splits gaps in 20 bench
+  projects (96 openings); 8 projects change their score (swiss-b1060, b154, b1583, b1737, b1739, b2383, b5133, b6529:
+  closed DUVAR boxes between windows, 0.18-0.22 m piers between pairs of 1.2 m balcony doors), the other 12 read the
+  same openings as before within a few cm (their gaps were already split another way). Real projects: real10 (the
+  slot wall on L-1 and on the six normal floors: seven merged openings, now 14 windows), real06 L1 (the bathroom door
+  beside its window: 0.70 -> 0.77 m, from the pier to the jamb, and a second door its swing gave inside a hatched duct
+  box gone); synthetic: synthetic-36 only. Light wells: real10 L-1's slot (through the stacked-layer test) and
+  synthetic-36's well (the existing rule, once its windows are read) become light wells; the stacked-layer test fires
+  nowhere else (19 real projects, the 34 gated synthetic ones, the bench: no 'two layers'
+  note, no room changes its type; the bench's 92 truth shafts are all labelled lifts, shafts and voids, so its room
+  classes do not move: room invented 131, room invented in a cavity or narrow gap 122, room missed (shaft) 45 as before).
+- **Misfires found and fixed while measuring:** the window-layer rule on every gap (real10's closet doors and glazed
+  door, C0020 and C0035: real10 94.9; now pier parts only); a 20 cm minimum leaf length tried against the frame lines
+  read as leaves (it lost real10's 0.40 m closet double doors and a 0.27 m door; replaced by checking the window lines
+  first in a pier part); a split along a wall read twice (real06 L0: the 0.30 m facade-pier run beside the 0.25 m wall
+  holding the windows got its own windows and the real wall's window became an opening; the twin guard first tested the
+  run's whole extent, which blocked real10 itself through its kolon band and jamb stubs, now a wall piece at both gap
+  ends); a hatched column read as one part (real07 L1, a 0.60 m 'window' in a KOLON box: every part must now be a door
+  or window); and gaps open by their width (> 3 m) split into their windows: swiss-b1613 and b15161 rose, but swiss-b2294
+  lost a wing of thin walls the outer ring's closure had reached (walls matched 38 -> 33) and its origin moved 2.92 m,
+  so a gap over 3 m stays open.
+- **Gate:** `score --gate` holds against 381016c0 (never --update): synthetic overall (gated) 97.4 -> 97.5 (97.39 on the
+  33 projects as before, 97.46 with synthetic-36 at 100; every other synthetic reading unchanged, the rules fire in no
+  other synthetic project); real06, real07, real09, real10, real17 100 as before. Every user correction that held still
+  holds (real10's C0020 closets and C0035 door included).
+- **Regress** (19 real projects, real08 left out): the 13 synthetic baselines hold and synthetic-36's is written (the
+  new project only); real01, 02, 04, 09, 11, 13, 14, 16, 18, 20 hold; real03, 06, 07, 10, 12, 15, 17, 19 and 21 differ
+  from their 12 Nov baselines as after the wall round. Traced on every real project (each accepted split and each
+  stacked-layer gap printed): the rules fire only on real06 (one split: L1's window and door) and real10 (the slot
+  wall on L-1 to L6, the slot); every other real reading is the HEAD reading.
+- **Real readings that change, crops looked at:** real10 L-1 (the bathroom wall: two PENCERE frames of 0.50 m, the
+  partition's T-head between them on DUVAR; the slot 1.72 x 3.73 m between shear walls, no door, the grille at the
+  facade, the two windows the only openings onto it: a light well), real10 L0-L6 (the same wall onto the open recess:
+  two windows, the pier drawn), real06 L1 (a swing arc of 0.75 m from the jamb to the 0.30 m DUVAR box beside the
+  window; the old second door stood inside a hatched duct box).
+- **Bench** (`/home/user/bench_data/bench_lightwell.md`, against `bench_walls`, same code base): mean 73.79 -> 73.89;
+  8 projects rise (0.33-4.38), none falls; windows matched 2035 -> 2053 (F1 0.747 -> 0.753), doors 2857 -> 2863 (F1
+  0.811 -> 0.813); window missed 313 -> 297, window invented 302 -> 290, door missed 405 -> 399, door invented 123 ->
+  120, window read as door 6 -> 4, wall split 1151 -> 1148, wall invented 1089 -> 1088, rooms merged 148 -> 149
+  (swiss-b1060: an invented 3.5 m wide-gap opening that had split the kitchen from a bedroom is no longer made once the
+  facade's two windows close the ring; the truth has no wall there either); the room classes of light wells and shafts
+  do not move (above). swiss-b2440 fails to read in both (not these rules).
+- **Tests:** the new file 25 passed; the touched modules' files and the failure-class and self-improvement sets 817
+  passed, 23 xfailed (the failure-class list now names synthetic-36; its preview is in `results/synthetic/`).
+- **Open:** real10 L-1's slot-side plaster layer (w_L-1_058) keeps its 1.52 m untyped gap across the pier (no window
+  lines of its own; the light-well rule no longer counts it as a door, but the layer itself is a wall reading
+  artefact: the 0.32 m wall read as two 0.16 m walls); pier splits in end gaps (a free wall end cast across a pier) and
+  in gaps open by their width (> 3 m, the outer ring's closure depends on them) are not done; layerless sources (a
+  vector PDF's pier box has no wall layer) are not covered; the open-leaf rule still takes two short frame lines drawn
+  twice for a double door's leaves outside pier parts (real10's 0.40 m closets on L-1 are read as doors that way, which
+  matches the user's C0020).

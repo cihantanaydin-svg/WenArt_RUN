@@ -25,6 +25,10 @@ corrections and the reading checks, each as a share), built on the failure-class
 - ``synthetic-34-open-passage`` (UL363, the user's C0053 on real07): the corridor's lower partition ends 2.3 m short of
   the next wall with nothing in the gap but floor hatch and a grid axis, beside a doorless gap under a dashed beam, the
   bathroom's only way in drawn empty, and an empty facade gap. Truth: an open passage up to the ceiling there only.
+- ``synthetic-36-light-well-piers`` (UL367-UL369; real10 L-1, "fix the light well and the two bathroom windows"): an
+  enclosed light well between two bathrooms, one bathroom's two 0.5 m windows onto it with a 0.30 m pier the wall
+  reading drops, a door and a window with a pier between them; a window with a mullion and a closet with a door keep
+  their reading. Truth: two windows, the well a light well (a shaft), the closet storage.
 """
 from __future__ import annotations
 
@@ -468,7 +472,59 @@ def project_35() -> FailureProject:
                           extra_truth={"weak_kind": "door_invented", "records": ["C0089"]})
 
 
+def project_36() -> FailureProject:
+    """synthetic-36-light-well-piers (23 Nov 2026; real10 L-1, the user: "fix the light well and the two bathroom
+    windows", UL367, UL368, UL369): an enclosed light well (1.65 x 2.1 m, no label, no door) in the upper row between two
+    bathrooms; BANYO 1's wall onto it holds two 0.5 m windows with a 0.30 m pier between them (the pier a closed DUVAR
+    box shorter than the wall is thick is wide, touching no other wall: the wall reading drops it, as the dataset's
+    drawings' piers), BANYO 2's one 0.6 m window. HEAD read the two windows as one unclassified gap, and that gap kept
+    the well a room ('Oda'). The YATAK ODASI's facade holds a door and a window with a 0.25 m pier between them. The
+    cases that keep their reading: the SALON's 2.4 m window with a mullion (a line across its frame on the window layer,
+    no wall pier: one window), the DEPO under the well (a small room with a door: a closet, never a light well).
+    Truth: the well a light well (a shaft, 'HAVA BOŞLUĞU'), each window and door as drawn, the DEPO storage."""
+    W, H = 12.0, 9.0
+    t, ti = FC.EXT_T, FC.INT_T
+    walls = FC.outer_walls("e", W, H) + [
+        FC.Wall("i1", (0.0, 4.4), (W, 4.4), ti), FC.Wall("i2", (0.0, 5.8), (W, 5.8), ti),
+        FC.Wall("i3", (7.0, 0.0), (7.0, 4.4), ti),
+        FC.Wall("m1", (3.6, 5.8), (3.6, H), ti), FC.Wall("k1", (5.4, 5.8), (5.4, H), ti),
+        FC.Wall("k2", (7.2, 5.8), (7.2, H), ti), FC.Wall("m2", (9.0, 5.8), (9.0, H), ti),
+        FC.Wall("d1", (5.4, 6.6), (7.2, 6.6), ti)]                   # the DEPO's top: the well's bottom side
+    plan = FC.Plan("p0", (10.0, 10.0), walls, title="ZEMİN KAT PLANI")
+    for oid, kind, wall, at, width, kw in [
+            ("entrance", "door", "e4", (0.125, 5.1), 1.0, dict(hinge="end", side=1)),
+            ("d_salon", "door", "i1", (3.0, 4.4), 0.9, dict(hinge="start", side=-1)),
+            ("d_yatak", "door", "i1", (8.5, 4.4), 0.9, dict(hinge="end", side=-1)),
+            ("d_mutfak", "door", "i2", (1.8, 5.8), 0.9, dict(hinge="start", side=1)),
+            ("d_banyo1", "door", "i2", (4.5, 5.8), 0.8, dict(hinge="start", side=1)),
+            ("d_depo", "door", "i2", (6.3, 5.8), 0.7, dict(hinge="end", side=1)),
+            ("d_banyo2", "door", "i2", (8.1, 5.8), 0.8, dict(hinge="end", side=1)),
+            ("d_cocuk", "door", "i2", (10.5, 5.8), 0.9, dict(hinge="start", side=1)),
+            ("w_salon1", "window", "e1", (3.5, 0.125), 2.4, {}),
+            ("w_yatak1", "window", "e1", (9.5, 0.125), 1.4, {}),
+            ("w_yatak2", "window", "e2", (W - 0.125, 2.1), 1.0, {}),
+            ("d_yatak2", "door", "e2", (W - 0.125, 3.3), 0.9, dict(hinge="end", side=1)),
+            ("w_mutfak", "window", "e3", (1.8, H - 0.125), 1.2, {}),
+            ("w_cocuk1", "window", "e3", (10.5, H - 0.125), 1.4, {}),
+            ("w_banyo1a", "window", "k1", (5.4, 7.2), 0.5, {}),
+            ("w_banyo1b", "window", "k1", (5.4, 8.0), 0.5, {}),
+            ("w_banyo2", "window", "k2", (7.2, 7.6), 0.6, {})]:
+        FC.place(plan, oid, kind, wall, at, width, **kw)
+    plan.labels = [FC.Label("SALON", (3.5, 2.2)), FC.Label("YATAK ODASI", (9.5, 2.6)), FC.Label("HOL", (5.0, 5.1)),
+                   FC.Label("MUTFAK", (1.8, 7.4)), FC.Label("BANYO", (4.5, 7.6), height=0.15),
+                   FC.Label("BANYO", (8.1, 7.0), height=0.15), FC.Label("ÇOCUK ODASI", (10.5, 7.4))]
+    # the SALON's window: one frame, a mullion across it at its middle on the window layer (no wall pier)
+    plan.prims.append(Prim("line", FC.L_WINDOW, [(3.5, 0.0), (3.5, r6(t))]))
+    plan.truth_rooms = {(6.3, 7.7): "HAVA BOŞLUĞU", (6.3, 6.2): "DEPO"}
+    return FailureProject("synthetic-36-light-well-piers", "light_well_piers", "UL367",
+                          "an enclosed light well between two bathrooms, two windows of one bathroom separated by a "
+                          "short pier the wall reading drops, a door and a window separated by a pier; a window with a "
+                          "mullion and a closet with a door keep their reading",
+                          [plan], [GROUND], BRIEF,
+                          extra_truth={"weak_kind": "opening_merged", "records": []})
+
+
 PROJECTS = (("opening_type", project_24), ("wall_invented", project_25), ("door_invented", project_26),
             ("stair_edge_run", project_28), ("upper_floor_door", project_29), ("fire_stair", project_30),
             ("layer_names", project_31), ("sliding_window_tag", project_32), ("double_wall", project_33),
-            ("open_passage", project_34), ("grille_slot", project_35))
+            ("open_passage", project_34), ("grille_slot", project_35), ("light_well_piers", project_36))

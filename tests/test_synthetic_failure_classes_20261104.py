@@ -120,6 +120,8 @@ EXPECTED_NAMES = [
     "synthetic-34-open-passage",
     # 22 Nov 2026: the grille rule (the user's C0089, UL365)
     "synthetic-35-grille-slot",
+    # 23 Nov 2026: the drawn-pier and light-well rules (real10 L-1, UL367-UL369)
+    "synthetic-36-light-well-piers",
 ]
 
 

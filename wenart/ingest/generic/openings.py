@@ -59,6 +59,11 @@ wall, and its two bedroom doors share one run gap that the end of the wall betwe
   the swing and the named door, before the open leaves; leaves opened at 90 degrees need a clear passage
   (``blocked_passage``: bars of their own length between them make them bars of a grille, slats or treads, no door;
   ``Gap.blocked``, and the ranker may then not type the gap a door).
+- 23 Nov 2026 (UL367, UL368; real10 L-1, the user: "fix ... the two bathroom windows"): a pier the wall reading dropped
+  (a partition's T-head whose face it cuts, an isolated wall-layer box) still splits its run gap when it is drawn
+  (``_drawn_piers``: jamb lines on a wall or structure layer, its faces drawn, no window line across it) and every part
+  is a door or window (``_pier_parts``); in such a part, lines on a window layer that together span it are its window
+  (``_window_layer_lines``), before the open leaves.
 - Walls drawn as face lines (real02) put two walls of one axis line far apart with perpendicular walls crossing the
   gap between them (the bedroom walls of a semi-detached pair, a corridor and a bathroom between them): a run gap
   that perpendicular walls running through the band split is one wall with openings only when every part holds a
@@ -538,6 +543,9 @@ class Gap:
     # 22 Nov 2026 (UL365): leaves opened at 90 degrees that fitted the gap but stood in a run of bars of their own
     # length (a grille, slats, treads): the number of bars between them (``blocked_passage``), for the record
     blocked: Optional[int] = None
+    # 23 Nov 2026 (UL367, UL368): a part of a gap split at a drawn pier (``_pier_parts``): an opening's place the
+    # drawing shows, typed a window by its window-layer lines alone (``_window_layer_lines``)
+    pier_part: bool = False
 
     @property
     def width(self) -> float:
@@ -823,6 +831,8 @@ def gap_rule(g: Gap, features: dict, raster: bool = False) -> tuple[str, float]:
             rule = "window_grille"
         elif found.get("sliding_window"):
             rule = "window_sliding_sashes"
+        elif found.get("window_layer"):
+            rule = "window_layer_lines"
         elif raster:
             rule = "window_raster"
         elif features.get("glass_lines", 0) >= 1 and features.get("parallel_offsets", 0) >= 3:
@@ -967,6 +977,15 @@ def _classify_gap_rules(g: Gap, index: StrokeIndex, owned_global: set) -> None:
         g.cls = "window"
         g.found = {"lines": grille["bars"], "glass": [], "grille": {k: v for k, v in grille.items() if k != "bars"}}
         return
+    # 23 Nov 2026 (UL368, real10's bathroom windows: a frame drawn in corner pieces round a sash, no one line spanning
+    # 80 % of the gap): in a part of a gap split at a drawn pier, lines on a window or glass layer confined to it that
+    # together span it are its window (``_window_layer_lines``), before the open leaves (two 5 cm frame lines, each
+    # drawn twice, would fit a double door's leaves in a 0.5 m part)
+    layered = _window_layer_lines(g, zone, arcs) if g.pier_part else None
+    if layered is not None:
+        g.cls = "window"
+        g.found = {"lines": layered[0], "glass": layered[1], "window_layer": True}
+        return
     # real10 (1 Nov 2026): a door drawn open at 90 degrees without a swing arc (the building entrance's two leaves,
     # the flats' doors): one leaf standing at a gap end as long as the gap, or two at both ends each half of it.
     opened = _open_leaves(g, zone)
@@ -1088,6 +1107,52 @@ def _classify_gap_rules(g: Gap, index: StrokeIndex, owned_global: set) -> None:
     g.found = {"content": content + [it for it in swings if it not in content]}
     if no_glass:
         g.found["no_glass"] = no_glass
+
+
+def _window_layer_lines(g: Gap, zone: list, arcs: list) -> Optional[tuple[list, list]]:
+    """23 Nov 2026 (UL368; real10's bathroom windows, 0.50 m: frame corner pieces of 7 cm, sash lines of 0.30-0.40 m,
+    all on PENCERE): a window drawn on a window or glass layer whose lines together span the gap. ``(lines, glass
+    offsets)`` when the straight lines parallel to the wall on such a layer (``layer_names.layer_roles``), each lying in
+    the band and within the gap +- ``OWN_MARGIN_M``, stand at >= ``WINDOW_LINES_MIN`` offsets, >= ``GLASS_MIN_LINES``
+    of them strictly between the faces, and their union along the wall covers ``WINDOW_COVER`` of the gap, with no
+    door-like arc in the zone; else None (pure). Checked after the sliding leaves (sashes on a window layer are a sliding
+    window's, UL346) and before the named window; used only in a part of a gap split at a drawn pier."""
+    from wenart.ingest.generic import layer_names as LN
+
+    if any(_door_like(g, arc) for _it, arc in arcs):
+        return None
+    half = g.t / 2.0
+    lines, offsets, glass, spans = [], set(), set(), []
+    for it in zone:
+        if not (LN.layer_roles(it.st.layer) & GLAZING_ROLES):
+            continue
+        if not all(abs(g.across(q)) <= half + BAND_SLACK_M and g.a - OWN_MARGIN_M <= g.along(q) <= g.b + OWN_MARGIN_M
+                   for q in it.pts):
+            continue
+        took = False
+        for p, q in zip(it.pts, it.pts[1:] + ([it.pts[0]] if it.st.closed and len(it.pts) > 2 else [])):
+            if not _parallel(p, q, g.axis) or math.dist(p, q) < 0.005:
+                continue
+            off = round(g.across(((p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0)), 3)
+            offsets.add(off)
+            if abs(off) < half - GLASS_INSET_M:
+                glass.add(off)
+            lo, hi = sorted((g.along(p), g.along(q)))
+            spans.append((max(lo, g.a), min(hi, g.b)))
+            took = True
+        if took:
+            lines.append(it)
+    if len(offsets) < WINDOW_LINES_MIN or len(glass) < GLASS_MIN_LINES:
+        return None
+    total, reach = 0.0, g.a
+    for lo, hi in sorted(spans):
+        lo = max(lo, reach)
+        if hi > lo:
+            total += hi - lo
+            reach = hi
+    if total < WINDOW_COVER * g.width - 1e-6:
+        return None
+    return lines, sorted(glass)
 
 
 def _one_face_across(g: Gap, index: StrokeIndex):
@@ -2031,11 +2096,24 @@ def gaps_and_openings_frame(walls: list[WallItem], strokes_m: list[Stroke], file
                 continue
             trial = set(owned)
             found = []
+            # 23 Nov 2026 (UL367): a drawn pier the wall reading dropped splits its gap (``_pier_parts``). A gap open by
+            # its width (> GAP_MAX_M) stays open: the outer ring's closure downstream depends on it (a first version
+            # split swiss-b1613's 4.48 m gap into its two windows, and swiss-b2294 lost a wing of thin walls the ring
+            # had reached)
+            parts: list[tuple[float, float, Optional[dict]]] = []
             for a, b in subs:
-                g = Gap("run" if len(subs) == 1 else "split", p.axis, _run_c(run), _run_t(run), a, b, [p, q],
-                        run_len=run_len)
+                pier = _pier_parts(Gap("run", p.axis, _run_c(run), _run_t(run), a, b, [p, q], run_len=run_len),
+                                   index, trial, ends) if b - a >= GAP_MIN_M else None
+                parts += [(x, y, pier) for x, y in pier["parts"]] if pier else [(a, b, None)]
+            for a, b, pier in parts:
+                g = Gap("run" if len(parts) == 1 else "split", p.axis, _run_c(run), _run_t(run), a, b, [p, q],
+                        run_len=run_len, pier_part=pier is not None)
+                if pier is not None:
+                    trial.update(pier["ids"])        # the pier's lines are wall material, never a leaf or furniture
                 if g.width >= GAP_MIN_M:
                     classify_gap(g, index, trial, log)
+                if pier is not None:
+                    g.found["pier"] = pier["note"]
                 # Fix round after P6b: wall material of other pieces fills the gap (real03's shear-wall core); a door
                 # symbol in it keeps the door (review of the fix round: the drawn swing outranks the decomposition).
                 cover = _inside_wall(g, pieces, run) if _symbol_cls(g) != "door" else None
@@ -2232,6 +2310,8 @@ def gaps_and_openings_frame(walls: list[WallItem], strokes_m: list[Stroke], file
         entry = _log_entry(g, theta, piece_out)
         if g.cls in ("door", "window") or (g.kind != "end" and g.cls in ("empty", "unclassified")):
             item = _opening(g, ctx, exterior)
+            if g.found.get("pier"):
+                item.evidence["pier"] = g.found["pier"]      # 23 Nov 2026 (UL367): never silent
             if g.blocked and item.kind != "door":
                 # 22 Nov 2026 (UL365): never silent: the open leaves the clear-passage test turned down
                 item.evidence["leaves_blocked"] = (f"two lines fitted a door's leaves opened at 90 degrees, but "
@@ -2496,6 +2576,184 @@ def _crossed(p: Piece, q: Piece, pieces: list[Piece]) -> bool:
         if min(w.b, hi) - max(w.a, lo) >= 0.5 * p.t:
             cutting.append(w)
     return bool(cutting) and all(w.a < lo - p.t and w.b > hi + p.t for w in cutting)
+
+
+# 23 Nov 2026 (UL367; real10 L-1, the user: "fix ... the two bathroom windows"): two openings in one wall separated by a
+# short pier were read as one gap. The pier is wall material the wall reading drops (real10: the T-head of the partition
+# between the two bathrooms, its faces cut by the partition, so no face pair as long as it is thick; the bench: a closed
+# 0.2-0.4 m DUVAR box with its hatch between two windows, a mask component shorter than three times its thickness that
+# touches no kept wall), and the gap split rule only cuts at wall pieces reaching into the band. A drawn pier inside a
+# run gap (``_drawn_piers``): an interval of wall material along the gap between jamb lines on a wall or structure layer
+# that cross ``PIER_ACROSS`` of the band, whose stretch between them carries wall, structure or plaster lines (or the
+# end of a perpendicular wall) along ``PIER_FACE_SHARE`` of it, confined to the gap, and that no line of another layer
+# crosses (a window frame running on over a mullion), at least ``PIER_MIN_M`` wide and at most ``PIER_MAX_M``. Material
+# touching a gap end (a jamb stub, a plaster return) trims that end. Each part must be an opening's width
+# (``GAP_MIN_M``); the split is kept only when every part is a door or window by its own symbol (``_pier_parts``), and
+# never along a wall read twice (a parallel piece of another run in the band holds the openings).
+PIER_MIN_M = 0.10               # a masonry pier between two openings is at least this wide (a mullion is narrower)
+PIER_MAX_M = 1.5                # ... and at most this (longer material is a wall piece of its own)
+PIER_ACROSS = 0.6               # its jamb lines cross this share of the gap's band
+PIER_FACE_SHARE = 0.5           # its stretch carries material lines along this share of it (one offset)
+PIER_JAMB_SAME_M = 0.01         # jamb lines this close are one jamb
+PIER_END_M = 0.05               # material starting this close to a gap end trims that end (a plaster joint between)
+PIER_ROLES = frozenset({"wall", "structure"})           # the jamb lines' layers ...
+PIER_FACE_ROLES = PIER_ROLES | {"plaster"}              # ... and the face lines' (a plaster coat is the pier's too)
+
+
+def _material(st, roles=PIER_ROLES) -> bool:
+    """A stroke on a layer that draws wall material (``roles`` among the name's roles, none of a window or glass)."""
+    from wenart.ingest.generic import layer_names as LN
+
+    got = LN.layer_roles(st.layer)
+    return bool(got & roles) and not (got & GLAZING_ROLES)
+
+
+def _drawn_piers(g: Gap, index: StrokeIndex, owned: set, cross_pieces: list = ()) -> Optional[dict]:
+    """The drawn piers inside the gap ``g`` (module comment above, pure): ``{"parts": [(a, b), ...], "piers": [(s0, s1),
+    ...], "ids": [stroke ids], "note": str}`` with at least two parts, or None. ``cross_pieces``: the perpendicular wall
+    pieces; one whose end lies at the band (within ``PIER_END_M`` of a face) covers its width of a pier's face (real10:
+    the partition between the two bathrooms runs into its pier)."""
+    t = g.t
+    if t <= 0 or g.width < 2 * GAP_MIN_M + PIER_MIN_M:
+        return None
+    half = t / 2.0
+    # a wall read twice: another run on the axis whose band holds this gap's centre line has a wall piece (at least as
+    # long as it is thick: no jamb stub) at both ends of the gap; that wall's own gaps read the openings (real06 L0: the
+    # 0.30 m facade piers' run beside the 0.25 m wall that holds the windows). A run of columns metres off the gap's ends
+    # (real10's kolon band) or of jamb stubs is no such wall.
+    own_runs = {q.run for q in g.pieces}
+    ends_at: dict = {}
+    for w in cross_pieces:
+        if w.axis != g.axis or w.run in own_runs or abs(w.c - g.c) > max(w.t, t) / 2.0 or w.b - w.a < w.t - 1e-9:
+            continue
+        for k, e in enumerate((g.a, g.b)):
+            if w.a <= e + PIER_END_M and w.b >= e - PIER_END_M:
+                ends_at.setdefault(w.run, set()).add(k)
+    if any(len(v) == 2 for v in ends_at.values()):
+        return None
+    zone = [it for it in index.query(g.rect(grow_face=BAND_SLACK_M, grow_along=OWN_MARGIN_M))
+            if it.st.id not in owned]
+    other_axis = "v" if g.axis == "h" else "h"
+    jambs: list[float] = []
+    faces: list[tuple[float, float, float, str]] = []      # (offset, lo, hi, id) of material lines along the gap
+    foreign: list[tuple[float, float]] = []                # spans of other lines along the gap inside the band
+    for it in zone:
+        segs = list(zip(it.pts, it.pts[1:] + ([it.pts[0]] if it.st.closed and len(it.pts) > 2 else [])))
+        mat, face_mat = _material(it.st), _material(it.st, PIER_FACE_ROLES)
+        for p, q in segs:
+            if _parallel(p, q, other_axis) and mat:
+                s = (g.along(p) + g.along(q)) / 2.0
+                lo, hi = sorted((g.across(p), g.across(q)))
+                if g.a - PIER_END_M <= s <= g.b + PIER_END_M and min(hi, half) - max(lo, -half) >= PIER_ACROSS * t:
+                    jambs.append(s)
+            elif _parallel(p, q, g.axis):
+                off = g.across(((p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0))
+                if abs(off) > half + BAND_SLACK_M:
+                    continue
+                lo, hi = sorted((g.along(p), g.along(q)))
+                if face_mat:
+                    if lo >= g.a - OWN_MARGIN_M and hi <= g.b + OWN_MARGIN_M:
+                        faces.append((round(off, 3), lo, hi, it.st.id))
+                elif hi - lo > 0.005 and abs(off) < half - GLASS_INSET_M:
+                    foreign.append((lo, hi))          # glass or a frame inside the band (a wardrobe's back on a face
+                                                      # is no window line: swiss-b1739)
+    if len(jambs) < 2:
+        return None
+    pos: list[float] = []
+    for s in sorted(jambs):
+        if not pos or s - pos[-1] > PIER_JAMB_SAME_M:
+            pos.append(s)
+    # the ends of perpendicular walls standing at the band cover their width of every face offset
+    caps = []
+    for w in cross_pieces:
+        if w.axis == g.axis:
+            continue
+        near = min(abs(w.b - (g.c - half)), abs(w.a - (g.c + half)), abs(w.a - (g.c - half)), abs(w.b - (g.c + half)))
+        inside = min(w.b, g.c + half) - max(w.a, g.c - half) > 0
+        if near <= PIER_END_M or inside:
+            caps.append((w.c - w.t / 2.0, w.c + w.t / 2.0))
+
+    def covered(s0: float, s1: float, spans: list) -> float:
+        total, reach = 0.0, s0
+        for lo, hi in sorted(spans):
+            lo, hi = max(lo, reach), min(hi, s1)
+            if hi > lo:
+                total += hi - lo
+                reach = hi
+        return total
+
+    def material(s0: float, s1: float) -> bool:
+        if s1 - s0 <= 1e-6:
+            return False
+        if covered(s0, s1, foreign) >= 0.5 * (s1 - s0):
+            return False                      # a window's frame or glass runs across: no wall material
+        by_off: dict[float, list] = {}
+        for off, lo, hi, _i in faces:
+            by_off.setdefault(off, []).append((lo, hi))
+        best = max((covered(s0, s1, spans + caps) for spans in by_off.values()), default=0.0)
+        return best >= PIER_FACE_SHARE * (s1 - s0)
+
+    runs: list[list[float]] = []
+    for s0, s1 in zip(pos, pos[1:]):
+        if material(s0, s1):
+            if runs and abs(runs[-1][1] - s0) <= 1e-9:
+                runs[-1][1] = s1
+            else:
+                runs.append([s0, s1])
+    a, b = g.a, g.b
+    piers = []
+    for s0, s1 in runs:
+        if s0 <= g.a + PIER_END_M:
+            a = max(a, s1)
+        elif s1 >= g.b - PIER_END_M:
+            b = min(b, s0)
+        elif PIER_MIN_M - 1e-9 <= s1 - s0 <= PIER_MAX_M:
+            piers.append((s0, s1))
+    if not piers:
+        return None
+    parts, start = [], a
+    for s0, s1 in piers:
+        parts.append((start, s0))
+        start = s1
+    parts.append((start, b))
+    if any(y - x < GAP_MIN_M for x, y in parts):
+        return None
+    # the material's own strokes (the piers', the jamb stubs' and returns'): wall, never a door's leaves standing at the
+    # parts' ends (real10: the pier's jamb lines read as a double door's two half leaves) nor furniture
+    spans = [(s0, s1) for s0, s1 in runs]
+    ids = set()
+    for it in index.query(g.rect(grow_face=ZONE_M, grow_along=OWN_MARGIN_M)):
+        if it.st.id in owned or not _material(it.st, PIER_FACE_ROLES):
+            continue
+        al = [g.along(q) for q in it.pts]
+        ac = [g.across(q) for q in it.pts]
+        if max(abs(v) for v in ac) <= half + ZONE_M and any(min(al) >= s0 - PIER_END_M and max(al) <= s1 + PIER_END_M
+                                                           for s0, s1 in spans):
+            ids.add(it.st.id)
+    ids = sorted(ids)
+    widths = ", ".join(f"{s1 - s0:.2f}" for s0, s1 in piers)
+    note = (f"split at {len(piers)} drawn pier(s) of wall material ({widths} m between jamb lines on a wall layer, "
+            f"its faces drawn): {len(parts)} openings of " + ", ".join(f"{y - x:.2f}" for x, y in parts) + " m")
+    return {"parts": parts, "piers": piers, "ids": ids, "note": note}
+
+
+def _pier_parts(g: Gap, index: StrokeIndex, owned: set, cross_pieces: list = ()) -> Optional[dict]:
+    """``_drawn_piers`` of a run gap, kept only when every part is a door or window by its own symbol (the cascade
+    without the decision log, on a copy of ``owned``): the drawing shows openings on both sides of wall material, never
+    a pier read from lines that only fill an empty gap, nor a column's hatch read as a part (real07 L1)."""
+    found = _drawn_piers(g, index, owned, cross_pieces)
+    if found is None:
+        return None
+    trial = set(owned) | set(found["ids"])
+    kinds = []
+    for x, y in found["parts"]:
+        part = Gap("split", g.axis, g.c, g.t, x, y, list(g.pieces), run_len=g.run_len, pier_part=True)
+        classify_gap(part, index, trial)
+        kinds.append(part.cls)
+    if any(k not in ("door", "window") for k in kinds):
+        return None                 # every part an opening by its own symbol (real07 L1: a hatched column is no part)
+    found["kinds"] = kinds
+    return found
 
 
 def _inside_wall(g: Gap, pieces: list[Piece], run: list[Piece]) -> Optional[list[Piece]]:
@@ -3118,6 +3376,8 @@ def _log_entry(g: Gap, theta: float, piece_out: dict) -> dict:
              "walls": sorted({piece_out.get(p.k) for p in g.pieces if piece_out.get(p.k) is not None})}
     if g.found.get("owned"):
         entry["owned"] = g.found["owned"]
+    if g.found.get("pier"):
+        entry["pier"] = g.found["pier"]             # 23 Nov 2026 (UL367)
     if g.found.get("by_ranker"):
         # 5 Nov 2026 (Milestone 14 R3): the ranker's decision is in the gap log too (never silent)
         entry["decided_by"] = "ranker"
