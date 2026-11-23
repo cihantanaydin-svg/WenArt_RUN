@@ -1,5 +1,5 @@
 """Long walls where none is drawn (23 Nov 2026, the user's queue: "then the next wall class (long walls where none is
-drawn)"; lesson UL372): an inferred wall needs the drawing to show something where it stands. A wide gap with nothing
+drawn)"; lesson UL374): an inferred wall needs the drawing to show something where it stands. A wide gap with nothing
 drawn across it is an open passage (no bridge); a mirror copy onto an empty band is no wall. Most tests are must-not-fire
 cases: a gap closed by a sliding door, a garage door line, a glazed screen, a door swing or a hatch keeps its bridge,
 and so does an empty gap between two labelled rooms; a mirror copy along drawn face lines stays. Pure geometry in

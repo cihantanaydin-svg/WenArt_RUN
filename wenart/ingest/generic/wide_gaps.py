@@ -122,7 +122,7 @@ def bridges(walls: list) -> list[dict]:
     return out
 
 
-EMPTY_GAP_ROLES_IGNORED = ("dimension", "text", "axis")   # 23 Nov 2026 (UL372): annotations never close a gap
+EMPTY_GAP_ROLES_IGNORED = ("dimension", "text", "axis")   # 23 Nov 2026 (UL374): annotations never close a gap
 EMPTY_GAP_END_M = 0.05          # the jambs' own face lines at the gap's ends are no evidence
 EMPTY_GAP_MIN_HALF_M = 0.05     # the band looked in: half the wall's thickness, at least this
 EMPTY_GAP_ANGLE_DEG = 15.0      # a line along the gap (within this angle) ...
@@ -130,7 +130,7 @@ EMPTY_GAP_ALONG_SHARE = 0.25    # ... drawn along this share of it (all such lin
 
 
 def gap_drawn(start, end, thickness: float, strokes: list, ignore_roles=EMPTY_GAP_ROLES_IGNORED) -> tuple[bool, str]:
-    """23 Nov 2026 (UL372, the dataset bench: 128 of the 142 wide-gap bridges that stood where the truth has no wall
+    """23 Nov 2026 (UL374, the dataset bench: 128 of the 142 wide-gap bridges that stood where the truth has no wall
     spanned a gap with nothing drawn in it, against 8 of 35 right ones): whether the drawing shows anything closing a
     wide gap: a line on any layer but an annotation (``EMPTY_GAP_ROLES_IGNORED``) running along the gap
     (``EMPTY_GAP_ANGLE_DEG``) inside the wall's band (half its thickness, ``EMPTY_GAP_MIN_HALF_M`` at least) between

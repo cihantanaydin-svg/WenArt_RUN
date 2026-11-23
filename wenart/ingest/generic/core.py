@@ -1209,14 +1209,14 @@ BRIDGE_PIECE_END_M = 0.30       # ... along its middle (this far from its jambs)
 
 
 def _labels_in_faces(bwalls: list, b_openings: list, labels: list) -> int:
-    """23 Nov 2026 (UL372): how many indoor room labels lie in a closed face of the building walls."""
+    """23 Nov 2026 (UL374): how many indoor room labels lie in a closed face of the building walls."""
     faces = TP.faces(bwalls, b_openings)
     return sum(1 for lb in labels if not getattr(lb, "exterior", False)
                and any(TP._label_in(f, lb) for f in faces))
 
 
 def _labelled_both_sides(b: dict, t: float, faces: list, labels: list) -> bool:
-    """23 Nov 2026 (UL372): the two faces a bridge stands between (probes ``t / 2 + 0.05`` m off its middle) are two
+    """23 Nov 2026 (UL374): the two faces a bridge stands between (probes ``t / 2 + 0.05`` m off its middle) are two
     faces and each holds a room label (indoor or outdoor): the drawing separates two rooms there."""
     (x0, y0), (x1, y1) = b["start"], b["end"]
     L = math.hypot(x1 - x0, y1 - y0)
@@ -1267,7 +1267,7 @@ def _sound_bridges(ex, where: str, walls2: list, cands: list, strokes: list, lab
                                                          for i in tree.query(band, predicate="intersects")):
             dropped.append(f"{b['width']:.2f} m bridge from {b['start']}: it runs through drawn furniture")
             continue
-        # 23 Nov 2026 (UL372, the dataset bench's long invented walls: bridges across open passages and open sides of
+        # 23 Nov 2026 (UL374, the dataset bench's long invented walls: bridges across open passages and open sides of
         # loggias): a wide gap with nothing drawn across it is open, not an opening whose kind the drawing leaves out;
         # it is marked here and ``_outer_gaps`` keeps it only where the rooms need it to close
         if b.get("rule") in (None, "wide_gap"):
@@ -1337,7 +1337,7 @@ def _outer_gaps(ex, where: str, walls2: list, openings: list, blocks: list, leve
     before, after = _unclosed(site_warnings), _unclosed(sw4)
     if not (after < before or (problem is not None and problem4 is None and after <= before)):
         return None                                        # nothing closes: the drawn walls stay as they are
-    # 23 Nov 2026 (UL372): a bridge over an empty gap stays only where the rooms need it to close (the longest tried
+    # 23 Nov 2026 (UL374): a bridge over an empty gap stays only where the rooms need it to close (the longest tried
     # first); the others are open passages and open sides (no wall, no opening)
     held4 = _labels_in_faces(bw4, b_open4, blocks) if any(b.get("empty_gap") for b in kept) else 0
     for b in sorted([b for b in kept if b.get("empty_gap")], key=lambda b: (-b["width"], b["start"])):

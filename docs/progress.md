@@ -4462,7 +4462,7 @@ as an empty box (`critic_checks.draw_arch`), so the stair questions were left ou
 ## 23 Nov 2026, fair wall scoring and long invented walls (the user's queue: "first a separate fix of the bench's wall scoring, then the next wall class"; CPU only, no pod)
 
 **Part 1, the bench's wall scoring** (`wenart/datasets/bench.py`: `bench_match_walls`, `wall_verdicts`,
-`truth_material`, `bench_wall_stats`; tests `tests/test_bench_wall_scoring_20261123.py`, 18; lesson UL371). The bench
+`truth_material`, `bench_wall_stats`; tests `tests/test_bench_wall_scoring_20261123.py`, 18; lesson UL373). The bench
 now scores walls with its own one-to-one matching; the gate's `score.match_walls` is not touched (`score --gate` holds
 against 381016c0 with the same numbers: synthetic overall 97.5, real06/07/09/10/17 100). Each fault of the wall round,
 fixed so that one error counts once and a correct reading is never counted wrong (moves counted on the light-well run):
@@ -4500,7 +4500,7 @@ doorway read as an untyped opening with a lintel where the truth splits its wall
 
 **Part 2, long walls where none is drawn** (rules in `wenart/ingest/generic/wide_gaps.gap_drawn`, `core._sound_bridges`
 / `_outer_gaps` / `_labels_in_faces` / `_labelled_both_sides`, `mirror.consistency`; tests
-`tests/test_rules_long_walls_20261123.py`, 16, most of them must-not-fire cases; lesson UL372). Judged with the new
+`tests/test_rules_long_walls_20261123.py`, 16, most of them must-not-fire cases; lesson UL374). Judged with the new
 scorer against the light-well readings re-scored.
 
 - **Diagnosis (all 101 scored bench projects, the light-well readings, new scorer; crops looked at in b17068, b2486,
