@@ -4671,3 +4671,21 @@ stair reading rules) and UL376 (the storey height against the stairs). Tests `te
   flights stand either side of a thin wall is read as two straight stairs (b2485; two mirrored stairs 0.3 m apart look
   the same, so no rule yet); 9 U or L stairs read with one flight (their second flight under 5 lines or askew); the
   stair of a single plan copied onto guessed storeys counts against the bench's stairs (a level-guess convention).
+
+## 23 Nov 2026, quality bar (the user: "We need the best of the best of the best"; lesson UL377)
+
+| Measure | Now (bench, 239337e1) | Target |
+|---|---|---|
+| Walls F1 | 0.72 | 0.90 |
+| Doors F1 | 0.81 | 0.92 |
+| Windows F1 | 0.75 | 0.90 |
+| Rooms F1 | 0.76 | 0.90 |
+| Stairs F1 | 0.71 | 0.90 |
+| The user's corrections | all hold but C0097 | all hold |
+
+- **Sealed test set**: `/home/user/bench_data/sealed` (pick `sealed/pick.json`, seed 20261123, 115 Swiss buildings / 202
+  floors, none in the bench). Agents never read or run it; the main session scores it at checkpoints (code at
+  `/home/user/bench_base`, detached) and records only the totals here. A bench rise without a sealed rise is overfitting.
+- **Acceptance**: no bench project falls, unless the fall is a known truth-convention difference shown with a crop.
+- **Review**: rounds that change many readings or core code get an independent reviewer agent before merging (the
+  user chose "Reviewer on big rounds only").
