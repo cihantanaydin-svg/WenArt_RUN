@@ -1992,6 +1992,18 @@ def lift_doors(rooms: list[dict], openings: list[dict], walls: list[dict], furni
             c = axis.interpolate(axis.project(Point(g["center"][:2])))
         width = round(min(LIFT_DOOR_W_M, piece.length - 0.1), 3)
         from_drawing = drawn_gap is not None and pick is drawn_gap
+        if not from_drawing and width < LIFT_DOOR_MIN_W_M:
+            # 23 Nov 2026 (UL371, narrow doors in general: the bench's 0.32-0.41 m landing doors inferred on a shaft's
+            # 0.42-0.51 m side, none of them in the drawing): no door is narrower than a door; nothing drawn says
+            # one is there, so none is inferred (the shaft or its side is misread: listed)
+            notes.append(f"{lv}: lift shaft {s['id']}: its side towards {room['id']} is {piece.length:.2f} m, too short "
+                         f"for a landing door ({LIFT_DOOR_MIN_W_M:.2f} m at least) and none is drawn: no landing door "
+                         f"inferred (UL371)")
+            if review is not None:
+                review.append({"id": f"d_{s['id']}_lift", "kind": "lift_door_too_narrow", "room_id": room["id"],
+                               "level_id": lv, "reason": f"lift shaft {s['id']}: its side towards {room['id']} is only "
+                                                         f"{piece.length:.2f} m: no landing door fits (review the shaft)"})
+            continue
         if from_drawing:                             # 19 Nov 2026 (review A4): the drawn opening's own width
             width = round(min(max(side.length, LIFT_DOOR_MIN_W_M), LIFT_DOOR_MAX_W_M), 3)
             c = axis.interpolate(axis.project(mid))
@@ -2088,6 +2100,8 @@ def _stacked_landing_door(s: dict, shafts: list[dict], rooms: list[dict], openin
         if room is None or str(room.get("room_type") or "") in FLAT_ROOM_TYPES or UNIT_USE_WORDS.search(label):
             continue
         width = round(min(LIFT_DOOR_W_M, axis.length - 0.1), 3)
+        if width < LIFT_DOOR_MIN_W_M:
+            continue                                 # 23 Nov 2026 (UL371): no landing door narrower than a door
         at = _clamped(axis, at, width)
         oid = f"d_{s['id']}_lift"
         door = {"id": oid, "type": "door", "level_id": lv, "wall_id": wall["id"],
@@ -2710,6 +2724,20 @@ def passage_sides(o: dict, wall: Optional[dict], rooms: list) -> list:
     return out
 
 
+def indoor_both_sides(o: dict, wall: dict, rooms: list) -> bool:
+    """23 Nov 2026 (UL372, the user's C0098 on real15 L0 and the open point real15 o_L0_001): whether a room one stands
+    in lies on both sides of an opening's wall at the opening (``passage_sides``; no open-air room, no light or air
+    well): then the opening is not in the building's outline, whatever the wall's flag says. A wall's exterior flag is
+    first read before the building's outline is final (real15's kitchen | salon wall, rooms on both sides along its
+    whole length, still flagged exterior when the passage rule ran; the outline rule, ``sense_rules.exterior_flags``,
+    clears it later) (pure)."""
+    from wenart.ingest import completion as CPL
+
+    sides = passage_sides(o, wall, rooms)
+    return all(r is not None and str(r.get("room_type") or "") not in CPL.OPEN_AIR and not CPL.is_light_well(r)
+               for r in sides) and sides[0] is not sides[1]
+
+
 def ways_in(room: dict, openings: list, skip: Optional[str] = None) -> list:
     """The doors and doorless openings (virtual separators too) on a room's outline, but ``skip`` (pure)."""
     ring = Polygon(room["polygon"]).exterior
@@ -2732,7 +2760,7 @@ def passage_case(o: dict, rooms: list, walls_by_id: dict, openings: list) -> dic
     if wall is None:
         out["why"] = "on no wall"
         return out
-    if wall.get("exterior") or wall.get("party_wall"):
+    if wall.get("party_wall") or (wall.get("exterior") and not indoor_both_sides(o, wall, rooms)):
         out["why"] = "in the building's outline or a party wall (a gap with nothing drawn there is a drawing error)"
         return out
     if float(wall.get("thickness") or 0.0) > OPEN_PASSAGE_WALL_MAX_M + 1e-6:

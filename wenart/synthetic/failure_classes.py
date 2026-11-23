@@ -147,6 +147,9 @@ class Prim:
     height: float = 0.0
     linetype: str = ""
     align: str = "MIDDLE_CENTER"
+    # 23 Nov 2026 (synthetic-37, UL371): the name of the block the primitive is drawn in ('' = the model space); a
+    # plan's primitives of one name make one block definition, inserted once at the drawing's origin
+    block: str = ""
 
 
 @dataclass
@@ -667,9 +670,16 @@ def write_dxf(project: FailureProject, path: Path) -> tuple:
                      for plan, prims in drawn]
         msp = doc.modelspace()
         xs, ys = [], []
+        blocks: dict = {}
         for plan, prims in drawn:
             for p in prims:
-                _emit(msp, p, plan.origin)
+                if p.block:
+                    if p.block not in blocks:
+                        blocks[p.block] = doc.blocks.new(p.block)
+                        msp.add_blockref(p.block, (0.0, 0.0), dxfattribs={"layer": p.layer})
+                    _emit(blocks[p.block], p, plan.origin)
+                else:
+                    _emit(msp, p, plan.origin)
                 for q in p.pts:
                     xs.append(plan.origin[0] + q[0])
                     ys.append(plan.origin[1] + q[1])

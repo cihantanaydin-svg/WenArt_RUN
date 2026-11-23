@@ -53,6 +53,9 @@ RULES = {
     # 22 Nov 2026 (S3, the user's pick "build S5, S3, S4, S6")
     "door_onto_nothing": (("R37",), "an upper-storey door onto nothing, with no swing or door block drawn, on a window "
                                      "layer or with a window's tag is a window (else a question)"),
+    # 23 Nov 2026 (UL371, the user's C0097 on real15)
+    "narrow_door": (("R37",), "an upper-storey door onto nothing narrower than any door (0.60 m), with no swing, door "
+                              "block or door-high tag, is no door: the wall runs on"),
     "fire_stair_closed": (("R16",), "a fire stair's enclosure has no doorless opening: an empty gap in it is wall"),
     "light_well": (("R52",), "a face named by a light-well word is an open-air void through the storeys (UL334)"),
     "party_wall": (("R46", "R45"), "a wall on the side a party text names is a blank party wall"),

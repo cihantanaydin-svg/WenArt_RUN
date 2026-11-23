@@ -29,6 +29,11 @@ corrections and the reading checks, each as a share), built on the failure-class
   enclosed light well between two bathrooms, one bathroom's two 0.5 m windows onto it with a 0.30 m pier the wall
   reading drops, a door and a window with a pier between them; a window with a mullion and a closet with a door keep
   their reading. Truth: two windows, the well a light well (a shaft), the closet storage.
+- ``synthetic-37-narrow-door`` (UL371, UL378; the user's C0097 on real15 L1, "Wall or column"): an upper floor's facade
+  with a column in a 0.50 m break of its faces and a wardrobe block's rails across the wall at the break's jamb (HEAD
+  read a 0.50 m door onto nothing), beside a narrow WC door with its swing, a narrow sliding door with a door-high tag,
+  a door of two narrow leaves and a narrow window. Truth: the facade runs on (the column a wall piece), every other
+  opening as drawn.
 """
 from __future__ import annotations
 
@@ -524,7 +529,61 @@ def project_36() -> FailureProject:
                           extra_truth={"weak_kind": "opening_merged", "records": []})
 
 
+def project_37() -> FailureProject:
+    """synthetic-37-narrow-door (23 Nov 2026; the user's C0097 on real15 L1, "Wall or column", UL371): a two-storey
+    house (the stair house twice, a section naming ZEMİN KAT ±0.00 and 1. KAT +3.00). The upper floor's facade (e1) has
+    a 0.50 x 0.30 m column (a closed outline on KOLON, standing 5 cm out of the wall's room face) in a 0.50 m break of
+    the wall's faces inside the EBEVEYN YATAK ODASI; a wardrobe block 'GARDOLAP 2' (TEFRIS) stands against the column,
+    three of its rails, 0.45 m long and 4 mm apart, across the wall at the break's jamb (real15's: HEAD read them as the
+    leaf of a 0.50 m door opened at 90 degrees, a door onto nothing). The cases that keep their reading: the BANYO's
+    0.55 m door with its swing drawn (a WC's), the ÇALIŞMA ODASI's 0.55 m sliding door with a door-high tag '55/210',
+    the EBEVEYN YATAK ODASI's 0.90 m door drawn as two 0.45 m leaves opened at 90 degrees (no arc), and the BANYO's
+    0.45 m window. Truth: no opening at the column (the facade runs on), every other opening as drawn."""
+    from wenart.synthetic.failure_projects import stair_house, upper_floor
+
+    g = stair_house("p0", (10.0, 10.0), "ZEMİN KAT PLANI")
+    u = stair_house("p1", (30.0, 10.0), "1. KAT PLANI")
+    upper_floor(u)
+    x0, x1 = 6.15, 6.65                          # the column's break in the facade's faces
+    u.openings.append(FC.Opening("c_kolon", "opening", "e1", r6((x0 + x1) / 2), r6(x1 - x0), draw_symbol=False,
+                                 truth_type="absent"))
+    # the column: a closed box on the wall layer filling the break and standing 5 cm out of the wall's room face (real15's
+    # column with its plaster coat, read as a piece of wall material of its own); in the truth a wall of its own
+    u.prims.append(Prim("poly", FC.L_WALL, [(x0, 0.0), (x1, 0.0), (x1, 0.30), (x0, 0.30)], closed=True))
+    u.walls.append(FC.Wall("kc", (x0, 0.15), (x1, 0.15), 0.30, drawn=False))
+    # the wardrobe against the column: its outline 0.49 x 1.12 m and three rails along its side at the break's jamb
+    ward = "GARDOLAP 2"
+    u.prims.append(Prim("poly", L_FURNITURE, [(r6(x0 + 0.012), 0.30), (x1, 0.30), (x1, 1.42), (r6(x0 + 0.012), 1.42)],
+                        closed=True, block=ward))
+    u.prims += [Prim("line", L_FURNITURE, [(r6(x0 + 0.004 * k), 0.33), (r6(x0 + 0.004 * k), 0.78)], block=ward)
+                for k in range(3)]
+    for op in u.openings:
+        if op.id == "d_banyo":                   # a WC's narrow door, its swing drawn
+            op.width = 0.55
+        if op.id == "d_mutfak":                  # a narrow sliding door with its door-high tag
+            op.kind, op.width = "sliding", 0.55
+            u.prims.append(_tag(u, op, "55/210", (0.0, 0.40)))
+        if op.id == "d_salon":                   # two narrow leaves opened at 90 degrees: one 0.90 m door
+            op.draw_symbol = False
+            s0, s1 = op.s - op.width / 2, op.s + op.width / 2
+            y0, y1 = r6(4.4 - FC.INT_T / 2), r6(4.4 - FC.INT_T / 2 - 0.45)
+            for x in (s0, s0 + 0.04, s1 - 0.04, s1):
+                u.prims.append(Prim("line", FC.L_DOOR, [(r6(x), y0), (r6(x), y1)]))
+        if op.id == "w_banyo":                   # a narrow window
+            op.width = 0.45
+    storeys = [("ZEMİN KAT", 0.0), ("1. KAT", 3.0)]
+    section = FC.section_prims((50.0, 10.0), 12.0, storeys, ("ÇATI", 6.0), "A-A KESİTİ")
+    levels = [TruthLevel("L0", "Zemin Kat", 0.0, 0, "p0"), TruthLevel("L1", "1. Kat", 3.0, 1, "p1")]
+    return FailureProject("synthetic-37-narrow-door", "narrow_door", "UL371",
+                          "a column in an upper-floor facade with a wardrobe's rails across the wall at its jamb (no "
+                          "door: the wall runs on), beside a narrow WC door with its swing, a narrow sliding door with "
+                          "a door-high tag, a door of two narrow leaves and a narrow window (each keeps its kind)",
+                          [g, u], levels, BRIEF, sheet_prims=section,
+                          extra_truth={"weak_kind": "door_invented", "records": ["C0097"]})
+
+
 PROJECTS = (("opening_type", project_24), ("wall_invented", project_25), ("door_invented", project_26),
             ("stair_edge_run", project_28), ("upper_floor_door", project_29), ("fire_stair", project_30),
             ("layer_names", project_31), ("sliding_window_tag", project_32), ("double_wall", project_33),
-            ("open_passage", project_34), ("grille_slot", project_35), ("light_well_piers", project_36))
+            ("open_passage", project_34), ("grille_slot", project_35), ("light_well_piers", project_36),
+            ("narrow_door", project_37))
