@@ -11,7 +11,9 @@ shorter); then:
    thickness (``corrected_by_ai``, the twin as evidence). Its openings with no twin on the other side were read from
    that furniture (a counter's lines as windows): they go.
 2. *Missing walls*: a drawn wall (evidence ``vector`` or ``derived``) at least ``MISSING_MIN_M`` long with no twin,
-   whose mirror crosses no opening and lies in no wall, gets its mirror as an inferred wall (rule ``mirror_twin``).
+   whose mirror crosses no opening and lies in no wall, gets its mirror as an inferred wall (rule ``mirror_twin``);
+   23 Nov 2026 (UL372): only where this half draws something along the mirror (``wide_gaps.gap_drawn``, lines of
+   ``EMPTY_BAND_IGNORED`` layers not counted): an empty band is no wall the reading missed.
 3. *Openings*: a drawn opening whose mirror lies on a wall with only an inferred opening there, or none, gives that
    wall the mirrored opening (type, width; inferred, rule ``mirror_twin``; the inferred one it replaces goes).
 
@@ -48,6 +50,9 @@ INNER_CLEAR_M = 0.05            # a wall this close to the building's outline is
 CORE_KEEP_OUT_M = 3.0           # no mirror fix within this of a lift label (core.CORE_KEEP_OUT_M, the same value)
 MIRROR_MAX_NEW_WALLS = 3        # core.MIRROR_MAX_NEW_WALLS (the same value): the halves differ by at most this many walls
 RULE = "mirror_twin"
+# 23 Nov 2026 (UL372): the layers whose lines never show a wall where a mirror copy would stand (annotations, furniture,
+# sanitary ware, finishes, stairs, sections, the site)
+EMPTY_BAND_IGNORED = ("dimension", "text", "axis", "furniture", "sanitary", "finish", "stair", "section", "site")
 TWIN_BESIDE_M = 0.25            # 13 Nov 2026: a mirrored wall this close (between faces) to a parallel drawn wall is it
 
 
@@ -547,6 +552,14 @@ def consistency(walls: list, openings: list, axis=None, steps=STEPS, keep_out=No
         if any(TP.opening_polygon(o, walls) is not None and TP.opening_polygon(o, walls).intersects(mp)
                for o in openings):
             continue                                        # it would close a drawn opening
+        if strokes is not None:
+            # 23 Nov 2026 (UL372, the dataset bench: every mirror copy that stood where the truth has no wall stood on
+            # an empty band, b1737 L1's 2.62 m wall through the kitchen): "this half's lines were not read" needs lines
+            from wenart.ingest.generic import wide_gaps as WG
+            drawn, why = WG.gap_drawn(m.start, m.end, float(m.thickness), strokes, ignore_roles=EMPTY_BAND_IGNORED)
+            if not drawn:
+                log.append(f"refused: no twin of {w.entity} at its mirror: {why} (this half draws no wall there)")
+                continue
         ev = dict(w.evidence or {})
         ev.update(method="inferred", confidence=0.6, rule=RULE,
                   reason=f"the mirror twin of wall {w.entity} across the plan's axis ({axis[0]} = {axis[1]:.2f}); "
