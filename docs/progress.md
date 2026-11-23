@@ -4249,3 +4249,86 @@ xfailed; `test_mirror_halves_20261105` 16 passed (its real10 fixture holds: the 
 class set 277 passed, 22 xfailed, 1 failed on the first truth label of synthetic-35 (IŞIKLIK gives room type other,
 the reader's light well is a shaft: the truth now says HAVA BOŞLUĞU, a shaft; the drawing is unchanged), then
 passed. Lesson UL365.
+
+## 22 Nov 2026, wall split and invented walls round (the user: "after C0089, start on the wall split and invented walls"; CPU only, no pod)
+
+Two general reader rules (UL338, UL364) for the two largest error classes of the dataset bench, with a test file
+(`tests/test_rules_walls_20261122.py`, 19 tests, most of them must-not-fire cases) and lesson UL366. Base 0d60bf5d.
+
+- **Diagnosis (all 101 scored bench projects, every unmatched read wall, crops looked at in b1060, b1074, b1167, b208,
+  b3431, b535, b745, b1737, b17068).** Of the 1715 'wall split' and 1449 'wall invented' cases at C0089, 2000 were
+  pieces no longer than 1.5 x their thickness: junction squares where walls of other thicknesses meet (b1074 L0
+  [10.362, 10.331]-[10.362, 10.581], 0.335 m), steps where a wall jogs (b1074 L0 [10.22, 9.591]-[10.22, 9.731], the
+  task's example: a 0.14 m step, not a jamb stub), slivers along a thicker wall, nubs at jambs, columns inside walls,
+  duplicates inside a crossing wall. The mask decomposition and the face-pair walls leave them where walls meet; the
+  model is the same solid, but its walls end at every junction and a block with its end caps juts out of the outline
+  (b2401 L0: a 0.26 m block stuck 10 cm out of the facade in the level outline). The rest: 189 long pieces on one line
+  kept apart (187 of them a drawn wall beside a wide gap's inferred bridge that holds drawn windows, b1167 L0), 257
+  long pieces at T-junctions (mostly a wall read with another thickness, see the scorer below, and overlapping parapets
+  the truth keeps as two, b3431), 426 long walls on no truth wall (wide-gap bridges across undrawn open passages,
+  b17068 L2; mirror-twin stubs, b1737 L2; not touched this round).
+- **Rule 1, a block is part of the wall that runs into it** (`wenart/ingest/generic/wall_pieces.fold_blocks`, after the
+  double-leaf merge, every source alike): a piece no longer than 1.5 x its thickness (or under 0.30 m) goes when it lies
+  inside other walls at least as high, or when the one or two walls whose end touches it, extended along their own
+  line to its far side, cover it (75 % of its area, nothing wider than 4 cm or half its thickness left over, at most
+  the rest added), cross no opening's gap, are as high and are drawn when it is drawn; a wall on its own line and of
+  its thickness is preferred (the wall then runs on through the junction). A wall run goes only when it lies inside
+  crossing walls or a wall of its own thickness (read twice). Kept: pilasters and protruding columns, a return at a
+  jamb, a pier between two openings, free-standing columns, a block holding an opening, a jog thinner than a sliver,
+  and a piece on the centre line of a thicker wall (RC14 `wall_in_wall`: the drawing must say which is right; a first
+  version dropped such pieces and lost 19 right readings, b2401, b3005). Each goes to `walls_merged` (rule
+  `reading.wall_block`, the reason); the extended walls keep `folded_blocks`.
+- **Rule 2, one wall on one line is one wall** (`wall_pieces.merge_collinear`): two walls on one line (offset 1.5 cm,
+  thickness within 1.5 cm) that touch, as high, of one status and one side, are one wall; a wide gap's inferred bridge
+  whose openings are all drawn doors or windows filling half of it counts as drawn (the drawing shows the wall
+  through its windows, as a run gap does); a bridge over an undrawn gap stays apart (rule `reading.wall_line`).
+- **Bench** (`/home/user/bench_data/bench_walls.md`, against `bench_c0089`): wall split 1715 -> 1151, wall invented 1449
+  -> 1089, angled wall read as steps 280 -> 220; walls read 14073 -> 12941, F1 0.672 -> 0.701, length-weighted F1 0.832
+  -> 0.834 (both recall and precision up); mean 73.61 -> 73.79; 92 projects rise, 11 the same, 3 fall by 0.07-0.16
+  (b1322, b15885: a few-cm piece that "matched" a long truth wall is gone; b2401: below). Wall missed 595 -> 603, wrong
+  thickness 778 -> 791, thin wall missed 227 -> 240, angled missed 247 -> 251: 38 fewer one-to-one matches; of the 48
+  truth walls no longer matched, 29 were "matched" only by a piece under 30 % of their length (a few cm, the real
+  reading beside it has another thickness or is missing), 10 are re-matches (the joined wall now pairs with the other
+  truth piece of its line; 10 truth walls gained a match), the rest a thin piece inside a thicker read wall. Doors
+  unchanged (F1 0.811); windows invented 298 -> 302: b2401 L0/L1/L2 and b5133 L0, an unclassified facade gap the
+  existing facade-gap rule now types a window because the block that jutted out of the outline is gone (the gap's
+  outside probe fell inside the jut).
+- **Scorer issues found (not changed):** (1) `match_walls` ranks by the share of the shorter wall first, so a 4 cm piece
+  (share 1.0) takes the truth wall from the 2.67 m wall that reads it (share 0.9985): b1074 L0 w_L0_051, and 216 'wall
+  split' cases at C0089 are the right wall counted as a split; (2) a piece of a few cm on a long truth wall counts as
+  its reading (b15885 L0 w_L0_008, 1.42 m, matched by a 5.6 cm piece); (3) a wall read with another thickness is
+  counted twice: the read wall as 'wall split' (`_extra_wall_class` drops the thickness) and the truth wall as 'wall
+  read with another thickness' (255 cases at C0089); (4) the truth lists no piece under 0.30 m or 1.5 x its thickness
+  and no column, so a drawn jog, nub or column the reader keeps is an 'invented' wall (b1074 L1's four columns at the
+  railing ends, b1074 L1 [3.675, 6.029] a 0.22 m wall closing a duct); (5) overlapping parapets are two truth walls
+  (b3431 L1).
+- **Our own projects (step 2: the same classes, every source).** The rules fire on the real readings (records in
+  `walls_merged`): real10 286 (L-2 to L7, 22-30 a floor), real14 252, real11 180, real09 87, real13 71 (6 joined lines:
+  roof parapet pieces and an 8.4 m wall), real19 20, real07 19, real15 19 (one wide-gap bridge with drawn windows joined),
+  real17 23, real18 15, real21 15, real03 13 (one a floor), real06 12, real16 10, real20 10, real02 1, real04 1; synthetic
+  only synthetic-09-jamb-stubs (3 jamb stubs inside their wall) and synthetic-20-glazed-corner (1 step). Crops of 12 per
+  project for real06, real07, real09, real10, real17 (`outputs/walls_round/`): corner and T-junction squares where
+  hatched columns or crossing walls meet (real06, real17), 0.10 m junction squares inside the walls at every T (real09),
+  slivers and nubs at jambs, a step at the foot of a diagonal wall (real10 L7); each time the wall that runs into the
+  block now runs to its far face and the solid is the same. Read with the rule switched off and on, real03, 06, 07,
+  09, 10, 12, 15, 17, 18, 19, 21 differ only by those walls (rooms, doors, windows and openings per level the same;
+  real21's L0 is rebuilt after the rule from its typical floor and reads as before).
+- **Gate:** `score --gate` holds against 381016c0 (never --update): synthetic overall (gated) 97.4 on the 33 projects;
+  synthetic-09-jamb-stubs 98.5 -> 99.3 (walls 0.80 -> 0.91: the jamb stubs fold into their wall), synthetic-20-glazed-
+  corner 95.1 -> 94.7 (walls 0.85 -> 0.80: a 0.16 m step block "matched" the 4.4 m truth wall of the glazed corner, whose
+  inferred facade walls are read 0.15 m thick against 0.25 m; that reading is unchanged, the scorer's tiny match is
+  gone), every other synthetic reading unchanged; real06, real07, real09, real10, real17 100 as before.
+- **Regress** (19 real projects, real08 left out): the 13 synthetic baselines hold; real01, 02, 04, 09, 11, 13, 14, 16,
+  18, 20 hold (real02 and real04 L1 walls 17 -> 16 within the tolerance: a wall read twice); real17 L-1 walls 35 -> 31 is
+  new (five blocks: junction squares and a 0.28 m block inside the wall beside it, crops looked at); real03, 06, 07,
+  10, 12, 15, 19 and 21 differ from their 12 Nov baselines as before this round, and against the HEAD code only by the
+  folded walls. No regress baseline written (no new synthetic project: the class is in the gated set through
+  synthetic-09 and synthetic-20, and the bench holds 1100 cases of it).
+- **Tests:** the new file 19 passed; the touched modules' files (twin walls, S2 and double wall, generic walls, pipeline,
+  reader targets, prepod, C0089, open passage) 343 passed; the failure-class set, self-improvement and S3-S6 files 312
+  passed, 22 xfailed.
+- **Open:** the 'wall invented' long walls on no drawn line (426 at C0089: wide-gap bridges across undrawn open passages,
+  b17068 L2 o_L2_005; mirror-twin stubs into a room, b1737 L2 w_L2_047; glazed-facade walls inside the facade); blocks
+  that are real drawn material and cannot fold (jogs, duct closures, columns at railing ends: a convention of the truth);
+  pieces on the centre line of a thicker wall (RC14 wall_in_wall decides nothing yet); the scorer issues above (not
+  changed this round).
