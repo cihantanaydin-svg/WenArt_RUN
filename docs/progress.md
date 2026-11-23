@@ -4458,3 +4458,42 @@ calls. The default stays the FP8 agent model with the drawing text. The training
 pod's own setup took 8 min). Found: the architect-style model image draws a stair with `details.stair` but no flights
 as an empty box (`critic_checks.draw_arch`), so the stair questions were left out; open. Tests
 `tests/test_rl_bench_20261123.py` (11). Lesson UL370.
+
+## 23 Nov 2026, fair wall scoring and long invented walls (the user's queue: "first a separate fix of the bench's wall scoring, then the next wall class"; CPU only, no pod)
+
+**Part 1, the bench's wall scoring** (`wenart/datasets/bench.py`: `bench_match_walls`, `wall_verdicts`,
+`truth_material`, `bench_wall_stats`; tests `tests/test_bench_wall_scoring_20261123.py`, 18; lesson UL371). The bench
+now scores walls with its own one-to-one matching; the gate's `score.match_walls` is not touched (`score --gate` holds
+against 381016c0 with the same numbers: synthetic overall 97.5, real06/07/09/10/17 100). Each fault of the wall round,
+fixed so that one error counts once and a correct reading is never counted wrong (moves counted on the light-well run):
+
+| fault | fix | moved |
+|---|---|---|
+| 1. ranked by the share of the shorter wall: a 4 cm piece took the truth wall from the 2.67 m wall (b1074 L0 w_L0_051) | ranked by overlap length x thickness agreement, then one swap per unmatched truth wall (a wall read twice on one line leaves no neighbour unmatched, b3431 L0) | 124 truth walls now matched by the wall that reads them, 65 'split' pieces now the match, 141 short matches now the split piece |
+| 2. a few-cm piece "read" a long truth wall (b15885 L0 w_L0_008) | a match covers 30 % of the truth wall (or the pieces of its thickness on its line cover half of it) | 277 truth walls were matched only by a piece under 30 % (116 under 10 %): now missed (136), read with another thickness (80), merged (113 with fault-1 moves), angled/thin missed (56) |
+| 3. a thickness misread counted twice | unmatched truth and read walls on one line paired one to one: one error, on the truth side | 206 read walls no longer 'split' |
+| 4. the truth lists no block (< 0.30 m or 1.5 x t) and no column | an unmatched read block on the drawing's wall material (the DXF wall and column hatches in the truth frame) is neither match nor error; on no material it stays invented | 1173 blocks (442 'split', 442 'invented', 116 'steps', 173 tiny matches) |
+| 5. overlapping truth walls (two railings, b3431 L1) | a read wall inside two overlapping truth walls, and a truth wall read with its twin (80 % of its length, half its footprint), are not counted | 144 read walls, 129 truth walls |
+
+A truth wall a matched read wall of its thickness also covers is now 'walls merged (read as part of a neighbouring wall
+on its line)' (406; before 'read with another thickness' or 'parapet missed'). Stored readings re-scored without
+re-reading (`bench rescore ... --out`, new folders `work_<tag>_s2`, nothing overwritten):
+
+| class | e7a2e5b4 old / new | c0089 old / new | walls old / new | lightwell old / new |
+|---|---|---|---|---|
+| wall split | 1714 / 572 | 1715 / 572 | 1151 / 476 | 1148 / 473 |
+| wall invented | 1452 / 718 | 1449 / 715 | 1089 / 628 | 1088 / 627 |
+| wall read with another thickness | 778 / 327 | 778 / 327 | 791 / 329 | 791 / 329 |
+| wall missed | 595 / 753 | 595 / 753 | 603 / 748 | 603 / 748 |
+| walls merged | - / 401 | - / 401 | - / 406 | - / 406 |
+| angled wall missed | 247 / 307 | 247 / 307 | 251 / 306 | 251 / 306 |
+| thin wall missed | 227 / 268 | 227 / 268 | 240 / 267 | 240 / 267 |
+| angled wall read as steps | 280 / 109 | 280 / 109 | 220 / 104 | 220 / 104 |
+| parapet wall missed | 171 / 142 | 174 / 145 | 174 / 145 | 174 / 145 |
+| walls F1 | 0.672 / 0.712 | 0.672 / 0.712 | 0.701 / 0.721 | 0.701 / 0.721 |
+| mean project total | 73.54 / 73.85 | 73.61 / 73.92 | 73.79 / 73.96 | 73.89 / 74.06 |
+
+The new-scorer baseline is `results/dataset_bench/swiss_20261123_lightwell_s2.{md,json}`. The trend between the runs
+is kept; the wall round's block rule shows less under the new scorer (its blocks are no error there) and still shows in
+'split' (1715 -> 1151 old, 572 -> 476 new). Length-weighted F1 is unchanged (0.834). Still counted on purpose: a
+doorway read as an untyped opening with a lintel where the truth splits its wall (b2974 L0: 'walls merged').
