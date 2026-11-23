@@ -1946,7 +1946,10 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
     from wenart.blender import stair_rails as SR
     near = [p for f in planned for p in f["nosings"]] + list(landing_poly or [])
     wall_rects_kept = SR.wall_rects_near(near, walls)
-    probe_plan = {"flights": planned, "riser_m": riser, "landing": landing, "rise_m": rise}
+    # 23 Nov 2026 (the old WIP's side-path item, review B2-ST4, re-checked on today's readings: real07 L0/L1, real13
+    # L-1, real14 L7): the side paths carry the turns of ordered flights too; without them the stored ``sides`` that
+    # ``stair_rails.plan_guards`` builds from left a turn's open well edge with no guard
+    probe_plan = {"flights": planned, "riser_m": riser, "landing": landing, "rise_m": rise, "turns": turns}
     sides = SR.side_paths(probe_plan, wall_rects_kept)
     if rails or any(not leg["wall"] for s in sides for leg in s["legs"]):
         assumed.append({"field": "handrail", "kind": "stair_handrail",

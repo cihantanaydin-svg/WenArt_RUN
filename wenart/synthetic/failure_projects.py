@@ -508,8 +508,10 @@ def project_23() -> FailureProject:
     rules; real07 C0047, real10 C0035, real16): the SALON's, the YATAK ODASI's and the MUTFAK's doors are drawn as bare
     gaps in their inner walls with only their size tags '90/210' on the text layer YAZI beside them (the door is said by
     the tag, no swing is drawn); the BANYO's swing and leaf are drawn twice (an exact copy on KAPI); a door-high
-    '140/210' stands beside the SALON's first facade window (a drawn window stays a window). Truth: the base house
-    (6 doors, 9 windows)."""
+    '140/210' stands beside the SALON's first facade window (a drawn window stays a window); 23 Nov 2026 (the old WIP's
+    REGX-4, re-checked: no synthetic project exercised the guard, ``core._outer_opening`` off in memory still read 100):
+    the ÇOCUK ODASI's 1.40 m facade window is a bare gap with a door-high '140/210' of its width beside it (an outer gap
+    may be a window: the guard keeps the tag off it; off in memory 97.91). Truth: the base house (6 doors, 9 windows)."""
     plan = base_house()
     tags = {"d_salon": (0.0, -0.40), "d_yatak": (0.0, -0.40), "d_mutfak": (0.0, 0.40)}
     for op in plan.openings:
@@ -524,9 +526,13 @@ def project_23() -> FailureProject:
     window = next(op for op in plan.openings if op.id == "w_salon1")
     at = plan.wall(window.wall).at(window.s)
     plan.prims.append(Prim("text", FC.L_TEXT, [(r6(at[0]), r6(at[1] + 0.55))], text="140/210", height=0.12))
+    bare = next(op for op in plan.openings if op.id == "w_cocuk1")      # REGX-4: a bare facade gap, a door-high tag
+    bare.draw_symbol = False
+    at = plan.wall(bare.wall).at(bare.s)
+    plan.prims.append(Prim("text", FC.L_TEXT, [(r6(at[0]), r6(at[1] - 0.40))], text="140/210", height=0.12))
     return FailureProject("synthetic-23-size-tags", "size_tags", "UL321",
                           "doors drawn as bare gaps with their size tags on the text layer, a swing drawn twice, a "
-                          "door-high tag beside a window", [plan], [GROUND], BRIEF)
+                          "door-high tag beside a window and beside a bare facade gap", [plan], [GROUND], BRIEF)
 
 
 def failure_projects() -> list[FailureProject]:

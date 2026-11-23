@@ -466,7 +466,7 @@
  },
  "failure_class": "size_tags",
  "lesson": "UL321",
- "summary": "doors drawn as bare gaps with their size tags on the text layer, a swing drawn twice, a door-high tag beside a window",
+ "summary": "doors drawn as bare gaps with their size tags on the text layer, a swing drawn twice, a door-high tag beside a window and beside a bare facade gap",
  "drawing": {
   "file": "plan.dxf",
   "insunits": 5,

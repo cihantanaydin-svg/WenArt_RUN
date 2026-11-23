@@ -136,8 +136,14 @@ def test_never_in_the_outline_a_party_wall_or_a_thick_wall():
     # 0.25 m: a stair or lift core's wall (real21) or a shelter's (real18), no partition
     for kw, t in (({"exterior": True}, 0.15), ({"party_wall": True}, 0.15), ({}, 0.25), ({}, 0.30)):
         rooms, walls, ops = _flat(t=t, **kw)
+        if kw.get("exterior"):
+            rooms = rooms[:1]           # 23 Nov 2026 (UL372): the outline: the open air beyond the wall, no room
         case = TW.passage_case(ops[0], rooms, {w["id"]: w for w in walls}, ops)
         assert not case["open"], (kw, t, case["why"])
+    # 23 Nov 2026 (UL372, real15 o_L0_001): a wall flagged exterior with a room on both sides of the gap is no outline
+    # there (its flag read before the outline was final): the passage opens
+    rooms, walls, ops = _flat(exterior=True)
+    assert TW.passage_case(ops[0], rooms, {w["id"]: w for w in walls}, ops)["open"]
 
 
 def test_never_into_a_shaft_never_a_slot_never_a_gap_with_marks():

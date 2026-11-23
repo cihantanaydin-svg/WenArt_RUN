@@ -34,9 +34,16 @@ the building in place and returns the record written to ``level_inference.sense_
 5. **An upper-floor door onto nothing** (``doors_onto_nothing``, 22 Nov 2026, S3, UL356): a door that RC17 finds
    opening into the air, drawn without a swing or a door block, is a window when its gap lies on a window layer or it
    carries a window's evidence; else it stays and becomes a question (``needs_review`` kind ``door_onto_nothing``).
+   23 Nov 2026 (UL371, the user's C0097 on real15, "Wall or column"): such a door narrower than any door
+   (``NARROW_DOOR_M``) with no door-high tag is no door: it is closed (``openings_merged``, ``corrected_by_ai`` rule
+   ``narrow_door``) with what the drawing holds in its gap (``narrow_gap_content``: a column, wall material), the wall
+   runs on.
 6. **A fire stair's enclosure is closed** (``fire_stairs``, 22 Nov 2026, S4, UL357): a doorless gap of a fire stair's
    enclosure is its door read again on a stacked wall run (merged), its door (a door-high tag, or the only way to the
    hall when empty), or wall (empty, to a flat).
+7. **An empty gap's note follows the building's outline** (``empty_gap_notes``, 23 Nov 2026, UL372): once the walls and
+   flags are final, an empty gap is noted 'in an exterior wall' (a possible undrawn door or window, unverified) only
+   where a room lies on one side and the open air on the other, 'in an inner wall' where rooms lie on both sides.
 
 Why: the audit's real21-4 and real20-9 (interior walls flagged exterior, where inferred windows would go), real10-5 (a
 stair copied onto the top normal floor rising onto the open roof), real20-11, real03-4 and real06-10 (shafts read as
@@ -568,6 +575,63 @@ def _gap_strokes(o: dict, wall: dict, drawn) -> list:
     return drawn.segments(Polygon(pts)) if drawn is not None else []
 
 
+NARROW_DOOR_M = 0.60            # 23 Nov 2026 (UL371): no door is narrower (a shaft hatch or a WC door drawn narrower
+                                # carries its swing, its door block or its door-high tag)
+NARROW_ROLES = (("structure", "a column"), ("wall", "wall material"), ("plaster", "wall material"),
+                ("hatch", "a hatched solid"))
+
+
+def door_tag(o: dict, texts: list) -> Optional[str]:
+    """A door-high W/H size tag (``DOOR_TAG_H_CM``) on the opening or beside it (its width / 2 + 0.6 m), or None
+    (pure)."""
+    for e in o.get("evidence") or []:
+        m = TAG_RE.match(B.fold_ascii(str(e.get("text") or "")).lower())
+        if m and int(m.group(2)) >= DOOR_TAG_H_CM:
+            return str(e.get("text"))
+    c = o.get("center")
+    if c:
+        reach = float(o.get("width") or 0.0) / 2.0 + 0.6
+        for t in texts or []:
+            m = TAG_RE.match(B.fold_ascii(str(t.get("text") or "")).lower())
+            if m and int(m.group(2)) >= DOOR_TAG_H_CM and "x" in t and G.distance((t["x"], t["y"]), c[:2]) <= reach:
+                return str(t["text"])
+    return None
+
+
+def narrow_gap_content(o: dict, wall: dict, drawn, walls: list) -> str:
+    """What the drawing holds in a narrow door's gap (23 Nov 2026, UL371; pure but for the drawing's query): the
+    reading's other walls across it (wall material read as a wall piece), the strokes in its band by their layers'
+    roles (a column, wall material, a hatched solid), else 'nothing a door needs'."""
+    from shapely.geometry import LineString, Polygon
+
+    from wenart.ingest.generic import layer_names as LN
+
+    a, u, _ = CP._axis(wall)
+    n = (-u[1], u[0])
+    c = o["center"][:2]
+    hw, ht = float(o.get("width") or 0.0) / 2.0, float(wall.get("thickness") or 0.2) / 2.0
+    band = Polygon([(c[0] + u[0] * s + n[0] * t, c[1] + u[1] * s + n[1] * t)
+                    for s, t in ((-hw, -ht), (hw, -ht), (hw, ht), (-hw, ht))])
+    parts = []
+    pieces = []
+    for x in walls:
+        if x is wall or x.get("id") == wall.get("id") or x.get("start") == x.get("end"):
+            continue
+        solid = LineString([x["start"][:2], x["end"][:2]]).buffer(float(x.get("thickness") or 0.1) / 2.0, cap_style=2)
+        if band.area > 0 and solid.intersection(band).area >= 0.5 * band.area:
+            pieces.append(x["id"])
+    if pieces:
+        parts.append(f"wall material read as {', '.join(pieces[:3])}")
+    seen = {}
+    for s in _gap_strokes(o, wall, drawn):
+        roles = LN.layer_roles(s.get("layer"))
+        what = next((name for role, name in NARROW_ROLES if role in roles), None)
+        if what:
+            seen.setdefault(what, set()).add(str(s.get("layer")))
+    parts += [f"{what} ({', '.join(sorted(layers)[:2])})" for what, layers in seen.items()]
+    return "; ".join(parts) if parts else "nothing a door needs (no leaf, swing or tag)"
+
+
 def _door_block(o: dict) -> Optional[str]:
     from wenart.ingest.generic import layer_names as LN
 
@@ -586,7 +650,9 @@ def doors_onto_nothing(b: dict, drawn_by_level: Optional[dict] = None, texts_by_
     (``GAP_LAYER_SHARE`` of the strokes in its gap on a window, glass or sill layer) or carries a window's evidence
     (``window_evidence``: a W/H tag under 1.8 m, a window layer or block); otherwise it stays a door and becomes a
     question for the user (``needs_review`` kind ``door_onto_nothing``), never silently built as a door into the air.
-    A door with a drawn swing or door block is left as drawn (RC17 still names it). Returns the records."""
+    A door with a drawn swing or door block is left as drawn (RC17 still names it). 23 Nov 2026 (UL371): one narrower
+    than any door (``NARROW_DOOR_M``) with no window evidence and no door-high tag (``door_tag``) is no door: closed,
+    the wall runs on (rule ``narrow_door``). Returns the records."""
     from wenart.ingest.generic import layer_names as LN
     from wenart.reading_check import structure as STR
 
@@ -621,6 +687,21 @@ def doors_onto_nothing(b: dict, drawn_by_level: Optional[dict] = None, texts_by_
         else:
             why = window_evidence(o, texts)
         if why and RG.blocked("door_onto_nothing", b, {"level_id": lid, "opening": o["id"]}):
+            continue
+        width = float(o.get("width") or 0.0)
+        if not why and width < NARROW_DOOR_M and not door_tag(o, texts) \
+                and not RG.blocked("narrow_door", b, {"level_id": lid, "opening": o["id"]}):
+            # 23 Nov 2026 (UL371, the user's C0097 on real15 L1 d_L1_011, "Wall or column"): narrower than any door,
+            # no swing, door block or door-high tag, nothing outside to step onto: no door; what the drawing holds
+            # there is read (a column, wall material), and the wall runs on
+            held = narrow_gap_content(o, w, drawn, [x for x in walls.values() if x.get("level_id") == lid])
+            reason = (f"the door {o['id']} ({width:.2f} m) in an outer wall of {lid} is narrower than any door "
+                      f"({NARROW_DOOR_M:.2f} m), has no swing, door block or door-high tag and nothing outside to step "
+                      f"onto: no door; the drawing holds {held} there: the wall {w['id']} runs on (UL371)")
+            b["openings"] = [x for x in b.get("openings") or [] if x is not o]
+            b.setdefault("openings_merged", []).append(dict(o, merged_into=None, closed=True, corrected_by_ai={
+                "by": "code", "rule": "narrow_door", "reason": reason}))
+            out.append({"opening": o["id"], "level_id": lid, "how": "closed", "reason": reason})
             continue
         if why:
             reason = (f"the door {o['id']} ({float(o.get('width') or 0):.2f} m) in an outer wall of {lid} has nothing "
@@ -764,8 +845,59 @@ def fire_stairs(b: dict, texts_by_level: Optional[dict] = None) -> list:
     return out
 
 
+EMPTY_EXTERIOR_NOTE = "possible undrawn door or window (empty gap in an exterior wall)"   # = openings._opening's
+
+
+def empty_gap_notes(b: dict) -> list:
+    """Rule 7 (23 Nov 2026, UL372; the user's C0098 on real15 L0 o_L0_006, an open passage between the kitchen and the
+    hall noted 'empty gap in an exterior wall'): the reader notes an empty gap (nothing drawn in it) as a possible
+    undrawn door or window, unverified, when it touches the outer ring of the walls it has read so far
+    (``openings._exterior_test``); there the outline is often still open (a facade the reader closes later, a gap not
+    bridged), so rooms behind an open facade count as outside (the bench: 63 of 100 such notes on walls the final
+    outline calls interior). Once the building's walls and flags are final, each empty gap's note follows the
+    building's outline at the gap, the same definition as rule 1 (``Level.kind_at`` past both faces): a room one stands
+    in on both sides (no balcony, light well or open air): an inner wall's gap (the note says so, the opening is no
+    longer unverified for that); a room on one side and the open air on the other: the exterior note. Anything else
+    keeps the reader's note. Returns the changes."""
+    out = []
+    walls = {w["id"]: w for w in b.get("walls") or [] if w.get("id")}
+    levels: dict = {}
+    for o in b.get("openings") or []:
+        if o.get("type") != "opening" or o.get("virtual") or not o.get("center"):
+            continue
+        ev = next((e for e in o.get("evidence") or [] if isinstance(e, dict) and e.get("method") == "derived"
+                   and str(e.get("entity") or "").startswith("gap:")), None)
+        w = walls.get(o.get("wall_id"))
+        if ev is None or w is None or (ev.get("note") and ev.get("note") != EMPTY_EXTERIOR_NOTE):
+            continue                                       # an unclassified gap, a gap read by another rule
+        lid = o.get("level_id")
+        level = levels.get(lid) or levels.setdefault(lid, CP.Level(b, lid))
+        a, u, length = CP._axis(w)
+        if length < 1e-6:
+            continue
+        n = (-u[1], u[0])
+        reach = float(w.get("thickness") or 0.15) / 2.0 + CP.PROBE_M
+        c = o["center"][:2]
+        kinds = [level.kind_at((c[0] + s * n[0] * reach, c[1] + s * n[1] * reach), "") for s in (1, -1)]
+        noted = ev.get("note") == EMPTY_EXTERIOR_NOTE
+        if noted and kinds == ["room", "room"]:
+            rooms = [level.room_at((c[0] + s * n[0] * reach, c[1] + s * n[1] * reach)) for s in (1, -1)]
+            ev["note"] = (f"empty gap in an inner wall: rooms on both sides ({rooms[0]['id']}, {rooms[1]['id']}) by "
+                          f"the building's outline (read as an exterior wall's gap before the outline was final)")
+            ev["exterior_note_was"] = EMPTY_EXTERIOR_NOTE
+            if o.get("status") == "unverified":
+                o["status"] = "verified"
+            out.append({"opening": o["id"], "level_id": lid, "exterior": False, "reason": ev["note"]})
+        elif not noted and "room" in kinds and any(k in ("outside", "balcony", "light_well") for k in kinds):
+            ev["note"] = EMPTY_EXTERIOR_NOTE
+            o["status"] = "unverified"
+            out.append({"opening": o["id"], "level_id": lid, "exterior": True,
+                        "reason": f"a room on one side, {[k for k in kinds if k != 'room'][0]} on the other"})
+    return out
+
+
 def apply(build, texts_by_level: dict, drawn_by_level: Optional[dict] = None) -> dict:
-    """The six rules (the module docstring); the record for ``level_inference.sense_rules``."""
+    """The seven rules (the module docstring); the record for ``level_inference.sense_rules``."""
     b = build.building
     rec = {"shafts": shafts(b, texts_by_level), "stairs": stairs_over_nothing(b, texts_by_level),
            "balconies": balcony_doors(b, build.ids.next, drawn_by_level, texts_by_level),
@@ -773,10 +905,15 @@ def apply(build, texts_by_level: dict, drawn_by_level: Optional[dict] = None) ->
            "exterior": [] if RG.active("exterior_spans", b) else exterior_flags(b)}
     rec["doors_onto_nothing"] = doors_onto_nothing(b, drawn_by_level, texts_by_level)
     rec["fire_stairs"] = fire_stairs(b, texts_by_level)
+    rec["empty_gap_notes"] = empty_gap_notes(b)            # 23 Nov 2026 (UL372): after the flags and the closures
     for k, word in (("shafts", "shaft"), ("stairs", "stair"), ("balconies", "balcony"),
                     ("doors_onto_nothing", "door onto nothing"), ("fire_stairs", "fire stair")):
         for x in rec[k]:
             build.warn(f"{word}: {x['reason']}")
+    if rec["empty_gap_notes"]:
+        build.warn(f"empty gap notes: {len(rec['empty_gap_notes'])} empty gap(s) noted by the building's outline "
+                   f"({sum(1 for x in rec['empty_gap_notes'] if not x['exterior'])} in an inner wall, "
+                   f"{sum(1 for x in rec['empty_gap_notes'] if x['exterior'])} in an exterior wall)")
     if rec["exterior"]:
         build.warn(f"exterior flags: {len(rec['exterior'])} wall(s) set from the building outline "
                    f"({sum(1 for x in rec['exterior'] if not x['exterior'])} interior, "

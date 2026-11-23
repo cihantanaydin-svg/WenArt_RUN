@@ -118,6 +118,7 @@ What: a window needs glass, and three kinds of gap are no openings of their run 
 from __future__ import annotations
 
 import dataclasses
+import functools
 import math
 import statistics
 from dataclasses import dataclass, field
@@ -546,6 +547,9 @@ class Gap:
     # 23 Nov 2026 (UL367, UL368): a part of a gap split at a drawn pier (``_pier_parts``): an opening's place the
     # drawing shows, typed a window by its window-layer lines alone (``_window_layer_lines``)
     pier_part: bool = False
+    # 23 Nov 2026 (UL371): a furniture block's lines that would have fitted the gap as a door's leaves (opened at 90
+    # degrees or sliding), turned down (``furniture_line``): what they were, for the record
+    furniture_leaf: Optional[str] = None
 
     @property
     def width(self) -> float:
@@ -995,6 +999,7 @@ def _classify_gap_rules(g: Gap, index: StrokeIndex, owned_global: set) -> None:
         g.found = {"arcs": [], "arc": [], "hinges": hinges, "leaves": leaves, "leaf": True, "swing": swing,
                    "radius": g.width / 2.0 if double else g.width, "double": double, "open_leaf": True}
         return
+    _record_furniture_leaf(g, zone, "opened at 90 degrees")
     # Window: >= 2 strokes parallel to the wall in the band, each spanning >= 80 % of the gap; fix round after P6b:
     # of them >= WINDOW_LINES_MIN offsets of the window's own lines (``_confined`` to the gap), >= GLASS_MIN_LINES of
     # them glass (strictly between the faces).
@@ -1071,6 +1076,7 @@ def _classify_gap_rules(g: Gap, index: StrokeIndex, owned_global: set) -> None:
         g.found = {"arcs": [], "arc": [], "hinges": [], "leaves": leaves, "leaf": True, "swing": 0.0,
                    "radius": None, "double": False, "sliding": True}
         return
+    _record_furniture_leaf(g, zone, "sliding")
     # 4 Nov 2026 (real17): a window block across the gap is that window; after the doors (real15: balcony sliding doors
     # drawn as blocks on the window layer stay doors) and after the wall faces drawn on across the gap
     named_window = _named_window(g, zone)
@@ -1424,11 +1430,14 @@ def _window_panes(g: Gap, zone: list) -> Optional[tuple[list, list, int]]:
     return items, sorted({round(best[0][2], 3), round(best[0][3], 3)}), len(best)
 
 
-def _sliding_leaves(g: Gap, zone: list) -> list:
+def _sliding_leaves(g: Gap, zone: list, furniture: bool = False) -> list:
     """Thin closed shapes (<= LEAF_WIDTH_M across) parallel to the gap, 0.45-1.10 x its width long, overlapping it by
     >= 40 % of its width, in the wall band (+- SLIDING_REACH_M across), and either shorter than 0.85 x the gap or
     drawn half open (centre >= 0.2 x the gap off the gap centre; synthetic-07's KAPI_SURME_90: a leaf as long as the
-    gap, half in the wall pocket). A window glass rectangle spans its gap, centred: no leaf."""
+    gap, half in the wall pocket). A window glass rectangle spans its gap, centred: no leaf. 23 Nov 2026 (UL371): never
+    a furniture block's lines (``_leaf_zone``: a wardrobe's sliding fronts are no door; ``furniture``: theirs too, for
+    the record)."""
+    zone = zone if furniture else _leaf_zone(zone)
     out = []
     for items, pts in [([it], it.pts) for it in zone
                        if len(it.pts) >= 4 and (it.st.closed or math.dist(it.pts[0], it.pts[-1]) <= 0.001)] \
@@ -1503,14 +1512,14 @@ def _line_leaves(g: Gap, zone: list) -> list[tuple[list, list]]:
     return out
 
 
-def _open_leaves(g: Gap, zone: list) -> Optional[tuple[list, list, float, bool]]:
+def _open_leaves(g: Gap, zone: list, furniture: bool = False) -> Optional[tuple[list, list, float, bool]]:
     """real10 (1 Nov 2026): doors drawn open at 90 degrees with no swing arc. A leaf is a thin shape (a closed outline,
     or >= 2 lines with the same ends, <= ``LEAF_WIDTH_M`` apart) standing across the wall at a gap end (within
     ``LEAF_START_M`` plus its width of the jamb), starting at the wall (its near end within the band +
     ``LEAF_START_M``) and running into a room ``LEAF_LENGTH`` x r long (+ ``LEAF_START_M``): r = the gap (one leaf)
     or half of it (one leaf at each end, on the same side). ``(leaf strokes, hinges, swing side, double)`` or None."""
     rows = []
-    for items, pts in _perp_leaves(g, zone):
+    for items, pts in _perp_leaves(g, zone, furniture):
         alongs = [g.along(q) for q in pts]
         acrosses = [g.across(q) for q in pts]
         width = max(alongs) - min(alongs)
@@ -1651,9 +1660,52 @@ def _grille_bars(g: Gap, index: "StrokeIndex", owned_global: set) -> Optional[di
     return best
 
 
-def _perp_leaves(g: Gap, zone: list) -> list[tuple[list, list]]:
+def furniture_line(st: Stroke) -> Optional[str]:
+    """23 Nov 2026 (UL371, the user's C0097 on real15 L1, "Wall or column": the three rails of a wardrobe block
+    'GARDOLAP 2' beside a column stood across the wall like a leaf opened at 90 degrees, and a 0.50 m door was built in
+    the facade): the name of the block that makes a stroke a line of a piece of furniture (a block in its chain named
+    for a furniture type, ``symbols.keyword_type``: GARDOLAP, YATAK, KOMODİN ...; none of the chain named for a door),
+    or None. Such a line is never a door's leaf. The layer alone does not say it (furniture layers may hold doors:
+    real03), the block's name does (pure)."""
+    return _furniture_block(st.block or "") if st.block else None
+
+
+@functools.lru_cache(maxsize=4096)
+def _furniture_block(chain: str) -> Optional[str]:
+    from wenart.ingest.generic import symbols as SY
+
+    names = [n for n in chain.split("/") if n]
+    if not names or any(any(w in n.translate(_FOLD).upper() for w in DOOR_WORDS) for n in names):
+        return None
+    return next((n for n in names if SY.keyword_type(n)), None)
+
+
+def _leaf_zone(zone: list) -> list:
+    """The strokes of a gap's zone that may draw a door's leaf: none of a piece of furniture (``furniture_line``)."""
+    return [it for it in zone if furniture_line(it.st) is None]
+
+
+def _record_furniture_leaf(g: Gap, zone: list, how: str) -> None:
+    """23 Nov 2026 (UL371): never silent: when a furniture block's lines would have made the gap a door (its leaves
+    ``how``: opened at 90 degrees or sliding), ``g.furniture_leaf`` says whose lines they were."""
+    if g.furniture_leaf is not None or not any(furniture_line(it.st) for it in zone):
+        return
+    blocked = g.blocked
+    got = _open_leaves(g, zone, furniture=True) if how != "sliding" else _sliding_leaves(g, zone, furniture=True)
+    g.blocked = blocked                          # the record's trial leaves no trace on the gap
+    strokes = (got[0] if how != "sliding" else got) if got else []
+    names = sorted({furniture_line(it.st) for it in strokes if furniture_line(it.st)})
+    if names:
+        g.furniture_leaf = (f"lines of the furniture block '{names[0]}' ({', '.join(it.st.id for it in strokes[:3])}) "
+                            f"fit a door's leaf {how} in the {g.width:.2f} m gap: a piece of furniture's lines, no "
+                            f"leaf (UL371)")
+
+
+def _perp_leaves(g: Gap, zone: list, furniture: bool = False) -> list[tuple[list, list]]:
     """Thin shapes standing across the gap's wall: closed outlines, and groups of >= 2 straight lines across the wall
-    with the same ends (within ``LEAF_END_M``), <= ``LEAF_WIDTH_M`` apart. ``[(strokes, points)]``."""
+    with the same ends (within ``LEAF_END_M``), <= ``LEAF_WIDTH_M`` apart. ``[(strokes, points)]``. 23 Nov 2026
+    (UL371): never a furniture block's lines (``_leaf_zone``; ``furniture``: theirs too, for the record)."""
+    zone = zone if furniture else _leaf_zone(zone)
     out = [([it], it.pts) for it in zone if len(it.pts) >= 4 and it.st.arc is None
            and (it.st.closed or math.dist(it.pts[0], it.pts[-1]) <= 0.001)]
     lines = []
@@ -2312,6 +2364,8 @@ def gaps_and_openings_frame(walls: list[WallItem], strokes_m: list[Stroke], file
             item = _opening(g, ctx, exterior)
             if g.found.get("pier"):
                 item.evidence["pier"] = g.found["pier"]      # 23 Nov 2026 (UL367): never silent
+            if g.furniture_leaf and item.kind != "door":
+                item.evidence["furniture_leaf"] = g.furniture_leaf      # 23 Nov 2026 (UL371): never silent
             if g.blocked and item.kind != "door":
                 # 22 Nov 2026 (UL365): never silent: the open leaves the clear-passage test turned down
                 item.evidence["leaves_blocked"] = (f"two lines fitted a door's leaves opened at 90 degrees, but "
@@ -3396,6 +3450,8 @@ def _log_entry(g: Gap, theta: float, piece_out: dict) -> dict:
         entry["note"] = g.found["split_reason"]
     if g.blocked and g.cls != "door":
         entry["leaves_blocked"] = g.blocked
+    if g.furniture_leaf:
+        entry["furniture_leaf"] = g.furniture_leaf      # 23 Nov 2026 (UL371): never silent
     if g.found.get("lining"):
         entry["lining"] = {k: v for k, v in g.found["lining"].items() if k != "note"}
     # Fix round after P6b: the rule that decided a gap the old reading took for a window or an opening (the core lists
