@@ -4574,3 +4574,100 @@ scorer against the light-well readings re-scored.
   of facades of narrow piers (67, b787); the outline closure's free-end bridges are not checked for an empty gap (11
   long invented); a wall drawn in two touching layers (real10's slot wall, 12 touching pairs in real10, 3 in real06 and
   real17, none on the bench) is not merged: a synthetic project and a look at real10's 0.28 + 0.06 m pairs come first.
+
+## 23 Nov 2026, stairs round (the user's choice "Stairs"; CPU only, no pod)
+
+Stairs were the weakest element type of the dataset bench (stairs F1 0.536 on `bench_longwalls`). Lessons UL375 (the
+stair reading rules) and UL376 (the storey height against the stairs). Tests `tests/test_rules_stairs_20261123.py`
+(18, most of them must-not-fire cases).
+
+- **Diagnosis (all 106 scored bench projects; 20 hold stairs: 59 truth stairs, 29 missed; the real projects' stairs
+  looked at in real15; crops of every missed stair looked at).** Missed stairs by why:
+
+  | subclass | missed | real error or convention | rule |
+  |---|---|---|---|
+  | drawn on the stair layer outside the building outline the walls closed (the outline open: its lines went to the site decor as 'steps') | 10 (2 of them 2-3 risers) | real | 1 |
+  | the flight's end lines lost: its side lines on wall faces dropped as wall outline, or the outline drawn 0.4-0.6 degrees askew | 5 | real | 1, 5 |
+  | a flight turned 3-6 degrees off the plan's axes (a wing at an angle) | 3 | real | 2 |
+  | a straight flight longer than any furniture (4.51 m, 16 treads; the cluster limit 4.5 m) | 1 | real | 3 |
+  | a tread under the room label 'Merdiven ALAN 1.89 M2' taken for a glyph, the pitch broken | 1 | real | 4 |
+  | a narrow strip beside the flight touched two treads: the walking line cut 9 treads on one side, 7 on the other | 1 | real | 6 |
+  | the lift's box drawn in the stair's lines | 1 | real | (1) |
+  | a few steps (2-3 risers, under 5 lines) | 3 (+2 above) | convention: not read (a pair of lines is no stair) | - |
+  | a flight under 0.6 m wide (0.43-0.52 m) | 2 | convention: a ladder, not read | - |
+  | a winding or spiral stair drawn as turned tread polygons | 2 | real, not built | open |
+
+  Read stairs: 23 of 53 unmatched, 22 of them on storeys the reader guessed above a single plan (typical copies:
+  b2461, b2485, b263; the truth lists the floors the bench picked), one a U stair whose two flights, separated by a
+  thin wall, were read as two straight stairs (b2485). Of the 30 matched: 5 U or L stairs read with one flight, 5 with a
+  size 0.3-0.6 m off (an end line lost, one flight of an L). The real15 straight stair (17 numbered treads) reads right.
+- **Rules (`wenart/ingest/generic/symbols.py`, every drawing source alike):**
+  1. *The stair layer is read on its own* (`stair_layer_pass`): the lines of the drawer's stair layer (role `stair`)
+     are clustered by themselves, before the wall-outline rule and apart from other layers' lines; a cluster inside the
+     building walls' convex hull (80 %), at most a stair's length, that no stair piece covers yet and holds no tread
+     numbers, is a stair when the stair rule finds walkable flights in it (`read_by: stair layer`); the pieces read from
+     its lines are dropped, its lines leave the site decor. The narrow-flight and tile checks follow as before.
+  2. *A flight at an angle* (`own_angle`, `stair_rule`): a cluster whose most numerous parallel lines stand 1 degree or
+     more off the plan's axes is read again in their frame (`angled_deg` on the stair).
+  3. *A straight flight of a whole storey* (`STAIR_MAX_M` 6.0, the size table's stair): an oversize cluster up to a
+     stair's length is a stair when its flights and landing cover 70 % of it and it holds no tread numbers; a re-read
+     part up to 6 m goes to the stair rule.
+  4. *A tread under a text* (`_stair_layer_line`): a straight stair-layer line of 0.4 m or more is drawing, never a
+     glyph.
+  5. *An outline drawn askew* (`_straight`): a line up to 1 degree askew is on its axis for the stair rule.
+  6. *The walking line* (`arrow_end`): a line ending in an arrow head never splits the treads into two flights (a
+     1.48 m flight was a 'U' of two 0.74 m flights); two strips cut by a walking line join on the treads they share
+     (70 % of each, 5 at least: `_join_split_strips`).
+  Must not fire (tests): a grille or tile grid turned 5 degrees, the line between the two flights of a U, a stringer's
+  end tick, a stair-layer flight outside the walls (site steps), a numbered stair (left to `stair_numbers`), a ladder
+  (0.45 m), a stroke on a text layer under a label.
+- **The AI checks' drawing of a stair** (`critic_checks.draw_arch`, `sheets.stair_record`): a fire-escape mark in
+  `details.stair` (no flights) hid the reader's flights in `stair`, so the stair was an empty box (swiss-b2486 L1, the RL
+  try): the record that holds the flights and landing is drawn (treads, arrow, landing); a stair with no flights read is
+  drawn dashed with the label 'stair, flights unread'. The comparison sheets (`sheets.py`) had the same fault, fixed the
+  same way.
+- **The real15 storey height** (`levels.model._storey_vs_stairs`, RC14 `storey_stair_risers`): L1's +7.824 m came from
+  the section 'B-B KESİTİ' (r5): 9 slab bands mapped bottom-up onto two plans in a region 39.90 m wide against a 23.46 x
+  28.20 m plan ("cut direction unknown, heights kept"); L0's ceiling 7.674 m, 196 walls and the open passages took it.
+  The plans' floor marks say +0.50 (L0, 9 of 12) and +3.50 (L1, 5 of 5): 3.00 m; the 17-tread stair climbs 2.40-3.61 m
+  (0.15-0.19 m risers), 7.82 m would need 0.41 m risers. Rule: a storey a section gives that no stair of the storey
+  under it can climb is a conflict (`storey_height_mismatch`, new in the schema) and a finding; it moves only where the
+  plans' floor marks give a storey the stair climbs (the marks are source data; the section's bands stay as drawn and
+  listed), the storeys over it with it, the storey under it keeping its slab (ceiling, walls and openings of that
+  ceiling height follow). real15: L1 +7.82 -> +3.00 m, L0 ceiling 2.85 m. real15's truth is not changed.
+- **Bench scoring of stairs (reported, not changed):** stairs match by centre within 1.0 m only, so a U read as one
+  flight or a stair 0.6 m short still matches; the truth joins stair polygons within 0.3 m into one stair (two flights
+  either side of a thin wall are one stair, a 3-riser piece 0.4 m away is another) and counts risers from 0.28 m treads,
+  not the drawn ones; stairs (like every element) on storeys the reader guessed above a single plan count as invented
+  (22 of 23 unmatched read stairs before, 30 of 31 after). On the truth's own levels stairs F1 is 0.667 before and
+  0.909 after. No clear bug: nothing changed.
+- **Bench** (`/home/user/bench_data/bench_stairs.md`, `work_stairs`, against `work_longwalls`, same scorer): mean 74.23
+  -> 75.16 (scale read 77.90 -> 78.88); stairs F1 0.536 -> 0.714 (recall 0.508 -> 0.848; orthogonal 0.588 -> 0.737,
+  angled 0.370 -> 0.667; on the truth's own levels 0.667 -> 0.909); stair missed 29 -> 9; every other number and error
+  class unchanged (walls, rooms, doors, windows, levels: the same counts); 10 projects rise (b263 +1.47, b1747 +4.70,
+  b16820, b2383, b3431 +5.88, b2891 +9.42, b2156 +12.51, b5460, b5481, b969 +17.65), none falls. swiss-b2440 fails to
+  read in both. Left: 5 flights of 2-3 risers and 2 under 0.6 m (by design), 2 winding or spiral stairs drawn as turned
+  tread polygons (b14870, b17190).
+- **Gate:** `score --gate` holds against 381016c0 (never --update): synthetic overall 97.5, real06/07/09/10/17 100,
+  real15 33.3 (C0098 holds, C0097 not satisfied as before).
+- **Regress** (real08 left out): the 13 synthetic baselines hold; real01, 02, 04, 09, 11, 13, 14, 16, 18, 20 hold;
+  real03, 06, 07, 10, 12, 15, 17, 19, 21 differ from their 12 Nov baselines as after the earlier rounds. Against
+  readings of the base commit (763e2373) every real reading is the same except two storey heights: real15 (L1 +7.82 ->
+  +3.00 m, above) and real17 (L-1 -4.05 -> -3.00 m, L-1 ceiling 3.85 -> 2.80 m: the section r8, 8 bands for 5 levels and
+  21.54 m wide against a 25.39 x 28.90 m plan, against the basement's four floor marks -2.80, the shops' +0.20 and the
+  two 17-step numbered stairs; the ground floor stays at 0). No real stair changes: the stair rules fire in no real
+  project (their stairs are read by the stair rule or their numbers already). No regress baseline written; no
+  synthetic project added (the classes are in the bench and the unit tests).
+- **Misfires found and fixed while measuring:** the long-flight rule took real15's numbered 17-tread flight before the
+  numbered-stair reader, with a 0.33 m wider footprint (an extra line in its cluster): a numbered stair is left to the
+  numbers (`numbered_stair`) and a long cluster is a stair only when its flights cover 70 % of it; the storey rule moved
+  real17's ground floor to -1.05 m (it moved the upper storey of every pair): below the ground floor the lower storey
+  moves.
+- **Tests:** the new file 19 passed; the touched modules' files (generic symbols, levels model, marks, read, checks,
+  edits, critic checks, sense 26 Oct / 6 Nov / 12 Nov, reader targets A and B, M11 split, M13 recognition and reading,
+  beds, bathroom sense, structure and core rules, the rule files of 22-23 Nov, stair access, top stair) 693 passed; one
+  expectation added (the trust file names the new rule, not judged yet).
+- **Open:** winding and spiral stairs drawn as turned tread polygons; flights of 2-3 risers; a U stair whose two
+  flights stand either side of a thin wall is read as two straight stairs (b2485; two mirrored stairs 0.3 m apart look
+  the same, so no rule yet); 9 U or L stairs read with one flight (their second flight under 5 lines or askew); the
+  stair of a single plan copied onto guessed storeys counts against the bench's stairs (a level-guess convention).
