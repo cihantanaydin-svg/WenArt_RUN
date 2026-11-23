@@ -525,7 +525,7 @@ LORA_TARGETS = r".*language_model.*\.(q_proj|k_proj|v_proj|o_proj|gate_proj|up_p
 
 
 def train(train_dir: Path, base_model: str, revision: str, out: Path, *, epochs: float = 2.0, rank: int = 16,
-          lr: float = 1e-4, max_minutes: float = 30.0) -> dict:
+          lr: float = 1e-4, max_minutes: Optional[float] = None) -> dict:
     """The LoRA (TRL ``SFTTrainer`` + PEFT ``LoraConfig``) on ``sft.jsonl``; pod only (GPU, the BF16 base)."""
     import torch
     from datasets import Dataset
@@ -547,10 +547,31 @@ def train(train_dir: Path, base_model: str, revision: str, out: Path, *, epochs:
                     report_to=[], max_steps=-1, seed=SEED)
     lora = LoraConfig(r=rank, lora_alpha=2 * rank, lora_dropout=0.05, target_modules=LORA_TARGETS,
                       task_type="CAUSAL_LM")
-    trainer = SFTTrainer(model=model, args=cfg, train_dataset=ds, processing_class=processor, peft_config=lora)
+    trainer = SFTTrainer(model=model, args=cfg, train_dataset=ds, processing_class=processor, peft_config=lora,
+                         callbacks=[time_limit(max_minutes)] if max_minutes else None)
     res = trainer.train()
     trainer.save_model(str(out))
-    return {"rows": len(rows), "train_loss": float(res.training_loss), "steps": int(res.global_step)}
+    return {"rows": len(rows), "train_loss": float(res.training_loss), "steps": int(res.global_step),
+            "planned_steps": int(trainer.state.max_steps), "max_minutes": max_minutes}
+
+
+def time_limit(max_minutes: float):
+    """23 Nov 2026 (RL try 2): a ``TrainerCallback`` that ends the training after ``max_minutes`` of steps (the adapter
+    is still saved), so the exam after it keeps its time on the pod."""
+    import time
+
+    from transformers import TrainerCallback
+
+    class _Limit(TrainerCallback):
+        def on_train_begin(self, args, state, control, **kw):
+            self.t0 = time.time()
+
+        def on_step_end(self, args, state, control, **kw):
+            if time.time() - self.t0 > float(max_minutes) * 60.0:
+                control.should_training_stop = True
+            return control
+
+    return _Limit()
 
 
 def main(argv=None) -> int:
@@ -577,6 +598,7 @@ def main(argv=None) -> int:
     t.add_argument("--out", required=True)
     t.add_argument("--epochs", type=float, default=2.0)
     t.add_argument("--rank", type=int, default=16)
+    t.add_argument("--max-minutes", type=float, default=None, help="end the training after this many minutes")
     pa = sub.add_parser("phase-sample")
     pa.add_argument("--train", required=True)
     pa.add_argument("--out", required=True)
@@ -630,7 +652,7 @@ def main(argv=None) -> int:
         return 0
     if args.cmd == "train":
         print(json.dumps(train(Path(args.train), args.base, args.revision, Path(args.out), epochs=args.epochs,
-                               rank=args.rank)))
+                               rank=args.rank, max_minutes=args.max_minutes)))
         return 0
     print(json.dumps(fewshot_files(Path(args.out)), indent=1))
     return 0

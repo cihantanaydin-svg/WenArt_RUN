@@ -44,6 +44,8 @@ DELEGATED = {"remark": ("wenart.reading_check.remark", "main"), "stability": ("w
              "twice": ("wenart.reading_check.twice", "main"),
              # 22 Nov 2026: the RL pilot's CPU side (``rl_pilot build|filter|fewshot``; ``sample|train`` on the pod)
              "rl_pilot": ("wenart.reading_check.rl_pilot", "main"),
+             # 23 Nov 2026: RL try 2, the training questions from the dataset bench (``rl_bench build|filter|...``)
+             "rl_bench": ("wenart.reading_check.rl_bench", "main"),
              # 22 Nov 2026: the weak-spot hunter (``weak rank|hunt``)
              "weak": ("wenart.reading_check.weak_spots", "main")}
 

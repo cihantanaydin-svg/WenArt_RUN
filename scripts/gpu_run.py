@@ -86,7 +86,9 @@ JOB_DISK_GB = {"scripts/jobs/full.sh": 150,
                # qwen (17.5 GB), the training venv (~8 GB) and the adapter
                "scripts/jobs/rl_pilot.sh": 160,
                # 22 Nov 2026: the exam A/B, the same two models and qwen
-               "scripts/jobs/exam_ab.sh": 140}
+               "scripts/jobs/exam_ab.sh": 140,
+               # 23 Nov 2026 (M14 RL try 2, bench questions): the RL pilot's models, venvs and adapter
+               "scripts/jobs/rl_bench.sh": 160}
 
 
 # 30 Oct 2026 (pod wqndpe64mj6edl): the GPU memory a job needs when ``--gpu`` is not given. The full job keeps the
@@ -101,7 +103,9 @@ JOB_MIN_VRAM_GB = {"scripts/jobs/full.sh": 80,
                    # the adapter's optimizer state: 80 GB cards or more (the plan's RTX PRO 6000 has 96 GB)
                    "scripts/jobs/rl_pilot.sh": 80,
                    # 22 Nov 2026: the exam A/B serves the 27B BF16 base (~55 GB of weights) with its KV cache
-                   "scripts/jobs/exam_ab.sh": 80}
+                   "scripts/jobs/exam_ab.sh": 80,
+                   # 23 Nov 2026 (M14 RL try 2): the RL pilot's LoRA training on the BF16 base
+                   "scripts/jobs/rl_bench.sh": 80}
 # 3 Nov 2026 (the sixth real10 structure run: no 80 GB card in stock under the price limit): the structure profile runs
 # no agent model (the 52 GB server the 80 GB are for), only the recognition models one at a time (8-10B, about 20 GB at
 # 90 % of the card) and Blender: 48 GB cards (RTX PRO 5000, L40S, RTX 6000 Ada) do
