@@ -1,0 +1,28 @@
+{
+ "held_lora": {
+  "questions": 246,
+  "answered": 246,
+  "accuracy": 0.8049
+ },
+ "held_bf16": {
+  "questions": 246,
+  "answered": 246,
+  "accuracy": 0.7114
+ },
+ "exam_lora": {
+  "asked": 491,
+  "answered": 473,
+  "failed": 18,
+  "skipped": 0,
+  "started": 1795433567.2548375,
+  "seconds": 1480.2
+ },
+ "exam_bf16": {
+  "asked": 527,
+  "answered": 527,
+  "failed": 0,
+  "skipped": 0,
+  "started": 1795433567.2531948,
+  "seconds": 1492.9
+ }
+}

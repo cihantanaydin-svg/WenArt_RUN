@@ -1,0 +1,23 @@
+{
+ "questions": 412,
+ "all_right": 192,
+ "all_wrong": 43,
+ "kept": 177,
+ "rows": 176,
+ "by_class": {
+  "opening_missing:no": 26,
+  "opening_missing:yes": 17,
+  "opening_right:door->door": 9,
+  "opening_right:door->none": 10,
+  "opening_right:window->door": 4,
+  "opening_right:window->none": 13,
+  "room_missing:no": 9,
+  "room_missing:yes": 25,
+  "room_right:no": 18,
+  "room_right:yes": 21,
+  "wall_missing:no": 7,
+  "wall_missing:yes": 6,
+  "wall_right:no": 2,
+  "wall_right:yes": 9
+ }
+}

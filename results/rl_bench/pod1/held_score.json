@@ -1,0 +1,110 @@
+{
+ "fp8": {
+  "questions": 246,
+  "answered": 246,
+  "right": 174,
+  "errors": 123,
+  "errors_flagged": 71,
+  "rights": 123,
+  "false_alarms": 17,
+  "per_kind": {
+   "room_missing": {
+    "questions": 40,
+    "right": 26
+   },
+   "opening_missing": {
+    "questions": 40,
+    "right": 30
+   },
+   "wall_missing": {
+    "questions": 40,
+    "right": 30
+   },
+   "wall_right": {
+    "questions": 10,
+    "right": 7
+   },
+   "opening_right": {
+    "questions": 76,
+    "right": 54
+   },
+   "room_right": {
+    "questions": 40,
+    "right": 27
+   }
+  },
+  "accuracy": 0.7073
+ },
+ "bf16": {
+  "questions": 246,
+  "answered": 246,
+  "right": 175,
+  "errors": 123,
+  "errors_flagged": 68,
+  "rights": 123,
+  "false_alarms": 13,
+  "per_kind": {
+   "room_missing": {
+    "questions": 40,
+    "right": 26
+   },
+   "opening_missing": {
+    "questions": 40,
+    "right": 27
+   },
+   "wall_missing": {
+    "questions": 40,
+    "right": 30
+   },
+   "wall_right": {
+    "questions": 10,
+    "right": 6
+   },
+   "opening_right": {
+    "questions": 76,
+    "right": 56
+   },
+   "room_right": {
+    "questions": 40,
+    "right": 30
+   }
+  },
+  "accuracy": 0.7114
+ },
+ "lora": {
+  "questions": 246,
+  "answered": 246,
+  "right": 198,
+  "errors": 123,
+  "errors_flagged": 101,
+  "rights": 123,
+  "false_alarms": 24,
+  "per_kind": {
+   "room_missing": {
+    "questions": 40,
+    "right": 25
+   },
+   "opening_missing": {
+    "questions": 40,
+    "right": 35
+   },
+   "wall_missing": {
+    "questions": 40,
+    "right": 36
+   },
+   "wall_right": {
+    "questions": 10,
+    "right": 7
+   },
+   "opening_right": {
+    "questions": 76,
+    "right": 67
+   },
+   "room_right": {
+    "questions": 40,
+    "right": 28
+   }
+  },
+  "accuracy": 0.8049
+ }
+}

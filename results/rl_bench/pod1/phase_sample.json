@@ -1,0 +1,20 @@
+{
+ "train": {
+  "questions": 412,
+  "answered": 412,
+  "accuracy": 0.709
+ },
+ "held_fp8": {
+  "questions": 246,
+  "answered": 246,
+  "accuracy": 0.7073
+ },
+ "exam_fp8": {
+  "asked": 530,
+  "answered": 530,
+  "failed": 0,
+  "skipped": 0,
+  "started": 1795431729.3470073,
+  "seconds": 481.0
+ }
+}

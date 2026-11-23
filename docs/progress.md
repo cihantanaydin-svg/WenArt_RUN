@@ -4431,3 +4431,30 @@ machine finding, no screenshot revision). Base b6c88adf.
   vector PDF's pier box has no wall layer) are not covered; the open-leaf rule still takes two short frame lines drawn
   twice for a double door's leaves outside pier parts (real10's 0.40 m closets on L-1 are read as doors that way, which
   matches the user's C0020).
+
+## 23 Nov 2026, RL try 2 (bench data) (the user: "continue"; one pod)
+
+One variable changed against the RL pilot: the training questions come from the dataset bench instead of our synthetic
+plans. `wenart/reading_check/rl_bench.py` (`rl_bench build|filter|phase-sample|phase-exam|held-score`), job
+`scripts/jobs/rl_bench.sh`, set `results/rl_bench/set/` (412 close-up questions from 49 bench buildings, 246 held out
+from 46 others, split by building, half reader errors; walls, openings and rooms of our own reading right or missing,
+the answer from the bench truth; two images each, the drawing and the architect-style model). Pilot 1's recipe kept
+(8 samples at 0.8 from the FP8 model, rejection sampling -> 176 rows, rank-16 LoRA on the BF16 base); pilot 1's trainer
+got a time guard (`rl_pilot train --max-minutes`) so the exam after it keeps its time.
+
+Pod c06ymmikyhzz13 (RTX PRO 6000, 76 min, $3.42), every exam arm with the drawing text, false findings on the user's 25
+marks (no arm saw them as examples). Results `results/rl_bench/pod1/`.
+
+| arm | known errors (of 73) | false, all marks | false, fold 0 | right findings | judge (of 62) | failed calls | held-out bench right (of 246) |
+|---|---|---|---|---|---|---|---|
+| FP8 (default) | 65 | 16 | 11 | 104 | 53 | 0 | 174 |
+| BF16 base | 65 | 16 | 11 | 101 | 52 | 0 | 175 |
+| BF16 + bench LoRA | 63 | 12 | 10 | 71 | 46 | 18 | 198 |
+
+The LoRA does not pass the ship rule (fewer known errors than both controls; none found that they miss); 18 of its 91
+compare calls broke (whitespace after `{"answers":`). On held-out bench buildings it gains (71 -> 80.5 % right, reader
+errors flagged 68 -> 101 of 123, false alarms 13 -> 24), so the bench signal is learnable but does not carry to the RC15
+calls. The default stays the FP8 agent model with the drawing text. The training ran 28 of 44 steps (time guard: the
+pod's own setup took 8 min). Found: the architect-style model image draws a stair with `details.stair` but no flights
+as an empty box (`critic_checks.draw_arch`), so the stair questions were left out; open. Tests
+`tests/test_rl_bench_20261123.py` (11). Lesson UL370.
