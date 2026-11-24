@@ -930,6 +930,23 @@ def _open_air(room: Optional[dict]) -> bool:
     return bool(OPEN_AIR_ROOMS_RE.search(B.fold_ascii(f"{r.get('room_type') or ''} {r.get('label') or ''}").lower()))
 
 
+ENTRANCE_DROP_MAX_M = 1.2          # 24 Nov 2026: an entrance a few steps over the ground (marks decide the steps)
+ENTRANCE_MARK_REACH_M = 1.0        # ... marked by a ground or threshold mark this close outside the gap's face
+
+
+def entrance_mark(b: dict, level_id: str, face, ow) -> Optional[dict]:
+    """A ground or threshold level mark of ``level_id`` within ``ENTRANCE_MARK_REACH_M`` outside the gap face ``face``
+    (outward ``ow``) that marks no other door (pure), or None."""
+    for m in b.get("level_marks") or []:
+        if m.get("level_id") != level_id or not m.get("point") or m.get("door_id") \
+                or m.get("kind") not in ("ground_finished", "ground", "threshold"):
+            continue
+        dx, dy = float(m["point"][0]) - face[0], float(m["point"][1]) - face[1]
+        if (dx * dx + dy * dy) ** 0.5 <= ENTRANCE_MARK_REACH_M and dx * ow[0] + dy * ow[1] > -0.05:
+            return m
+    return None
+
+
 def facade_gaps(b: dict, levels: list, outline, outlines: dict, spaces: Sequence[dict], tm: dict,
                 params: dict) -> list[dict]:
     """3 Nov 2026 (real10, user: "tell me what purple means", then "go ahead"): a gap in an outside wall whose lines no
@@ -1014,6 +1031,17 @@ def facade_gaps(b: dict, levels: list, outline, outlines: dict, spaces: Sequence
                    f"('{onto.get('label')}') at its floor: its door")
             if o["id"] not in (onto.get("doors") or []):
                 onto.setdefault("doors", []).append(o["id"])
+        elif drop <= ENTRANCE_DROP_MAX_M and entrance_mark(b, lv["id"], face, ow) is not None:
+            # 24 Nov 2026 (review of f706c8a1: real17's shop 7 entrance 'DÜKKAN GİRİŞİ' became a window once the ground
+            # stood in the drawing's frame): a gap at the floor a few steps over the ground with a level mark of the
+            # ground or a threshold right outside it (no building corner: the drawing marks the entrance's level) is
+            # an entrance door; its steps follow from the marks
+            mk = entrance_mark(b, lv["id"], face, ow)
+            o["drawn_type"], o["type"] = "opening", "door"
+            if o.get("height") is None:
+                o["height"] = 2.1
+            why = (f"a gap with unreadable lines in the outside wall {drop:.2f} m over the ground, the level mark "
+                   f"{mk.get('raw')} ({mk['id']}) right outside it: an entrance door")
         elif drop > float(params["flush_max"]):
             rows = sorted(typical.get(lv["id"]) or every)
             sill, height = rows[len(rows) // 2] if rows else FACADE_WINDOW

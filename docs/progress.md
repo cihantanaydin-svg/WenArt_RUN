@@ -4853,8 +4853,8 @@ Counts per project (by class): real17 8 (R 6, B 2 shared); real10 4 (A 1, R 1, B
   design, stair access, stair rails, top stair, architect AI, building).
 - **Tried and reverted:** a framed facade gap (jamb marks) up to 1.2 m over the ground typed an entrance door: it fired
   on real06's tagged ground-floor windows (0.50 m over the ground, with frame marks too) and on three bench floors.
-- **Lessons:** UL382 (storeys from the printed storey names, never the band order), UL383 (top-down covers, stair turns,
-  stair tops drawn twice, terrace slabs), UL384 (kitchen hatch, abbreviated room names, AI decisions against the code's
+- **Lessons:** UL390 (storeys from the printed storey names, never the band order), UL391 (top-down covers, stair turns,
+  stair tops drawn twice, terrace slabs), UL392 (kitchen hatch, abbreviated room names, AI decisions against the code's
   measure, one-pitch gable).
 
 **Re-render (structure profile) and what each should show.**

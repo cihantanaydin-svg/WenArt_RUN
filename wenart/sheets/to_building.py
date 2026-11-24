@@ -179,8 +179,23 @@ def _footprint_poly(f: dict) -> Polygon:
     return Polygon(G.rotated_rectangle(fp["center"], fp["size"], fp["rotation_deg"]))
 
 
+# 24 Nov 2026 (review of f706c8a1: a 3-riser step under a main stair made the stair 'the top of the stair below'): the
+# stair below is a full storey's stair (its drawn steps at least STOREY_STEP_SHARE of the storey's rise over
+# STAIR_RISER_MAX_M) and covers at least half of this stair's own box
+STOREY_STEP_SHARE = 0.6
+STAIR_RISER_MAX_M = 0.19
+
+
+def stair_steps(f: dict) -> int:
+    """The steps a stair piece draws (``stair.steps_drawn``, else its flights' tread lines and winders), 0 unknown."""
+    st = f.get("stair") or {}
+    if st.get("steps_drawn"):
+        return int(st["steps_drawn"])
+    return int(sum(int(fl.get("lines") or 0) for fl in st.get("flights") or []) + int(st.get("winders") or 0))
+
+
 def arrival_only(f: dict, below2_id: Optional[str], above_id: str, furniture: list[dict],
-                 rooms: Optional[list[dict]]) -> bool:
+                 rooms: Optional[list[dict]], rise_below: Optional[float] = None) -> bool:
     """4 Nov 2026 (real17: the two shop stairs of the ground floor go down to the shops' basement stores; the first
     floor got holes for them in its bedrooms): a stair drawn on a level that is the top of the stair from the level
     under it (a stair there on at least half its footprint), with no stair over it on the level above and a room there
@@ -198,7 +213,8 @@ def arrival_only(f: dict, below2_id: Optional[str], above_id: str, furniture: li
             fp = fp.difference(gp)
     if fp.is_empty or fp.area <= 0:
         return False
-    if not any(_footprint_poly(g).intersection(fp).area >= 0.5 * min(fp.area, _footprint_poly(g).area)
+    need = STOREY_STEP_SHARE * float(rise_below) / STAIR_RISER_MAX_M if rise_below else 0.0
+    if not any(_footprint_poly(g).intersection(fp).area >= 0.5 * fp.area and stair_steps(g) >= need
                for g in _stairs(below2_id, furniture)):
         return False
     if any(_footprint_poly(g).intersection(fp).area > 0.2 * fp.area for g in _stairs(above_id, furniture)):
@@ -217,7 +233,7 @@ def arrival_only(f: dict, below2_id: Optional[str], above_id: str, furniture: li
 def _slab(lv: dict, below: Optional[dict], unions: dict, furniture: list[dict], sec: Optional[dict],
           slab_default: float, slab_id: str, rooms: Optional[list[dict]] = None,
           voids: Optional[list[dict]] = None, below2_id: Optional[str] = None,
-          under_fallback=None) -> Optional[dict]:
+          under_fallback=None, rise_below: Optional[float] = None) -> Optional[dict]:
     """The slab under ``lv`` (over ``below``): outline = the larger of the two outer-wall outlines, stair voids over
     the stairs of the level below (not over a stair that only arrives there from ``below2_id``: ``arrival_only``), and
     the voids ``lv``'s plan draws (``void_openings``). ``under_fallback``: the level below's outline when its walls close
@@ -225,8 +241,10 @@ def _slab(lv: dict, below: Optional[dict], unions: dict, furniture: list[dict], 
     below_id = below["id"] if below else None
     own = _outline(unions.get(lv["id"]))
     under = _outline(unions.get(below_id)) if below_id else None
+    fell_back = False
     if under is None and under_fallback is not None:
         under = _outline(under_fallback)
+        fell_back = under is not None
     outline = own
     if own and under and G.polygon_area(under) > G.polygon_area(own) * 1.001:
         outline = under
@@ -244,7 +262,7 @@ def _slab(lv: dict, below: Optional[dict], unions: dict, furniture: list[dict], 
     rise = float(lv.get("elevation") or 0.0) - float(below.get("elevation") or 0.0) if below else None
     ended = []
     for f in _stairs(below_id, furniture):
-        if arrival_only(f, below2_id, lv["id"], furniture, rooms):
+        if arrival_only(f, below2_id, lv["id"], furniture, rooms, rise_below=rise_below):
             ended.append(f["id"])
             # 24 Nov 2026 (real17): the top of the stair from the level under it, drawn again on its upper plan, is
             # built once (from below); this drawing of it is not built (the same piece drawn twice)
@@ -269,8 +287,10 @@ def _slab(lv: dict, below: Optional[dict], unions: dict, furniture: list[dict], 
             openings.append(dict(o, id=f"sv_{slab_id[3:]}_{len(openings) + 1:03d}"))
     ev = list(thick.get("evidence") or [])
     ev.append(B.evidence(lv["evidence"][0]["file"] if lv.get("evidence") else "", "derived", 1.0,
-                         entity=f"outline of the outer walls of {lv['id']}" + (f" (larger {below_id} below)"
-                                                                                 if outline is under else ""),
+                         entity=f"outline of the outer walls of {lv['id']}" + (
+                             (f" (larger {below_id} below: its walls' outline, or its typical floor's, as its walls "
+                              f"close no union; inferred)" if fell_back else f" (larger {below_id} below)")
+                             if outline is under else ""),
                          region_id=lv.get("region_id"), rule="outer_wall_outline"))
     if ended:
         e = B.evidence(lv["evidence"][0]["file"] if lv.get("evidence") else "", "derived", 1.0,
@@ -278,6 +298,10 @@ def _slab(lv: dict, below: Optional[dict], unions: dict, furniture: list[dict], 
         e["reason"] = (f"the stair(s) {', '.join(ended)} of {below_id} arrive from {below2_id} and {lv['id']} draws "
                        f"rooms over them: no opening in this slab")
         ev.append(e)
+    if fell_back and outline is under:
+        for e in ev:
+            if e.get("rule") == "outer_wall_outline":
+                e["method"] = "inferred"
     return {"id": slab_id, "below_level_id": below_id, "above_level_id": lv["id"], "z_top": float(lv["elevation"]),
             "thickness": round(thickness, 3), "thickness_source": "section" if from_section else "assumed_default",
             "outline": outline, "openings": openings, "variants": [],
@@ -344,6 +368,11 @@ def slabs_block(sheets: dict, levels: list[dict], unions: dict, furniture: list[
 
     by_id_lv = {lv["id"]: lv for lv in levels}
 
+    def _rise(upper: Optional[dict], lower: Optional[dict]) -> Optional[float]:
+        if upper is None or lower is None:
+            return None
+        return float(upper.get("elevation") or 0.0) - float(lower.get("elevation") or 0.0)
+
     def fallback_outline(lv: Optional[dict]):
         """24 Nov 2026 (real10's roof terrace floor L7: its slab covered only the stair house, 30.6 of the 333 m2 of
         the typical copy L6 under it, whose walls close no union; the terrace was only L6's ceilings): the outline of a
@@ -367,7 +396,7 @@ def slabs_block(sheets: dict, levels: list[dict], unions: dict, furniture: list[
         b1 = below_of(lv)
         b2 = below_of(b1) if b1 is not None else None
         slab = _slab(lv, b1, unions, furniture, by_base.get(lv["id"]), slab_default, f"sl_{lv['id']}",
-                     rooms, voids, below2_id=b2["id"] if b2 else None,
+                     rooms, voids, below2_id=b2["id"] if b2 else None, rise_below=_rise(b1, b2),
                      under_fallback=fallback_outline(b1) if b1 is not None and _outline(unions.get(b1["id"])) is None
                      else None)
         if slab is None and outline_of is not None:
@@ -379,7 +408,8 @@ def slabs_block(sheets: dict, levels: list[dict], unions: dict, furniture: list[
                 if pts and len(pts) >= 3 and Polygon(pts).is_valid and Polygon(pts).area > 1.0:
                     fall[x["id"]] = Polygon(pts)
             slab = _slab(lv, b1, fall, furniture, by_base.get(lv["id"]), slab_default, f"sl_{lv['id']}",
-                         rooms, voids, below2_id=b2["id"] if b2 else None) if lv["id"] in fall else None
+                         rooms, voids, below2_id=b2["id"] if b2 else None, rise_below=_rise(b1, b2)) \
+                if lv["id"] in fall else None
             if slab is not None:
                 slab.update(inferred=True, status="assumed",
                             inference={"rule": "level_outline", "reason": f"no closed outer wall union on {lv['id']}: "
@@ -774,6 +804,10 @@ def roof_terrace(b: dict, sheets: dict, warn) -> Optional[dict]:
         outline = [[round(x, 4) + 0.0, round(y, 4) + 0.0] for x, y in list(main.exterior.coords)[:-1]]
     sources = {"parapet_height": "level_mark" if parapet is not None else "assumed",
                "house_height": "level_mark" if house_h is not None else "assumed"}
+    n_terr = terrace_rooms(b, top)
+    if n_terr:
+        warn(f"roof terrace {top['id']}: the terrace round the stair house is {n_terr} outdoor room(s) 'Teras' "
+             f"(balcony type, inferred: the plan titles a roof terrace floor and draws no room there)")
     if edge:
         warn(f"roof terrace {top['id']}: {edge} parapet piece(s) inferred along the terrace's open edge (the outer walls "
              f"of the floor below), {parapet if parapet is not None else ROOF_TERRACE_PARAPET_M:.2f} m high, so the "
@@ -786,6 +820,59 @@ def roof_terrace(b: dict, sheets: dict, warn) -> Optional[dict]:
     return {"level_id": top["id"], "outline": outline,
             "house_height": float(house_h) if house_h is not None else float(top["ceiling_height"]),
             "parapet_height": float(parapet if parapet is not None else ROOF_TERRACE_PARAPET_M), "sources": sources}
+
+
+TERRACE_MIN_M2 = 4.0               # 24 Nov 2026: a roof terrace's open floor this large is an outdoor room
+TERRACE_PIECE_MIN_M2 = 1.0
+
+
+def terrace_rooms(b: dict, top: dict) -> int:
+    """24 Nov 2026 (review of f706c8a1: real10's roof terrace was a bare slab with no room, so no finish): the floor
+    of a roof terrace level outside its rooms (its slab's outline less the stair house and its walls) is outdoor room(s)
+    'Teras' of the balcony type, inferred; a ring round the stair house is cut in two through the house (a room is a
+    simple outline). Returns how many rooms it added (pure apart from the building)."""
+    from shapely.geometry import LineString
+    from shapely.ops import split, unary_union
+
+    slab = next((sl for sl in b.get("slabs") or [] if sl.get("above_level_id") == top["id"] and not sl.get("variants")
+                 and len(sl.get("outline") or []) >= 3), None)
+    if slab is None:
+        return 0
+    floor = Polygon(slab["outline"]).buffer(0)
+    mine = [r for r in b.get("rooms") or [] if r.get("level_id") == top["id"] and len(r.get("polygon") or []) >= 3]
+    if any(r.get("room_type") == "balcony" for r in mine):
+        return 0
+    taken = unary_union([Polygon(r["polygon"]).buffer(0.15, join_style=2) for r in mine]) if mine else None
+    free = floor.difference(taken) if taken is not None else floor
+    if free.is_empty or free.area < TERRACE_MIN_M2:
+        return 0
+    pieces = []
+    for g in getattr(free, "geoms", [free]):
+        if g.geom_type != "Polygon":
+            continue
+        todo = [g]
+        while todo:
+            q = todo.pop()
+            if not q.interiors:
+                pieces.append(q)
+                continue
+            cx = q.interiors[0].centroid.x
+            y0, y1 = q.bounds[1] - 1.0, q.bounds[3] + 1.0
+            todo.extend(x for x in split(q, LineString([(cx, y0), (cx, y1)])).geoms if x.geom_type == "Polygon")
+    pieces = [q for q in pieces if q.area >= TERRACE_PIECE_MIN_M2]
+    ev = B.evidence(top["evidence"][0]["file"] if top.get("evidence") else "", "inferred", 0.7,
+                    entity=f"outline of slab {slab['id']} less the rooms of {top['id']}",
+                    region_id=top.get("region_id"), rule="roof_terrace_floor")
+    for k, q in enumerate(sorted(pieces, key=lambda x: -x.area)):
+        rid = f"r_{top['id']}_teras" + (f"_{k + 1}" if k else "")
+        b.setdefault("rooms", []).append({
+            "id": rid, "level_id": top["id"], "label": "Teras", "label_raw": None, "room_type": "balcony",
+            "polygon": [[round(x, 4) + 0.0, round(y, 4) + 0.0] for x, y in list(q.exterior.coords)[:-1]],
+            "area_computed": round(q.area, 3), "area_label": None, "has_documented_furniture": False,
+            "style_override": None, "status": "unverified", "evidence": [dict(ev)], "inferred": True,
+            "type_reason": "the floor of a roof terrace level outside its rooms (the plan titles a roof terrace "
+                           "floor)"})
+    return len(pieces)
 
 
 EDGE_PARAPET_MIN_M = 0.30          # an open stretch of the terrace's edge shorter than this needs no parapet piece

@@ -761,6 +761,28 @@ def _ring_pts(poly) -> list:
     return [[round(x, 4) + 0.0, round(y, 4) + 0.0] for x, y in list(p.exterior.coords)[:-1]]
 
 
+BREAK_LOOP_MIN_M = 1.5          # an inner loop of a roof plan farther in than an overhang is a slope's break line
+
+
+def convex_corner_hips(poly, lines: list, tol: float) -> int:
+    """24 Nov 2026 (review of f706c8a1): how many of ``lines`` (a, b) end at a convex corner of the eaves loop ``poly``
+    (a hip; a line ending at a reflex corner is a valley, as a T or U cross gable draws them) (pure)."""
+    from shapely.geometry.polygon import orient
+
+    ring = list(orient(poly, 1.0).exterior.coords)[:-1]
+    n = len(ring)
+    count = 0
+    for a, b in lines:
+        end = min((a, b), key=lambda q: poly.exterior.distance(Point(q)))
+        k = min(range(n), key=lambda i: math.dist(ring[i], end))
+        if math.dist(ring[k], end) > tol:
+            continue
+        (px, py), (cx, cy), (nx, ny) = ring[k - 1], ring[k], ring[(k + 1) % n]
+        if (cx - px) * (ny - cy) - (cy - py) * (nx - cx) > 0:
+            count += 1
+    return count
+
+
 def roof_plan_outline(region, cfg: dict = ROOF_PLAN) -> tuple[Optional[dict], str]:
     """The roofs a roof plan draws, in the region's own metres (``(x - x0, y - y0) * metres_per_unit`` from the
     region's geometry box corner; ``to_building.roof_outline_record`` registers them on the walls). Returns ``(record,
@@ -833,6 +855,7 @@ def roof_plan_outline(region, cfg: dict = ROOF_PLAN) -> tuple[Optional[dict], st
     pts = _ring_pts(main)
     ring = main.exterior
     tol = cfg["end_tol_m"]
+    hip_corners = convex_corner_hips(main, [(a, b) for a, b, e in roof_hips if e.id in on], tol + cfg["join_m"])
     ents = sorted({e.id for a, b, e in roof_segs if ring.distance(Point(a)) <= tol and ring.distance(Point(b)) <= tol
                    and LineString([a, b]).length > 0})
     # the wall line: the roof's lines without the hips and valleys, a loop inside at a constant offset
@@ -894,7 +917,7 @@ def roof_plan_outline(region, cfg: dict = ROOF_PLAN) -> tuple[Optional[dict], st
                                  for o in others)
     return {"region_id": region.id, "frame": {"origin_units": [x0, y0], "metres_per_unit": mpu},
             "points": pts, "area_m2": round(main.area, 3), "size_m": [round(mb[2] - mb[0], 3), round(mb[3] - mb[1], 3)],
-            "hip_lines": len(on), "layers": sorted(map(str, layers)), "entities": ents,
+            "hip_lines": len(on), "hip_corners": hip_corners, "layers": sorted(map(str, layers)), "entities": ents,
             "wall_line": _ring_pts(wall) if wall is not None else None,
             "overhang_m": round(offset, 3) if offset is not None else None, "others": others,
             "evidence": ev, "note": note}, ""
@@ -1445,19 +1468,27 @@ def exterior(top_plan, section, elevations: list, sites: list, reference_outline
             warnings.append(f"roof: the outline of the roof plan is not read: {'; '.join(reasons)}")
         po = roof.get("plan_outline") or {}
         # 24 Nov 2026 (real07: once its section's drawing frame was left out, the section gave a profile, read as a
-        # gambrel, and the roof plan's hip roof was lost): a section tells the slopes across one cut, never hip from
-        # gable, and a gambrel needs its break line on the plan; the roof plan's hip and valley lines outrank any
-        # section-only type
-        if roof.get("type") in ("flat", "gable", "gambrel") and roof.get("type_source") == "section" \
-                and (po.get("hip_lines") or 0) >= 2:
+        # gambrel, and the roof plan's hip roof was lost; review of f706c8a1: valleys of a T or U cross gable and a
+        # mansard's hips are no hip roof): a section tells the slopes across one cut, never hip from gable; the roof
+        # plan's hips at two or more convex corners of its eaves loop outrank a section-only flat or gable, and a
+        # gambrel when the plan draws no break loop (no break line on the top plan, the inner loop no farther in than
+        # an overhang)
+        conv = po.get("hip_corners")
+        conv = (po.get("hip_lines") or 0) if conv is None else conv
+        broken = bool((plan_roof or {}).get("break_line")) or \
+            float(po.get("overhang_m") or 0.0) > BREAK_LOOP_MIN_M
+        st = roof.get("type")
+        if roof.get("type_source") == "section" and conv >= 2 and (st in ("flat", "gable")
+                                                                   or (st == "gambrel" and not broken)):
             # 4 Nov 2026 (real07, user: "also why didn't you use this to model the roof"): the roof plan draws hip and
             # valley lines; a section with no roof profile (read as flat) does not outrank it: a hip roof
             was = roof.get("type")
+            kept = [a for a in roof.get("assumed") or [] if "choice across the section" not in str(a)]
             roof = dict(roof, type="hip", type_source="roof_plan",
                         evidence=list(roof.get("evidence") or []) + list(po.get("evidence") or []),
-                        note=f"the roof plan {po.get('region_id')} draws {po['hip_lines']} hip or valley lines: a hip "
-                             f"roof (the section alone read {was})",
-                        assumed=list(roof.get("assumed") or []) + ["pitch (the roof plan gives no slope)"])
+                        note=f"the roof plan {po.get('region_id')} draws hips at {conv} convex corners of its eaves "
+                             f"loop: a hip roof (the section alone read {was})",
+                        assumed=kept + ["pitch (the roof plan gives no slope)"])
             warnings.append(f"roof: the roof plan draws {po['hip_lines']} hip or valley lines: a hip roof, not the "
                             f"section's {was} reading")
     out["roof"] = roof

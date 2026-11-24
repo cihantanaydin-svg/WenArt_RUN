@@ -2843,6 +2843,10 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
     from wenart.blender import stair_access as SA
     for rec in SA.read_across_levels(b):
         build.warn(f"stair {rec['stair']}: {rec['reason']}")
+    # 24 Nov 2026 (render audit; review of f706c8a1): rooms labelled with an unknown abbreviation before ODASI are
+    # bedrooms only in a flat's context (``building.abbreviated_room_types``), each listed
+    for line in B.abbreviated_room_types(b):
+        build.warn(line)
     slab_default = float(BR.value(BR.load_brief(project_dir), "slab_thickness", 0.20))
     from wenart.levels import model as LMO        # 20 Nov 2026 (R03-02): the walls' outline when no union closes
     b["slabs"] = TB.slabs_block(sheets, b["levels"], build.unions, b["furniture"], slab_default, build.warn,

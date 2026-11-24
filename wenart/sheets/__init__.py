@@ -41,6 +41,9 @@ TITLE_STOREY_M = (2.0, 6.0)          # 19 Nov 2026 (review A3, A3C-6): the plans
 #                                      (``levels.model.STOREY_MIN_M`` / ``STOREY_MAX_M``)
 
 
+TITLE_SECTION_TOL_M = 0.10        # 24 Nov 2026: a section's ground-floor mark this far off the plans' title disagrees
+
+
 def title_storey_gaps(title_el: dict) -> list:
     """19 Nov 2026 (review A3, A3C-6): the storeys the plans' title floors (storey order -> elevation) put out of a
     storey's height, ``[(order a, order b, metres a storey)]`` for every neighbour pair outside ``TITLE_STOREY_M``
@@ -289,7 +292,7 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
     # real10 (1 Nov 2026): the storeys the sections name tell how many floors a typical floor plan stands for.
     storeys = LV.storey_words([r for r in regions if r.cls == "section" and r.use == "heights"])
     # 3 Nov 2026 (real09): the storeys' floor elevations on the sections place the plans titled by an elevation
-    storey_el = LV.storey_elevations([r for r in regions if r.cls == "section"])
+    storey_el = LV.storey_elevations([r for r in regions if r.cls == "section"], warnings)
     # 3 Nov 2026: the user's levels of the plans the drawing gives no level title (the brief's plan_levels)
     LV.assign_levels(plans, needs_review, warnings, storeys, storey_el, user_levels=values.get("plan_levels") or [])
     # 6 Nov 2026 (real21, user: "all floors needs to be done"): the storeys the documents do not draw, counted by the
@@ -351,6 +354,8 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
         hw += HT.apply_storey_marks(heights_json, base_levels, storey_el, float(values.get("slab_thickness", 0.20)),
                                     sections[0].file if sections else None, sections[0].id if sections else None)
     heights_json.pop("_mark_frame", None)
+    heights_json.pop("_bands", None)
+    hw += HT.high_ground(heights_json, base_levels)
     bad = HT.implausible(heights_json, base_levels)
     if bad:
         # 4 Nov 2026 (real07): heights no storey can have are not used; the floors take the assumed defaults
@@ -382,6 +387,20 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
             f"{TITLE_STOREY_M[1]:.1f} m above the one below): the floors keep the assumed heights")
         hw.append(line)
         warnings.append(line)
+    # 24 Nov 2026 (review of f706c8a1, real13: once the section's bands were matched by height its storey marks were no
+    # longer 'no storeys', and their ground floor +3.70 stood 1.20 m off the plans' titles '+2.50 KOTU' and the ground
+    # floor's own floor mark): the floor elevations the plans' titles print outrank a section's storey marks whose
+    # ground floor disagrees with them (the plan's own statement)
+    marks_disagree = bool(storey_el) and 0 in storey_el and 0 in title_el and \
+        abs(float(storey_el[0]) - float(title_el[0])) > TITLE_SECTION_TOL_M
+    if marks_disagree and 0 in title_el and len(title_el) >= 2 and not odd:
+        hw.append(f"the section's storey marks put the ground floor at {float(storey_el[0]):+.2f}, the plans' titles at "
+                  f"{float(title_el[0]):+.2f}: the titles win")
+        heights_json["levels"], heights_json["slabs"] = [], []
+        HT._assumed_levels(heights_json, base_levels, float(values.get("ceiling_height", 2.70)),
+                           float(values.get("slab_thickness", 0.20)), "the section's storey marks disagree with the "
+                                                                      "plans' titles")
+        floors_assumed = True
     if floors_assumed and 0 in title_el and len(title_el) >= 2 and not odd:
         old_datum = heights_json.get("datum")
         heights_json["datum"] = None

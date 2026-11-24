@@ -271,8 +271,9 @@ def _report_covers(level_id: str, z: float, box=None) -> list:
 # cut again by a plane (its own section only), anything else is hidden for the view; each is printed (TOPDOWN_COVER)
 # so the log names it.
 COVER_RISE_M = 0.3
-COVER_KEEP_KINDS = {"floor", "furniture", "decor", "stair", "railing", "light", "camera", "fixture", "built_in",
-                    "splashback", "wall_plate", "opening"}
+# the kinds the build gives objects that may stand over the floor in a room (furniture holds the stairs too)
+COVER_KEEP_KINDS = {"floor", "furniture", "furniture_proxy", "decor", "railing", "light", "camera", "splashback",
+                    "wall_plate", "opening"}
 
 
 def _plan_contains(poly, x: float, y: float) -> bool:
@@ -314,24 +315,76 @@ def covers(held: set) -> bool:
     return len({k // 3 for k in held}) >= 2 and len({k % 3 for k in held}) >= 2
 
 
+def nominal_elevation(level_id: str, elevation: float) -> float:
+    """The level's own floor height: the top of its slab (a sunken room's floor lies lower), else ``elevation``."""
+    import bpy
+
+    col = bpy.data.collections.get(f"level_{level_id}")
+    tops = [bbox(o)[1][2] for o in (col.all_objects if col else []) if o.type == "MESH"
+            and str(o.get("wenart_kind")) == "slab"]
+    return max(tops) if tops else elevation
+
+
+def drop_covering_faces(o, dg, nominal: float, samples) -> bool:
+    """A site surface keeps everything but its faces that cover the level (a copy of its evaluated mesh, given back by
+    ``restore_meshes``); False when the object carries other modifiers (then it is hidden instead)."""
+    import bmesh
+    import bpy
+
+    if any(m.name not in ("topdown_section", "topdown_footprint") for m in o.modifiers):
+        return False
+    ev = o.evaluated_get(dg)
+    me = bpy.data.meshes.new_from_object(ev)
+    me.name = f"topdown_drop_{o.name}"
+    mw = o.matrix_world
+    rot = mw.to_3x3()
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    kill = []
+    for f in bm.faces:
+        if (rot @ f.normal).z <= 0.5:
+            continue
+        pts = [mw @ v.co for v in f.verts]
+        if min(q.z for q in pts) < nominal + COVER_RISE_M:
+            continue
+        poly = [(q.x, q.y) for q in pts]
+        if any(_plan_contains(poly, sx, sy) for sx, sy in samples):
+            kill.append(f)
+    if kill:
+        bmesh.ops.delete(bm, geom=kill, context="FACES")
+    bm.to_mesh(me)
+    bm.free()
+    if "topdown_orig_mesh" not in o:
+        o["topdown_orig_mesh"] = o.data.name
+    for m in list(o.modifiers):
+        o.modifiers.remove(m)
+    o.data = me
+    return True
+
+
 def hide_covers(level_id: str, elevation: float, wall_cut: float, box) -> list:
-    """The covers of the level's view (the comment above): cut again or hidden; returns their names."""
+    """The covers of the level's view (the comment above): cut again, stripped of the covering faces or hidden; the
+    level's own slab never counts and the height is measured from the level's own floor (``nominal_elevation``);
+    returns their names."""
     import bpy
 
     x0, y0, x1, y1 = box
     samples = [(x0 + (x1 - x0) * fx, y0 + (y1 - y0) * fy) for fx in (1 / 6, 0.5, 5 / 6) for fy in (1 / 6, 0.5, 5 / 6)]
+    nominal = nominal_elevation(level_id, elevation)
+    col = bpy.data.collections.get(f"level_{level_id}")
+    own = {o.name for o in (col.all_objects if col else []) if str(o.get("wenart_kind")) == "slab"}
     dg = bpy.context.evaluated_depsgraph_get()
     found = []
     for o in bpy.data.objects:
-        if o.type != "MESH" or o.hide_render or o.name.startswith("topdown_"):
+        if o.type != "MESH" or o.hide_render or o.name.startswith("topdown_") or o.name in own:
             continue
         kind = str(o.get("wenart_kind"))
         if kind in COVER_KEEP_KINDS:
             continue
         lo, hi = bbox(o)
-        if hi[0] < x0 or lo[0] > x1 or hi[1] < y0 or lo[1] > y1 or hi[2] < elevation + COVER_RISE_M:
+        if hi[0] < x0 or lo[0] > x1 or hi[1] < y0 or lo[1] > y1 or hi[2] < nominal + COVER_RISE_M:
             continue
-        if not covers(covering_faces(o, dg, elevation, samples)):
+        if not covers(covering_faces(o, dg, nominal, samples)):
             continue
         if kind in CUT_KINDS:
             # a wall, door or window is never hidden: cut again by a plane, it keeps its own section only
@@ -339,11 +392,13 @@ def hide_covers(level_id: str, elevation: float, wall_cut: float, box) -> list:
             if m is not None:
                 o.modifiers.remove(m)
             bisect_top(o, wall_cut)
-            dg = bpy.context.evaluated_depsgraph_get()
             what = "cut again by a plane (its own section only)"
+        elif kind in SITE_CUT_KINDS and drop_covering_faces(o, dg, nominal, samples):
+            what = "its faces over the level removed (the rest of it kept)"
         else:
             o.hide_render = True
             what = "hidden"
+        dg = bpy.context.evaluated_depsgraph_get()
         print(f"TOPDOWN_COVER {level_id}: '{o.name}' (kind {kind}) covered the level's footprint above its floor: "
               f"{what}")
         found.append(o.name)
