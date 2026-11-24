@@ -1,7 +1,7 @@
 {
  "_note": "What the user asked and corrected while this project was built, each turned into a general lesson the architect applies to every project (wenart/blender/architect_lessons.py; user request of 25 Oct 2026: 'the architect should ask the questions and corrections I was asking all along the build; use AI to understand what I was asking and keep developing with the future requests'). checks: the architect rules that check it on every build (architect.ORDER ids) or 'build' (the build does it by itself); status: rule (a rule checks it), built (code does it), open (no automatic check yet: the AI architect looks for it on every run and it is the next rule to write), process (how we work). Add a new request with: python -m wenart.agent.lessons add \"<the request>\"",
  "version": 1,
- "updated": "2026-11-23",
+ "updated": "2026-11-24",
  "lessons": [
   {
    "id": "UL01",
@@ -4407,6 +4407,26 @@
    "checks": [],
    "request": "23 Nov 2026 (narrow door round, from the user's C0098 on real15 L0, UL372; a general rule for every project): whether an opening is in the building's outline is judged on the final outline, never on walls read before it closes. The reader marks an empty gap 'possible undrawn door or window (empty gap in an exterior wall)' from the walls it has read so far, where a facade still open lets the outside into the rooms (the bench: 63 of 100 such notes on walls the final outline calls interior); once the walls and their flags are final the note follows the outline at the gap (rooms on both sides: an inner wall's gap; a room and the open air: the exterior note). A wall's exterior flag read before the outline is final never keeps an open passage shut where a room lies on both sides of the gap (real15 L0's kitchen | salon pass, 2.22 m).",
    "lesson": "23 Nov 2026 (narrow door round, from the user's C0098 on real15 L0, UL372; a general rule for every project): whether an opening is in the building's outline is judged on the final outline, never on walls read before it closes. The reader marks an empty gap 'possible undrawn door or window (empty gap in an exterior wall)' from the walls it has read so far, where a facade still open lets the outside into the rooms (the bench: 63 of 100 such notes on walls the final outline calls interior); once the walls and their flags are final the note follows the outline at the gap (rooms on both sides: an inner wall's gap; a room and the open air: the exterior note). A wall's exterior flag read before the outline is final never keeps an open passage shut where a room lies on both sides of the gap (real15 L0's kitchen | salon pass, 2.22 m).",
+   "question": null
+  },
+  {
+   "id": "UL380",
+   "date": "2026-11-24",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "24 Nov 2026, the user on real15 L0 d_L0_013 (answer 'Not a door: wall' to: a 0.55 m sliding door read from one loose rectangle on the furniture layer, between a chimney box and the end of a wardrobe row): a single loose rectangle on a furniture layer at the end of a wardrobe run is a wardrobe panel or detail, never a sliding door leaf; the wall runs on. Rule for every project: a sliding leaf needs door evidence (a door layer or block, a door-high tag, two leaves or a track), not one furniture-layer rectangle beside furniture.",
+   "lesson": "24 Nov 2026, the user on real15 L0 d_L0_013 (answer 'Not a door: wall' to: a 0.55 m sliding door read from one loose rectangle on the furniture layer, between a chimney box and the end of a wardrobe row): a single loose rectangle on a furniture layer at the end of a wardrobe run is a wardrobe panel or detail, never a sliding door leaf; the wall runs on. Rule for every project: a sliding leaf needs door evidence (a door layer or block, a door-high tag, two leaves or a track), not one furniture-layer rectangle beside furniture.",
+   "question": null
+  },
+  {
+   "id": "UL381",
+   "date": "2026-11-24",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "24 Nov 2026, the user (asked whether the reader should read steps with only 2-3 risers and flights narrower than 0.60 m): 'Read short steps, not narrow'. Steps of 2-3 risers (entrance steps, a split-level step) are read as steps: they matter for floor levels and the 3D build. Flights under 0.60 m wide stay unread unless the drawing names them a stair.",
+   "lesson": "24 Nov 2026, the user (asked whether the reader should read steps with only 2-3 risers and flights narrower than 0.60 m): 'Read short steps, not narrow'. Steps of 2-3 risers (entrance steps, a split-level step) are read as steps: they matter for floor levels and the 3D build. Flights under 0.60 m wide stay unread unless the drawing names them a stair.",
    "question": null
   }
  ]

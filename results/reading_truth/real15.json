@@ -20,7 +20,35 @@
  "per_level": {
   "L0": {
    "rooms": [],
-   "doors": [],
+   "doors": [
+    {
+     "id": "u_C0099_1",
+     "type": "door",
+     "center": [
+      9.999,
+      5.175
+     ],
+     "source": "user_correction",
+     "confidence": null,
+     "method": "user",
+     "correction": "C0099",
+     "frame": {
+      "file": "real15.dwg",
+      "page": 1,
+      "region": "r1",
+      "center": [
+       781680.1,
+       4160598.7
+      ]
+     },
+     "reader_id": "d_L0_013",
+     "corrections": [
+      "C0099"
+     ],
+     "absent": true,
+     "removed_on": "2026-11-24"
+    }
+   ],
    "windows": [],
    "openings": [
     {
@@ -93,7 +121,8 @@
  "project_assertions": [],
  "corrections": [
   "C0097",
-  "C0098"
+  "C0098",
+  "C0099"
  ],
  "not_measurable": [],
  "built_from": {
@@ -101,7 +130,8 @@
   "reading_commit": null,
   "records": [
    "C0097",
-   "C0098"
+   "C0098",
+   "C0099"
   ],
   "asserted": []
  },
@@ -130,6 +160,18 @@
      15.775
     ],
     "state": "asserted"
+   },
+   {
+    "record": "C0099",
+    "n": 1,
+    "op": "remove",
+    "kind": "door",
+    "level": "L0",
+    "place": [
+     9.999,
+     5.175
+    ],
+    "state": "negated"
    }
   ],
   "unmatched": [],
