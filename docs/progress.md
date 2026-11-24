@@ -4995,3 +4995,18 @@ convention, crop `lift_doors_convention.png`), and b2383 (90.43 -> 90.40, explai
 **Real projects against base-commit readings** (read in this round): real02, real12, real16 and real18 are identical to the base commit (every wall, opening and room in place within 2 cm); real14 is identical on all 18 floors but L7b and L7d (the box rule on its two flue boxes, as in round 2b; the hole rule's drops on its plaster layer SIVA change no wall). The other real changes are those of round 2 (real15 C0099 and a 0.13 m2 triangle, real10 L7, real19 L2's crossed shaft box).
 
 **Tests:** CPU 590 passed (the new file 25; the touched modules' files), stair and shell files 64 passed (4 skipped).
+
+### Sealed test set, second checkpoint (24 Nov 2026; after the narrow-door round and walls round 2/2b/2c; totals only)
+
+| | bench before (narrow) | bench after (walls2c) | sealed before (239337e1) | sealed after (df329b61) |
+|---|---|---|---|---|
+| mean | 75.16 | 76.22 (+1.06) | 74.77 | 75.42 (+0.65) |
+| walls F1 | 0.723 | 0.747 (+0.024) | 0.671 | 0.686 (+0.015) |
+| doors F1 | 0.814 | 0.815 (+0.001) | 0.761 | 0.765 (+0.004) |
+| windows F1 | 0.757 | 0.773 (+0.016) | 0.719 | 0.727 (+0.008) |
+| rooms F1 | 0.755 | 0.772 (+0.017) | 0.706 | 0.721 (+0.015) |
+| stairs F1 | 0.714 | 0.759 (+0.044) | 0.744 | 0.763 (+0.019) |
+
+Sealed: 52 buildings rise, 3 fall (largest -2.45). Reading: the gains carry to unseen buildings at about 60-90 % of
+the bench gain per kind (rooms and walls best): general, with some fit to the bench; the sealed falls are recorded,
+not shown to agents.
