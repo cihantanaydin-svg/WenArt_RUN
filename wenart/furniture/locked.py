@@ -318,7 +318,14 @@ def inferred_swap(src: dict, fin: dict, adj: dict) -> bool:
     source typed by inference (its type, not the drawing's: real06's f_L0_010 was drawn ``unknown`` and typed
     bathtub as the room's missing member), the new type its member's other type, the drawn type kept and a code
     record (now or under ``previous``) of a type change."""
-    if not src.get("inferred") or fin.get("type") not in INFERRED_FIXED_SWAPS.get(str(src.get("type")), ()) \
+    # 24 Nov 2026 (structure pod gmqln9ca1jiug3, real17): ``infer.bath_or_shower`` swaps every bathtub the drawing
+    # does not name (``_bath_named``: no block, label or text), also one the vision models typed (``ai_two_pass``), so
+    # this check accepts the same sources; before, it accepted only ``inferred`` ones, refused real17's two showers
+    # and the layout wrote no building (two rules with two criteria for one decision).
+    from wenart.furniture import infer as INF
+
+    if not (src.get("inferred") or not INF._bath_named(src)) \
+            or fin.get("type") not in INFERRED_FIXED_SWAPS.get(str(src.get("type")), ()) \
             or fin.get("drawn_type") != drawn_value(src, "type"):
         return False
     records = [adj] + [r for r in adj.get("previous") or [] if isinstance(r, dict)]
