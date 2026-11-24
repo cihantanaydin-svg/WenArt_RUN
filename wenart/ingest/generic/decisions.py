@@ -61,6 +61,8 @@ RULE_CONFIDENCE: dict[str, float] = {
     "open_wide": 0.90,             # a gap over GAP_MAX_M: two walls, topology decides
     "open_lined": 0.80,            # a thinner wall runs along one face: columns on that wall, not one wall with gaps
     "open_split": 0.70,            # a split run gap whose part holds no symbol: two walls on one line (real02)
+    "open_box_fronts": 0.70,       # 24 Nov 2026: an empty gap between the fronts of two small boxes (ducts, shafts)
+                                   # closed behind or ending with them: two walls on one line (openings.box_fronts_gap)
     "doorless": 0.50,              # nothing in the band and no door-like arc: a passage, or an undrawn door or window
     "unclassified": 0.20,          # strokes in the band that no rule reads: the weakest answer of the cascade
     "end_gap_open": 0.60,          # an end gap with no door or window drawn makes no element: the free end stays free
@@ -70,6 +72,8 @@ RULE_CONFIDENCE: dict[str, float] = {
     "tread_run": 0.90,             # four or more parallel lines at an even tread pitch: a stair, slats or a hatch
     "wide_band": 0.80,             # three or more short strokes side by side wider than any wall: rails, a newel
     "flight": 0.80,                # a band crossed by three or more treads at an even pitch: a stair flight
+    "hole": 0.85,                  # 24 Nov 2026: a band inside a hole of the layer's even-odd fill of its closed outlines
+                                   # (a cavity, a duct, a shaft): no wall material (walls.drop_hole_pairs)
     "stair_edge": 0.75,            # 22 Nov 2026 (C0053): a thin band at whose one face a flight's treads end, as long
                                    # as the flight: its open side (stringer and balustrade)
     "stair_edge_part": 0.70,       # 22 Nov 2026 (S2): the part of a longer thin piece along a flight whose treads end at
@@ -429,6 +433,8 @@ def caller_rule(g) -> Optional[str]:
         return "closed_inside_wall"
     if found.get("lining"):
         return "open_lined"
+    if found.get("box_fronts"):
+        return "open_box_fronts"
     if found.get("split_reason"):
         return "open_split"
     if g.kind == "end" and g.cls in ("empty", "unclassified"):

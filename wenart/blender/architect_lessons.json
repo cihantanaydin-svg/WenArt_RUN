@@ -4428,6 +4428,46 @@
    "request": "24 Nov 2026, the user (asked whether the reader should read steps with only 2-3 risers and flights narrower than 0.60 m): 'Read short steps, not narrow'. Steps of 2-3 risers (entrance steps, a split-level step) are read as steps: they matter for floor levels and the 3D build. Flights under 0.60 m wide stay unread unless the drawing names them a stair.",
    "lesson": "24 Nov 2026, the user (asked whether the reader should read steps with only 2-3 risers and flights narrower than 0.60 m): 'Read short steps, not narrow'. Steps of 2-3 risers (entrance steps, a split-level step) are read as steps: they matter for floor levels and the 3D build. Flights under 0.60 m wide stay unread unless the drawing names them a stair.",
    "question": null
+  },
+  {
+   "id": "UL382",
+   "date": "2026-11-24",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "24 Nov 2026 (walls round 2, dataset bench: a duct box of thin walls beside a wall and the empty cavity between two thin bathroom leaves read as one wall 0.4-0.8 m thick, swiss-b465, swiss-b2383): a drawing that draws its walls as closed outlines says by its even-odd fill where the material is. A face-line pair inside a hole of the walls' outline (inside two of the layer's rings), or in no ring with the walls' material just beyond both faces in thin rings and running along them, is a cavity, a duct or a shaft, never a wall; a column filling it stays material, loose face lines and rooms drawn as rings are not judged. An unlabelled face under 0.5 m2 that no door, window or opening reaches is a duct, never a room. Rule for every drawing source.",
+   "lesson": "24 Nov 2026 (walls round 2, dataset bench: a duct box of thin walls beside a wall and the empty cavity between two thin bathroom leaves read as one wall 0.4-0.8 m thick, swiss-b465, swiss-b2383): a drawing that draws its walls as closed outlines says by its even-odd fill where the material is. A face-line pair inside a hole of the walls' outline (inside two of the layer's rings), or in no ring with the walls' material just beyond both faces in thin rings and running along them, is a cavity, a duct or a shaft, never a wall; a column filling it stays material, loose face lines and rooms drawn as rings are not judged. An unlabelled face under 0.5 m2 that no door, window or opening reaches is a duct, never a room. Rule for every drawing source.",
+   "question": null
+  },
+  {
+   "id": "UL383",
+   "date": "2026-11-24",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "24 Nov 2026 (walls round 2, dataset bench: swiss-b1415's ground and second floor plans not read: each plan's overall dimension line and its title's underline, a little farther below the plan than the clustering gap, made a region of their own that took the title, and the plan itself was left out as a plan without a level title): a strip of at most three straight lines or dimensions, thin, next to a drawing is a part of that drawing (its dimension chain, its title's underline), never a drawing of its own. A plan drawn in two wings farther apart than the gap (swiss-b17105 L1) is still split: open.",
+   "lesson": "24 Nov 2026 (walls round 2, dataset bench: swiss-b1415's ground and second floor plans not read: each plan's overall dimension line and its title's underline, a little farther below the plan than the clustering gap, made a region of their own that took the title, and the plan itself was left out as a plan without a level title): a strip of at most three straight lines or dimensions, thin, next to a drawing is a part of that drawing (its dimension chain, its title's underline), never a drawing of its own. A plan drawn in two wings farther apart than the gap (swiss-b17105 L1) is still split: open.",
+   "question": null
+  },
+  {
+   "id": "UL384",
+   "date": "2026-11-24",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "24 Nov 2026 (walls round 2b, coordinator: no bench project may fall from a real error): (1) an empty gap (nothing drawn in it) between two wall pieces that are each the front of a small closed box (a duct or shaft 0.15-0.80 m deep, front 0.40-2.0 m, at most 1 m2 inside) is no opening: the two fronts are two walls on one line, never one wall with a window or door (swiss-b1737: a corridor's end between two duct boxes became a window). A drawn window or door, a pier, a wall with free ends, a room deeper than a duct are not judged. (2) a strip between two wall pieces that holds a room's label within 0.30 m (a balcony behind its parapet, swiss-b1479) is a named space, not a cavity: the hole rule leaves it as read, so its opening never joins the rooms beside it.",
+   "lesson": "24 Nov 2026 (walls round 2b, coordinator: no bench project may fall from a real error): (1) an empty gap (nothing drawn in it) between two wall pieces that are each the front of a small closed box (a duct or shaft 0.15-0.80 m deep, front 0.40-2.0 m, at most 1 m2 inside) is no opening: the two fronts are two walls on one line, never one wall with a window or door (swiss-b1737: a corridor's end between two duct boxes became a window). A drawn window or door, a pier, a wall with free ends, a room deeper than a duct are not judged. (2) a strip between two wall pieces that holds a room's label within 0.30 m (a balcony behind its parapet, swiss-b1479) is a named space, not a cavity: the hole rule leaves it as read, so its opening never joins the rooms beside it.",
+   "question": null
+  },
+  {
+   "id": "UL385",
+   "date": "2026-11-24",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "24 Nov 2026 (walls round 2c, the independent review of rounds 2/2b): (1) short steps (2-3 risers) are built as a short run, never as a storey's stair: rise = risers x a normal riser (0.17 m), no ceiling void, no shaft, and the evidence names them short steps. (2) the even-odd hole rule judges a band only on a layer whose closed outlines are apart or nested, at several points along it, with nothing of any layer drawn inside it, beside wall leaves (material out to 6 cm, ending within 0.52 m), never beside a room's or a shaft's outline; the wall across a dropped duct's end runs on over the duct's leaves, so it stays whole and a door beside it keeps its jamb. (3) an empty gap between two duct fronts is no opening only when the space behind it is closed by the wall behind the boxes or ends with them, never on a facade.",
+   "lesson": "24 Nov 2026 (walls round 2c, the independent review of rounds 2/2b): (1) short steps (2-3 risers) are built as a short run, never as a storey's stair: rise = risers x a normal riser (0.17 m), no ceiling void, no shaft, and the evidence names them short steps. (2) the even-odd hole rule judges a band only on a layer whose closed outlines are apart or nested, at several points along it, with nothing of any layer drawn inside it, beside wall leaves (material out to 6 cm, ending within 0.52 m), never beside a room's or a shaft's outline; the wall across a dropped duct's end runs on over the duct's leaves, so it stays whole and a door beside it keeps its jamb. (3) an empty gap between two duct fronts is no opening only when the space behind it is closed by the wall behind the boxes or ends with them, never on a facade.",
+   "question": null
   }
  ]
 }

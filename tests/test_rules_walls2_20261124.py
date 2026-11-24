@@ -1,0 +1,406 @@
+"""24 Nov 2026, walls round 2, C0099 and short steps (lessons UL380, UL381, UL382-UL384): the rules and their
+must-not-fire cases.
+
+- ``walls.drop_hole_pairs`` (UL382): a face-line pair whose band lies in a hole of its layer's even-odd fill of closed
+  outlines (a duct box beside a wall, the cavity between two thin leaves) is no wall piece; a band in one ring (a
+  wall's own outline) or in none (loose face lines), or a hole a column fills, is not judged.
+- ``topology.unlabelled_face_type`` (UL382): an unlabelled face under 0.5 m2 that no opening reaches is a duct
+  (``VOID``), never a room; a small closet with a door stays.
+- ``split._line_strip`` (UL383): a plan's overall dimension line and its title's underline, a little farther below it
+  than the clustering gap, are a strip of that plan, never a drawing of their own.
+- ``openings.lone_furniture_leaf`` (UL380, the user's C0099 on real15 L0): one loose closed shape on a furniture
+  layer is no sliding leaf without door evidence (a door layer or block, a second leaf, a track, a door-high tag).
+- ``symbols.short_steps`` (UL381): 2-3 risers on the stair layer with a stair's mark are steps; a narrower run, a
+  threshold pair, a run with stray lines, unmarked lines are not.
+"""
+from __future__ import annotations
+
+import math
+
+from shapely.geometry import LineString
+
+from wenart.ingest.generic import openings as O
+from wenart.ingest.generic import symbols as SY
+from wenart.ingest.generic import topology as TP
+from wenart.ingest.generic import walls as W
+from wenart.ingest.generic.model import GenericPage, Stroke
+from wenart.ingest.model import OpeningItem, WallItem
+from wenart.sheets import split as SP
+
+
+# --- helpers ---------------------------------------------------------------------------------------------------------
+
+def _poly(sid, pts, layer="DUVAR", fill=None, kind="polyline"):
+    return Stroke(sid, kind, list(pts) + [pts[0]], closed=True, layer=layer, fill=fill)
+
+
+def _box(sid, x0, y0, x1, y1, layer="DUVAR", fill=None):
+    return _poly(sid, [(x0, y0), (x1, y0), (x1, y1), (x0, y1)], layer, fill)
+
+
+def _page(strokes):
+    return GenericPage(file="t.dxf", page=1, source_kind="vector", units="dxf", units_to_m=1.0, size=(20.0, 20.0),
+                       strokes=list(strokes), texts=[])
+
+
+def _pairs(page, layer="DUVAR"):
+    pieces = W._straight_pieces(page, 1.0)[layer]
+    out = []
+    for u, n, group in W._direction_groups(pieces):
+        out.extend(W._pairs_of(W._merge_lines(group, u, n), layer, u, n))
+    return out
+
+
+# --- UL382: a hole of the wall material is no wall ------------------------------------------------------------------
+
+def _duct_page(column=False, hatch_twice=False):
+    """A wall body drawn as closed outlines (bench style): a 4 x 0.6 m block whose inside holds a 3 x 0.2 m duct (the
+    hole ring), i.e. a 0.2 m wall at y 0-0.2, the duct at 0.2-0.4, a 0.2 m wall at 0.4-0.6."""
+    s = [_box("ext", 0.0, 0.0, 4.0, 0.6), _box("hole", 0.5, 0.2, 3.5, 0.4)]
+    if hatch_twice:                       # the hatch's boundary paths over the same rings, on the same layer
+        s += [_box("HATCH:1#0", 0.0, 0.0, 4.0, 0.6), _box("HATCH:1#1", 0.5, 0.2, 3.5, 0.4)]
+    if column:
+        s.append(_box("col", 0.5, 0.2, 3.5, 0.4, layer="KOLON", fill=(0.2, 0.2, 0.2)))
+    return _page(s)
+
+
+def test_a_duct_box_inside_the_wall_outline_is_no_wall_piece():
+    page = _duct_page()
+    rings, solids = W.layer_rings(page, 1.0)
+    pairs = [p for p in _pairs(page) if p.width < 0.3 and abs(p.u[0]) > 0.9]
+    kept, dropped = W.drop_hole_pairs(pairs, rings["DUVAR"], solids)
+    assert len(dropped) == 1 and abs(dropped[0].width - 0.2) < 1e-6
+    mid = dropped[0].polygon().centroid
+    assert 0.2 < mid.y < 0.4                                  # the duct's band
+    assert all(not (0.2 < p.polygon().centroid.y < 0.4) for p in kept)
+    assert any(p.polygon().centroid.y < 0.2 for p in kept) and any(p.polygon().centroid.y > 0.4 for p in kept)
+
+
+def test_the_same_ring_drawn_twice_counts_once():
+    page = _duct_page(hatch_twice=True)
+    rings, solids = W.layer_rings(page, 1.0)
+    assert len(rings["DUVAR"]) == 2
+    pairs = [p for p in _pairs(page) if p.width < 0.3 and abs(p.u[0]) > 0.9]
+    assert len(W.drop_hole_pairs(pairs, rings["DUVAR"], solids)[1]) == 1
+
+
+def test_must_not_fire_a_column_in_the_hole_a_walls_own_outline_loose_lines():
+    page = _duct_page(column=True)                            # a filled column fills the 'hole': material
+    rings, solids = W.layer_rings(page, 1.0)
+    pairs = [p for p in _pairs(page) if p.width < 0.3 and abs(p.u[0]) > 0.9]
+    assert W.drop_hole_pairs(pairs, rings["DUVAR"], solids)[1] == []
+    # one wall drawn as its own closed outline: inside one ring, material
+    page = _page([_box("w", 0.0, 0.0, 4.0, 0.2)])
+    rings, solids = W.layer_rings(page, 1.0)
+    pairs = _pairs(page)
+    assert pairs and W.drop_hole_pairs(pairs, rings["DUVAR"], solids)[1] == []
+    # faces drawn as loose lines (no rings): nothing is judged
+    lines = [Stroke(f"l{k}", "line", [(0.0, y), (4.0, y)], layer="DUVAR") for k, y in enumerate((0.0, 0.2, 0.4, 0.6))]
+    page = _page(lines)
+    rings, solids = W.layer_rings(page, 1.0)
+    assert "DUVAR" not in rings
+    assert W.drop_hole_pairs(_pairs(page), rings.get("DUVAR") or [], solids)[1] == []
+
+
+def test_the_cavity_between_two_separate_leaf_outlines_is_no_wall_piece():
+    # swiss-b465 L1: two 0.095 m leaves, each its own closed outline (the outline cut at the doors), 0.215 m apart
+    page = _page([_box("a", 0.0, 0.0, 0.095, 3.0), _box("b", 0.31, 0.0, 0.405, 3.0)])
+    rings, solids = W.layer_rings(page, 1.0)
+    pairs = [p for p in _pairs(page) if abs(p.u[1]) > 0.9]
+    kept, dropped = W.drop_hole_pairs(pairs, rings["DUVAR"], solids)
+    assert [round(p.width, 3) for p in dropped] == [0.215]
+    assert sorted(round(p.width, 3) for p in kept) == [0.095, 0.095]
+
+
+def test_must_not_fire_a_partition_between_two_rooms_drawn_as_rings():
+    # each room drawn as the closed ring of its inner faces, no building ring: the 0.2 m partition lies in no ring,
+    # but the rings beyond its faces are rooms (wider than any wall), so it stays a wall piece
+    page = _page([_box("r1", 0.0, 0.0, 3.0, 4.0), _box("r2", 3.2, 0.0, 6.0, 4.0)])
+    rings, solids = W.layer_rings(page, 1.0)
+    pairs = [p for p in _pairs(page) if abs(p.width - 0.2) < 1e-6]
+    assert pairs and W.drop_hole_pairs(pairs, rings["DUVAR"], solids)[1] == []
+
+
+def test_a_room_drawn_as_a_ring_inside_the_building_ring_keeps_its_walls():
+    # building outline 6 x 4, one room ring inside it (0.2 m walls): every wall band is inside one ring only
+    page = _page([_box("out", 0.0, 0.0, 6.0, 4.0), _box("room", 0.2, 0.2, 5.8, 3.8)])
+    rings, solids = W.layer_rings(page, 1.0)
+    pairs = _pairs(page)
+    assert pairs and W.drop_hole_pairs(pairs, rings["DUVAR"], solids)[1] == []
+
+
+def _wall(x0, y0, x1, y1, t=0.2):
+    return WallItem(start=(x0, y0), end=(x1, y1), thickness=t, box=[0, 0, 0, 0], entity="w", evidence={})
+
+
+def _door(x, y, w=0.8):
+    return OpeningItem(kind="door", width=w, center=(x, y), rotation_deg=0.0, box=[0, 0, 0, 0], entity="d", evidence={})
+
+
+def test_a_small_doorless_face_is_a_duct_a_closet_with_a_door_is_not():
+    walls = [_wall(0.0, 0.0, 1.0, 0.0), _wall(1.0, 0.0, 1.0, 0.4), _wall(1.0, 0.4, 0.0, 0.4), _wall(0.0, 0.4, 0.0, 0.0)]
+    face = [(0.1, 0.1), (0.9, 0.1), (0.9, 0.3), (0.1, 0.3)]           # 0.16 m2
+    kind, why = TP.unlabelled_face_type(face, walls, [])
+    assert kind == TP.VOID and why.startswith("duct")
+    kind, _why = TP.unlabelled_face_type(face, walls, [_door(0.5, 0.0, 0.6)])
+    assert kind != TP.VOID                                            # a door reaches it
+    big = [(0.1, 0.1), (1.9, 0.1), (1.9, 1.9), (0.1, 1.9)]
+    assert TP.unlabelled_face_type(big, walls, [])[0] != TP.VOID      # 3.24 m2: no duct
+
+
+# --- UL383: a dimension line and a title underline are a strip of their plan ----------------------------------------
+
+def _ent(kind, box, rect=None):
+    from wenart.sheets.model import Ent
+    return Ent(id=f"{kind}:1", kind=kind, layer="0", box=box, rect=rect)
+
+
+def test_a_dimension_and_an_underline_are_a_strip_a_drawing_is_not():
+    c = SP.Cluster(ents=[_ent("DIMENSION", (990, 830, 2852, 869)), _ent("LINE", (1742, 690, 2100, 690))])
+    assert SP._line_strip(c, 1862, 179)
+    # a small drawing: a closed rectangle, an insert, or more than three pieces
+    assert not SP._line_strip(SP.Cluster(ents=[_ent("LINE", (0, 0, 10, 10), rect=(0, 0, 10, 10))]), 10, 10)
+    assert not SP._line_strip(SP.Cluster(ents=[_ent("INSERT", (0, 0, 100, 5))]), 100, 5)
+    assert not SP._line_strip(SP.Cluster(ents=[_ent("LINE", (0, k, 100, k)) for k in range(4)]), 100, 3)
+    # a square group of lines is no strip
+    assert not SP._line_strip(SP.Cluster(ents=[_ent("LINE", (0, 0, 100, 0)), _ent("LINE", (0, 0, 0, 100))]), 100, 100)
+
+
+# --- UL380 (C0099): one loose furniture-layer rectangle is no sliding door ------------------------------------------
+
+def _gap(a=0.0, b=0.55, t=0.20):
+    return O.Gap("run", "h", 0.0, t, a, b, [])
+
+
+def _rect(sid, x0, y0, x1, y1, layer="Z_tefriş", block=None):
+    return Stroke(sid, "polyline", [(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)], closed=True, layer=layer,
+                  block=block)
+
+
+def _classify(g, *strokes):
+    O._classify_gap_rules(g, O.StrokeIndex(list(strokes), 0.0), set())
+    return g
+
+
+def test_c0099_one_loose_furniture_rectangle_is_no_sliding_door():
+    g = _classify(_gap(), _rect("15C010", 0.05, -0.02, 0.40, 0.02))
+    assert g.cls != "door" and g.lone_leaf
+    assert "Z_tefriş" in O.lone_leaf_note(g) and "UL380" in O.lone_leaf_note(g)
+
+
+def test_must_not_fire_a_door_layer_a_door_block_two_leaves_or_a_track():
+    assert _classify(_gap(), _rect("s", 0.05, -0.02, 0.40, 0.02, layer="KAPI")).cls == "door"
+    assert _classify(_gap(), _rect("s", 0.05, -0.02, 0.40, 0.02, block="SURME_KAPI")).cls == "door"
+    assert _classify(_gap(), _rect("s", 0.05, -0.02, 0.40, 0.02, layer="0")).cls == "door"   # a layer with no role
+    track = Stroke("t", "line", [(0.0, 0.03), (0.55, 0.03)], layer="KAPI")
+    assert _classify(_gap(), _rect("s", 0.05, -0.02, 0.40, 0.02), track).cls == "door"
+    # two leaves on the furniture layer (a two-panel door drawn there): the rule wants one shape only
+    leaves = [_rect("a", 0.0, -0.02, 0.35, 0.02), _rect("b", 0.25, 0.02, 0.55, 0.06)]
+    assert not O.lone_furniture_leaf(_gap(), [O._S(leaves[0], leaves[0].pts, LineString(leaves[0].pts)),
+                                             O._S(leaves[1], leaves[1].pts, LineString(leaves[1].pts))], [])
+
+
+def test_a_door_high_tag_at_the_gap_gives_the_lone_leaf_back():
+    from wenart.ingest.generic import decisions as DEC
+    from wenart.ingest.generic.model import TextRun
+
+    g = _gap()
+    tag = DEC._classify_text(TextRun("t1", "55/210", (0.15, 0.25, 0.40, 0.33), 0.08))
+    far = DEC._classify_text(TextRun("t2", "55/210", (3.15, 0.25, 3.40, 0.33), 0.08))
+    low = DEC._classify_text(TextRun("t3", "55/140", (0.15, 0.25, 0.40, 0.33), 0.08))
+    assert tag is not None and O.door_tag_at(g, [tag])
+    assert not O.door_tag_at(g, [far]) and not O.door_tag_at(g, [low]) and not O.door_tag_at(g, [])
+
+
+# --- UL381: short steps are read, narrow runs not --------------------------------------------------------------------
+
+def _segs(strokes):
+    return SY._segments(strokes, set())
+
+
+def _steps(n_lines=4, width=0.8, pitch=0.32, sides=True, arrow=False, layer="MERDIVEN", extra=()):
+    st = [Stroke(f"t{k}", "line", [(0.0, k * pitch), (width, k * pitch)], layer=layer) for k in range(n_lines)]
+    top = (n_lines - 1) * pitch
+    if sides:
+        st += [Stroke("sl", "line", [(0.0, 0.0), (0.0, top)], layer=layer),
+               Stroke("sr", "line", [(width, 0.0), (width, top)], layer=layer)]
+    if arrow:
+        x = width / 2.0
+        st += [Stroke("w", "line", [(x, 0.05), (x, top - 0.05)], layer=layer),
+               Stroke("h1", "line", [(x, top - 0.05), (x - 0.06, top - 0.15)], layer=layer),
+               Stroke("h2", "line", [(x, top - 0.05), (x + 0.06, top - 0.15)], layer=layer)]
+    return SY.Cluster(_segs(st + list(extra)))
+
+
+def test_three_risers_in_a_box_and_two_with_an_arrow_are_steps():
+    st = SY.short_steps(_steps(4), 0.0)
+    assert st is not None and st["short_steps"] == 3 and len(st["flights"]) == 1
+    assert abs(st["flights"][0]["width"] - 0.8) < 1e-6 and st["short_steps_mark"] == "a closed outline"
+    st = SY.short_steps(_steps(3, sides=False, arrow=True), 0.0)
+    assert st is not None and st["short_steps"] == 2 and "arrow" in st["short_steps_mark"]
+
+
+def test_a_run_of_steps_at_an_angle_is_read_in_its_frame():
+    cl = _steps(3, sides=False, arrow=True)
+    a = math.radians(4.0)
+    for s in cl.segs:
+        s.pts = [(p[0] * math.cos(a) - p[1] * math.sin(a), p[0] * math.sin(a) + p[1] * math.cos(a)) for p in s.pts]
+        s.geom = LineString(s.pts) if len(s.pts) > 1 else s.geom
+    st = SY.short_steps(cl, 0.0)
+    assert st is not None and st["short_steps"] == 2 and abs(st["angled_deg"] - 4.0) < 0.5
+
+
+def test_must_not_fire_narrow_unmarked_a_threshold_pair_strays_tiles_or_a_long_flight():
+    assert SY.short_steps(_steps(4, width=0.5), 0.0) is None                      # under 0.60 m: stays unread
+    assert SY.short_steps(_steps(4, sides=False), 0.0) is None                    # no box, no arrow
+    assert SY.short_steps(_steps(2), 0.0) is None                                 # a threshold or kerb pair
+    stray = Stroke("x", "line", [(0.2, 0.5), (0.6, 0.9)], layer="MERDIVEN")
+    assert SY.short_steps(_steps(4, extra=[stray]), 0.0) is None                  # something else drawn in it
+    assert SY.short_steps(_steps(4, pitch=0.10), 0.0) is None                     # tiles or a grille, not a going
+    assert SY.short_steps(_steps(6), 0.0) is None                                 # 5 risers: the stair rule's
+    assert SY.short_steps(_steps(4, layer="KARO"), 0.0) is None                   # floor-finish lines
+
+
+# --- round 2b: an empty gap between two box fronts; a named strip ----------------------------------------------------
+
+def _piece(axis, c, t, a, b):
+    return O.Piece(k=0, axis=axis, c=c, t=t, a=a, b=b, wall=None)
+
+
+def _duct_row():
+    """swiss-b1737 L0: two duct boxes (fronts on y = 6.6, back wall y = 7.215) either side of a corridor's end, the
+    corridor's walls running down from the boxes' inner sides."""
+    front1, front2 = _piece("h", 6.6, 0.095, 6.594, 7.6), _piece("h", 6.6, 0.095, 9.47, 10.426)
+    back = _piece("h", 7.215, 0.17, 5.78, 11.24)
+    sides = [_piece("v", 6.631, 0.075, 6.64, 7.13), _piece("v", 7.556, 0.12, 2.2, 7.13),
+             _piece("v", 9.526, 0.145, 1.14, 7.13), _piece("v", 10.386, 0.075, 6.65, 7.13)]
+    return front1, front2, [front1, front2, back] + sides
+
+
+def test_the_fronts_of_two_duct_boxes_are_box_fronts():
+    f1, f2, pieces = _duct_row()
+    assert O.box_front(f1, pieces) and O.box_front(f2, pieces)
+
+
+def test_must_not_fire_piers_a_wall_with_free_ends_or_a_deep_room():
+    f1, f2, pieces = _duct_row()
+    # piers between windows: nothing meets their ends
+    pier = _piece("h", 0.0, 0.3, 0.0, 0.6)
+    assert O.box_front(pier, [pier, _piece("h", 0.0, 0.3, 1.8, 2.4)]) is None
+    # one end free (the box's side missing)
+    assert O.box_front(f1, [p for p in pieces if not (p.axis == "v" and abs(p.c - 6.631) < 0.01)]) is None
+    # a storeroom 1.2 m deep behind a 1 m front: deeper than a duct
+    room = [_piece("h", 0.0, 0.1, 0.0, 1.0), _piece("h", 1.2, 0.1, -0.5, 1.5),
+            _piece("v", 0.0, 0.1, -0.05, 1.25), _piece("v", 1.0, 0.1, -0.05, 1.25)]
+    assert O.box_front(room[0], room) is None
+
+
+def test_a_named_strip_is_left_as_read():
+    # two leaves 0.215 m apart (the b465 cavity), first unnamed, then with a room label in the strip (a balcony)
+    page = _page([_box("a", 0.0, 0.0, 0.095, 3.0), _box("b", 0.31, 0.0, 0.405, 3.0)])
+    rings, solids = W.layer_rings(page, 1.0)
+    pairs = [p for p in _pairs(page) if abs(p.u[1]) > 0.9]
+    assert len(W.drop_hole_pairs(pairs, rings["DUVAR"], solids)[1]) == 1
+    assert W.drop_hole_pairs(pairs, rings["DUVAR"], solids, [(0.2, 1.5)])[1] == []
+    assert len(W.drop_hole_pairs(pairs, rings["DUVAR"], solids, [(2.0, 1.5)])[1]) == 1   # a label farther away
+
+
+# --- round 2c (the review of rounds 2 and 2b) --------------------------------------------------------------------------
+
+def test_box_fronts_gap_needs_the_space_behind_closed_or_ending_with_the_boxes():
+    f1, f2, pieces = _duct_row()
+    assert O.box_fronts_gap(f1, f2, pieces) and "closed behind" in O.box_fronts_gap(f1, f2, pieces)
+    # real14 L7b: two free-standing 0.70 x 0.50 m boxes, nothing behind the gap, inside a hall
+    b1 = [_piece("h", 0.0, 0.1, 0.0, 0.7), _piece("h", 0.5, 0.1, 0.0, 0.7),
+          _piece("v", 0.0, 0.1, -0.05, 0.55), _piece("v", 0.7, 0.1, -0.05, 0.55)]
+    b2 = [_piece("h", 0.0, 0.1, 2.5, 3.2), _piece("h", 0.5, 0.1, 2.5, 3.2),
+          _piece("v", 2.5, 0.1, -0.05, 0.55), _piece("v", 3.2, 0.1, -0.05, 0.55)]
+    hall = [_piece("h", -3.0, 0.2, -1.0, 4.2), _piece("v", -1.0, 0.2, -3.0, 2.5), _piece("v", 4.2, 0.2, -3.0, 2.5),
+            _piece("h", 2.5, 0.2, -1.0, 4.2)]
+    assert O.box_fronts_gap(b1[0], b2[0], b1 + b2 + hall)
+
+
+def test_must_not_fire_box_fronts_a_doorway_between_shafts_or_a_facade():
+    f1, f2, pieces = _duct_row()
+    # (a) a doorway into a room between two shafts: no wall behind the gap, the shafts' inner sides run on past them
+    room = [p for p in pieces if not (p.axis == "h" and abs(p.c - 7.215) < 0.01)
+            and not (p.axis == "v" and abs(p.c - 7.556) < 0.01) and not (p.axis == "v" and abs(p.c - 9.526) < 0.01)]
+    room += [_piece("h", 7.215, 0.17, 5.78, 7.556), _piece("h", 7.215, 0.17, 9.526, 11.24),
+             _piece("v", 7.556, 0.12, 2.2, 10.0), _piece("v", 9.526, 0.145, 1.14, 10.0),
+             _piece("h", 10.0, 0.2, 5.78, 11.24)]
+    assert O.box_fronts_gap(f1, f2, room) is None
+    # (b) a facade: the boxes behind it, nothing of the building in front of the gap
+    facade = [p for p in pieces if p.axis == "h" or p.a > 6.0]                  # the corridor walls below are gone
+    assert O.box_fronts_gap(f1, f2, facade) is None
+
+
+def test_a_layer_whose_rings_cross_has_no_even_odd_fill():
+    # two wall rectangles crossing at the middle of one (review 4): the 4.2 m wall must not drop
+    page = _page([_box("w1", 0.0, 0.0, 4.2, 0.2), _box("w2", 2.0, -1.0, 2.2, 1.0)])
+    assert "DUVAR" not in W.layer_rings(page, 1.0)[0]
+    # a 0.4 x 0.4 column ring across a wall ring mid-way on the same layer
+    page = _page([_box("w", 0.0, 0.0, 4.2, 0.2), _box("c", 2.0, -0.1, 2.4, 0.3)])
+    assert "DUVAR" not in W.layer_rings(page, 1.0)[0]
+    # nested rings (a duct inside the outline) keep their fill
+    assert "DUVAR" in W.layer_rings(_duct_page(), 1.0)[0]
+
+
+def test_must_not_fire_between_small_rooms_or_shafts_drawn_as_rings():
+    for a, b in (((0.0, 0.0, 1.0, 1.1), (1.2, 0.0, 2.1, 1.1)), ((0.0, 0.0, 0.6, 1.2), (0.8, 0.0, 1.4, 1.2))):
+        page = _page([_box("r1", *a), _box("r2", *b)])
+        rings, solids = W.layer_rings(page, 1.0)
+        pairs = [p for p in _pairs(page) if abs(p.width - 0.2) < 1e-6]
+        assert pairs and W.drop_hole_pairs(pairs, rings["DUVAR"], solids)[1] == []
+
+
+def test_must_not_fire_a_sandwich_wall_whose_insulation_is_drawn():
+    leaves = [_box("a", 0.0, 0.0, 0.10, 3.0), _box("b", 0.18, 0.0, 0.28, 3.0)]
+    zig = Stroke("z", "polyline", [(0.11 + 0.06 * (k % 2), 0.1 * k) for k in range(30)], layer="ISI")
+    page = _page(leaves + [zig])
+    rings, solids = W.layer_rings(page, 1.0)
+    pairs = [p for p in _pairs(page) if abs(p.width - 0.08) < 1e-6]
+    assert pairs and W.drop_hole_pairs(pairs, rings["DUVAR"], solids, drawn=W._drawn_lines(page, 1.0))[1] == []
+    page2 = _page(leaves)                                     # nothing drawn between the leaves: a cavity
+    assert len(W.drop_hole_pairs(pairs, W.layer_rings(page2, 1.0)[0]["DUVAR"], [],
+                                 drawn=W._drawn_lines(page2, 1.0))[1]) == 1
+
+
+def test_a_column_outline_on_a_structure_layer_fills_the_hole():
+    page = _page([_box("ext", 0.0, 0.0, 4.0, 0.6), _box("hole", 0.5, 0.2, 3.5, 0.4),
+                  _box("col", 0.5, 0.2, 3.5, 0.4, layer="KOLON")])          # unfilled column outline
+    rings, solids = W.layer_rings(page, 1.0)
+    assert solids and "KOLON" not in rings
+    pairs = [p for p in _pairs(page) if p.width < 0.3 and abs(p.u[0]) > 0.9]
+    assert W.drop_hole_pairs(pairs, rings["DUVAR"], solids)[1] == []
+
+
+def test_the_wall_across_a_ducts_end_runs_on_over_its_leaves():
+    # swiss-b534 L0: a 0.235 m duct between a 0.155 m and a 0.12 m leaf, a 0.31 m wall across its top; the wall's lower
+    # face is the duct ring's edge over the duct only, the leaves' faces run into it: once the duct's band is dropped the
+    # wall across must still cover the leaves' tops (its junction squares)
+    page = _page([_box("body", 12.275, 6.742, 16.3, 7.943), _box("duct", 12.43, 6.888, 12.665, 7.633),
+                  _box("room", 12.785, 6.742, 16.3, 7.633)])
+    rings, solids = W.layer_rings(page, 1.0)
+    pairs = _pairs(page)
+    kept, holes = W.drop_hole_pairs(pairs, rings["DUVAR"], solids)
+    assert len(holes) == 1 and abs(holes[0].width - 0.235) < 1e-6
+    closed = W.close_hole_ends(kept, holes)
+    across = [p for p in closed if abs(p.width - 0.31) < 1e-6 and abs(p.u[0]) > 0.9]
+    assert any(p.lo <= 12.275 + 1e-6 and p.hi >= 12.785 - 1e-6 for p in across)
+    assert W.close_hole_ends(kept, []) == kept
+
+
+def test_short_steps_are_built_as_a_short_run():
+    from wenart.blender import shell as SH
+    piece = {"id": "f_L0_003", "level_id": "L0", "type": "stair",
+             "footprint": {"center": [0.4, 0.48], "size": [0.8, 0.96], "rotation_deg": 0.0},
+             "stair": {"flights": [{"start": [0.4, 0.0], "end": [0.4, 0.96], "width": 0.8, "lines": 4,
+                                    "spacing": 0.32}], "landing": None, "short_steps": 3}}
+    level = {"id": "L0", "elevation": 0.0, "ceiling_height": 2.7}
+    b = {"levels": [level, {"id": "L1", "elevation": 3.0, "ceiling_height": 2.7}], "walls": [], "furniture": [piece]}
+    plan = SH.plan_stairs(b, level)[0]["plan"]
+    assert plan["short_run"] >= 3 and plan["rise_m"] < 0.8 and not plan["void"]
+    assert 0.15 <= plan["riser_m"] <= 0.19
+    assert any(a["kind"] == "short_run" for a in plan["assumed"])
+    piece["stair"]["short_steps"] = 0                         # a storey's stair keeps the storey's rise
+    assert SH.plan_stairs(b, level)[0]["plan"]["rise_m"] > 2.5

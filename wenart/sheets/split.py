@@ -642,6 +642,25 @@ def _height(c: Cluster) -> float:
     return b[3] - b[1]
 
 
+STRIP_MAX_ENTS = 3            # 24 Nov 2026: a strip of at most this many straight lines or dimensions ...
+STRIP_THIN = 0.2              # ... at most this thick for its length is a satellite of the drawing next to it
+STRIP_KINDS = ("LINE", "DIMENSION")
+
+
+def _line_strip(c: Cluster, w: float, h: float) -> bool:
+    """24 Nov 2026 (dataset bench, swiss-b1415 L0 and L2, swiss-b17105 L1: a plan's overall dimension line and its
+    title's underline, a little farther below the plan than the clustering gap, made a cluster of their own; the title
+    went to that strip, the read region held no walls and the plan itself was left out as 'plan without a level
+    title', three floors not read): a cluster of at most ``STRIP_MAX_ENTS`` straight lines or dimensions, no closed
+    shape among them, at most ``STRIP_THIN`` as thick as it is long, is a strip of the drawing beside it (a dimension
+    chain, a title's underline, a cut line), never a drawing of its own (pure)."""
+    if not c.ents or len(c.ents) > STRIP_MAX_ENTS or max(w, h) <= 0:
+        return False
+    if min(w, h) > STRIP_THIN * max(w, h):
+        return False
+    return all(e.kind in STRIP_KINDS and e.rect is None for e in c.ents)
+
+
 def _absorb_satellites(clusters: list[Cluster]) -> list[Cluster]:
     """Small clusters next to a drawing (its dimension chains, a north arrow, a door drawn apart) join it: a cluster
     whose box is <= 5 % of the drawing's (or thin), within half the drawing's shorter side, with 10 x fewer entities.
@@ -668,7 +687,8 @@ def _absorb_satellites(clusters: list[Cluster]) -> list[Cluster]:
                 continue
             hb = host.geometry_box
             hw, hh = hb[2] - hb[0], hb[3] - hb[1]
-            small = w * h <= SATELLITE_AREA * hw * hh or min(w, h) <= SATELLITE_THIN * max(w, h)
+            small = w * h <= SATELLITE_AREA * hw * hh or min(w, h) <= SATELLITE_THIN * max(w, h) \
+                or _line_strip(c, w, h)
             d = box_distance(cb, hb)
             if small and d <= SATELLITE_REACH * min(hw, hh) and (best is None or d < best[0]):
                 best = (d, host)
