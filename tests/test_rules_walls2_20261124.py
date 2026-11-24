@@ -259,3 +259,47 @@ def test_must_not_fire_narrow_unmarked_a_threshold_pair_strays_tiles_or_a_long_f
     assert SY.short_steps(_steps(4, pitch=0.10), 0.0) is None                     # tiles or a grille, not a going
     assert SY.short_steps(_steps(6), 0.0) is None                                 # 5 risers: the stair rule's
     assert SY.short_steps(_steps(4, layer="KARO"), 0.0) is None                   # floor-finish lines
+
+
+# --- round 2b: an empty gap between two box fronts; a named strip ----------------------------------------------------
+
+def _piece(axis, c, t, a, b):
+    return O.Piece(k=0, axis=axis, c=c, t=t, a=a, b=b, wall=None)
+
+
+def _duct_row():
+    """swiss-b1737 L0: two duct boxes (fronts on y = 6.6, back wall y = 7.215) either side of a corridor's end, the
+    corridor's walls running down from the boxes' inner sides."""
+    front1, front2 = _piece("h", 6.6, 0.095, 6.594, 7.6), _piece("h", 6.6, 0.095, 9.47, 10.426)
+    back = _piece("h", 7.215, 0.17, 5.78, 11.24)
+    sides = [_piece("v", 6.631, 0.075, 6.64, 7.13), _piece("v", 7.556, 0.12, 2.2, 7.13),
+             _piece("v", 9.526, 0.145, 1.14, 7.13), _piece("v", 10.386, 0.075, 6.65, 7.13)]
+    return front1, front2, [front1, front2, back] + sides
+
+
+def test_the_fronts_of_two_duct_boxes_are_box_fronts():
+    f1, f2, pieces = _duct_row()
+    assert O.box_front(f1, pieces) and O.box_front(f2, pieces)
+
+
+def test_must_not_fire_piers_a_wall_with_free_ends_or_a_deep_room():
+    f1, f2, pieces = _duct_row()
+    # piers between windows: nothing meets their ends
+    pier = _piece("h", 0.0, 0.3, 0.0, 0.6)
+    assert O.box_front(pier, [pier, _piece("h", 0.0, 0.3, 1.8, 2.4)]) is None
+    # one end free (the box's side missing)
+    assert O.box_front(f1, [p for p in pieces if not (p.axis == "v" and abs(p.c - 6.631) < 0.01)]) is None
+    # a storeroom 1.2 m deep behind a 1 m front: deeper than a duct
+    room = [_piece("h", 0.0, 0.1, 0.0, 1.0), _piece("h", 1.2, 0.1, -0.5, 1.5),
+            _piece("v", 0.0, 0.1, -0.05, 1.25), _piece("v", 1.0, 0.1, -0.05, 1.25)]
+    assert O.box_front(room[0], room) is None
+
+
+def test_a_named_strip_is_left_as_read():
+    # two leaves 0.215 m apart (the b465 cavity), first unnamed, then with a room label in the strip (a balcony)
+    page = _page([_box("a", 0.0, 0.0, 0.095, 3.0), _box("b", 0.31, 0.0, 0.405, 3.0)])
+    rings, solids = W.layer_rings(page, 1.0)
+    pairs = [p for p in _pairs(page) if abs(p.u[1]) > 0.9]
+    assert len(W.drop_hole_pairs(pairs, rings["DUVAR"], solids)[1]) == 1
+    assert W.drop_hole_pairs(pairs, rings["DUVAR"], solids, [(0.2, 1.5)])[1] == []
+    assert len(W.drop_hole_pairs(pairs, rings["DUVAR"], solids, [(2.0, 1.5)])[1]) == 1   # a label farther away

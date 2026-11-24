@@ -2260,6 +2260,18 @@ def gaps_and_openings_frame(walls: list[WallItem], strokes_m: list[Stroke], file
                 owned.update(trial)                  # the band's structure lines stay out of the furniture
                 gaps.extend(found)
                 continue
+            # 24 Nov 2026 (walls round 2b; swiss-b1737 L0: the 1.84 m empty gap between the fronts of two duct boxes
+            # became a 'window' and closed off the corridor's end; three small faces became rooms): an empty gap
+            # (nothing drawn in it) between two pieces that are each the front of a small closed box (a duct, a shaft:
+            # ``box_front``) is no opening: the two fronts are two walls on one line, never one wall with a gap
+            boxes = [box_front(x, ends) for x in (p, q)]
+            if all(boxes) and found and all(_symbol_cls(g) == "empty" for g in found):
+                for g in found:
+                    g.found = {"split_reason": f"an empty gap between the fronts of two small boxes ({boxes[0]}; "
+                                               f"{boxes[1]}): two walls on one line, no opening"}
+                    g.cls = "open"
+                gaps.extend(found)
+                continue
             two_walls = q.a - p.b > GAP_MAX_M or _crossed(p, q, ends)
             if len(subs) > 1 and two_walls and any(_symbol_cls(g) in ("empty", "unclassified") for g in found):
                 # A gap open by itself (> 3 m) or crossed by walls, and a part holds no door or window symbol: two
@@ -2682,6 +2694,45 @@ def _split(p: Piece, q: Piece, pieces: list[Piece]) -> list[tuple[float, float]]
                 nxt.append((c1, s1))
         subs = nxt
     return subs
+
+
+BOX_DEPTH_M = (0.15, 0.80)      # 24 Nov 2026: a small closed box (a duct, a shaft) this deep behind its front ...
+BOX_AREA_MAX_M2 = 1.0           # ... at most this big inside ...
+BOX_FRONT_M = (0.40, 2.0)       # ... with a front this long (shorter: a jamb or a stub; real10 L0-L6, 4 cm "fronts")
+BOX_TOL_M = 0.05
+
+
+def box_front(p: Piece, pieces: list[Piece]) -> Optional[str]:
+    """24 Nov 2026 (walls round 2b; swiss-b1737 L0's two duct boxes either side of a corridor's end): a note when wall
+    piece ``p`` is the front of a small closed box on one side: perpendicular pieces meet both its ends (their centre
+    lines within their half thickness and ``BOX_TOL_M`` of its ends) and run to that side as far as a parallel piece
+    that covers its whole length ``BOX_DEPTH_M`` behind it, the inside at most ``BOX_AREA_MAX_M2``, the front at most
+    ``BOX_FRONT_M`` long; else None (pure). A free-standing pier, a wall whose ends meet nothing, a room deeper than
+    a duct are no such fronts."""
+    length = p.b - p.a
+    if not BOX_FRONT_M[0] <= length <= BOX_FRONT_M[1]:
+        return None
+    lo, hi = p.c - p.t / 2.0, p.c + p.t / 2.0
+    for side in (1, -1):
+        face = hi if side > 0 else lo
+        backs = [v for v in pieces if v is not p and v.axis == p.axis
+                 and BOX_DEPTH_M[0] <= (v.c - p.c) * side <= BOX_DEPTH_M[1]
+                 and v.a <= p.a + 2 * BOX_TOL_M and v.b >= p.b - 2 * BOX_TOL_M]
+        for v in sorted(backs, key=lambda v: abs(v.c - p.c)):
+            back = v.c - side * v.t / 2.0                    # the back wall's face towards the front
+            depth = abs(back - face)
+            ok = 0
+            for x in (p.a, p.b):
+                for w in pieces:
+                    if w is p or w is v or w.axis == p.axis or abs(w.c - x) > w.t / 2.0 + BOX_TOL_M:
+                        continue
+                    if (side > 0 and w.a <= hi + BOX_TOL_M and w.b >= back - BOX_TOL_M) or \
+                            (side < 0 and w.b >= lo - BOX_TOL_M and w.a <= back + BOX_TOL_M):
+                        ok += 1
+                        break
+            if ok == 2 and depth * length <= BOX_AREA_MAX_M2:
+                return f"a {length:.2f} x {depth:.2f} m box behind the front"
+    return None
 
 
 def _crossed(p: Piece, q: Piece, pieces: list[Piece]) -> bool:

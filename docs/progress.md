@@ -4906,3 +4906,51 @@ underline); three levels read in a wrong frame or scale (b1167 L2, b2975 L0, b16
 empty gap between two duct fronts (the empty-gap class); b1479's balcony strip; the glazed-facade walls (a truth
 convention, not touched); the 85 empty-gap bridges; frames with a free side (BLD-09); two touching layers (5 pairs on
 real readings, none on the bench); walls on guessed storeys (1990 read walls, a convention of the storey count).
+
+### Round 2b (the coordinator: "the no-fall bar must hold"; lesson UL384)
+
+Two real-error falls of the round fixed with general rules (`tests/test_rules_walls2_20261124.py`, 17 tests now):
+
+- **b1737, an empty gap between two duct fronts** (`openings.box_front`, in the run-gap loop of `gaps_and_openings_frame`).
+  Cause: the two duct boxes, now read right, put their 0.095 m fronts on one line; the 1.84 m empty gap between them (the
+  end of a corridor whose walls are the boxes' inner sides) was read as an empty-gap opening, typed a window, which shut
+  the corridor's end into a 0.88 m2 face and, a window being near, kept the two ducts as rooms. Rule: an empty gap (no
+  door, window or anything drawn in it) between two pieces that are each the front of a small closed box (perpendicular
+  pieces meet both ends and run back to a parallel piece covering the front 0.15-0.80 m behind it; front 0.40-2.0 m;
+  inside at most 1 m2) is no opening: two walls on one line (`split_reason` in the gap log). Must not fire (tests): piers
+  between windows (nothing meets their ends), a front with one free end, a storeroom 1.2 m deep; a window's lines or a
+  door's swing in the gap keep it (only `empty` gaps). A first version took 4 cm jamb ends and 3 cm plaster strips for
+  fronts on real10 L0-L6 (1.42 and 1.49 m gaps opened): the sizes above fixed it (fires on no real project).
+- **b1479, a balcony strip opened** (`walls.drop_hole_pairs`, new argument `anchors`). Cause: the 0.29 m BALKON between
+  the kitchen's angled wall and its 0.20 m parapet had been fused into a 0.49 m wall that closed the kitchen; the round
+  opened it, but the kitchen's door to the balcony is read on another wall (an old misread) and the angled wall above
+  the door is not read, so the kitchen's face leaked through the strip and the kitchen was lost. Rule: a band in no ring
+  with a room label within 0.30 m is a named space, not a cavity: it is left as read (the room label 'BALKON' stands at
+  the strip). Must not fire (test): the same cavity unnamed, or with the label 2 m away, still opens; holes inside the
+  outline (shafts, ducts) are not affected.
+
+**Bench** (`/home/user/bench_data/bench_walls2b.md`, `work_walls2b`, against `bench_narrow`): mean 75.16 -> 76.22; F1
+walls 0.723 -> 0.747 (length-weighted 0.836 -> 0.850), rooms 0.755 -> 0.773, windows 0.757 -> 0.773, doors 0.814 ->
+0.815, stairs 0.714 -> 0.759, levels 0.882 -> 0.887. Classes: wall missed 747 -> 630, thin wall missed 267 -> 173, wall
+read with another thickness 329 -> 256, wall invented 570 -> 520, wall split 471 -> 458, walls merged 406 -> 411,
+parapet missed 145 -> 120, room invented in a cavity 117 -> 46, room missed (shaft) 45 -> 16, window invented 267 ->
+218, stair missed 9 -> 4, level missing 3 -> 1, door invented 113 -> 129, room label wrong 48 -> 53. 56 projects rise,
+3 fall: b6529 (27.02 -> 26.98) and b17055 (27.75 -> 27.74), each only an inferred 0.90 m lift landing door on a shaft
+now read (nothing drawn; the truth lists drawn doors only: truth convention, crop `lift_doors_convention.png`); b2383
+(90.43 -> 90.40, explained below). b1737 88.91 -> 89.16 and b1479 68.64 -> 68.79 now rise (crop `round2b_fixed.png`).
+
+**b2383 (-0.03), not covered by these rules:** the truth wall T65 (0.14 m, 4.56-6.42 m) runs above a 0.6 x 0.2 m slot
+(the space between it and the 0.18 m wall below, open at its left end) and above the duct box beside the 5 cm stair
+railing. The slot's band is now open (no material: right), so T65's left 0.55 m is read 0.14 m thick, but its right part
+stays in the old fused 0.47 m wall (the railing guard keeps that band); the truth wall is matched by neither piece (one
+'wall split' more). A slot open at one end cannot be told from b465's cavity (open at one end too) by the drawing alone;
+the fused band beside the railing is the existing open point of thin railings (MIN_WALL_M).
+
+Gate (round 2b): holds against 381016c0 (never --update), synthetic overall 97.5, real06/07/09/10/15/17 at 100 (C0097,
+C0098, C0099 hold). Regress (real08 left out): the 15 synthetic baselines hold; real03, real06, real07 print the same
+lines as the base commit; every real reading is as in round 2 (above) except real14 L7b and L7d, where the box rule
+fires: two 0.70 x 0.50 m boxes 1.81 m apart had their top and bottom lines bridged by two 1.81 m empty 'openings'; now
+two closed boxes, no openings (openings 4 -> 2 and 2 -> 0, walls +2, rooms the same; crop
+`real14_L7b_box_fronts.png`, read with the rule off and on). The label guard keeps 2 bands on real03 and 1 on real14
+(their readings as before). CPU tests: 582 passed. Final bench readings `work_walls2b` (the round-2 readings
+`work_walls2` deleted, its report `bench_walls2.*` kept).

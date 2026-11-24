@@ -4448,6 +4448,16 @@
    "request": "24 Nov 2026 (walls round 2, dataset bench: swiss-b1415's ground and second floor plans not read: each plan's overall dimension line and its title's underline, a little farther below the plan than the clustering gap, made a region of their own that took the title, and the plan itself was left out as a plan without a level title): a strip of at most three straight lines or dimensions, thin, next to a drawing is a part of that drawing (its dimension chain, its title's underline), never a drawing of its own. A plan drawn in two wings farther apart than the gap (swiss-b17105 L1) is still split: open.",
    "lesson": "24 Nov 2026 (walls round 2, dataset bench: swiss-b1415's ground and second floor plans not read: each plan's overall dimension line and its title's underline, a little farther below the plan than the clustering gap, made a region of their own that took the title, and the plan itself was left out as a plan without a level title): a strip of at most three straight lines or dimensions, thin, next to a drawing is a part of that drawing (its dimension chain, its title's underline), never a drawing of its own. A plan drawn in two wings farther apart than the gap (swiss-b17105 L1) is still split: open.",
    "question": null
+  },
+  {
+   "id": "UL384",
+   "date": "2026-11-24",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "24 Nov 2026 (walls round 2b, coordinator: no bench project may fall from a real error): (1) an empty gap (nothing drawn in it) between two wall pieces that are each the front of a small closed box (a duct or shaft 0.15-0.80 m deep, front 0.40-2.0 m, at most 1 m2 inside) is no opening: the two fronts are two walls on one line, never one wall with a window or door (swiss-b1737: a corridor's end between two duct boxes became a window). A drawn window or door, a pier, a wall with free ends, a room deeper than a duct are not judged. (2) a strip between two wall pieces that holds a room's label within 0.30 m (a balcony behind its parapet, swiss-b1479) is a named space, not a cavity: the hole rule leaves it as read, so its opening never joins the rooms beside it.",
+   "lesson": "24 Nov 2026 (walls round 2b, coordinator: no bench project may fall from a real error): (1) an empty gap (nothing drawn in it) between two wall pieces that are each the front of a small closed box (a duct or shaft 0.15-0.80 m deep, front 0.40-2.0 m, at most 1 m2 inside) is no opening: the two fronts are two walls on one line, never one wall with a window or door (swiss-b1737: a corridor's end between two duct boxes became a window). A drawn window or door, a pier, a wall with free ends, a room deeper than a duct are not judged. (2) a strip between two wall pieces that holds a room's label within 0.30 m (a balcony behind its parapet, swiss-b1479) is a named space, not a cavity: the hole rule leaves it as read, so its opening never joins the rooms beside it.",
+   "question": null
   }
  ]
 }

@@ -1023,6 +1023,7 @@ HOLE_SOLID_ROLES = ("structure", "column")
 HOLE_FLANK_M = 0.02              # ... the material just beyond a face is looked for this far out
 HOLE_LEAF_MIN_M = MIN_WALL_M + 0.01   # ... and still this far beyond both faces (walls the reader reads: a 4-5 cm railing
 #                                         or shaft lining beside it keeps the band, swiss-b2383, swiss-b6529)
+HOLE_LABEL_REACH_M = 0.30        # ... a room label this near a band in no ring keeps it (a named strip: a balcony)
 HOLE_ALONG_RATIO = 2.0           # ... along a band at least this many times its width (a gap's jambs are no faces)
 
 
@@ -1056,7 +1057,8 @@ def layer_rings(page: GenericPage, s: float) -> tuple[dict, list]:
     return rings, solids
 
 
-def drop_hole_pairs(pairs: list[_Pair], rings: list, solids: list) -> tuple[list[_Pair], list[_Pair]]:
+def drop_hole_pairs(pairs: list[_Pair], rings: list, solids: list, anchors: list = ()
+                    ) -> tuple[list[_Pair], list[_Pair]]:
     """24 Nov 2026 (dataset bench, swiss-b465 L1: two 0.095 m bathroom leaves with a 0.215 m empty cavity between them,
     their four face lines on one layer, read as one 0.405 m wall; swiss-b2383 L0: a 1.8 x 0.2 m duct box of thin walls
     beside a wall read as one 0.47 m wall): ``(kept, dropped)``. A layer that draws its walls as closed outlines (the
@@ -1071,7 +1073,10 @@ def drop_hole_pairs(pairs: list[_Pair], rings: list, solids: list) -> tuple[list
     reads the band is not judged: swiss-b2383's 5 cm stair railing, swiss-b6529's 4 cm shaft lining): the empty strip
     between two pieces of the walls' outline (the outline cut at every door and window, swiss-b465's cavity), when the
     band runs along them at least ``HOLE_ALONG_RATIO`` times its width (the two jambs of a window's gap, as far apart as
-    the gap is wide and as long as the wall is thick, are no such faces: swiss-b1118 L1)."""
+    the gap is wide and as long as the wall is thick, are no such faces: swiss-b1118 L1) and no room label (``anchors``)
+    stands within ``HOLE_LABEL_REACH_M`` of it: a strip the drawing names is a space (swiss-b1479 L2's 0.29 m BALKON
+    between the kitchen's wall and the parapet, its door read on another wall): opening it without the walls that close
+    that space would join the rooms beside it, so it is left as read (24 Nov 2026, walls round 2b)."""
     if not rings or not pairs:
         return pairs, []
     from shapely.strtree import STRtree
@@ -1097,7 +1102,8 @@ def drop_hole_pairs(pairs: list[_Pair], rings: list, solids: list) -> tuple[list
             # (wall pieces, not rooms drawn as rings: a room ring is wider than any wall)
             probes = [o for d in (HOLE_FLANK_M, HOLE_LEAF_MIN_M) for o in (p.lines[0].off - d, p.lines[1].off + d)]
             if p.hi - p.lo < HOLE_ALONG_RATIO * p.width or \
-                    not all(in_thin(Point(p.point(s_mid, o))) for o in probes):
+                    not all(in_thin(Point(p.point(s_mid, o))) for o in probes) or \
+                    any(p.polygon().distance(Point(a)) <= HOLE_LABEL_REACH_M for a in anchors):
                 kept.append(p)
                 continue
         elif n % 2 or not all(depth(Point(p.point(s_mid, o))) % 2 for d in (HOLE_FLANK_M, HOLE_LEAF_MIN_M)
@@ -1912,7 +1918,7 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
             before = found
             found = _drop_wide_bands(found)
             dropped.update({id(p): "wide_band" for p in before if id(p) not in {id(q) for q in found}})
-            found, holes = drop_hole_pairs(found, rings_by_layer.get(layer) or [], solids)
+            found, holes = drop_hole_pairs(found, rings_by_layer.get(layer) or [], solids, anchors)
             dropped.update({id(p): "hole" for p in holes})
             # the pieces of any layer across these (about 90 degrees): the treads of a flight crossing a pair's band
             if any(p.width >= FLIGHT_PAIR_MIN_W for p in found):
