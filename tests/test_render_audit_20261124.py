@@ -423,3 +423,20 @@ def test_roof_terrace_floor_becomes_outdoor_rooms():
     assert sum(r["area_computed"] for r in terr) == pytest.approx(120 - 2.3 * 2.3, abs=0.2)
     # must not fire again on a level that already has its terrace room
     assert TB.terrace_rooms(b, top) == 0
+
+
+def test_short_runs_are_no_stair_below_and_no_arrival():
+    # the walls round's short steps (UL381) against the stair-top rule: a short run below never ends a main stair, and
+    # a short run over a storey's stair is never that stair's top drawn again
+    from wenart.sheets import to_building as TB
+    run = _stair("f_L-1_009", "L-1", [3.0, 2.5], [1.2, 3.0])
+    run["stair"] = {"short_steps": 3, "steps_drawn": 17}
+    main = _stair("f_L0_001", "L0", [3.0, 2.5], [1.2, 3.0])
+    rooms = [{"id": "r", "level_id": "L1", "room_type": "hall", "label": "Hol",
+              "polygon": [[0, 0], [6, 0], [6, 5], [0, 5]]}]
+    assert not TB.arrival_only(main, "L-1", "L1", [run, main], rooms, rise_below=3.0)
+    full = _stair("f_L-1_001", "L-1", [3.0, 2.5], [1.2, 3.0])
+    full["stair"] = {"steps_drawn": 17}
+    top_run = _stair("f_L0_002", "L0", [3.0, 2.5], [1.2, 3.0])
+    top_run["stair"] = {"short_steps": 2}
+    assert not TB.arrival_only(top_run, "L-1", "L1", [full, top_run], rooms, rise_below=3.0)

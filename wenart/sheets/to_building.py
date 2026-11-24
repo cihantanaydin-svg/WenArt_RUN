@@ -186,6 +186,15 @@ STOREY_STEP_SHARE = 0.6
 STAIR_RISER_MAX_M = 0.19
 
 
+def short_run(f: dict) -> bool:
+    """24 Nov 2026 (the walls round's short steps, UL381): a piece read as a short run of 2-3 risers
+    (``stair.short_steps``) is never a storey's stair: no slab opening, never the stair below an arrival nor one."""
+    try:
+        return int((f.get("stair") or {}).get("short_steps") or 0) > 0
+    except (TypeError, ValueError):
+        return False
+
+
 def stair_steps(f: dict) -> int:
     """The steps a stair piece draws (``stair.steps_drawn``, else its flights' tread lines and winders), 0 unknown."""
     st = f.get("stair") or {}
@@ -200,7 +209,7 @@ def arrival_only(f: dict, below2_id: Optional[str], above_id: str, furniture: li
     floor got holes for them in its bedrooms): a stair drawn on a level that is the top of the stair from the level
     under it (a stair there on at least half its footprint), with no stair over it on the level above and a room there
     (not a stair, not a void) on at least half its footprint, ends on this level: no opening in the slab above."""
-    if below2_id is None or not rooms:
+    if below2_id is None or not rooms or short_run(f):
         return False
     fp = _footprint_poly(f)
     # 24 Nov 2026 (real17's shop stair f_L0_001 held a flight of the core stair beside it: its box reached under the
@@ -215,7 +224,7 @@ def arrival_only(f: dict, below2_id: Optional[str], above_id: str, furniture: li
         return False
     need = STOREY_STEP_SHARE * float(rise_below) / STAIR_RISER_MAX_M if rise_below else 0.0
     if not any(_footprint_poly(g).intersection(fp).area >= 0.5 * fp.area and stair_steps(g) >= need
-               for g in _stairs(below2_id, furniture)):
+               and not short_run(g) for g in _stairs(below2_id, furniture)):
         return False
     if any(_footprint_poly(g).intersection(fp).area > 0.2 * fp.area for g in _stairs(above_id, furniture)):
         return False
@@ -262,6 +271,8 @@ def _slab(lv: dict, below: Optional[dict], unions: dict, furniture: list[dict], 
     rise = float(lv.get("elevation") or 0.0) - float(below.get("elevation") or 0.0) if below else None
     ended = []
     for f in _stairs(below_id, furniture):
+        if short_run(f):
+            continue                         # a short run of steps reaches no floor above: no opening
         if arrival_only(f, below2_id, lv["id"], furniture, rooms, rise_below=rise_below):
             ended.append(f["id"])
             # 24 Nov 2026 (real17): the top of the stair from the level under it, drawn again on its upper plan, is

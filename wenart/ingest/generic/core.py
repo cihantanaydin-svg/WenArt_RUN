@@ -380,11 +380,15 @@ def _shift_site(site: dict, sh: _Shift) -> None:
 CAVITY_WIDTH_M = 0.24      # real10: an unlabelled face no 24 cm strip fits into is a cavity between two walls
 
 
-def face_table(face_polys: list, blocks: list, walls: list, openings: list, stairs: list) -> list[dict]:
+def face_table(face_polys: list, blocks: list, walls: list, openings: list, stairs: list, texts: list = (),
+               notes: Optional[list] = None) -> list[dict]:
     """One row per face (page metres): ``{"polygon", "names" (indoor blocks), "exterior" (only exterior blocks),
     "room_type", "label", "reason"}``; unlabelled faces are typed by ``topology.unlabelled_face_type``. real10
     (1 Nov 2026): an unlabelled face narrower than ``CAVITY_WIDTH_M`` everywhere (it vanishes when shrunk by half of
-    it: the 3-4 cm slits between a masonry wall and the plaster wall drawn beside it, 0.01-0.1 m2) is no room."""
+    it: the 3-4 cm slits between a masonry wall and the plaster wall drawn beside it, 0.01-0.1 m2) is no room. 24 Nov
+    2026: an unlabelled face ``topology.unlabelled_face_type`` types ``VOID`` (a duct: under 0.5 m2, no opening reaches
+    it, no word in it; ``texts``: ``[(text, (x, y))]`` in page metres, as the pipeline's room typing gets them) is no
+    room either; each one goes to ``notes``."""
     rows = []
     for poly in face_polys:
         if poly.buffer(-CAVITY_WIDTH_M / 2.0, join_style=2).is_empty and \
@@ -400,8 +404,15 @@ def face_table(face_polys: list, blocks: list, walls: list, openings: list, stai
         elif outside:
             row["room_type"], row["label"] = None, outside[0].name
         else:
-            row["room_type"], row["reason"] = TP.unlabelled_face_type(poly, walls, openings, stairs)
+            x0, y0, x1, y1 = poly.bounds
+            near = [(t, q) for t, q in texts if x0 - 0.1 <= q[0] <= x1 + 0.1 and y0 - 0.1 <= q[1] <= y1 + 0.1]
+            row["room_type"], row["reason"] = TP.unlabelled_face_type(poly, walls, openings, stairs, texts=near)
             row["label"] = None
+            if row["room_type"] == TP.VOID:
+                if notes is not None:     # 24 Nov 2026: a duct or shaft in the walls, never a room (never silent)
+                    c = poly.representative_point()
+                    notes.append(f"face at ({c.x:.2f}, {c.y:.2f}) is no room: {row['reason']}")
+                continue
         rows.append(row)
     return rows
 
@@ -4816,7 +4827,9 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
                                   axis=_halves(ex, bwalls, b_openings, blocks, level_id),
                                   outlines=lambda: [o.polygon for o in OL.labelled_outlines(non_wall, blocks)
                                                     if o.area_off is not None])
-    rows = face_table(TP.faces(bwalls, b_openings, seps), blocks, bwalls, b_openings, stairs)
+    face_texts = [(t.text, ((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0)) for t in texts_m
+                  if getattr(t, "text", None) and str(t.text).strip() and getattr(t, "box", None)]
+    rows = face_table(TP.faces(bwalls, b_openings, seps), blocks, bwalls, b_openings, stairs, face_texts, ex.notes)
     SY.apply_room_checks(pieces, cands + extras, [{"polygon": r["polygon"], "room_type": r["room_type"],
                                                    "label": r["label"]} for r in rows], ex.notes)
     for cand in cands + extras:
@@ -4845,7 +4858,7 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
             ex, page, raster, rows, blocks, s, level_id, answers, no_ai,
             Path(rec_dir) if rec_dir is not None else None, evidence_only, strokes=glyph_strokes)
         ex.report["raster"]["labels"] = label_report
-        rows = face_table(face_polys, blocks, bwalls, b_openings, stairs)
+        rows = face_table(face_polys, blocks, bwalls, b_openings, stairs, face_texts)
         if ai_runs:
             # Accepted VLM label boxes, checked against the page (``_blank_run``: inside the face, text-sized, only
             # letter-sized strokes inside), are blanked before the final clustering (§3.4): those glyph strokes are
@@ -4864,7 +4877,7 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
             cand["room_type"] = row["room_type"] if row else None
             cand["_ids"] = _expand_ids(cand["item"].evidence.get("entity"))
         ex.report["size_labels"] = _size_label_rows(rows)
-        scale_rows = face_table(face_polys, scale_blocks, bwalls, b_openings, stairs)
+        scale_rows = face_table(face_polys, scale_blocks, bwalls, b_openings, stairs, face_texts)
     else:
         scale_rows = rows
 

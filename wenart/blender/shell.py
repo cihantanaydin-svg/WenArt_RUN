@@ -2841,6 +2841,9 @@ def plan_stairs(building: dict, level: dict, slab_void: bool = False) -> list[di
         if piece.get("build", True) is False:
             out.append({"piece": piece, "plan": None, "reason": STAIR_NOT_BUILT_REASON})
             continue
+        if short_run(piece):
+            out.append(short_run_stair(level, piece, walls))      # 24 Nov 2026: 2-3 risers, never a storey's stair
+            continue
         if top_of_whole:
             out.append(top_level_stair(building, level, piece, walls))
             continue
@@ -2861,6 +2864,41 @@ def plan_stairs(building: dict, level: dict, slab_void: bool = False) -> list[di
                                                   f"drawn: assumed)"})
         out.append({"piece": piece, "plan": plan, "reason": None})
     return out
+
+
+SHORT_RUN_RISER_M = 0.17           # 24 Nov 2026 (UL381): a riser of a short run of steps (0.15-0.19 m, the middle)
+SHORT_RUN_SOURCE = "short run of steps: risers x a normal riser (assumed)"
+
+
+def short_run(piece: dict) -> int:
+    """The risers of a short run of steps (``details.stair.short_steps`` from ``symbols.short_steps``: 2-3 risers
+    at an entrance or a split-level step), 0 for a stair of a storey (pure)."""
+    data = P.stair_data(piece) or {}
+    try:
+        return int(data.get("short_steps") or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def short_run_stair(level: dict, piece: dict, walls: list[dict]) -> dict:
+    """The ``plan_stairs`` item of a short run of steps (pure; 24 Nov 2026, the review of the walls round: the reader's
+    2-3 riser runs were planned as a storey's stair, 4 risers of 0.80 m up to the floor above with a ceiling void).
+    The run climbs only its own risers: the rise is the number of risers ``parametric.stair_plan`` builds from the drawn
+    lines times ``SHORT_RUN_RISER_M``; the ceiling and the shaft cap stay at the level's ceiling, so there is no void,
+    no opening in the floor above and no shaft. The rise is assumed (an ``assumed`` entry and a note)."""
+    ceiling = float(level["ceiling_height"])
+    trial = P.stair_plan(piece, SHORT_RUN_RISER_M * max(short_run(piece), 1), ceiling, ceiling, walls,
+                         SHORT_RUN_SOURCE)
+    risers = int(trial.get("risers") or short_run(piece) or 1)
+    rise = round(risers * SHORT_RUN_RISER_M, 4)
+    plan = P.stair_plan(piece, rise, ceiling, ceiling, walls, SHORT_RUN_SOURCE)
+    plan["short_run"] = risers
+    plan["assumed"].append({"field": "rise_m", "kind": "short_run", "value": rise,
+                            "reason": f"a short run of {risers} risers (drawn {short_run(piece)}) at "
+                                      f"{SHORT_RUN_RISER_M:.2f} m each: it climbs {rise:.2f} m, not to the floor above "
+                                      f"(no void, no shaft)"})
+    plan["notes"].append(f"short run of steps: {risers} risers, {rise:.2f} m (UL381)")
+    return {"piece": piece, "plan": plan, "reason": None}
 
 
 def slab_openings_above(building: dict, level: dict) -> list:

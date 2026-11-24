@@ -845,6 +845,9 @@ def stair_room_label(face, stairs: list = (), turkish: bool = True) -> Optional[
     return STAIR_LABELS["turkish" if turkish else "english"]
 
 
+DUCT_MAX_M2 = 0.5                  # 24 Nov 2026: an unlabelled face under this that no opening reaches is a duct (VOID)
+VOID = "void"                      # ... its type: no room is made of it
+DUCT_WINDOW_REACH_M = 0.15         # ... and no window within this of it (the light wells' and air shafts' reach)
 LIGHT_WELL_MAX_M2 = 12.0           # 3 Nov 2026: a doorless face up to this size that windows of other rooms open onto
 LIGHT_WELL_LABELS = ("Işıklık", "Light well")
 # 21 Nov 2026 (the RC18 reader fix round, user OK; RC18 found real17's 'H.B 50/50' (0.5 x 0.5 m) and real09's 0.85 x
@@ -1073,6 +1076,15 @@ def unlabelled_face_type(face, walls: list, openings: list, stairs: list = (), o
                                  f"of other rooms open onto, {why} (hava bacası, no light well){stack_note}")
             return "shaft", (f"light well: a face of {poly.area:.2f} m2 that no door reaches and {onto} window(s) of "
                              f"other rooms open onto (ışıklık; {why}){stack_note}")
+    if poly.area < DUCT_MAX_M2 and touching == 0 and not glassless and not twins and not n_stacked \
+            and not any(t and str(t).strip() and poly.contains(Point(q)) for t, q in texts) \
+            and not any((p := opening_polygon(o, walls)) is not None and p.buffer(DUCT_WINDOW_REACH_M).intersects(poly)
+                        for o in openings):
+        # 24 Nov 2026 (dataset bench: the duct boxes and leaf cavities the face-pair reader no longer fills with wall,
+        # walls.drop_hole_pairs): a face smaller than any room that no door, window or opening reaches and that holds
+        # no word is a duct in the walls, never a room (``rooms.derive_rooms`` and ``core.face_table`` leave it out);
+        # an air shaft or light well that windows open onto, or one a word names (real03's 'H.B'), is judged above
+        return VOID, f"duct: an unlabelled face of {poly.area:.2f} m2 (under {DUCT_MAX_M2} m2) that no opening reaches"
     if touching >= 2:
         return "hall", f"unlabelled face touching {touching} doors/openings{left_out}"
     # 3 Nov 2026 (real10, user: "red sections are small closets (small rooms with a door to store some stuff

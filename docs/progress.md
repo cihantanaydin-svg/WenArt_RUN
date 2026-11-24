@@ -4897,3 +4897,203 @@ by height, its storeys); the lessons are UL390-UL392 (UL382-UL384 belong to the 
 | 9 | Top-down covers hid the level's own slab, whole terrains; unreal kinds | Fixed (needs the pod). The height counts from the level's own slab top, the level's own slab never counts, a site surface loses only its covering faces (its other modifiers: hidden as before), the keep kinds are kinds the build gives |
 | 10 | Silent changes; sl_L7 evidence; bare terrace; o_L0_001; frame guard | Fixed. Warnings for the frame lines left out, the marks left out of the storey fit and every refused turn; sl_L7's evidence says its outline is the floor below's fallback outline (inferred); a roof terrace level's floor outside its rooms becomes outdoor room(s) 'Teras' (balcony type, inferred: real10 L7 two pieces round the stair house, real13 L4 one); real17 o_L0_001 is a door again: a ground or threshold mark right outside a gap at the floor marks an entrance (its -0.35 mark); a frame is left out only when at most 5 % of the section's other lines end at it |
 | 11 | Lesson ids taken by the walls round | Fixed: UL390, UL391, UL392 |
+
+## 24 Nov 2026, walls round 2, C0099 and short steps (the user: "Start now"; CPU only, no pod)
+
+Base 1a1813a4. Lessons UL382 (holes of the wall outline), UL383 (title strips); the main session's UL380 (C0099) and
+UL381 (short steps) built. Tests `tests/test_rules_walls2_20261124.py` (14, most of them must-not-fire cases).
+
+**Part A, diagnosis** (the five wall classes on `bench_narrow`, every unmatched wall of the 101 projects with walls
+read, crops looked at in b465, b2383, b1128, b2417, b7556, b1737, b1167, b1415, b17105, b2975, b16820, b7276, b5664,
+b787, b208, b4858, b304, b719, b5481, b3005, b2385, b2255, b5926, b2891, b1747, b2486, b1118, b1479, b6529, b17055):
+
+| class | subclass | count | real error or convention | rule |
+|---|---|---|---|---|
+| wall missed (all kinds) | the whole level not read: the plan's dimension line and its title's underline a region of their own that took the title (b1415 L0/L2); a plan drawn in two wings farther apart than the clustering gap (b17105 L1) | 131 truth walls | real (regions) | UL383 (b1415); b17105 open |
+| | a level read in a wrong frame or scale (b1167 L2, b2975 L0, b16820 L0) | 212 truth, 106 read | real (frame) | open |
+| | a truth wall inside a thicker read wall: the face-pair reader paired the inside of a duct box or the cavity between two leaves (face lines on both sides, none between) and fused it with the leaves (b465 L1 0.095 + 0.215 + 0.095 m read 0.405 m; b2383, b1128, b2417, b7556, b1737 duct boxes read 0.47-0.79 m) | about 280 truth (incl. 142 thin) | real | UL382 |
+| | truth walls overlapping each other, junction pieces | 36 | truth convention | - |
+| | a read wall parallel and offset, or covering under 30 % | about 360 | mixed, not analysed | open |
+| wall invented | glazed-facade walls: piers with windows between (b5664 L0, b787 L0); the dataset has no wall there, but the converter draws a wall with a window and piers with a window the same way (the body cut at the opening) | 106 (incl. split) | truth convention (crop `glazed_facade_convention.png`) | - |
+| | wide-gap bridges over empty gaps (rooms need them) | 112 | real, open | - |
+| | face-pair walls fused over ducts and cavities | part of 128 | real | UL382 |
+| wall split | window and door bridges kept as pieces of their own (b208, b4858) | about 70 | mixed | open |
+| | long pieces of the mask and the face pairs | about 220 | not analysed | open |
+| walls merged, thickness | 406, 329 | the thickness misreads are mostly the fused ducts above | - |
+| (precision cap) | walls on storeys the reader guessed above a single plan (`type_default`, 10 projects) | 1990 read walls | convention (storey count) | - |
+| two touching layers (real only) | real10's base reading now has 4 touching pairs of mixed thicknesses (0.14 + 0.60, 0.16 + 0.16 ...), real06 1, none on the bench | 5 | not built (too few, no bench case) | open |
+
+**Rules (every drawing source alike):**
+- *A hole of the wall outline is no wall* (UL382, `walls.layer_rings` / `walls.drop_hole_pairs`, face-pair reader): a
+  layer that draws its walls as closed outlines (the walls' material and, inside it, every hole of it) says by its
+  even-odd fill where the material is. A pair whose band lies inside two of the layer's rings (a duct, a shaft) is no
+  wall piece; so is a band in no ring whose faces have wall pieces (thin rings, 2 x area / perimeter <= 0.60 m) just
+  beyond them and that runs along them at least twice its width (the cavity between two outline pieces cut at the
+  openings, b465). Not judged: a band beside a lining or railing thinner than any read wall (the material must still be
+  there 0.06 m beyond both faces: b2383's 5 cm stair railing, b6529's 4 cm shaft lining keep the old line), a hole a
+  filled path or column outline covers, loose face lines (no rings), rooms drawn as rings (wider than a wall), the two
+  jambs of a window's gap (b1118: as far apart as the gap, as long as the wall is thick). Decision rule `hole`.
+- *A duct is no room* (UL382, `topology.unlabelled_face_type` -> `VOID`, left out by `rooms.derive_rooms` and
+  `core.face_table`): an unlabelled face under 0.5 m2 that no door or opening touches, no window reaches within 0.15 m
+  and no word names. Air shafts and light wells keep their typing (real03's 'H.B' shafts: first version dropped
+  them, fixed).
+- *A strip of lines is part of its plan* (UL383, `sheets.split._line_strip`): a cluster of at most three straight lines or
+  dimensions, no closed shape, at most 0.2 as thick as long, is a satellite of the drawing beside it.
+- **Part B, C0099** (UL380, `openings.lone_furniture_leaf`, `door_tag_at`): a sliding leaf that is one closed shape on a
+  furniture or sanitary layer, in no block named for a door, with no second leaf and no track line along the gap, is no
+  door; a door-high size tag at the gap gives it back. Never silent (`lone_furniture_leaf` in the gap record and the
+  opening's evidence). Fires on real15 L0 d_L0_013 only (the wall w_L0_065 runs on; o_L0_004 beside it is unchanged);
+  bench: none (the converter draws doors with arcs). Must not fire (tests): a leaf on a door layer, on a layer with no
+  role, in a door block, two leaves, a track, a door-high tag; swing doors on a furniture layer are not judged (real03).
+- **Part C, short steps** (UL381, `symbols.short_steps`, in `stair_layer_pass`): a stair-layer cluster of 3-4 equal
+  tread lines (2-3 risers) evenly spaced at a going of 0.18-0.45 m, at least 0.60 m wide, closed into a box by its side
+  lines or crossed by a walking line with an arrow head, and nothing else longer than 0.10 m, is a run of steps
+  (`details.stair.short_steps`); read in its own frame when it stands 1 degree or more off the plan's axes. Must not
+  fire (tests): narrower than 0.60 m, no box and no arrow, a threshold or kerb pair, a stray line, tiles (0.10 m pitch),
+  5 risers (the stair rule's), floor-finish lines. Bench: b2486 L0 two runs of 3 risers, b1747 L0 two of 3, b2891 L3
+  one of 2 (0.39 m going, 4 degrees off) read; b2156's two 0.47 m flights stay unread.
+
+**Bench** (`/home/user/bench_data/bench_walls2.md`, `work_walls2`, against `work_narrow`, same scorer): mean 75.16 ->
+76.21; walls F1 0.723 -> 0.748 (recall 0.736 -> 0.771, precision 0.711 -> 0.725; length-weighted 0.836 -> 0.850),
+rooms 0.755 -> 0.772, windows 0.757 -> 0.772, doors 0.814 -> 0.815, stairs 0.714 -> 0.759, levels 0.882 -> 0.887.
+Classes: wall missed 747 -> 630, thin wall missed 267 -> 173, wall read with another thickness 329 -> 254, wall
+invented 570 -> 518, wall split 471 -> 459, parapet missed 145 -> 118, walls merged 406 -> 415, room invented in a
+cavity 117 -> 49, room missed (shaft) 45 -> 16, window invented 267 -> 219, stair missed 9 -> 4, level missing 3 -> 1,
+door invented 113 -> 129 (inferred lift landing doors on the shafts now read), room label wrong 48 -> 53. 53 projects
+rise (b1415 50.37 -> 89.71: two floors read), 2 change walls only, 5 fall:
+
+| project | fall | cause | kind |
+|---|---|---|---|
+| b6529 | 27.02 -> 26.98 | a 0.90 m landing door inferred (`twins.lift_doors`) on the lift shaft now read as a room; nothing drawn | truth convention (the reader infers landing doors for the build; the truth lists drawn doors only) |
+| b17055 | 27.75 -> 27.74 | the same, two lift shafts | truth convention |
+| b2383 | 90.43 -> 90.40 | one more wall piece read beside the duct box (the box itself stays as before: its band lies by a 5 cm railing) | real, small |
+| b1479 | 68.64 -> 68.53 | walls +3, doors +1, but the 0.29 m balcony strip behind a parapet that was fused into a wall is now open and the kitchen's face merges with the hall | real, exposed |
+| b1737 | 88.91 -> 88.55 | the two duct boxes are read right (4 thin walls matched), but the 1.84 m empty gap between their fronts becomes an empty-gap window (the reader's 'possible undrawn door or window') and three small faces next to it rooms | real, the empty-gap class (open) |
+
+Crops: `/home/user/bench_data/work_walls2_crops/` (`holes_narrow.png` / `holes_final.png`: b465, b2383, b1737, b1479,
+b6529, b17055 before and after; `short_steps_final.png`; `b1415_L0_final.png`; `glazed_facade_convention.png`).
+swiss-b2440 fails to read in both.
+
+**Gate:** `score --gate` holds against 381016c0 (never --update): synthetic overall (gated) 97.5, every synthetic project
+as before; real06, real07, real09, real10, real15, real17 at 100; real15's C0097, C0098 and C0099 hold (doors 2/2,
+openings 1/1).
+
+**Regress** (real08 left out; the 15 synthetic baselines hold; no regress baseline written, no synthetic project added:
+the hole class is in 40+ bench projects and the unit tests). Against readings of the base commit (1a1813a4, read in
+this round) every real reading is the same except:
+
+| project | change | why (crops in `/home/user/bench_data/work_walls2_crops/`) |
+|---|---|---|
+| real15 L0 | doors 19 -> 18 | C0099: d_L0_013 (one loose Z_tefriş rectangle) is no door, the wall w_L0_065 runs on |
+| real15 L1 | rooms 23 -> 22 | a 0.13 m2 unlabelled triangle 'Merdiven' between a wall and a diagonal piece (a leaf read as a wall, pre-existing) is no room (`real15_L1_small_face_new.png`) |
+| real10 L7 | rooms 5 -> 4, walls 105 -> 106 | a 0.20 m2 'Oda' between a wall and a window leaf drawn on PENCERE read as a diagonal wall (pre-existing) is no room; one wall end split into a 0.12 m block at the same corner (`real10_L7_duct_*.png`) |
+| real19 L2 | rooms 23 -> 22 | a 0.42 m2 box crossed by a diagonal (a shaft's symbol), no opening: no 'Oda' (`real19_L2_duct_new.png`) |
+
+real03's air shafts ('Hava Bacası', 0.32-0.35 m2, windows of other rooms onto them and 'H.B' written in them) were
+dropped by the first version of the duct rule (9 per floor): fixed before the final readings (the rule now comes after
+the light-well and air-shaft typing and needs no window within 0.15 m and no word in the face); real03, real13 (1-2
+small faces a floor in the first version) and real14 read as before.
+
+**Misfires found and fixed while measuring:** the band between the two jambs of a window's gap in an angled wall
+(b1118 L1: the gap's jamb lines 0.5 m apart, as long as the wall is thick) taken as a cavity, a whole wing lost: a band
+must run along its faces at least twice its width; b2383's 5 cm stair railing and b6529's 4 cm shaft lining beside a
+band: the band is judged only where the material is still there 0.06 m beyond both faces (b6529's tagged door came
+back); real03's air shafts (above).
+
+**Tests:** the new file 14 passed; the touched modules' files (generic walls, openings, symbols, topology, rooms, sheets
+split and classify, the rule files of 22-23 Nov, reader targets A and B, M11 split, outdoor rooms) 579 passed.
+
+**Still open:** b17105 L1 (a plan in two wings farther apart than the clustering gap: its title still goes to the
+underline); three levels read in a wrong frame or scale (b1167 L2, b2975 L0, b16820 L0: 212 missed walls); b1737's
+empty gap between two duct fronts (the empty-gap class); b1479's balcony strip; the glazed-facade walls (a truth
+convention, not touched); the 85 empty-gap bridges; frames with a free side (BLD-09); two touching layers (5 pairs on
+real readings, none on the bench); walls on guessed storeys (1990 read walls, a convention of the storey count).
+
+### Round 2b (the coordinator: "the no-fall bar must hold"; lesson UL384)
+
+Two real-error falls of the round fixed with general rules (`tests/test_rules_walls2_20261124.py`, 17 tests now):
+
+- **b1737, an empty gap between two duct fronts** (`openings.box_front`, in the run-gap loop of `gaps_and_openings_frame`).
+  Cause: the two duct boxes, now read right, put their 0.095 m fronts on one line; the 1.84 m empty gap between them (the
+  end of a corridor whose walls are the boxes' inner sides) was read as an empty-gap opening, typed a window, which shut
+  the corridor's end into a 0.88 m2 face and, a window being near, kept the two ducts as rooms. Rule: an empty gap (no
+  door, window or anything drawn in it) between two pieces that are each the front of a small closed box (perpendicular
+  pieces meet both ends and run back to a parallel piece covering the front 0.15-0.80 m behind it; front 0.40-2.0 m;
+  inside at most 1 m2) is no opening: two walls on one line (`split_reason` in the gap log). Must not fire (tests): piers
+  between windows (nothing meets their ends), a front with one free end, a storeroom 1.2 m deep; a window's lines or a
+  door's swing in the gap keep it (only `empty` gaps). A first version took 4 cm jamb ends and 3 cm plaster strips for
+  fronts on real10 L0-L6 (1.42 and 1.49 m gaps opened): the sizes above fixed it (fires on no real project).
+- **b1479, a balcony strip opened** (`walls.drop_hole_pairs`, new argument `anchors`). Cause: the 0.29 m BALKON between
+  the kitchen's angled wall and its 0.20 m parapet had been fused into a 0.49 m wall that closed the kitchen; the round
+  opened it, but the kitchen's door to the balcony is read on another wall (an old misread) and the angled wall above
+  the door is not read, so the kitchen's face leaked through the strip and the kitchen was lost. Rule: a band in no ring
+  with a room label within 0.30 m is a named space, not a cavity: it is left as read (the room label 'BALKON' stands at
+  the strip). Must not fire (test): the same cavity unnamed, or with the label 2 m away, still opens; holes inside the
+  outline (shafts, ducts) are not affected.
+
+**Bench** (`/home/user/bench_data/bench_walls2b.md`, `work_walls2b`, against `bench_narrow`): mean 75.16 -> 76.22; F1
+walls 0.723 -> 0.747 (length-weighted 0.836 -> 0.850), rooms 0.755 -> 0.773, windows 0.757 -> 0.773, doors 0.814 ->
+0.815, stairs 0.714 -> 0.759, levels 0.882 -> 0.887. Classes: wall missed 747 -> 630, thin wall missed 267 -> 173, wall
+read with another thickness 329 -> 256, wall invented 570 -> 520, wall split 471 -> 458, walls merged 406 -> 411,
+parapet missed 145 -> 120, room invented in a cavity 117 -> 46, room missed (shaft) 45 -> 16, window invented 267 ->
+218, stair missed 9 -> 4, level missing 3 -> 1, door invented 113 -> 129, room label wrong 48 -> 53. 56 projects rise,
+3 fall: b6529 (27.02 -> 26.98) and b17055 (27.75 -> 27.74), each only an inferred 0.90 m lift landing door on a shaft
+now read (nothing drawn; the truth lists drawn doors only: truth convention, crop `lift_doors_convention.png`); b2383
+(90.43 -> 90.40, explained below). b1737 88.91 -> 89.16 and b1479 68.64 -> 68.79 now rise (crop `round2b_fixed.png`).
+
+**b2383 (-0.03), not covered by these rules:** the truth wall T65 (0.14 m, 4.56-6.42 m) runs above a 0.6 x 0.2 m slot
+(the space between it and the 0.18 m wall below, open at its left end) and above the duct box beside the 5 cm stair
+railing. The slot's band is now open (no material: right), so T65's left 0.55 m is read 0.14 m thick, but its right part
+stays in the old fused 0.47 m wall (the railing guard keeps that band); the truth wall is matched by neither piece (one
+'wall split' more). A slot open at one end cannot be told from b465's cavity (open at one end too) by the drawing alone;
+the fused band beside the railing is the existing open point of thin railings (MIN_WALL_M).
+
+Gate (round 2b): holds against 381016c0 (never --update), synthetic overall 97.5, real06/07/09/10/15/17 at 100 (C0097,
+C0098, C0099 hold). Regress (real08 left out): the 15 synthetic baselines hold; real03, real06, real07 print the same
+lines as the base commit; every real reading is as in round 2 (above) except real14 L7b and L7d, where the box rule
+fires: two 0.70 x 0.50 m boxes 1.81 m apart had their top and bottom lines bridged by two 1.81 m empty 'openings'; now
+two closed boxes, no openings (openings 4 -> 2 and 2 -> 0, walls +2, rooms the same; crop
+`real14_L7b_box_fronts.png`, read with the rule off and on). The label guard keeps 2 bands on real03 and 1 on real14
+(their readings as before). CPU tests: 582 passed. Final bench readings `work_walls2b` (the round-2 readings
+`work_walls2` deleted, its report `bench_walls2.*` kept).
+
+### Round 2c (the independent review of rounds 2/2b: "merge after fixes"; lesson UL385)
+
+Each finding, fixed as a general rule with tests (`tests/test_rules_walls2_20261124.py`, 25 tests now), or explained:
+
+| # | finding | fixed how |
+|---|---|---|
+| 1 HIGH | short steps built as a storey's stair (swiss-b2486 L0 f_L0_003/004: 4 risers of 0.80 m, void) | fixed: `shell.short_run` / `short_run_stair` (separate functions, `parametric.py` untouched): a piece with `stair.short_steps` is planned with rise = the risers `parametric.stair_plan` builds x 0.17 m, ceiling and shaft cap at the level's ceiling (no void, no floor opening, no shaft), the rise an `assumed` entry and a note; b2486 L0 now 4 risers of 0.17 m, rise 0.68 m, void False. The reader's evidence note says "short steps (UL381): N risers ... built as a short run" (`symbols._stair_item`). |
+| 2 HIGH/MEDIUM | the hole rule broke the wall over a duct and a drawn door was lost (swiss-b534 L0/L1) | fixed: `walls.close_hole_ends`: a pair of the other direction whose face lies on a dropped band's end and covers the band runs on over the duct's two leaves (their junction squares), so the wall across the duct's end stays whole. b534 L0's wall across the duct now starts at the door's jamb (12.12 m), the 0.95 m doors on L0 and L1 are read again (doors F1 back to 0.954), b534 88.55. Tried first and dropped: carving the bands out of the finished walls (every earlier step on the old fused walls): it split level outlines (swiss-b1747 L1 lost all its rooms) and scored worse on the 12 review projects (walls 0.693 / rooms 0.629 against 0.718 / 0.682). |
+| 3 MEDIUM | `box_front` never checks behind the gap | fixed: `openings.box_fronts_gap`: both boxes on the same side, and that side behind the gap closed within the boxes' depth by a parallel wall, or the walls at both gap ends stopping at the boxes' back wall (`BOX_BACK_WALL_M`); never on a facade (a point 0.5 m in front of the gap outside the hull of every wall); its own decision rule `open_box_fronts`. Tests: a doorway into a room between two shafts, a facade, the b1737 niche and real14's free-standing boxes. |
+| 4 MEDIUM | even-odd with overlapping rings | fixed: `walls.rings_nested`: a layer two of whose rings overlap without one inside the other gets no rings (no judgement); every band is tested at 0.2, 0.5 and 0.8 of its length, every probe alike. Tests: two crossing wall rectangles, a column square across a wall ring. |
+| 5 MEDIUM | small room or shaft rings counted as thin wall pieces | fixed: a local leaf test instead of 2 x area / perimeter: material beyond each face out to 6 cm in one ring that ends within 0.52 m of the face (beyond a room's or a 0.6 m shaft's face lies its whole width). Tests: the partitions between 1.0 x 1.1 / 0.9 x 1.1 rings and between two 0.6 x 1.2 rings stay. |
+| 6 MEDIUM-LOW | sandwich walls split | fixed: a band is dropped only when nothing of any layer but dimensions, axes and texts is drawn inside it (1 cm in from its edges; `_drawn_lines`). Test: two leaves with an 8 cm zigzag insulation band on another layer stay one wall. |
+| 7 LOW | dead structure path; `face_table` without texts; unlogged VOID drop; `by_tag` unlogged; VOID floor finish; b17055's cavity room | fixed: closed outlines on a structure layer are solids, never rings (test with an unfilled KOLON outline); `core.face_table` gets the page's texts (the same duct test as the pipeline's room typing), notes each VOID face, its docstring names VOID; `by_tag` is written to the gap log, the decision record and the opening's evidence (`lone_leaf_by_tag`). Not changed: a VOID face gets no floor finish on purpose (a duct or shaft void has no floor in the building). b17055's new 'room invented in a wall cavity' (Oda at 11.73, 4.55) is the narrow face beside a lift shaft that the shaft's inferred landing door touches, so it is no doorless duct: explained, not changed (the inferred lift doors are the truth convention below). |
+
+**Bench** (`/home/user/bench_data/bench_walls2c.md`, `work_walls2c`, against `bench_narrow`): mean 75.16 -> 76.22; F1
+walls 0.723 -> 0.747 (length-weighted 0.836 -> 0.850), rooms 0.755 -> 0.772, windows 0.757 -> 0.773, doors 0.814 ->
+0.815, stairs 0.714 -> 0.759, levels 0.882 -> 0.887. Classes: wall missed 747 -> 624, thin wall missed 267 -> 177, wall
+read with another thickness 329 -> 259, wall invented 570 -> 520, wall split 471 -> 457, walls merged 406 -> 411,
+parapet missed 145 -> 120, room invented in a cavity 117 -> 46, room missed (shaft) 45 -> 16, window invented 267 -> 217,
+stair missed 9 -> 4, level missing 3 -> 1, door invented 113 -> 130, rooms merged 150 -> 154, room label wrong 48 -> 53.
+57 projects rise, 3 fall: b6529 (27.02 -> 26.98) and b17055 (27.75 -> 27.74), inferred lift landing doors (truth
+convention, crop `lift_doors_convention.png`), and b2383 (90.43 -> 90.40, explained in round 2b).
+
+**Per-kind drops inside rising totals** (the reviewer's list and the rest):
+
+| project | kind | cause |
+|---|---|---|
+| b534 | doors 0.954 -> 0.954 | fixed (finding 2) |
+| b17068 | doors 0.977 -> 0.925 | five inferred 0.90 m lift landing doors on the lift shafts now read (ASANSOR, ASANSOR KULESI, SAFT: room missed (shaft) gone on every floor); nothing drawn: truth convention |
+| b465, b1167, b2912, b17055, b6529 | doors | the same inferred lift landing doors (b2912 also a 2.01 m inferred door) |
+| b1747 | rooms 0.795 -> 0.787 | the same 35 rooms matched, one more read: two entrance halls (ANTRE) on L1 now read merged with a neighbour where an empty band beside them opened, two other merges gone |
+| b6708 | rooms 0.250 -> 0.222 | the same 2 of 6 rooms matched (a broken level), 2 more small faces next to newly read ducts typed 'Depo' (a door touches them, so no duct void) |
+| b16820 | windows 0.423 -> 0.400 | L0 is one of the three levels read in a wrong frame or scale (open): its newly read facade walls bring facade windows that cannot match |
+| b2383 | walls 0.789 -> 0.784 | round 2b (one wall piece more beside the duct box) |
+
+**Gate, regress, real projects:** `score --gate` holds against 381016c0 (never --update): synthetic overall 97.5, real06/07/09/10/15/17 at 100 (C0097, C0098, C0099 hold). Regress (real08 left out): the 15 synthetic baselines hold; real03, real06, real07, real10, real15 and real17 print the same lines as before this round.
+
+**Real projects against base-commit readings** (read in this round): real02, real12, real16 and real18 are identical to the base commit (every wall, opening and room in place within 2 cm); real14 is identical on all 18 floors but L7b and L7d (the box rule on its two flue boxes, as in round 2b; the hole rule's drops on its plaster layer SIVA change no wall). The other real changes are those of round 2 (real15 C0099 and a 0.13 m2 triangle, real10 L7, real19 L2's crossed shaft box).
+
+**Tests:** CPU 590 passed (the new file 25; the touched modules' files), stair and shell files 64 passed (4 skipped).
