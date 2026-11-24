@@ -303,3 +303,104 @@ def test_a_named_strip_is_left_as_read():
     assert len(W.drop_hole_pairs(pairs, rings["DUVAR"], solids)[1]) == 1
     assert W.drop_hole_pairs(pairs, rings["DUVAR"], solids, [(0.2, 1.5)])[1] == []
     assert len(W.drop_hole_pairs(pairs, rings["DUVAR"], solids, [(2.0, 1.5)])[1]) == 1   # a label farther away
+
+
+# --- round 2c (the review of rounds 2 and 2b) --------------------------------------------------------------------------
+
+def test_box_fronts_gap_needs_the_space_behind_closed_or_ending_with_the_boxes():
+    f1, f2, pieces = _duct_row()
+    assert O.box_fronts_gap(f1, f2, pieces) and "closed behind" in O.box_fronts_gap(f1, f2, pieces)
+    # real14 L7b: two free-standing 0.70 x 0.50 m boxes, nothing behind the gap, inside a hall
+    b1 = [_piece("h", 0.0, 0.1, 0.0, 0.7), _piece("h", 0.5, 0.1, 0.0, 0.7),
+          _piece("v", 0.0, 0.1, -0.05, 0.55), _piece("v", 0.7, 0.1, -0.05, 0.55)]
+    b2 = [_piece("h", 0.0, 0.1, 2.5, 3.2), _piece("h", 0.5, 0.1, 2.5, 3.2),
+          _piece("v", 2.5, 0.1, -0.05, 0.55), _piece("v", 3.2, 0.1, -0.05, 0.55)]
+    hall = [_piece("h", -3.0, 0.2, -1.0, 4.2), _piece("v", -1.0, 0.2, -3.0, 2.5), _piece("v", 4.2, 0.2, -3.0, 2.5),
+            _piece("h", 2.5, 0.2, -1.0, 4.2)]
+    assert O.box_fronts_gap(b1[0], b2[0], b1 + b2 + hall)
+
+
+def test_must_not_fire_box_fronts_a_doorway_between_shafts_or_a_facade():
+    f1, f2, pieces = _duct_row()
+    # (a) a doorway into a room between two shafts: no wall behind the gap, the shafts' inner sides run on past them
+    room = [p for p in pieces if not (p.axis == "h" and abs(p.c - 7.215) < 0.01)
+            and not (p.axis == "v" and abs(p.c - 7.556) < 0.01) and not (p.axis == "v" and abs(p.c - 9.526) < 0.01)]
+    room += [_piece("h", 7.215, 0.17, 5.78, 7.556), _piece("h", 7.215, 0.17, 9.526, 11.24),
+             _piece("v", 7.556, 0.12, 2.2, 10.0), _piece("v", 9.526, 0.145, 1.14, 10.0),
+             _piece("h", 10.0, 0.2, 5.78, 11.24)]
+    assert O.box_fronts_gap(f1, f2, room) is None
+    # (b) a facade: the boxes behind it, nothing of the building in front of the gap
+    facade = [p for p in pieces if p.axis == "h" or p.a > 6.0]                  # the corridor walls below are gone
+    assert O.box_fronts_gap(f1, f2, facade) is None
+
+
+def test_a_layer_whose_rings_cross_has_no_even_odd_fill():
+    # two wall rectangles crossing at the middle of one (review 4): the 4.2 m wall must not drop
+    page = _page([_box("w1", 0.0, 0.0, 4.2, 0.2), _box("w2", 2.0, -1.0, 2.2, 1.0)])
+    assert "DUVAR" not in W.layer_rings(page, 1.0)[0]
+    # a 0.4 x 0.4 column ring across a wall ring mid-way on the same layer
+    page = _page([_box("w", 0.0, 0.0, 4.2, 0.2), _box("c", 2.0, -0.1, 2.4, 0.3)])
+    assert "DUVAR" not in W.layer_rings(page, 1.0)[0]
+    # nested rings (a duct inside the outline) keep their fill
+    assert "DUVAR" in W.layer_rings(_duct_page(), 1.0)[0]
+
+
+def test_must_not_fire_between_small_rooms_or_shafts_drawn_as_rings():
+    for a, b in (((0.0, 0.0, 1.0, 1.1), (1.2, 0.0, 2.1, 1.1)), ((0.0, 0.0, 0.6, 1.2), (0.8, 0.0, 1.4, 1.2))):
+        page = _page([_box("r1", *a), _box("r2", *b)])
+        rings, solids = W.layer_rings(page, 1.0)
+        pairs = [p for p in _pairs(page) if abs(p.width - 0.2) < 1e-6]
+        assert pairs and W.drop_hole_pairs(pairs, rings["DUVAR"], solids)[1] == []
+
+
+def test_must_not_fire_a_sandwich_wall_whose_insulation_is_drawn():
+    leaves = [_box("a", 0.0, 0.0, 0.10, 3.0), _box("b", 0.18, 0.0, 0.28, 3.0)]
+    zig = Stroke("z", "polyline", [(0.11 + 0.06 * (k % 2), 0.1 * k) for k in range(30)], layer="ISI")
+    page = _page(leaves + [zig])
+    rings, solids = W.layer_rings(page, 1.0)
+    pairs = [p for p in _pairs(page) if abs(p.width - 0.08) < 1e-6]
+    assert pairs and W.drop_hole_pairs(pairs, rings["DUVAR"], solids, drawn=W._drawn_lines(page, 1.0))[1] == []
+    page2 = _page(leaves)                                     # nothing drawn between the leaves: a cavity
+    assert len(W.drop_hole_pairs(pairs, W.layer_rings(page2, 1.0)[0]["DUVAR"], [],
+                                 drawn=W._drawn_lines(page2, 1.0))[1]) == 1
+
+
+def test_a_column_outline_on_a_structure_layer_fills_the_hole():
+    page = _page([_box("ext", 0.0, 0.0, 4.0, 0.6), _box("hole", 0.5, 0.2, 3.5, 0.4),
+                  _box("col", 0.5, 0.2, 3.5, 0.4, layer="KOLON")])          # unfilled column outline
+    rings, solids = W.layer_rings(page, 1.0)
+    assert solids and "KOLON" not in rings
+    pairs = [p for p in _pairs(page) if p.width < 0.3 and abs(p.u[0]) > 0.9]
+    assert W.drop_hole_pairs(pairs, rings["DUVAR"], solids)[1] == []
+
+
+def test_the_wall_across_a_ducts_end_runs_on_over_its_leaves():
+    # swiss-b534 L0: a 0.235 m duct between a 0.155 m and a 0.12 m leaf, a 0.31 m wall across its top; the wall's lower
+    # face is the duct ring's edge over the duct only, the leaves' faces run into it: once the duct's band is dropped the
+    # wall across must still cover the leaves' tops (its junction squares)
+    page = _page([_box("body", 12.275, 6.742, 16.3, 7.943), _box("duct", 12.43, 6.888, 12.665, 7.633),
+                  _box("room", 12.785, 6.742, 16.3, 7.633)])
+    rings, solids = W.layer_rings(page, 1.0)
+    pairs = _pairs(page)
+    kept, holes = W.drop_hole_pairs(pairs, rings["DUVAR"], solids)
+    assert len(holes) == 1 and abs(holes[0].width - 0.235) < 1e-6
+    closed = W.close_hole_ends(kept, holes)
+    across = [p for p in closed if abs(p.width - 0.31) < 1e-6 and abs(p.u[0]) > 0.9]
+    assert any(p.lo <= 12.275 + 1e-6 and p.hi >= 12.785 - 1e-6 for p in across)
+    assert W.close_hole_ends(kept, []) == kept
+
+
+def test_short_steps_are_built_as_a_short_run():
+    from wenart.blender import shell as SH
+    piece = {"id": "f_L0_003", "level_id": "L0", "type": "stair",
+             "footprint": {"center": [0.4, 0.48], "size": [0.8, 0.96], "rotation_deg": 0.0},
+             "stair": {"flights": [{"start": [0.4, 0.0], "end": [0.4, 0.96], "width": 0.8, "lines": 4,
+                                    "spacing": 0.32}], "landing": None, "short_steps": 3}}
+    level = {"id": "L0", "elevation": 0.0, "ceiling_height": 2.7}
+    b = {"levels": [level, {"id": "L1", "elevation": 3.0, "ceiling_height": 2.7}], "walls": [], "furniture": [piece]}
+    plan = SH.plan_stairs(b, level)[0]["plan"]
+    assert plan["short_run"] >= 3 and plan["rise_m"] < 0.8 and not plan["void"]
+    assert 0.15 <= plan["riser_m"] <= 0.19
+    assert any(a["kind"] == "short_run" for a in plan["assumed"])
+    piece["stair"]["short_steps"] = 0                         # a storey's stair keeps the storey's rise
+    assert SH.plan_stairs(b, level)[0]["plan"]["rise_m"] > 2.5

@@ -61,6 +61,8 @@ RULE_CONFIDENCE: dict[str, float] = {
     "open_wide": 0.90,             # a gap over GAP_MAX_M: two walls, topology decides
     "open_lined": 0.80,            # a thinner wall runs along one face: columns on that wall, not one wall with gaps
     "open_split": 0.70,            # a split run gap whose part holds no symbol: two walls on one line (real02)
+    "open_box_fronts": 0.70,       # 24 Nov 2026: an empty gap between the fronts of two small boxes (ducts, shafts)
+                                   # closed behind or ending with them: two walls on one line (openings.box_fronts_gap)
     "doorless": 0.50,              # nothing in the band and no door-like arc: a passage, or an undrawn door or window
     "unclassified": 0.20,          # strokes in the band that no rule reads: the weakest answer of the cascade
     "end_gap_open": 0.60,          # an end gap with no door or window drawn makes no element: the free end stays free
@@ -431,6 +433,8 @@ def caller_rule(g) -> Optional[str]:
         return "closed_inside_wall"
     if found.get("lining"):
         return "open_lined"
+    if found.get("box_fronts"):
+        return "open_box_fronts"
     if found.get("split_reason"):
         return "open_split"
     if g.kind == "end" and g.cls in ("empty", "unclassified"):

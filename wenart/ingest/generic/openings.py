@@ -729,6 +729,8 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set, log=None) -> Non
         rec["leaves_blocked"] = g.blocked          # 22 Nov 2026 (UL365): an end gap makes no item; the record keeps it
     if g.lone_leaf and g.cls != "door":
         rec["lone_furniture_leaf"] = lone_leaf_note(g)      # 24 Nov 2026 (UL380): never silent, whatever the gap became
+    if g.found.get("by_tag"):
+        rec["lone_leaf_by_tag"] = by_tag_note(g)
     log.add_gap(g, rec)
     # the ranker decides later, once every gap is classified and the walls are merged (``gaps_and_openings``: the
     # exterior test and the mirror twin's answer are features it needs)
@@ -858,7 +860,8 @@ def gap_rule(g: Gap, features: dict, raster: bool = False) -> tuple[str, float]:
         rule = "closed_wall_faces" if found.get("faces") else ("closed_inside_wall" if found.get("inside")
                                                                else "closed_narrow")
     elif cls == "open":
-        rule = "open_lined" if found.get("lining") else ("open_split" if found.get("split_reason") else "open_wide")
+        rule = "open_lined" if found.get("lining") else ("open_box_fronts" if found.get("box_fronts") else
+                                                         ("open_split" if found.get("split_reason") else "open_wide"))
     elif cls == "empty":
         rule = "doorless"
     else:
@@ -1741,6 +1744,13 @@ def door_tag_at(g: Gap, texts: list) -> bool:
     return bool(tf.get("tag_door_like")) and tf.get("tag_distance", 99.0) <= g.width / 2.0 + LONE_LEAF_TAG_M
 
 
+def by_tag_note(g: Gap) -> str:
+    """The record of a lone furniture-layer leaf given back as a sliding door by a door-high size tag (UL380)."""
+    st = g.lone_leaf[0].st if g.lone_leaf else None
+    return (f"one loose closed shape on the furniture layer '{getattr(st, 'layer', '?')}' "
+            f"({getattr(st, 'id', '?')}) is a sliding leaf: a door-high size tag stands at the {g.width:.2f} m gap (UL380)")
+
+
 def lone_leaf_note(g: Gap) -> str:
     """The record of a lone furniture-layer leaf turned down (``lone_furniture_leaf``)."""
     st = g.lone_leaf[0].st
@@ -2264,11 +2274,10 @@ def gaps_and_openings_frame(walls: list[WallItem], strokes_m: list[Stroke], file
             # became a 'window' and closed off the corridor's end; three small faces became rooms): an empty gap
             # (nothing drawn in it) between two pieces that are each the front of a small closed box (a duct, a shaft:
             # ``box_front``) is no opening: the two fronts are two walls on one line, never one wall with a gap
-            boxes = [box_front(x, ends) for x in (p, q)]
-            if all(boxes) and found and all(_symbol_cls(g) == "empty" for g in found):
+            why = box_fronts_gap(p, q, ends) if found and all(_symbol_cls(g) == "empty" for g in found) else None
+            if why is not None:
                 for g in found:
-                    g.found = {"split_reason": f"an empty gap between the fronts of two small boxes ({boxes[0]}; "
-                                               f"{boxes[1]}): two walls on one line, no opening"}
+                    g.found = {"box_fronts": why, "split_reason": why}
                     g.cls = "open"
                 gaps.extend(found)
                 continue
@@ -2448,6 +2457,8 @@ def gaps_and_openings_frame(walls: list[WallItem], strokes_m: list[Stroke], file
                 item.evidence["furniture_leaf"] = g.furniture_leaf      # 23 Nov 2026 (UL371): never silent
             if g.lone_leaf and item.kind != "door":
                 item.evidence["lone_furniture_leaf"] = lone_leaf_note(g)   # 24 Nov 2026 (UL380): never silent
+            if g.found.get("by_tag") and item.kind == "door":
+                item.evidence["lone_leaf_by_tag"] = by_tag_note(g)          # 24 Nov 2026 (UL380): never silent
             if g.blocked and item.kind != "door":
                 # 22 Nov 2026 (UL365): never silent: the open leaves the clear-passage test turned down
                 item.evidence["leaves_blocked"] = (f"two lines fitted a door's leaves opened at 90 degrees, but "
@@ -2700,11 +2711,57 @@ BOX_DEPTH_M = (0.15, 0.80)      # 24 Nov 2026: a small closed box (a duct, a sha
 BOX_AREA_MAX_M2 = 1.0           # ... at most this big inside ...
 BOX_FRONT_M = (0.40, 2.0)       # ... with a front this long (shorter: a jamb or a stub; real10 L0-L6, 4 cm "fronts")
 BOX_TOL_M = 0.05
+BOX_BACK_WALL_M = 0.30          # ... a wall at a gap end may run on through the boxes' back wall, this far past their inside
 
 
-def box_front(p: Piece, pieces: list[Piece]) -> Optional[str]:
-    """24 Nov 2026 (walls round 2b; swiss-b1737 L0's two duct boxes either side of a corridor's end): a note when wall
-    piece ``p`` is the front of a small closed box on one side: perpendicular pieces meet both its ends (their centre
+BOX_OUTSIDE_PROBE_M = 0.5       # 24 Nov 2026: a point this far in front of the gap outside every wall's hull: a facade
+
+
+def box_fronts_gap(p: Piece, q: Piece, pieces: list[Piece]) -> Optional[str]:
+    """24 Nov 2026 (walls round 2b and its review): the note when the empty run gap between ``p`` and ``q`` lies between
+    the fronts of two small boxes on the same side (``box_front``) and that side behind the gap is closed or ends with
+    the boxes: a parallel piece behind the gap covers it within the boxes' depth (swiss-b1737: a niche between two
+    ducts, closed by the wall behind them), or the walls at both gap ends stop at the boxes' backs (real14 L7b: two
+    free-standing flue boxes); else None (pure). Never on a facade: a point ``BOX_OUTSIDE_PROBE_M`` in front of the gap
+    outside the hull of every wall piece. A doorway into a room between two shafts (the room's side walls run on past
+    the shafts), two facade pieces either side of an unread window, a gap between two wardrobes (no box behind both)
+    give None."""
+    fa, fb = box_front(p, pieces), box_front(q, pieces)
+    if not fa or not fb or fa[0] != fb[0]:
+        return None
+    side, depth = fa[0], max(fa[1], fb[1])
+    a, b = p.b, q.a
+    lo, hi = p.c - p.t / 2.0, p.c + p.t / 2.0
+    face = hi if side > 0 else lo
+    from shapely.geometry import MultiPoint
+    pts = [pt for w in pieces for pt in ((w.a, w.c - w.t / 2), (w.b, w.c + w.t / 2))
+           if w.axis == p.axis] + [pt for w in pieces for pt in ((w.c - w.t / 2, w.a), (w.c + w.t / 2, w.b))
+                                   if w.axis != p.axis]
+    hull = MultiPoint(pts).convex_hull if pts else None
+    front = (p.c - side * (p.t / 2.0 + BOX_OUTSIDE_PROBE_M))
+    probe = Point(((a + b) / 2.0, front) if p.axis == "h" else (front, (a + b) / 2.0))
+    if hull is None or not hull.buffer(1e-6).contains(probe):
+        return None
+    closed = any(v.axis == p.axis and v is not p and v is not q
+                 and BOX_DEPTH_M[0] <= (v.c - p.c) * side <= depth + p.t + BOX_TOL_M
+                 and v.a <= a + BOX_TOL_M and v.b >= b - BOX_TOL_M for v in pieces)
+    if not closed:
+        back = face + side * (depth + BOX_BACK_WALL_M)     # the boxes' back wall's far face, about
+        for x in (a, b):
+            for w in pieces:
+                if w.axis == p.axis or abs(w.c - x) > w.t / 2.0 + 0.2:
+                    continue
+                if (side > 0 and w.a <= hi + BOX_TOL_M and w.b > back + 0.05) or \
+                        (side < 0 and w.b >= lo - BOX_TOL_M and w.a < back - 0.05):
+                    return None                 # a wall at a gap end runs on past the boxes: a room behind the gap
+    return (f"an empty gap between the fronts of two small boxes ({fa[2]}; {fb[2]}), "
+            + ("closed behind by the wall behind the boxes" if closed else "nothing behind it past the boxes")
+            + ": two walls on one line, no opening")
+
+
+def box_front(p: Piece, pieces: list[Piece]) -> Optional[tuple]:
+    """24 Nov 2026 (walls round 2b; swiss-b1737 L0's two duct boxes either side of a corridor's end): ``(side, depth,
+    note)`` when wall piece ``p`` is the front of a small closed box on one side: perpendicular pieces meet both its ends (their centre
     lines within their half thickness and ``BOX_TOL_M`` of its ends) and run to that side as far as a parallel piece
     that covers its whole length ``BOX_DEPTH_M`` behind it, the inside at most ``BOX_AREA_MAX_M2``, the front at most
     ``BOX_FRONT_M`` long; else None (pure). A free-standing pier, a wall whose ends meet nothing, a room deeper than
@@ -2731,7 +2788,7 @@ def box_front(p: Piece, pieces: list[Piece]) -> Optional[str]:
                         ok += 1
                         break
             if ok == 2 and depth * length <= BOX_AREA_MAX_M2:
-                return f"a {length:.2f} x {depth:.2f} m box behind the front"
+                return side, depth, f"a {length:.2f} x {depth:.2f} m box behind the front"
     return None
 
 
@@ -3575,6 +3632,8 @@ def _log_entry(g: Gap, theta: float, piece_out: dict) -> dict:
         entry["furniture_leaf"] = g.furniture_leaf      # 23 Nov 2026 (UL371): never silent
     if g.lone_leaf and g.cls != "door":
         entry["lone_furniture_leaf"] = lone_leaf_note(g)      # 24 Nov 2026 (UL380): never silent
+    if g.found.get("by_tag"):
+        entry["lone_leaf_by_tag"] = by_tag_note(g)            # 24 Nov 2026 (UL380): never silent
     if g.found.get("lining"):
         entry["lining"] = {k: v for k, v in g.found["lining"].items() if k != "note"}
     # Fix round after P6b: the rule that decided a gap the old reading took for a window or an opening (the core lists

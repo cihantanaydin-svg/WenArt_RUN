@@ -2914,8 +2914,11 @@ def _stair_item(cl: Cluster, stair: dict, fp, ctx: _Ctx, raster: bool, notes: li
         if stair.get(key) is not None:
             details["stair"][key] = stair[key]
     ev = ctx.evidence(cl.stroke_ids(), raster=raster, box=box,
-                      note=f"stair rule: {len(flights)} flight(s), {', '.join(str(f['lines']) for f in flights)} "
-                           f"tread lines")
+                      note=(f"short steps (UL381): {stair['short_steps']} risers, marked by "
+                            f"{stair.get('short_steps_mark') or 'its outline'}; built as a short run, not a storey's "
+                            f"stair" if stair.get("short_steps") else
+                            f"stair rule: {len(flights)} flight(s), {', '.join(str(f['lines']) for f in flights)} "
+                            f"tread lines"))
     widths = ", ".join(f"{f['width']:.3f}" for f in flights)
     notes.append(f"stair at ({fp[0][0]:.2f}, {fp[0][1]:.2f}): {len(flights)} flight(s) of {widths} m")
     return FurnitureItem(type="stair", type_raw=None, center=_r(fp[0]), size=size, rotation_deg=rotation,
