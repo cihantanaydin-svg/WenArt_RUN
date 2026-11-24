@@ -262,6 +262,94 @@ def _report_covers(level_id: str, z: float, box=None) -> list:
     return out
 
 
+# 24 Nov 2026 (structure pod of 24 Nov: real17 L2/L3, real06 L1, real15 L1 and real10 L-1 showed one dark plate over the
+# whole floor at the cut height, only tall fixtures poking through; real21 L4 on 20 Nov): the section cut caps an open
+# site surface (the ground, its backdrop ring) with one large face, and the footprint carve tests vertices only, which
+# that face has none of inside the footprint. Nothing may cover a level in its own view: a visible mesh with up-facing
+# faces at least COVER_RISE_M over the floor that hold sample points of the level's footprint box (3 x 3 at 1/6, 1/2,
+# 5/6) in two rows and two columns (a surface, never one long wall's cut top) is a cover; a cut wall, door or window is
+# cut again by a plane (its own section only), anything else is hidden for the view; each is printed (TOPDOWN_COVER)
+# so the log names it.
+COVER_RISE_M = 0.3
+COVER_KEEP_KINDS = {"floor", "furniture", "decor", "stair", "railing", "light", "camera", "fixture", "built_in",
+                    "splashback", "wall_plate", "opening"}
+
+
+def _plan_contains(poly, x: float, y: float) -> bool:
+    inside = False
+    n = len(poly)
+    for k in range(n):
+        (x0, y0), (x1, y1) = poly[k], poly[(k + 1) % n]
+        if (y0 > y) != (y1 > y) and x < x0 + (y - y0) * (x1 - x0) / ((y1 - y0) or 1e-12):
+            inside = not inside
+    return inside
+
+
+def covering_faces(o, dg, elevation: float, samples) -> set:
+    """The indices of ``samples`` (plan points, row by row of three) that an up-facing face of ``o``'s evaluated mesh,
+    standing at least ``COVER_RISE_M`` over ``elevation``, holds."""
+    ev = o.evaluated_get(dg)
+    me = ev.data
+    mw = ev.matrix_world
+    rot = mw.to_3x3()
+    held = set()
+    for p in me.polygons:
+        if len(held) == len(samples):
+            break
+        if (rot @ p.normal).z <= 0.5:
+            continue
+        pts = [mw @ me.vertices[i].co for i in p.vertices]
+        if min(q.z for q in pts) < elevation + COVER_RISE_M:
+            continue
+        xs, ys = [q.x for q in pts], [q.y for q in pts]
+        poly = [(q.x, q.y) for q in pts]
+        for k, (sx, sy) in enumerate(samples):
+            if k not in held and min(xs) <= sx <= max(xs) and min(ys) <= sy <= max(ys) and _plan_contains(poly, sx, sy):
+                held.add(k)
+    return held
+
+
+def covers(held: set) -> bool:
+    """Held sample points (``covering_faces``) in two rows and two columns of the 3 x 3: a surface over the level."""
+    return len({k // 3 for k in held}) >= 2 and len({k % 3 for k in held}) >= 2
+
+
+def hide_covers(level_id: str, elevation: float, wall_cut: float, box) -> list:
+    """The covers of the level's view (the comment above): cut again or hidden; returns their names."""
+    import bpy
+
+    x0, y0, x1, y1 = box
+    samples = [(x0 + (x1 - x0) * fx, y0 + (y1 - y0) * fy) for fx in (1 / 6, 0.5, 5 / 6) for fy in (1 / 6, 0.5, 5 / 6)]
+    dg = bpy.context.evaluated_depsgraph_get()
+    found = []
+    for o in bpy.data.objects:
+        if o.type != "MESH" or o.hide_render or o.name.startswith("topdown_"):
+            continue
+        kind = str(o.get("wenart_kind"))
+        if kind in COVER_KEEP_KINDS:
+            continue
+        lo, hi = bbox(o)
+        if hi[0] < x0 or lo[0] > x1 or hi[1] < y0 or lo[1] > y1 or hi[2] < elevation + COVER_RISE_M:
+            continue
+        if not covers(covering_faces(o, dg, elevation, samples)):
+            continue
+        if kind in CUT_KINDS:
+            # a wall, door or window is never hidden: cut again by a plane, it keeps its own section only
+            m = o.modifiers.get("topdown_section")
+            if m is not None:
+                o.modifiers.remove(m)
+            bisect_top(o, wall_cut)
+            dg = bpy.context.evaluated_depsgraph_get()
+            what = "cut again by a plane (its own section only)"
+        else:
+            o.hide_render = True
+            what = "hidden"
+        print(f"TOPDOWN_COVER {level_id}: '{o.name}' (kind {kind}) covered the level's footprint above its floor: "
+              f"{what}")
+        found.append(o.name)
+    return found
+
+
 def restore_meshes() -> None:
     """The meshes ``bisect_top`` replaced get their own data back."""
     import bpy
@@ -314,6 +402,7 @@ def render_level(level_id: str, elevation: float, out: str, res: int, samples: i
     if tilt > 0:
         section_cut(wall_cut, CUT_KINDS | SITE_CUT_KINDS)
         carve_footprint((x0 + PAD_M, y0 + PAD_M, x1 - PAD_M, y1 - PAD_M), elevation - 0.05, wall_cut + 1.0)
+        hide_covers(level_id, elevation, wall_cut, (x0 + PAD_M, y0 + PAD_M, x1 - PAD_M, y1 - PAD_M))
         _report_covers(level_id, wall_cut, (x0 + PAD_M, y0 + PAD_M, x1 - PAD_M, y1 - PAD_M))
     import math
     from mathutils import Vector

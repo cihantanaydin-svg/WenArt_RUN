@@ -382,7 +382,15 @@ _TURKISH_ABBREVIATIONS = ((re.compile(r"(?<![a-z.])y\s*\.\s*(?=od)"), "yatak "),
                           (re.compile(r"(?<![a-z.])c\s*\.\s*(?=od)"), "cocuk "),
                           (re.compile(r"(?<![a-z.])o\s*\.\s*(?=od)"), "oturma "),
                           (re.compile(r"(?<![a-z.])e\s*\.\s*(?=yat)"), "ebeveyn "),
-                          (re.compile(r"(?<![a-z])yat\s*\.\s*(?=od)"), "yatak "))
+                          (re.compile(r"(?<![a-z])yat\s*\.\s*(?=od)"), "yatak "),
+                          # 24 Nov 2026 (real17: 'S.ODASI', two rooms of 7-9 m2 with a window per flat beside its one
+                          # ODA, typed other): any other one-letter abbreviation before ODASI / OD. is a room of the flat
+                          # read as a bedroom, by the same size rule (``BEDROOM_MIN_M2``); T. (teknik), K. (kazan, kiler)
+                          # and G. (giyinme) are not
+                          (re.compile(r"(?<![a-z.])[abdfhilmnprsuvz]\s*\.\s*(?=odasi(?![a-z])|od\.|od(?![a-z]))"),
+                           "yatak "),
+                          # 24 Nov 2026 (real15: 'Lav.', the guest WC, typed other): LAV. is lavabo (a WC)
+                          (re.compile(r"(?<![a-z])lav\s*\.(?![a-z])"), "lavabo "))
 # ... and a two-word room name written as one word (``SUDEPOSU`` su deposu, ``YANGINMERDIVENI``): a word starting with
 # one of these modifiers whose rest starts with a Turkish room keyword is read as the two words
 _TURKISH_COMPOUND_HEADS = ("su", "yangin", "kat", "cop", "asansor", "elektrik", "yakit", "isi", "hava", "servis",

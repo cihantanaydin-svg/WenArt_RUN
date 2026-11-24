@@ -457,7 +457,9 @@ def side_paths(plan: dict, wall_rects: Sequence = ()) -> list[dict]:
             legs.append({"what": "flight", "flight": fr["index"], "a": a, "b": b,
                          "out": (fr["pl"][0] * sign, fr["pl"][1] * sign)})
             other = next((t for t in plan.get("turns") or [] if t.get("after") == i), None)
-            if other is not None and i + 1 < len(frames) and len(other.get("polygon") or []) >= 3:
+            # 24 Nov 2026 (real17): a path joins the next flight only within reach (``parametric.flights_join``)
+            near = i + 1 < len(frames) and P.flights_join(flights[i], flights[i + 1])
+            if other is not None and near and len(other.get("polygon") or []) >= 3:
                 # 12 Nov 2026 (review B2-ST4): the edge of every other turn of ordered flights, as a landing's
                 tp = geom2d.ccw([(float(q[0]), float(q[1])) for q in other["polygon"]])
                 nxt = _edge_point(frames[i + 1], 0.0, sign)
@@ -469,7 +471,7 @@ def side_paths(plan: dict, wall_rects: Sequence = ()) -> list[dict]:
                         legs.append({"what": "winders" if other.get("role") == "winders" else "landing",
                                      "flight": None, "a": u, "b": w, "out": _edge_normal(tp, u, w),
                                      "z": float(other["z"])})
-            if i == 0 and turn is not None:
+            if i == 0 and turn is not None and near:
                 what = "winders" if land["role"] == "winders" else "landing"
                 nxt = _edge_point(frames[1], 0.0, sign)
                 pts = boundary_arc(turn, b, nxt, short=(sign == tau))

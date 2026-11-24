@@ -483,6 +483,10 @@ if [ "${RUN_TOPDOWN:-1}" != "0" ] && [ -n "${RUN_PROJECTS//[[:space:],]/}" ]; th
            >> "$LOGS/topdown-$JOB-$p.log" 2>&1 \
       && { mkdir -p "$WENART_OUTPUTS/$p/final"; cp -f "$WENART_OUTPUTS/$p/renders"/top_*_plan.jpg "$WENART_OUTPUTS/$p/final/" 2>/dev/null || true; } \
       && log "topdown $p: done" || log "warning: topdown $p failed (see $LOGS/topdown-$JOB-$p.log)"
+    # 24 Nov 2026 (the dark plates over whole floors of the structure pod: nothing told what covered them): the view
+    # log's cover lines (TOPDOWN_COVER) and its tail go to the results
+    { mkdir -p "$(job_logs_dest)" && { grep -a "TOPDOWN_COVER" "$LOGS/topdown-$JOB-$p.log" || true; \
+        tail -n 60 "$LOGS/topdown-$JOB-$p.log"; } > "$(job_logs_dest)/topdown-$JOB-$p.log"; } 2>/dev/null || true
   done
 fi
 # 27 Oct 2026 (UL42): how close each final render is to the good photos of its space (SigLIP 2 similarity), per project

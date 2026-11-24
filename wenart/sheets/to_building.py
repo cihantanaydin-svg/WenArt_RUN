@@ -188,7 +188,15 @@ def arrival_only(f: dict, below2_id: Optional[str], above_id: str, furniture: li
     if below2_id is None or not rooms:
         return False
     fp = _footprint_poly(f)
-    if fp.area <= 0:
+    # 24 Nov 2026 (real17's shop stair f_L0_001 held a flight of the core stair beside it: its box reached under the
+    # core stair of L1 and the shop stair was taken for a stair up, with a hole and glass guards in L1's hall): the
+    # parts of its box that other stairs of its own level cover are theirs
+    own_level = [g for g in furniture if g is not f and g.get("level_id") == f.get("level_id") and g.get("type") == "stair"]
+    for g in own_level:
+        gp = _footprint_poly(g)
+        if gp.area > 0 and gp.intersection(fp).area < 0.5 * fp.area:
+            fp = fp.difference(gp)
+    if fp.is_empty or fp.area <= 0:
         return False
     if not any(_footprint_poly(g).intersection(fp).area >= 0.5 * min(fp.area, _footprint_poly(g).area)
                for g in _stairs(below2_id, furniture)):
@@ -208,13 +216,17 @@ def arrival_only(f: dict, below2_id: Optional[str], above_id: str, furniture: li
 
 def _slab(lv: dict, below: Optional[dict], unions: dict, furniture: list[dict], sec: Optional[dict],
           slab_default: float, slab_id: str, rooms: Optional[list[dict]] = None,
-          voids: Optional[list[dict]] = None, below2_id: Optional[str] = None) -> Optional[dict]:
+          voids: Optional[list[dict]] = None, below2_id: Optional[str] = None,
+          under_fallback=None) -> Optional[dict]:
     """The slab under ``lv`` (over ``below``): outline = the larger of the two outer-wall outlines, stair voids over
     the stairs of the level below (not over a stair that only arrives there from ``below2_id``: ``arrival_only``), and
-    the voids ``lv``'s plan draws (``void_openings``)."""
+    the voids ``lv``'s plan draws (``void_openings``). ``under_fallback``: the level below's outline when its walls close
+    no union (``slabs_block``)."""
     below_id = below["id"] if below else None
     own = _outline(unions.get(lv["id"]))
     under = _outline(unions.get(below_id)) if below_id else None
+    if under is None and under_fallback is not None:
+        under = _outline(under_fallback)
     outline = own
     if own and under and G.polygon_area(under) > G.polygon_area(own) * 1.001:
         outline = under
@@ -234,6 +246,16 @@ def _slab(lv: dict, below: Optional[dict], unions: dict, furniture: list[dict], 
     for f in _stairs(below_id, furniture):
         if arrival_only(f, below2_id, lv["id"], furniture, rooms):
             ended.append(f["id"])
+            # 24 Nov 2026 (real17): the top of the stair from the level under it, drawn again on its upper plan, is
+            # built once (from below); this drawing of it is not built (the same piece drawn twice)
+            if f.get("build") is not False:
+                f["build"] = False
+                f.setdefault("evidence", []).append(B.evidence(
+                    lv["evidence"][0]["file"] if lv.get("evidence") else "", "inferred", 0.8,
+                    entity=f["id"], region_id=lv.get("region_id"), rule="stair_ends_below"))
+                f["evidence"][-1]["text"] = (f"the top of the stair from {below2_id} under it, drawn again on "
+                                             f"{below_id}'s plan; {lv['id']} draws rooms over it: built once, from "
+                                             f"{below2_id} (not built here)")
             continue
         fp = f["footprint"]
         poly = SA.derived_opening(f, rise, rise - thickness) if rise and rise > thickness else None
@@ -320,12 +342,34 @@ def slabs_block(sheets: dict, levels: list[dict], unions: dict, furniture: list[
         under = [b for b in base if (b.get("order") or 0) < (lv.get("order") or 0)]
         return under[-1] if under and (under[-1].get("order") or 0) == (lv.get("order") or 0) - 1 else None
 
+    by_id_lv = {lv["id"]: lv for lv in levels}
+
+    def fallback_outline(lv: Optional[dict]):
+        """24 Nov 2026 (real10's roof terrace floor L7: its slab covered only the stair house, 30.6 of the 333 m2 of
+        the typical copy L6 under it, whose walls close no union; the terrace was only L6's ceilings): the outline of a
+        level below without a closed union (none, or no single polygon): its walls' outline, else the one of the
+        typical floor it copies."""
+        if lv is None:
+            return None
+        for x in (lv, by_id_lv.get(lv.get("typical_of"))):
+            if x is None:
+                continue
+            u = unions.get(x["id"])
+            if _outline(u) is not None:
+                return u
+            pts = outline_of(x["id"]) if outline_of is not None else None
+            if pts and len(pts) >= 3 and Polygon(pts).is_valid and Polygon(pts).area > 1.0:
+                return Polygon(pts)
+        return None
+
     out = []
     for lv in base:
         b1 = below_of(lv)
         b2 = below_of(b1) if b1 is not None else None
         slab = _slab(lv, b1, unions, furniture, by_base.get(lv["id"]), slab_default, f"sl_{lv['id']}",
-                     rooms, voids, below2_id=b2["id"] if b2 else None)
+                     rooms, voids, below2_id=b2["id"] if b2 else None,
+                     under_fallback=fallback_outline(b1) if b1 is not None and _outline(unions.get(b1["id"])) is None
+                     else None)
         if slab is None and outline_of is not None:
             # 20 Nov 2026 (pre-pod review R03-02 / BP-02: real03's three storeys had no slab at all, their wall unions
             # not closed): the level's outline from its walls (``levels.model.level_outline``), inferred, assumed

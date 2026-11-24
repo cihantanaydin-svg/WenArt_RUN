@@ -4122,10 +4122,33 @@ def split_by_instance(segs: list[Seg]) -> list[Cluster]:
     return parts + clusters_of(loose, CLUSTER_M)
 
 
+def no_counter_outlines(split: dict, table: dict) -> set:
+    """The outlines (``id`` of their segment lists) of a kitchen split whose free block is deeper than any kitchen
+    counter or island of the size table (its short side over both types' deepest, +15 %; a long island keeps its
+    outline) (pure apart from the table)."""
+    deepest = max(float(max((table.get(t) or ((0.0, 0.0), (0.0, 0.0)))[1])) for t in ("kitchen_counter",
+                                                                                   "kitchen_island"))
+    bad = set()
+    for (x0, y0, x1, y1), ss in split.get("blocks") or []:
+        if deepest > 0 and min(x1 - x0, y1 - y0) > deepest * (1 + SIZE_TOLERANCE):
+            bad.add(id(ss))
+    return bad
+
+
 def kitchen_items(split: dict, walls: list, ctx: _Ctx, raster: bool, table: dict, wall_polys: list,
                   notes: list) -> list[FurnitureItem]:
     """The counter legs (``_counter_item``), the free blocks (a peninsula or island: ``kitchen_island``) and the rest
     by block instance: a named block (hob, sink) by its name, every other part unknown and not asked."""
+    # 24 Nov 2026 (real17 L1/L2 'mutfak 2': the kitchen's floor hatch around the drawn counter was split into three
+    # "counter legs" along the walls and a 3.71 x 2.12 m free block, a marble slab over most of the room): a closed
+    # outline whose free part fits neither a counter nor an island is no counter run (a floor hatch, a tiled area, a
+    # rug): none of its legs and blocks is built (``no_counter_outlines``)
+    bad = no_counter_outlines(split, table)
+    if bad:
+        notes.append(f"{len(bad)} closed outline(s) in a kitchen whose free part fits no counter or island size: no "
+                     f"counter run (a floor hatch or tiled area), not built")
+        split = dict(split, legs=[lg for lg in split["legs"] if id(lg["segs"]) not in bad],
+                     blocks=[(b, ss) for b, ss in split["blocks"] if id(ss) not in bad])
     out = [_counter_item(leg, walls, ctx, raster) for leg in split["legs"]]
     for item in out:
         item.evidence["note"] = "kitchen counter run drawn as a closed outline along the walls (M11 split)"

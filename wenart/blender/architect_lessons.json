@@ -4428,6 +4428,36 @@
    "request": "24 Nov 2026, the user (asked whether the reader should read steps with only 2-3 risers and flights narrower than 0.60 m): 'Read short steps, not narrow'. Steps of 2-3 risers (entrance steps, a split-level step) are read as steps: they matter for floor levels and the 3D build. Flights under 0.60 m wide stay unread unless the drawing names them a stair.",
    "lesson": "24 Nov 2026, the user (asked whether the reader should read steps with only 2-3 risers and flights narrower than 0.60 m): 'Read short steps, not narrow'. Steps of 2-3 risers (entrance steps, a split-level step) are read as steps: they matter for floor levels and the 3D build. Flights under 0.60 m wide stay unread unless the drawing names them a stair.",
    "question": null
+  },
+  {
+   "id": "UL382",
+   "date": "2026-11-24",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "24 Nov 2026, the user on the structure pod: 'real17 terrible results', 'Renders have lots of mistakes'. Storeys come from the section's printed storey names and marks (ZEMIN KAT +0.20, 1.NOR. KAT +3.50 ..., also in brackets or abbreviated), never from the order of its slab bands: a drawing frame around the section is no outer wall and no slab band, the foundation and lean-concrete bands are no floor, and absolute levels printed beside the relative marks never enter the storey fit; the plans' marks are read in that frame, so the ground never buries a floor and every storey of the drawing is built (real17: L0, the shop floor, was buried 3.4 m and the outside showed 3 storeys instead of 4)",
+   "lesson": "24 Nov 2026, the user on the structure pod: 'real17 terrible results', 'Renders have lots of mistakes'. Storeys come from the section's printed storey names and marks (ZEMIN KAT +0.20, 1.NOR. KAT +3.50 ..., also in brackets or abbreviated), never from the order of its slab bands: a drawing frame around the section is no outer wall and no slab band, the foundation and lean-concrete bands are no floor, and absolute levels printed beside the relative marks never enter the storey fit; the plans' marks are read in that frame, so the ground never buries a floor and every storey of the drawing is built (real17: L0, the shop floor, was buried 3.4 m and the outside showed 3 storeys instead of 4)",
+   "question": null
+  },
+  {
+   "id": "UL383",
+   "date": "2026-11-24",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "24 Nov 2026, the user on the structure pod ('Renders have lots of mistakes'): nothing covers a floor in its own top-down view (a cut site surface or any mesh over the floor is cut again or hidden, and the view log names it); a stair's turn and its rail only join flights within reach of each other (never a rail across a room); the top of a stair from the floor below, drawn again on the upper plan, is built once from below (no hole and guard in the floor above); the slab under a smaller top storey (a roof terrace floor) covers the whole floor below it",
+   "lesson": "24 Nov 2026, the user on the structure pod ('Renders have lots of mistakes'): nothing covers a floor in its own top-down view (a cut site surface or any mesh over the floor is cut again or hidden, and the view log names it); a stair's turn and its rail only join flights within reach of each other (never a rail across a room); the top of a stair from the floor below, drawn again on the upper plan, is built once from below (no hole and guard in the floor above); the slab under a smaller top storey (a roof terrace floor) covers the whole floor below it",
+   "question": null
+  },
+  {
+   "id": "UL384",
+   "date": "2026-11-24",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "24 Nov 2026, the user on the structure pod ('Renders have lots of mistakes'): a kitchen outline whose free part is deeper than any counter or island (a floor hatch, a tiled area) is no counter run; abbreviated room names keep their room (S.ODASI of a bed's size a bedroom, LAV. a WC); an AI decision whose stated fact the code's own measure contradicts is refused (a lived-in room with its daylight is never made a store); a section roof of one pitch drawn in pieces is a gable",
+   "lesson": "24 Nov 2026, the user on the structure pod ('Renders have lots of mistakes'): a kitchen outline whose free part is deeper than any counter or island (a floor hatch, a tiled area) is no counter run; abbreviated room names keep their room (S.ODASI of a bed's size a bedroom, LAV. a WC); an AI decision whose stated fact the code's own measure contradicts is refused (a lived-in room with its daylight is never made a store); a section roof of one pitch drawn in pieces is a gable",
+   "question": null
   }
  ]
 }

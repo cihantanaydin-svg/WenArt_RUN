@@ -106,12 +106,47 @@ def _metres(units: float, mpu: Optional[float], fallback_rel: float, ref: float)
     return units / mpu if mpu else fallback_rel * ref
 
 
+# 24 Nov 2026 (real17's section r8 sits in a drawing frame of three nested rectangles: its sides were read as the
+# outer walls (the building 21.5 m wide, the frame's width) and its double lines as slab bands, the bottom one mapped to
+# the basement and every storey one band low): a frame line lies within this share of the region box's side from the
+# box edge and spans at least this share of it; the frame is left out when such lines close all four sides
+FRAME_EDGE_SHARE = 0.02
+FRAME_SPAN_SHARE = 0.9
+
+
+def frame_keys(lines: list, box) -> set:
+    """The keys of ``lines`` that draw a frame around the region (the constants above; pure): empty unless frame
+    lines stand on all four sides of ``box``."""
+    w, h = max(box[2] - box[0], 1e-9), max(box[3] - box[1], 1e-9)
+    sides: dict[str, set] = {"left": set(), "right": set(), "bottom": set(), "top": set()}
+    for ln in lines:
+        a = ln.angle
+        if abs(a - 90.0) <= H_TOL_DEG and ln.length >= FRAME_SPAN_SHARE * h:
+            x = (ln.a[0] + ln.b[0]) / 2.0
+            if x - box[0] <= FRAME_EDGE_SHARE * w:
+                sides["left"].add(ln.key)
+            elif box[2] - x <= FRAME_EDGE_SHARE * w:
+                sides["right"].add(ln.key)
+        elif min(a, 180.0 - a) <= H_TOL_DEG and ln.length >= FRAME_SPAN_SHARE * w:
+            y = (ln.a[1] + ln.b[1]) / 2.0
+            if y - box[1] <= FRAME_EDGE_SHARE * h:
+                sides["bottom"].add(ln.key)
+            elif box[3] - y <= FRAME_EDGE_SHARE * h:
+                sides["top"].add(ln.key)
+    if not all(sides.values()):
+        return set()
+    return set().union(*sides.values())
+
+
 def read_section(region, mpu: Optional[float]) -> SectionGeometry:
     g = SectionGeometry(region=region, mpu=mpu)
     lines = _lines(region)
     if not lines:
         return g
     box = region.geometry_box
+    framed = frame_keys(lines, box)
+    if framed:
+        lines = [ln for ln in lines if ln.key not in framed]
     height = max(box[3] - box[1], 1e-9)
     horiz, vert, slope = [], [], []
     for ln in lines:

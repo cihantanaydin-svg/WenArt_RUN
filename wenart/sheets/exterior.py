@@ -900,6 +900,9 @@ def roof_plan_outline(region, cfg: dict = ROOF_PLAN) -> tuple[Optional[dict], st
             "evidence": ev, "note": note}, ""
 
 
+SAME_PITCH_DEG = 2.0            # rising pieces of a roof profile within this of each other are one slope
+
+
 def roof_from_section(section) -> Optional[tuple[str, list[str]]]:
     """(type, assumed) from the section profile alone."""
     if section is None or not section.profile:
@@ -909,7 +912,12 @@ def roof_from_section(section) -> Optional[tuple[str, list[str]]]:
     prof = section.profile
     ridge_k = max(range(len(prof)), key=lambda k: prof[k][1])
     left = [p for p in prof[: ridge_k + 1]]
-    slopes_left = sum(1 for a, b in zip(left, left[1:]) if b[0] > a[0] and b[1] > a[1])
+    # 24 Nov 2026 (real17: its 40 % gable was read in three pieces, the overhang, the eaves under the parapet and the
+    # slope, every one at 21.8 deg, and built as a gambrel): rising pieces of one pitch (within SAME_PITCH_DEG) are one
+    # slope; a gambrel changes its pitch
+    angles = [math.degrees(math.atan2(b[1] - a[1], b[0] - a[0])) for a, b in zip(left, left[1:])
+              if b[0] > a[0] and b[1] > a[1]]
+    slopes_left = sum(1 for k, ang in enumerate(angles) if k == 0 or abs(ang - angles[k - 1]) > SAME_PITCH_DEG)
     if slopes_left <= 1:
         return "gable", ["hip/gable choice across the section (no roof plan or elevation)"]
     return "gambrel", ["mansard/gambrel choice across the section (no roof plan or elevation)"]
@@ -953,12 +961,18 @@ def elevation_z(region, datum: Optional[float], ground_z: Optional[float]) -> Op
     marks = [(t, value, mp) for t, value in UC.mark_texts(region.texts) for mp in [UC.mark_point(t, segs)]
              if mp is not None]
     if marks:
-        t, value, mp = marks[0]
-        if datum is not None and abs(value - datum) <= 30.0:
+        # 24 Nov 2026 (real17: its elevations print the absolute levels 161.64 / 160.64 first and the relative storey
+        # marks after them; only the first mark was tried, so the elevation fell back to its lowest mark -3.60 as the
+        # ground, 3.9 m off): the first mark in the datum's frame wins, else the first relative one
+        near = [m for m in marks if datum is not None and abs(m[1] - datum) <= 30.0]
+        small = [m for m in marks if abs(m[1]) <= 30.0]
+        if near:
+            t, value, mp = near[0]
             return {"y_ref": mp[1], "z_ref": round(value - datum, 4), "method": "vector",
                     "evidence": [_ev(region, t.id, "level_mark", t.text)],
                     "note": f"level mark {t.text} - datum {datum:.2f}"}
-        if abs(value) <= 30.0:
+        if small:
+            t, value, mp = small[0]
             return {"y_ref": mp[1], "z_ref": round(value, 4), "method": "vector",
                     "evidence": [_ev(region, t.id, "level_mark", t.text)],
                     "note": f"level mark {t.text} read relative to the ground floor"}
@@ -1430,16 +1444,22 @@ def exterior(top_plan, section, elevations: list, sites: list, reference_outline
             roof["plan_outline_note"] = "; ".join(reasons)
             warnings.append(f"roof: the outline of the roof plan is not read: {'; '.join(reasons)}")
         po = roof.get("plan_outline") or {}
-        if roof.get("type") == "flat" and roof.get("type_source") == "section" and (po.get("hip_lines") or 0) >= 2:
+        # 24 Nov 2026 (real07: once its section's drawing frame was left out, the section gave a profile, read as a
+        # gambrel, and the roof plan's hip roof was lost): a section tells the slopes across one cut, never hip from
+        # gable, and a gambrel needs its break line on the plan; the roof plan's hip and valley lines outrank any
+        # section-only type
+        if roof.get("type") in ("flat", "gable", "gambrel") and roof.get("type_source") == "section" \
+                and (po.get("hip_lines") or 0) >= 2:
             # 4 Nov 2026 (real07, user: "also why didn't you use this to model the roof"): the roof plan draws hip and
             # valley lines; a section with no roof profile (read as flat) does not outrank it: a hip roof
+            was = roof.get("type")
             roof = dict(roof, type="hip", type_source="roof_plan",
                         evidence=list(roof.get("evidence") or []) + list(po.get("evidence") or []),
                         note=f"the roof plan {po.get('region_id')} draws {po['hip_lines']} hip or valley lines: a hip "
-                             f"roof (the section shows no roof profile)",
+                             f"roof (the section alone read {was})",
                         assumed=list(roof.get("assumed") or []) + ["pitch (the roof plan gives no slope)"])
             warnings.append(f"roof: the roof plan draws {po['hip_lines']} hip or valley lines: a hip roof, not the "
-                            f"section's flat reading")
+                            f"section's {was} reading")
     out["roof"] = roof
 
     # Site plans (registered onto the reference through the building's outline) and the north.

@@ -1834,6 +1834,11 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
                                 f"by {shared:.2f} m2: built as read, their turn kept off both flights' treads")
             if i == 0 and landing is not None:
                 continue
+            if not flights_join(planned[i], planned[i + 1]):
+                warnings.append(f"flights {planned[i]['index'] + 1} and {planned[i + 1]['index'] + 1} stand "
+                                f"{G.distance(planned[i]['nosings'][-1], planned[i + 1]['nosings'][0]):.2f} m apart: "
+                                f"no turn built between them (no tread, no rail across the room)")
+                continue
             tt = turn_treads(planned[i], planned[i + 1], planned[i]["top_z"], riser, turn_w[i], walls)
             if tt is not None:                             # (13 Nov 2026: no longer named ``turn``, the stair's turn)
                 tt["after"] = i                            # the turn between planned flights i and i + 1
@@ -2085,6 +2090,28 @@ def turn_polygon(a: dict, b: dict, walls: Sequence[dict] = (), convex: bool = Fa
     if best.area < 0.01:
         return None
     return [(float(x), float(y)) for x, y in list(best.exterior.coords)[:-1]]
+
+
+# 24 Nov 2026 (real17 structure pod: stair f_L0_001 held flights of three drawn stairs, one of the core stair 2.4 m
+# away across the shop; the turn between them and its rail, carried by the side paths since 23 Nov, ran across the shop,
+# the hall and the living rooms as black lines): consecutive flights are one stair's turn only when the next flight
+# starts within reach of the last one's end: their mean width plus TURN_REACH_M for a turn (an L, a U's half landing
+# with its well), plus TURN_REACH_INLINE_M for flights in line (a straight stair's landing)
+TURN_REACH_M = 0.9
+TURN_REACH_INLINE_M = 3.0
+
+
+def flights_join(a: dict, b: dict) -> bool:
+    """Whether planned flight ``b`` starts within reach of flight ``a``'s end (the comment above; pure): the centres
+    of ``a``'s last and ``b``'s first nosing lines."""
+    pa, pb = a["nosings"][-1], b["nosings"][0]
+    reach = 0.5 * (float(a["width"]) + float(b["width"]))
+    ra, rb = a["rise_dir"], b["rise_dir"]
+    if _d2(ra, rb) >= 0.9:
+        side = abs(_d2(_v(pa, pb), (-ra[1], ra[0])))
+        if side <= 0.5 * max(float(a["width"]), float(b["width"])):
+            return G.distance(pa, pb) <= reach + TURN_REACH_INLINE_M
+    return G.distance(pa, pb) <= reach + TURN_REACH_M
 
 
 def turn_treads(a: dict, b: dict, z0: float, riser: float, k: int, walls: Sequence[dict] = ()) -> dict | None:

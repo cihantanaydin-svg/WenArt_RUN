@@ -752,6 +752,27 @@ def wrong_piece(element: str, ftype: str, reason: str) -> Optional[str]:
     return None
 
 
+# 24 Nov 2026 (real10 structure pod: the AI architect's own floor look retyped the 'Günlük Oda' of L1-L5 (living, 17.2
+# m2) as storage, "no window and no free outer wall", while the code measured glass of 1/4 of its floor; the base floor
+# and the top copy stayed living): a decision that makes a lived-in room a room that needs no daylight is refused while
+# the code's own measure gives that room its daylight (glass to the outside of at least DAYLIGHT_RATIO of its floor)
+LIVED_IN_TYPES = ("living", "bedroom", "kitchen", "dining")
+NO_DAYLIGHT_TYPES = ("storage", "technical", "shaft")
+
+
+def dark_retype_refusal(plan: AA.Plan, element: str, value: str) -> str:
+    """Why the retype of ``element`` to ``value`` is refused (the comment above), or "" when it may go on."""
+    room = plan.room.get(element) or {}
+    if str(room.get("room_type") or "") not in LIVED_IN_TYPES or value not in NO_DAYLIGHT_TYPES:
+        return ""
+    area = AA.room_area(room)
+    have, _wins = AA.outside_glass(plan, element)
+    if area <= 0 or have + 1e-6 < AA.DAYLIGHT_RATIO * area:
+        return ""
+    return (f"{element} has {have:.2f} m2 of glass to the outside (1/{area / max(have, 1e-6):.0f} of its "
+            f"{area:.1f} m2 floor): a lived-in room with its daylight is never made a {value} by a decision")
+
+
 def _decision(d: dict, plan: AA.Plan, built: dict, level_id: str) -> tuple[Optional[str], Optional[dict], str]:
     """``(key, answer, why_not)`` of one of the AI's own decisions (``AI.<action>:<element>``), or a reason it is
     not a valid one (the element is not on this floor, the action does not fit it, a drawn piece is never removed)."""
@@ -782,6 +803,9 @@ def _decision(d: dict, plan: AA.Plan, built: dict, level_id: str) -> tuple[Optio
             return None, None, f"{value!r} is no room type ({', '.join(AA.ROOM_TYPES)})"
         if str(plan.room[element].get("room_type") or "") == value:
             return None, None, f"{element} is a {value} already"
+        dark = dark_retype_refusal(plan, element, value)
+        if dark:
+            return None, None, dark
         params["room_type"] = value
     if action == "door_to_window" and kind == "opening" and plan.openings[element].get("type") == "window":
         return None, None, f"{element} is a window already"
