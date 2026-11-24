@@ -440,6 +440,10 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
             if face_type is not None:
                 typed = face_type(shp)
                 room_type, reason = typed[0], typed[1]
+                if room_type == "void":
+                    # 24 Nov 2026: a duct or shaft in the walls (``topology.unlabelled_face_type``), never a room
+                    result.warnings.append(f"{level_id}: face at {face[0]} ({area:.2f} m²) is no room: {reason}")
+                    continue
                 if len(typed) > 2 and typed[2]:
                     # Milestone 11 (M8): a face the stair fills is named for it ("Merdiven"), not "Oda".
                     label = typed[2]

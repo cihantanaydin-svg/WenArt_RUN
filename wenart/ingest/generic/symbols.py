@@ -2910,7 +2910,7 @@ def _stair_item(cl: Cluster, stair: dict, fp, ctx: _Ctx, raster: bool, notes: li
                          "riser_m": None, "riser_source": None, "reason": reason}}
     if len(flights) >= 2:                  # 27 Oct 2026: the half landing's end is drawn only when deep enough
         details["stair"]["landing_assumed"] = bool(stair.get("landing_note"))
-    for key in ("angled_deg", "read_by"):  # 23 Nov 2026 (stairs round): a flight read in its own frame or pass
+    for key in ("angled_deg", "read_by", "short_steps", "short_steps_mark"):  # 23-24 Nov 2026: its frame, pass, run
         if stair.get(key) is not None:
             details["stair"][key] = stair[key]
     ev = ctx.evidence(cl.stroke_ids(), raster=raster, box=box,
@@ -4241,6 +4241,96 @@ def numbered_stair(poly, texts) -> bool:
     return False
 
 
+SHORT_STEP_LINES = (3, 4)         # 24 Nov 2026 (UL381): a run of 2-3 risers drawn as 3-4 tread lines (ends included)
+SHORT_STEP_END_M = 0.02           # ... equal lines (their ends within this) and side lines meeting them within this
+SHORT_STEP_STRAY_M = 0.10         # ... and no other line longer than this in the cluster
+SHORT_STEP_GOING_MAX_M = 0.45     # ... their going up to this (outside steps: swiss-b2891 L3's two of 0.39-0.40 m)
+
+
+def short_steps(cl: Cluster, theta: float) -> Optional[dict]:
+    """``_short_steps_at`` in the plan's frame, else in the frame of the cluster's longest lines when they stand 1
+    degree or more off the plan's axes (a run of steps at an angle, swiss-b2891 L3) (pure)."""
+    found = _short_steps_at(cl, theta)
+    if found is not None:
+        return found
+    longs = [s for s in cl.segs if not s.curve and not s.dot and s.length >= 0.3]
+    if not longs:
+        return None
+    s0 = max(longs, key=lambda s: s.length)
+    ang = math.degrees(math.atan2(s0.pts[-1][1] - s0.pts[0][1], s0.pts[-1][0] - s0.pts[0][0])) % 90.0
+    off = (ang - theta) % 90.0
+    if min(off, 90.0 - off) < 1.0:
+        return None
+    found = _short_steps_at(cl, ang)
+    if found is not None:
+        found["angled_deg"] = round(off if off <= 45.0 else off - 90.0, 2)
+    return found
+
+
+def _short_steps_at(cl: Cluster, theta: float) -> Optional[dict]:
+    """24 Nov 2026 (UL381, the user: "Read short steps, not narrow"; bench: swiss-b2486 L0 two entrance steps of 3
+    risers, swiss-b1747 L0 two of 3, swiss-b2891 L3 one of 2, all on the stair layer, missed under the stair rule's
+    5-line minimum): a stair-layer cluster that is a run of 2-3 risers, as the stair rule's result (``stair_rule``
+    keys, ``short_steps`` the risers), or None. The cluster holds 3-4 equal parallel tread lines (``SHORT_STEP_LINES``,
+    the run's two ends among them) evenly spaced at a stair's going (``STAIR_STEP_M`` less ``STAIR_STEP_TOL`` up to
+    ``SHORT_STEP_GOING_MAX_M``: outside steps have longer goings), at least
+    a walkable flight wide (``FLIGHT_MIN_WIDTH_M``: a narrower run stays unread, UL381), and a stair's mark: both side
+    lines closing the run into a box, or a walking line with an arrow head (``arrow_end``) across its treads; and
+    nothing else (no other line over ``SHORT_STEP_STRAY_M``: a tile grid, a threshold pair or a kerb has none of this
+    or more). Only the stair layer's own clusters come here (``stair_layer_pass``); lines mostly on a floor-finish
+    layer are no steps (pure)."""
+    if _finish_share(cl.segs) >= FINISH_SHARE:
+        return None
+    to_f, from_f = _frame(theta)
+    axis_segs = _straight(cl.segs, to_f)
+    for axis in ("h", "v"):
+        treads = _merge_collinear([x for x in axis_segs if x[0] == axis])
+        cross = [x for x in axis_segs if x[0] != axis]
+        for off0, u, v, _m in treads:
+            if v - u < FLIGHT_MIN_WIDTH_M:
+                continue
+            run = sorted((t for t in treads if abs(t[1] - u) <= SHORT_STEP_END_M and abs(t[2] - v) <= SHORT_STEP_END_M),
+                         key=lambda t: t[0])
+            offs = [t[0] for t in run]
+            if not SHORT_STEP_LINES[0] <= len(offs) <= SHORT_STEP_LINES[1] or offs[0] != off0:
+                continue
+            steps = [b - a for a, b in zip(offs, offs[1:])]
+            med = statistics.median(steps)
+            if not STAIR_STEP_M[0] * (1 - STAIR_STEP_TOL) <= med <= SHORT_STEP_GOING_MAX_M \
+                    or any(abs(st - med) > STAIR_STEP_TOL * med for st in steps):
+                continue
+            lo, hi = offs[0], offs[-1]
+            sides = [x for x in cross if min(abs(x[1] - u), abs(x[1] - v)) <= SHORT_STEP_END_M
+                     and x[2] <= lo + SHORT_STEP_END_M and x[3] >= hi - SHORT_STEP_END_M]
+            boxed = any(abs(x[1] - u) <= SHORT_STEP_END_M for x in sides) and \
+                any(abs(x[1] - v) <= SHORT_STEP_END_M for x in sides)
+            walk = [x for x in cross if u + 0.05 < x[1] < v - 0.05 and x[3] - x[2] >= 0.5 * (hi - lo)
+                    and x[4] is not None and arrow_end(x[4], cl.segs)]
+            if not boxed and not walk:
+                continue
+            known = {id(s) for t in run for s in t[3]} | {id(x[4]) for x in sides + walk}
+            tips = [q for x in walk for q in (x[4].pts[0], x[4].pts[-1])]
+            for s in cl.segs:                   # the arrow heads' strokes leave a walking line's tip
+                if not s.curve and ARROW_HEAD_M[0] <= s.length <= ARROW_HEAD_M[1] \
+                        and any(math.dist(e, q) <= 0.01 for e in (s.pts[0], s.pts[-1]) for q in tips):
+                    known.add(id(s))
+            if any(id(s) not in known and not s.dot and s.length > SHORT_STEP_STRAY_M for s in cl.segs):
+                continue
+            xs = [p[0] for s in cl.segs for p in map(to_f, s.pts)]
+            ys = [p[1] for s in cl.segs for p in map(to_f, s.pts)]
+            mid = (u + v) / 2.0
+
+            def pt(a, o):
+                return from_f((a, o)) if axis == "h" else from_f((o, a))
+            return {"flights": [{"start": _r(pt(mid, lo)), "end": _r(pt(mid, hi)), "width": round(v - u, 4),
+                                 "lines": len(offs), "spacing": round(med, 4)}],
+                    "landing": None, "axis": axis, "bbox_f": (min(xs), min(ys), max(xs), max(ys)), "theta": theta,
+                    "tread_segs": {id(s) for t in run for s in t[3]}, "dividers": [], "landing_note": None,
+                    "short_steps": len(offs) - 1,
+                    "short_steps_mark": "a closed outline" if boxed else "a walking line with an arrow head"}
+    return None
+
+
 def stair_layer_pass(segs: list[Seg], pieces: list, cands: list, outside: list[Seg], wall_polys: list, texts_m,
                      ctx: "_Ctx", raster: bool, notes: list) -> tuple[list, list, list]:
     """23 Nov 2026 (stairs round, lesson UL375; bench: 10 of the 29 missed stairs drawn on the stair layer stood outside
@@ -4279,6 +4369,8 @@ def stair_layer_pass(segs: list[Seg], pieces: list, cands: list, outside: list[S
         if numbered_stair(poly, texts_m):
             continue
         st = stair_rule(cl, ctx.theta)
+        if st is None:
+            st = short_steps(cl, ctx.theta)      # 24 Nov 2026 (UL381): a run of 2-3 risers on the stair layer
         if st is None:
             continue
         st["read_by"] = "stair layer"

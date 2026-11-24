@@ -402,6 +402,8 @@ def face_table(face_polys: list, blocks: list, walls: list, openings: list, stai
         else:
             row["room_type"], row["reason"] = TP.unlabelled_face_type(poly, walls, openings, stairs)
             row["label"] = None
+            if row["room_type"] == TP.VOID:
+                continue                  # 24 Nov 2026: a duct or shaft in the walls, never a room
         rows.append(row)
     return rows
 

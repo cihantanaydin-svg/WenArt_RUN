@@ -1017,6 +1017,105 @@ def _drop_flight_pairs(pairs: list[_Pair], cross: list) -> list[_Pair]:
     return out
 
 
+HOLE_RING_MIN_M2 = 0.02          # 24 Nov 2026: closed rings of a layer this big or bigger take part in its even-odd fill
+HOLE_SOLID_SHARE = 0.5           # ... a band this much covered by a filled path or a column outline stays material
+HOLE_SOLID_ROLES = ("structure", "column")
+HOLE_FLANK_M = 0.02              # ... the material just beyond a face is looked for this far out
+HOLE_LEAF_MIN_M = MIN_WALL_M + 0.01   # ... and still this far beyond both faces (walls the reader reads: a 4-5 cm railing
+#                                         or shaft lining beside it keeps the band, swiss-b2383, swiss-b6529)
+HOLE_ALONG_RATIO = 2.0           # ... along a band at least this many times its width (a gap's jambs are no faces)
+
+
+def layer_rings(page: GenericPage, s: float) -> tuple[dict, list]:
+    """24 Nov 2026 (dataset bench, 'wall missed' / 'wall invented': a duct box of thin walls beside a wall and the empty
+    cavity between two thin leaves read as one wall 0.4-0.8 m thick): ``({layer key: [Polygon]}, solids)``, the closed
+    rings each layer draws (a closed stroke, or one whose ends meet, ``HOLE_RING_MIN_M2`` or more, the same ring drawn
+    twice counted once: a hatch's boundary path over the wall outline) and the solid material of any layer (filled
+    paths, closed outlines on a structure or column layer) in page metres."""
+    rings: dict[str, list] = {}
+    seen: set = set()
+    solids = []
+    from wenart.ingest.generic import layer_names as LN
+
+    for st in page.strokes:
+        if st.arc is not None or len(st.pts) < 4 or not ends_meet(st, s):
+            continue
+        poly = Polygon(_scale_pts(st.pts, s))
+        if not poly.is_valid or poly.area < HOLE_RING_MIN_M2:
+            continue
+        if st.fill is not None or set(LN.layer_roles(getattr(st, "layer", None))) & set(HOLE_SOLID_ROLES):
+            solids.append(poly)
+        if st.fill is not None or st.kind not in ("line", "polyline"):
+            continue
+        key = _layer_key(st)
+        sig = (key, round(poly.area, 3), tuple(round(v, 2) for v in poly.bounds))
+        if sig in seen:
+            continue
+        seen.add(sig)
+        rings.setdefault(key, []).append(poly)
+    return rings, solids
+
+
+def drop_hole_pairs(pairs: list[_Pair], rings: list, solids: list) -> tuple[list[_Pair], list[_Pair]]:
+    """24 Nov 2026 (dataset bench, swiss-b465 L1: two 0.095 m bathroom leaves with a 0.215 m empty cavity between them,
+    their four face lines on one layer, read as one 0.405 m wall; swiss-b2383 L0: a 1.8 x 0.2 m duct box of thin walls
+    beside a wall read as one 0.47 m wall): ``(kept, dropped)``. A layer that draws its walls as closed outlines (the
+    outline of the walls' material and, inside it, the outline of every hole in it) says by its even-odd fill where the
+    material is: a pair whose band lies inside two (or four) of the layer's rings lies in a hole of the material (a
+    cavity, a duct, a shaft), never in a wall, unless a filled path or a column's outline covers it
+    (``HOLE_SOLID_SHARE``: a column drawn inside the wall outline). A band inside one ring (a wall's own outline) or in
+    none (lines that are no rings: every drawing that draws its faces as loose lines) is not judged here, but for a
+    band in no ring whose two faces have the material just beyond them (``HOLE_FLANK_M``) in thin rings (wall pieces:
+    twice the area over the perimeter at most ``PAIR_WIDTH_M``, a room drawn as a ring is wider), the material still
+    there ``HOLE_LEAF_MIN_M`` beyond both faces (beside a railing or a shaft lining thinner than any wall the reader
+    reads the band is not judged: swiss-b2383's 5 cm stair railing, swiss-b6529's 4 cm shaft lining): the empty strip
+    between two pieces of the walls' outline (the outline cut at every door and window, swiss-b465's cavity), when the
+    band runs along them at least ``HOLE_ALONG_RATIO`` times its width (the two jambs of a window's gap, as far apart as
+    the gap is wide and as long as the wall is thick, are no such faces: swiss-b1118 L1)."""
+    if not rings or not pairs:
+        return pairs, []
+    from shapely.strtree import STRtree
+
+    tree = STRtree(rings)
+    stree = STRtree(solids) if solids else None
+    thin = [2.0 * r.area / r.length <= PAIR_WIDTH_M[1] if r.length > 0 else False for r in rings]
+
+    def depth(pt) -> int:
+        return sum(1 for j in tree.query(pt) if rings[int(j)].contains(pt))
+
+    def in_thin(pt) -> bool:
+        return any(thin[int(j)] and rings[int(j)].contains(pt) for j in tree.query(pt))
+
+    kept, dropped = [], []
+    for p in pairs:
+        s_mid = (p.lo + p.hi) / 2.0
+        mid = Point(p.point(s_mid, (p.lines[0].off + p.lines[1].off) / 2.0))
+        n = depth(mid)
+        if n == 0:
+            # outside every ring: a cavity between two pieces of the material (the walls' outline cut at the doors
+            # and windows into pieces, each a thin ring) when the material lies just beyond both faces, in thin rings
+            # (wall pieces, not rooms drawn as rings: a room ring is wider than any wall)
+            probes = [o for d in (HOLE_FLANK_M, HOLE_LEAF_MIN_M) for o in (p.lines[0].off - d, p.lines[1].off + d)]
+            if p.hi - p.lo < HOLE_ALONG_RATIO * p.width or \
+                    not all(in_thin(Point(p.point(s_mid, o))) for o in probes):
+                kept.append(p)
+                continue
+        elif n % 2 or not all(depth(Point(p.point(s_mid, o))) % 2 for d in (HOLE_FLANK_M, HOLE_LEAF_MIN_M)
+                              for o in (p.lines[0].off - d, p.lines[1].off + d)):
+            # a hole's band beside a leaf thinner than any wall the reader reads (a 4 cm shaft lining, swiss-b6529)
+            # is not judged: the wall line stays
+            kept.append(p)
+            continue
+        if stree is not None:
+            band = p.polygon()
+            cover = sum(band.intersection(solids[int(j)]).area for j in stree.query(band))
+            if band.area > 0 and cover >= HOLE_SOLID_SHARE * band.area:
+                kept.append(p)
+                continue
+        dropped.append(p)
+    return kept, dropped
+
+
 STAIR_EDGE_MAX_W = 0.12          # 22 Nov 2026: a pair this thin or thinner ...
 STAIR_EDGE_END_M = 0.03          # ... at whose one face >= FLIGHT_MIN_TREADS treads end (within this) at an even pitch,
 STAIR_EDGE_REACH_M = 0.35        # ... the treads reaching both its ends (within this), none ending at its other face,
@@ -1782,6 +1881,7 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
     # flight test of the pairs (``_drop_flight_pairs``)
     tread_like = [(a, b) for pcs in by_layer.values() for _sid, a, b in pcs if 0.1 <= math.dist(a, b) <= 2.0]
     from wenart.ingest.generic import layer_names as LN
+    rings_by_layer, solids = layer_rings(page, s)       # 24 Nov 2026: the layers' even-odd fill (``drop_hole_pairs``)
     cands: list[dict] = []          # 5 Nov 2026 (R3): every pair considered per layer, with the drop that took it
     for layer, pieces in by_layer.items():
         if LN.layer_role(layer) in NOTATION_ROLES:
@@ -1812,6 +1912,8 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
             before = found
             found = _drop_wide_bands(found)
             dropped.update({id(p): "wide_band" for p in before if id(p) not in {id(q) for q in found}})
+            found, holes = drop_hole_pairs(found, rings_by_layer.get(layer) or [], solids)
+            dropped.update({id(p): "hole" for p in holes})
             # the pieces of any layer across these (about 90 degrees): the treads of a flight crossing a pair's band
             if any(p.width >= FLIGHT_PAIR_MIN_W for p in found):
                 cross = [LineString([a, b]) for a, b in tread_like

@@ -70,6 +70,8 @@ RULE_CONFIDENCE: dict[str, float] = {
     "tread_run": 0.90,             # four or more parallel lines at an even tread pitch: a stair, slats or a hatch
     "wide_band": 0.80,             # three or more short strokes side by side wider than any wall: rails, a newel
     "flight": 0.80,                # a band crossed by three or more treads at an even pitch: a stair flight
+    "hole": 0.85,                  # 24 Nov 2026: a band inside a hole of the layer's even-odd fill of its closed outlines
+                                   # (a cavity, a duct, a shaft): no wall material (walls.drop_hole_pairs)
     "stair_edge": 0.75,            # 22 Nov 2026 (C0053): a thin band at whose one face a flight's treads end, as long
                                    # as the flight: its open side (stringer and balustrade)
     "stair_edge_part": 0.70,       # 22 Nov 2026 (S2): the part of a longer thin piece along a flight whose treads end at

@@ -550,6 +550,10 @@ class Gap:
     # 23 Nov 2026 (UL371): a furniture block's lines that would have fitted the gap as a door's leaves (opened at 90
     # degrees or sliding), turned down (``furniture_line``): what they were, for the record
     furniture_leaf: Optional[str] = None
+    # 24 Nov 2026 (UL380, the user's C0099 on real15 L0, "Not a door: wall"): the one loose furniture-layer rectangle
+    # that alone fitted the gap as a sliding leaf, turned down (``lone_furniture_leaf``); a door-high tag at the gap
+    # gives it back (``classify_gap``)
+    lone_leaf: Optional[list] = None
 
     @property
     def width(self) -> float:
@@ -690,6 +694,11 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set, log=None) -> Non
     closed or open, never an end gap, never against a hard constraint). Without a log nothing else happens (the unit
     tests' direct calls)."""
     _classify_gap_rules(g, index, owned_global)
+    if g.lone_leaf and g.cls != "door" and log is not None and door_tag_at(g, log.texts_aligned()):
+        # 24 Nov 2026 (UL380): a door-high size tag at the gap is door evidence: the lone leaf is a sliding door
+        g.cls = "door"
+        g.found = {"arcs": [], "arc": [], "hinges": [], "leaves": g.lone_leaf, "leaf": True, "swing": 0.0,
+                   "radius": None, "double": False, "sliding": True, "by_tag": True}
     if g.cls == "window" and g.found.get("sliding_window") and log is not None:
         why = sliding_door_by_text(g, log)
         if why is not None:
@@ -718,6 +727,8 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set, log=None) -> Non
            "final_answer": None, "decided_by": DEC.DECIDED_RULE}
     if g.blocked and g.cls != "door":
         rec["leaves_blocked"] = g.blocked          # 22 Nov 2026 (UL365): an end gap makes no item; the record keeps it
+    if g.lone_leaf and g.cls != "door":
+        rec["lone_furniture_leaf"] = lone_leaf_note(g)      # 24 Nov 2026 (UL380): never silent, whatever the gap became
     log.add_gap(g, rec)
     # the ranker decides later, once every gap is classified and the walls are merged (``gaps_and_openings``: the
     # exterior test and the mirror twin's answer are features it needs)
@@ -1071,6 +1082,9 @@ def _classify_gap_rules(g: Gap, index: StrokeIndex, owned_global: set) -> None:
         g.cls = "window"
         g.found = {"lines": leaves, "glass": [], "sliding_window": True}
         return
+    if leaves and lone_furniture_leaf(g, leaves, zone):
+        g.lone_leaf = leaves               # 24 Nov 2026 (UL380, C0099): no door evidence; the cascade goes on
+        leaves = []
     if leaves:
         g.cls = "door"
         g.found = {"arcs": [], "arc": [], "hinges": [], "leaves": leaves, "leaf": True, "swing": 0.0,
@@ -1678,6 +1692,60 @@ def _furniture_block(chain: str) -> Optional[str]:
     if not names or any(any(w in n.translate(_FOLD).upper() for w in DOOR_WORDS) for n in names):
         return None
     return next((n for n in names if SY.keyword_type(n)), None)
+
+
+LONE_LEAF_ROLES = ("furniture", "sanitary")     # 24 Nov 2026 (UL380): a lone leaf on such a layer needs door evidence
+TRACK_SHARE = 0.8              # ... a track: a line along the gap inside the wall band over this share of its width
+TRACK_NOT_ROLES = ("wall", "plaster", "structure", "hatch", "dimension", "text", "axis")
+LONE_LEAF_TAG_M = 0.6          # ... a door-high size tag within the gap's half width plus this gives the leaf back
+
+
+def lone_furniture_leaf(g: Gap, leaves: list, zone: list) -> bool:
+    """24 Nov 2026 (UL380, the user's C0099 on real15 L0, "Not a door: wall": a 0.55 m 'sliding door' read from one
+    loose rectangle on the furniture layer Z_tefriş, the end panel of a wardrobe run beside a chimney box, both wall
+    faces drawn on across the gap): a sliding leaf needs door evidence. True when the leaves the sliding rule found are
+    one closed shape on a furniture or sanitary layer (``LONE_LEAF_ROLES``), in no block named for a door, with no
+    second leaf and no track (a line of a door, window, glass or other layer along the gap inside the wall band over
+    ``TRACK_SHARE`` of it). A door-high size tag at the gap gives it back (``classify_gap``, the texts are there); a
+    leaf on a door layer, in a door block, or two leaves stay a door; a furniture layer's swing doors are not judged
+    here (real03 draws its doors on a furniture layer)."""
+    from wenart.ingest.generic import layer_names as LN
+
+    if len(leaves) != 1:
+        return False
+    st = leaves[0].st
+    if LN.layer_role(st.layer) not in LONE_LEAF_ROLES:
+        return False
+    if st.block and any(any(w in n.translate(_FOLD).upper() for w in DOOR_WORDS) for n in st.block.split("/") if n):
+        return False
+    for it in zone:
+        if it is leaves[0] or len(it.pts) != 2 or it.st.arc is not None \
+                or LN.layer_role(it.st.layer) in TRACK_NOT_ROLES:
+            continue
+        p, q = it.pts
+        if abs(g.across(p) - g.across(q)) > 0.01 or max(abs(g.across(p)), abs(g.across(q))) > g.t / 2.0 - 0.01:
+            continue
+        lo, hi = sorted((g.along(p), g.along(q)))
+        if min(hi, g.b) - max(lo, g.a) >= TRACK_SHARE * g.width:
+            return False
+    return True
+
+
+def door_tag_at(g: Gap, texts: list) -> bool:
+    """24 Nov 2026 (UL380): a door-high size tag (``decisions.text_features``: its height 2.00 m or more) within the
+    gap's half width plus ``LONE_LEAF_TAG_M`` of its centre (``texts``: the decision log's texts in the gaps' frame)."""
+    from wenart.ingest.generic import decisions as DEC
+
+    normal = (0.0, 1.0) if g.axis == "h" else (1.0, 0.0)
+    tf = DEC.text_features(texts or [], g.point((g.a + g.b) / 2.0), normal, g.width)
+    return bool(tf.get("tag_door_like")) and tf.get("tag_distance", 99.0) <= g.width / 2.0 + LONE_LEAF_TAG_M
+
+
+def lone_leaf_note(g: Gap) -> str:
+    """The record of a lone furniture-layer leaf turned down (``lone_furniture_leaf``)."""
+    st = g.lone_leaf[0].st
+    return (f"one loose closed shape on the furniture layer '{st.layer}' ({st.id}) fitted the {g.width:.2f} m gap as a "
+            f"sliding leaf, with no door layer, door block, second leaf, track or door-high tag: no door (UL380)")
 
 
 def _leaf_zone(zone: list) -> list:
@@ -2366,6 +2434,8 @@ def gaps_and_openings_frame(walls: list[WallItem], strokes_m: list[Stroke], file
                 item.evidence["pier"] = g.found["pier"]      # 23 Nov 2026 (UL367): never silent
             if g.furniture_leaf and item.kind != "door":
                 item.evidence["furniture_leaf"] = g.furniture_leaf      # 23 Nov 2026 (UL371): never silent
+            if g.lone_leaf and item.kind != "door":
+                item.evidence["lone_furniture_leaf"] = lone_leaf_note(g)   # 24 Nov 2026 (UL380): never silent
             if g.blocked and item.kind != "door":
                 # 22 Nov 2026 (UL365): never silent: the open leaves the clear-passage test turned down
                 item.evidence["leaves_blocked"] = (f"two lines fitted a door's leaves opened at 90 degrees, but "
@@ -3452,6 +3522,8 @@ def _log_entry(g: Gap, theta: float, piece_out: dict) -> dict:
         entry["leaves_blocked"] = g.blocked
     if g.furniture_leaf:
         entry["furniture_leaf"] = g.furniture_leaf      # 23 Nov 2026 (UL371): never silent
+    if g.lone_leaf and g.cls != "door":
+        entry["lone_furniture_leaf"] = lone_leaf_note(g)      # 24 Nov 2026 (UL380): never silent
     if g.found.get("lining"):
         entry["lining"] = {k: v for k, v in g.found["lining"].items() if k != "note"}
     # Fix round after P6b: the rule that decided a gap the old reading took for a window or an opening (the core lists

@@ -4428,6 +4428,26 @@
    "request": "24 Nov 2026, the user (asked whether the reader should read steps with only 2-3 risers and flights narrower than 0.60 m): 'Read short steps, not narrow'. Steps of 2-3 risers (entrance steps, a split-level step) are read as steps: they matter for floor levels and the 3D build. Flights under 0.60 m wide stay unread unless the drawing names them a stair.",
    "lesson": "24 Nov 2026, the user (asked whether the reader should read steps with only 2-3 risers and flights narrower than 0.60 m): 'Read short steps, not narrow'. Steps of 2-3 risers (entrance steps, a split-level step) are read as steps: they matter for floor levels and the 3D build. Flights under 0.60 m wide stay unread unless the drawing names them a stair.",
    "question": null
+  },
+  {
+   "id": "UL382",
+   "date": "2026-11-24",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "24 Nov 2026 (walls round 2, dataset bench: a duct box of thin walls beside a wall and the empty cavity between two thin bathroom leaves read as one wall 0.4-0.8 m thick, swiss-b465, swiss-b2383): a drawing that draws its walls as closed outlines says by its even-odd fill where the material is. A face-line pair inside a hole of the walls' outline (inside two of the layer's rings), or in no ring with the walls' material just beyond both faces in thin rings and running along them, is a cavity, a duct or a shaft, never a wall; a column filling it stays material, loose face lines and rooms drawn as rings are not judged. An unlabelled face under 0.5 m2 that no door, window or opening reaches is a duct, never a room. Rule for every drawing source.",
+   "lesson": "24 Nov 2026 (walls round 2, dataset bench: a duct box of thin walls beside a wall and the empty cavity between two thin bathroom leaves read as one wall 0.4-0.8 m thick, swiss-b465, swiss-b2383): a drawing that draws its walls as closed outlines says by its even-odd fill where the material is. A face-line pair inside a hole of the walls' outline (inside two of the layer's rings), or in no ring with the walls' material just beyond both faces in thin rings and running along them, is a cavity, a duct or a shaft, never a wall; a column filling it stays material, loose face lines and rooms drawn as rings are not judged. An unlabelled face under 0.5 m2 that no door, window or opening reaches is a duct, never a room. Rule for every drawing source.",
+   "question": null
+  },
+  {
+   "id": "UL383",
+   "date": "2026-11-24",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "24 Nov 2026 (walls round 2, dataset bench: swiss-b1415's ground and second floor plans not read: each plan's overall dimension line and its title's underline, a little farther below the plan than the clustering gap, made a region of their own that took the title, and the plan itself was left out as a plan without a level title): a strip of at most three straight lines or dimensions, thin, next to a drawing is a part of that drawing (its dimension chain, its title's underline), never a drawing of its own. A plan drawn in two wings farther apart than the gap (swiss-b17105 L1) is still split: open.",
+   "lesson": "24 Nov 2026 (walls round 2, dataset bench: swiss-b1415's ground and second floor plans not read: each plan's overall dimension line and its title's underline, a little farther below the plan than the clustering gap, made a region of their own that took the title, and the plan itself was left out as a plan without a level title): a strip of at most three straight lines or dimensions, thin, next to a drawing is a part of that drawing (its dimension chain, its title's underline), never a drawing of its own. A plan drawn in two wings farther apart than the gap (swiss-b17105 L1) is still split: open.",
+   "question": null
   }
  ]
 }
