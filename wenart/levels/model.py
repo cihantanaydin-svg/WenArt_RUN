@@ -923,11 +923,15 @@ OPEN_AIR_ROOMS_RE = re.compile(r"(?<![a-z])(?:balcony|balkon|teras|terrace|loggi
 
 
 def _open_air(room: Optional[dict]) -> bool:
-    """19 Nov 2026 (review A4, A4FC-4 / A4C-02): a room open to the air by its type or label (a balcony, a terrace)."""
+    """19 Nov 2026 (review A4, A4FC-4 / A4C-02): a room open to the air by its type or label (a balcony, a terrace).
+    26 Nov 2026 (audit rule R19): or by the build's one shared check (``outdoor.is_open_air``: a light well, an air
+    shaft, an open-air flag): its mark is no floor of the storey, its outer gap no facade window."""
     from wenart import building as B
+    from wenart.blender import outdoor as OD
 
     r = room or {}
-    return bool(OPEN_AIR_ROOMS_RE.search(B.fold_ascii(f"{r.get('room_type') or ''} {r.get('label') or ''}").lower()))
+    return bool(OPEN_AIR_ROOMS_RE.search(B.fold_ascii(f"{r.get('room_type') or ''} {r.get('label') or ''}").lower())) \
+        or (bool(r) and OD.is_open_air(r))
 
 
 ENTRANCE_DROP_MAX_M = 1.2          # 24 Nov 2026: an entrance a few steps over the ground (marks decide the steps)

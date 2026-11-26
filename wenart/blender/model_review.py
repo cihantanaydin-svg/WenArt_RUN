@@ -418,16 +418,17 @@ def guards_and_air(built: dict, prep: dict, plan_boxes: list) -> tuple[list[dict
     terrain = site.get("terrain")
     if len(prep.get("ground_outline") or []) < 3:
         return m3, m4, n3, n4
+    from wenart.blender import facade as FA
     for rec in S.outer_openings(built, list(levels.values()), prep.get("ground_outline") or [], prep.get("outlines"),
                                 kinds=("door", "window", "opening")):
         o, lv = rec["opening"], rec["level"]
-        floor = float(lv.get("elevation") or 0.0)
-        if rec["bottom"] - floor >= GUARD_SILL_M:
-            continue
-        (cx, cy), (ox, oy) = rec["centre"], rec["outward"]
-        gz = S.ground_z(terrain, cx + ox * 1.0, cy + oy * 1.0) if terrain else floor
-        drop = rec["bottom"] - gz
-        if drop < DROP_M:
+        # 26 Nov 2026 (audit rule R10): the facade kit's own test (``facade.guard_need``): a landing at the floor (a
+        # balcony room, an outdoor space, a platform) needs no guard, the drop counts from the floor, not the sill
+        level_floor = float(lv.get("elevation") or 0.0)
+        need = FA.guard_need(built, rec, (lambda x, y: S.ground_z(terrain, x, y)) if terrain
+                             else (lambda x, y, z=level_floor: z), site.get("platforms"))
+        floor, drop = need["floor"], need["drop"]
+        if need["landing"] is not None or rec["bottom"] - floor >= GUARD_SILL_M or drop < DROP_M:
             continue
         gap = gaps.get(o["id"])
         if gap is not None and gap["lands"] is not None:
@@ -1367,7 +1368,8 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
             levels = [lv for lv in built.get("levels") or []]
             plan = FA.articulation_plan(built, levels, prep["outlines"], prep.get("ground_outline") or [],
                                         (prep.get("site") or {}).get("terrain"), prep.get("roof"), None, None,
-                                        (prep.get("site") or {}).get("wells") or [])
+                                        (prep.get("site") or {}).get("wells") or [],
+                                        (prep.get("site") or {}).get("platforms"))
             boxes = list(plan.get("boxes") or [])
         m3, m4, n3, n4 = guards_and_air(built, prep, boxes)
         note("M3", m3, n3)

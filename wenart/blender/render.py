@@ -3512,8 +3512,16 @@ class RenderRun:
                                                              "earlier build or camera policy)")
                 self.carried.discard(name)
                 continue
+            entry = {k: v for k, v in entry.items() if k != "stale_build"}
             if name not in run_names and entry.get("scene_sha256") != ctx.fingerprint:
                 self.warnings.append(f"{name}: rendered from another scene build and not asked for in this run")
+                # 26 Nov 2026 (audit rule R26, real10: the structure run rendered the exteriors only and the final
+                # report published 29 interiors of a build three weeks older): the carried entry is marked; the report
+                # leaves it out of the final views (wenart.report.final.stale_view_reason)
+                if ctx.fingerprint is not None:
+                    entry["stale_build"] = {"scene_sha256": entry.get("scene_sha256"),
+                                            "reason": "rendered from another scene build and not rendered again in "
+                                                      "this run: not a view of the current building"}
             if name not in run_names and not entry.get("render_key"):
                 self.warnings.append(f"{name}: stale entry (no render_key, rendered before Milestone 5) kept; "
                                      f"re-render it")
@@ -3645,6 +3653,7 @@ class RenderRun:
             self.warnings.append(f"{cam.name}: pass readback failed ({exc}); statistics copied from the previous "
                                  f"manifest")
         entry = dict(prev)
+        entry.pop("stale_build", None)          # R26: reused from this very scene: a view of the current building
         entry.update(skipped=True, scene_sha256=self.ctx.fingerprint, render_key=key,
                      preview_bytes=f["preview"].stat().st_size, hidden=self.hidden, plugged=self.plugged,
                      **camera_lens(cam))

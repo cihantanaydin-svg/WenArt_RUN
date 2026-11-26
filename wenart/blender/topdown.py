@@ -220,6 +220,8 @@ def carve_footprint(box, z0: float, z1: float) -> int:
     cutter.hide_render = True
     cutter.display_type = "WIRE"
     carved = []
+    before: dict = {}
+    dg0 = bpy.context.evaluated_depsgraph_get()
     for o in bpy.data.objects:
         if o.type != "MESH" or o.hide_render or o is cutter or o.name.startswith("topdown_") \
                 or str(o.get("wenart_kind")) not in SITE_CUT_KINDS:
@@ -227,6 +229,8 @@ def carve_footprint(box, z0: float, z1: float) -> int:
         lo, hi = mesh_bbox(o)
         if hi[0] < box[0] or lo[0] > box[2] or hi[1] < box[1] or lo[1] > box[3] or hi[2] <= z0:
             continue
+        # 26 Nov 2026 (audit rule R14): the object's box as it stands before the carve (its section cut included)
+        before[o.name] = evaluated_box(o, dg0) or (lo, hi)
         m = o.modifiers.new("topdown_footprint", "BOOLEAN")
         m.operation = "DIFFERENCE"
         m.object = cutter
@@ -240,12 +244,55 @@ def carve_footprint(box, z0: float, z1: float) -> int:
             ev = o.evaluated_get(dg)
             mw = ev.matrix_world
             inside = [(mw @ v.co) for v in ev.data.vertices]
+            # 26 Nov 2026 (audit rule R14, real17 L0 and real06 L1: the Boolean of an open surface, the terrain or a
+            # veranda's pitched roof, kept the cutter's box faces and its top rose to the cutter's top, a plate over the
+            # whole floor): a carve may only remove geometry; an object it made taller or wider is hidden for the view
+            grew = carve_grew(before.get(o.name), inside)
+            if grew:
+                o.hide_render = True
+                print(f"TOPDOWN_COVER: '{o.name}' (kind {o.get('wenart_kind')}) {grew} after the footprint carve "
+                      f"(an open surface keeps the cutter's faces): hidden for the view")
+                continue
             # a vertex left well inside the footprint above the level's floor: the Boolean did not carve it
             if any(abs(q.x - cx) < (box[2] - box[0]) / 2.0 - 0.5 and abs(q.y - cy) < (box[3] - box[1]) / 2.0 - 0.5
                    and q.z > z0 + 0.3 for q in inside):
                 o.hide_render = True
                 print(f"TOPDOWN_COVER: '{o.name}' (kind {o.get('wenart_kind')}) not carved over the footprint: hidden")
     return len(carved)
+
+
+CARVE_GROW_TOL_M = 0.02          # R14: a carved object whose box grows more than this grew in the carve
+
+
+def evaluated_box(o, dg):
+    """The world box of ``o``'s evaluated mesh (its modifiers applied), or None for an empty one."""
+    ev = o.evaluated_get(dg)
+    mw = ev.matrix_world
+    pts = [mw @ v.co for v in ev.data.vertices]
+    if not pts:
+        return None
+    return [min(p[i] for p in pts) for i in range(3)], [max(p[i] for p in pts) for i in range(3)]
+
+
+def carve_grew(box_before, points, tol: float = CARVE_GROW_TOL_M) -> str:
+    """How a carve made an object grow (pure: ``box_before`` ``(lo, hi)``, ``points`` the evaluated vertices after the
+    carve as anything with ``x``, ``y``, ``z`` or a 3-sequence): its top rose, or a vertex lies outside its old plan
+    box; "" when it only lost geometry (R14: a carve may only remove geometry)."""
+    if not box_before or not points:
+        return ""
+    (lo, hi) = box_before
+    xs, ys, zs = [], [], []
+    for q in points:
+        x, y, z = (q.x, q.y, q.z) if hasattr(q, "x") else (q[0], q[1], q[2])
+        xs.append(x)
+        ys.append(y)
+        zs.append(z)
+    if max(zs) > float(hi[2]) + tol:
+        return f"rose from {float(hi[2]):.2f} to {max(zs):.2f} m"
+    if min(xs) < float(lo[0]) - tol or max(xs) > float(hi[0]) + tol or min(ys) < float(lo[1]) - tol \
+            or max(ys) > float(hi[1]) + tol:
+        return "spread past its own plan box"
+    return ""
 
 
 def _report_covers(level_id: str, z: float, box=None) -> list:
@@ -296,8 +343,8 @@ def _plan_contains(poly, x: float, y: float) -> bool:
 
 
 def covering_faces(o, dg, elevation: float, samples) -> set:
-    """The indices of ``samples`` (plan points, row by row of three) that an up-facing face of ``o``'s evaluated mesh,
-    standing at least ``COVER_RISE_M`` over ``elevation``, holds."""
+    """The indices of ``samples`` (plan points, row by row of three) that a flat face (up or down: ``|normal.z|`` over
+    0.5, R14) of ``o``'s evaluated mesh, standing at least ``COVER_RISE_M`` over ``elevation``, holds."""
     ev = o.evaluated_get(dg)
     me = ev.data
     mw = ev.matrix_world
@@ -306,7 +353,9 @@ def covering_faces(o, dg, elevation: float, samples) -> set:
     for p in me.polygons:
         if len(held) == len(samples):
             break
-        if (rot @ p.normal).z <= 0.5:
+        # 26 Nov 2026 (audit rule R14, real06 L1: the cover's big face pointed down, the box of a Boolean on an open
+        # surface): a flat face covers the level whichever way it faces
+        if abs((rot @ p.normal).z) <= 0.5:
             continue
         pts = [mw @ me.vertices[i].co for i in p.vertices]
         if min(q.z for q in pts) < elevation + COVER_RISE_M:
@@ -351,7 +400,7 @@ def drop_covering_faces(o, dg, nominal: float, samples) -> bool:
     bm.from_mesh(me)
     kill = []
     for f in bm.faces:
-        if (rot @ f.normal).z <= 0.5:
+        if abs((rot @ f.normal).z) <= 0.5:          # R14: a face facing down covers too
             continue
         pts = [mw @ v.co for v in f.verts]
         if min(q.z for q in pts) < nominal + COVER_RISE_M:
@@ -414,6 +463,38 @@ def hide_covers(level_id: str, elevation: float, wall_cut: float, box) -> list:
     return found
 
 
+def covers_qa(level_id: str, elevation: float, wall_cut: float, box, reported: list) -> dict:
+    """The view's cover QA (26 Nov 2026, audit rule R14): every mesh ``_report_covers`` names that still covers the
+    footprint box (``covers(covering_faces(...))``, faces facing up or down) is hidden for the view, unless it is the
+    level's own slab or a kept kind (``COVER_KEEP_KINDS``); a wall, door or window is never hidden (``hide_covers`` cut
+    it by a plane) and, still covering, is left: ``{"covers_hidden", "covers_left"}``, printed (``TOPDOWN_QA``)."""
+    import bpy
+
+    x0, y0, x1, y1 = box
+    samples = [(x0 + (x1 - x0) * fx, y0 + (y1 - y0) * fy) for fx in (1 / 6, 0.5, 5 / 6) for fy in (1 / 6, 0.5, 5 / 6)]
+    nominal = nominal_elevation(level_id, elevation)
+    col = bpy.data.collections.get(f"level_{level_id}")
+    own = {o.name for o in (col.all_objects if col else []) if str(o.get("wenart_kind")) == "slab"}
+    dg = bpy.context.evaluated_depsgraph_get()
+    hidden, left = [], []
+    for name, kind, _lo, _top in reported or []:
+        o = bpy.data.objects.get(name)
+        if o is None or o.hide_render or o.name in own or kind in COVER_KEEP_KINDS:
+            continue
+        if not covers(covering_faces(o, dg, nominal, samples)):
+            continue
+        if kind in CUT_KINDS:
+            left.append(name)
+            continue
+        o.hide_render = True
+        hidden.append(name)
+    for name in hidden:
+        print(f"TOPDOWN_QA {level_id}: '{name}' still covered the footprint after the carve: hidden for the view")
+    for name in left:
+        print(f"TOPDOWN_QA {level_id}: '{name}' still covers the footprint (a cut wall): the view fails its QA")
+    return {"covers_hidden": hidden, "covers_left": left}
+
+
 def restore_meshes() -> None:
     """The meshes ``bisect_top`` replaced get their own data back."""
     import bpy
@@ -468,7 +549,12 @@ def render_level(level_id: str, elevation: float, out: str, res: int, samples: i
         section_cut(elevation + STAIR_CUT_M, {"furniture"}, types=STAIR_TYPES, cutter_name="topdown_stair_cutter")
         carve_footprint((x0 + PAD_M, y0 + PAD_M, x1 - PAD_M, y1 - PAD_M), elevation - 0.05, wall_cut + 1.0)
         hide_covers(level_id, elevation, wall_cut, (x0 + PAD_M, y0 + PAD_M, x1 - PAD_M, y1 - PAD_M))
-        _report_covers(level_id, wall_cut, (x0 + PAD_M, y0 + PAD_M, x1 - PAD_M, y1 - PAD_M))
+        reported = _report_covers(level_id, wall_cut, (x0 + PAD_M, y0 + PAD_M, x1 - PAD_M, y1 - PAD_M))
+        # 26 Nov 2026 (audit rule R14, real17 L0: _report_covers named the terrain over the footprint and nothing
+        # acted on it): a reported cover still over the footprint is acted on before the render, never shipped
+        qa = covers_qa(level_id, elevation, wall_cut, (x0 + PAD_M, y0 + PAD_M, x1 - PAD_M, y1 - PAD_M), reported)
+    else:
+        qa = {"covers_hidden": [], "covers_left": []}
     import math
     from mathutils import Vector
 
@@ -515,6 +601,9 @@ def render_level(level_id: str, elevation: float, out: str, res: int, samples: i
     frame = {"level_id": level_id, "elevation": elevation, "x0": x0, "y0": y0, "x1": x1, "y1": y1,
              "w": sc.render.resolution_x, "h": sc.render.resolution_y, "tilt_deg": tilt, "azimuth_deg": azimuth,
              "wall_cut_m": round(wall_cut - elevation, 3),
+             # R14: the covers the view's QA hid before the render, and any left (the view then failed its QA)
+             "covers_hidden": qa["covers_hidden"], "covers_left": qa["covers_left"],
+             "qa": "failed: a cover is left over the footprint" if qa["covers_left"] else "ok",
              "target": list(target), "right": list(right), "up": list(up),
              "umin": umin, "umax": umax, "vmin": vmin, "vmax": vmax}
     with open(out + ".frame.json", "w", encoding="utf-8") as f:

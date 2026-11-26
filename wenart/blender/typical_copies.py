@@ -47,6 +47,39 @@ def _renamed(value, rename: dict, tag: str = "", new_tag: str = ""):
 
 TYPICAL_FURNISH_EACH_MAX = 3   # identical floors (a typical floor and its copies) up to this many are each furnished
 STAIR_TYPES = ("stair", "stairs", "staircase")      # kept on an unfurnished copy: the stair is the building's
+# 26 Nov 2026 (audit rule R13, real10 run 20261126-114512-full: the top-down views of the six copied floors L1-L6 had
+# empty bathrooms and kitchens, model review M7 "no toilet" / "no counter" 36 times): an unfurnished copy keeps the
+# drawn fixed equipment too (``furniture.schemas.FIXED_TYPES`` and these), as linked duplicates of the typical floor's
+COPY_FIXED_EXTRA = ("bidet", "urinal", "dishwasher", "oven", "hob", "cooker_hood", "sink", "dryer")
+
+
+def _drawn(piece: dict) -> bool:
+    return piece.get("source") == "from_documents" or piece.get("drawn_type") is not None \
+        or piece.get("drawn_footprint") is not None
+
+
+def copy_keeps(piece: dict) -> bool:
+    """Whether an unfurnished copy keeps ``piece`` of its typical floor (pure; R13): a stair, or a piece drawn in the
+    documents (``source`` from_documents, a ``drawn_type`` or ``drawn_footprint``) that is fixed equipment (sanitary
+    ware, a kitchen run and its appliances: ``FIXED_TYPES`` + ``COPY_FIXED_EXTRA``) or a built-in (``design.built_in``).
+    Loose furniture and decor are left out."""
+    from wenart.furniture.schemas import FIXED_TYPES
+
+    t = str(piece.get("type") or "").lower()
+    if t in STAIR_TYPES:
+        return True
+    if not _drawn(piece):
+        return False
+    design = piece.get("design") if isinstance(piece.get("design"), dict) else {}
+    return t in FIXED_TYPES or t in COPY_FIXED_EXTRA or bool(design.get("built_in"))
+
+
+def kept_pieces(pieces: list) -> list:
+    """The pieces of a typical floor an unfurnished copy keeps (``copy_keeps``), and the appliances built into a kept
+    piece (``asset.built_in`` naming it); pure, in their order."""
+    keep = {p.get("id") for p in pieces if isinstance(p, dict) and copy_keeps(p)}
+    return [p for p in pieces if isinstance(p, dict) and (p.get("id") in keep or (
+        isinstance(p.get("asset"), dict) and p["asset"].get("built_in") in keep))]
 
 
 def unfurnished_copies(building: dict) -> dict[str, str]:
@@ -88,59 +121,46 @@ def furnish_typical_copies(building: dict) -> list[dict]:
     bare = unfurnished_copies(building)
     for copy_id, base in sorted(base_of.items()):
         if copy_id in bare:
-            counts = {}
-            for key in TYPICAL_FURNISHED:
-                old = building.get(key) or []
-                on = [e for e in old if isinstance(e, dict) and e.get("level_id") == copy_id]
-                keep = [e for e in on if key == "furniture" and str(e.get("type") or "").lower() in STAIR_TYPES]
-                building[key] = [e for e in old if not (isinstance(e, dict) and e.get("level_id") == copy_id)
-                                 or e in keep]
-                counts[key] = {"was": len(on), "now": len(keep)}
+            base_pieces = [e for e in building.get("furniture") or [] if isinstance(e, dict)
+                           and e.get("level_id") == base]
+            keep_src = kept_pieces(base_pieces)
+            if not any(str(p.get("type") or "").lower() not in STAIR_TYPES for p in keep_src):
+                # no drawn fixed equipment on the typical floor: the copy keeps its own stairs (as before)
+                counts = {}
+                for key in TYPICAL_FURNISHED:
+                    old = building.get(key) or []
+                    on = [e for e in old if isinstance(e, dict) and e.get("level_id") == copy_id]
+                    keep = [e for e in on if key == "furniture" and str(e.get("type") or "").lower() in STAIR_TYPES]
+                    building[key] = [e for e in old if not (isinstance(e, dict) and e.get("level_id") == copy_id)
+                                     or e in keep]
+                    counts[key] = {"was": len(on), "now": len(keep)}
+                value, kept_ids, what = "none", [], f"its stairs kept ({counts['furniture']['now']})"
+            else:
+                # 26 Nov 2026 (R13): the typical floor's drawn fixed equipment, moved to the copy (ids, rooms, z) and
+                # built as linked duplicates of the typical floor's objects (build: ``copy_furniture`` with ``only``);
+                # the copy keeps its own stairs (as before); loose furniture and decor left out
+                fixed = [p for p in keep_src if str(p.get("type") or "").lower() not in STAIR_TYPES]
+                own_stairs = [e for e in building.get("furniture") or [] if isinstance(e, dict)
+                              and e.get("level_id") == copy_id and str(e.get("type") or "").lower() in STAIR_TYPES]
+                counts = _copy_items(building, base, copy_id, levels, all_ids, {"furniture": fixed, "decor": []})
+                building["furniture"] = list(building.get("furniture") or []) + own_stairs
+                counts["furniture"]["now"] += len(own_stairs)
+                value, kept_ids = f"fixed as {base}", [p["id"] for p in fixed]
+                what = (f"its stairs ({len(own_stairs)}) and {base}'s drawn fixed equipment kept ({len(fixed)} pieces: "
+                        f"sanitary ware, kitchen runs and appliances, built-ins; linked duplicates of {base}'s)")
             n = 1 + sum(1 for b in base_of.values() if b == base)
-            records.append({"object": f"level_{copy_id}", "field": "furnishing", "value": "none",
+            records.append({"object": f"level_{copy_id}", "field": "furnishing", "value": value,
                             "kind": "typical_copy", "parent": f"level_{copy_id}", "counts": counts,
+                            **({"kept_of_typical": kept_ids} if kept_ids else {}),
                             "reason": (f"{copy_id} is one of {n} identical floors (a copy of the typical floor {base}, "
                                        f"typical_of): only {base} is furnished, as the example floor (user rule of 2 Nov "
                                        f"2026: more than {TYPICAL_FURNISH_EACH_MAX} identical floors, one example floor "
                                        f"furnished); its {counts['furniture']['was']} pieces and "
-                                       f"{counts['decor']['was']} decor items are left out, its stairs kept "
-                                       f"({counts['furniture']['now']})")})
+                                       f"{counts['decor']['was']} decor items are left out, {what}")})
             continue
-        tag, new_tag = f"_{base}_", f"_{copy_id}_"
-        dz = float(levels[copy_id].get("elevation") or 0.0) - float(levels[base].get("elevation") or 0.0)
-        rename: dict = {}
-        for key, items in building.items():
-            if key in TYPICAL_FURNISHED or not isinstance(items, list):
-                continue
-            for e in items:
-                if isinstance(e, dict) and e.get("level_id") == base and isinstance(e.get("id"), str):
-                    twin = e["id"].replace(tag, new_tag, 1)
-                    if twin != e["id"] and twin in all_ids:
-                        rename[e["id"]] = twin
         sources = {key: [e for e in building.get(key) or [] if isinstance(e, dict) and e.get("level_id") == base]
                    for key in TYPICAL_FURNISHED}
-        for key, items in sources.items():
-            for e in items:
-                new_id = e["id"].replace(tag, new_tag, 1) if tag in e["id"] else f"{e['id']}@{copy_id}"
-                rename[e["id"]] = new_id
-        counts = {}
-        for key, items in sources.items():
-            old = building.get(key) or []
-            dropped = [e for e in old if isinstance(e, dict) and e.get("level_id") == copy_id]
-            made = []
-            for e in items:
-                q = _renamed(_copy.deepcopy(e), rename, tag, new_tag)
-                q["level_id"] = copy_id
-                q["typical_copy_of"] = e["id"]
-                if q.get("floor_z") is not None:
-                    q["floor_z"] = round(float(q["floor_z"]) + dz, 4)
-                made.append(q)
-            at = next((i for i, e in enumerate(old) if isinstance(e, dict) and e.get("level_id") == copy_id),
-                      len(old))
-            kept = [e for e in old if not (isinstance(e, dict) and e.get("level_id") == copy_id)]
-            at = sum(1 for e in old[:at] if not (isinstance(e, dict) and e.get("level_id") == copy_id))
-            building[key] = kept[:at] + made + kept[at:]
-            counts[key] = {"was": len(dropped), "now": len(made)}
+        counts = _copy_items(building, base, copy_id, levels, all_ids, sources)
         records.append({"object": f"level_{copy_id}", "field": "furnishing", "value": f"as {base}",
                         "kind": "typical_copy", "parent": f"level_{copy_id}",
                         "reason": (f"{copy_id} is a copy of the typical floor {base} (typical_of): furnished as {base} "
@@ -149,6 +169,48 @@ def furnish_typical_copies(building: dict) -> list[dict]:
                                    f"flat design per typical floor, the copies built as linked duplicates)"),
                         "counts": counts})
     return records
+
+
+def _copy_items(building: dict, base: str, copy_id: str, levels: dict, all_ids: set, sources: dict) -> dict:
+    """The items ``sources`` (``{key: [items of the typical floor base]}``) moved to the level ``copy_id`` in place of
+    the copy's own items of those keys (in place; pure): ids moved (``_<base>_`` read as ``_<copy>_``, else
+    ``@<copy>``), every reference to the typical floor's elements moved to the copy's (``_renamed``), ``floor_z`` raised
+    by the levels' height difference, ``typical_copy_of`` naming the source. Returns ``{key: {"was", "now"}}``."""
+    tag, new_tag = f"_{base}_", f"_{copy_id}_"
+    dz = float(levels[copy_id].get("elevation") or 0.0) - float(levels[base].get("elevation") or 0.0)
+    rename: dict = {}
+    for key, items in building.items():
+        if key in TYPICAL_FURNISHED or not isinstance(items, list):
+            continue
+        for e in items:
+            if isinstance(e, dict) and e.get("level_id") == base and isinstance(e.get("id"), str):
+                twin = e["id"].replace(tag, new_tag, 1)
+                if twin != e["id"] and twin in all_ids:
+                    rename[e["id"]] = twin
+    for key in TYPICAL_FURNISHED:
+        for e in building.get(key) or []:
+            if isinstance(e, dict) and e.get("level_id") == base and isinstance(e.get("id"), str):
+                rename[e["id"]] = e["id"].replace(tag, new_tag, 1) if tag in e["id"] else f"{e['id']}@{copy_id}"
+    counts = {}
+    for key in TYPICAL_FURNISHED:
+        items = sources.get(key) or []
+        old = building.get(key) or []
+        dropped = [e for e in old if isinstance(e, dict) and e.get("level_id") == copy_id]
+        made = []
+        for e in items:
+            q = _renamed(_copy.deepcopy(e), rename, tag, new_tag)
+            q["level_id"] = copy_id
+            q["typical_copy_of"] = e["id"]
+            if q.get("floor_z") is not None:
+                q["floor_z"] = round(float(q["floor_z"]) + dz, 4)
+            made.append(q)
+        at = next((i for i, e in enumerate(old) if isinstance(e, dict) and e.get("level_id") == copy_id),
+                  len(old))
+        kept = [e for e in old if not (isinstance(e, dict) and e.get("level_id") == copy_id)]
+        at = sum(1 for e in old[:at] if not (isinstance(e, dict) and e.get("level_id") == copy_id))
+        building[key] = kept[:at] + made + kept[at:]
+        counts[key] = {"was": len(dropped), "now": len(made)}
+    return counts
 
 
 def renamer(base: str, copy_id: str):
@@ -193,28 +255,56 @@ def copy_entries(entries: list, name_map: dict, base: str, copy_id: str, dz: flo
     return out
 
 
-def copy_summary(summary: dict, base: str, copy_id: str, objects: dict) -> dict:
+def copy_summary(summary: dict, base: str, copy_id: str, objects: dict, only=None) -> dict:
     """The furniture summary of the copy (pure): the typical floor's, its ids moved, ``objects`` the copy's objects,
-    the timings left out (they are the source's), ``typical_copy_of`` the typical floor."""
+    the timings left out (they are the source's), ``typical_copy_of`` the typical floor. With ``only`` (the typical
+    floor's piece ids an unfurnished copy keeps, R13) the counts are the copy's: its pieces, no decor, the fallbacks
+    and pieces not built of those pieces only."""
     tag, new_tag = f"_{base}_", f"_{copy_id}_"
     s = {k: v for k, v in summary.items() if k not in ("objects", "slowest")}
+    if only is not None:
+        keep = set(only)
+        s = {k: v for k, v in s.items() if k not in ("by_method", "bedding", "decor_skipped", "dressed_beds")}
+        s["fallbacks"] = [x for x in summary.get("fallbacks") or [] if isinstance(x, dict) and x.get("id") in keep]
+        s["not_built"] = [x for x in summary.get("not_built") or [] if isinstance(x, dict) and x.get("id") in keep]
+        s["pieces"], s["decor"], s["proxies"] = len(objects), 0, 0
+        s["fixed_only"] = True
     s = _renamed(_copy.deepcopy(s), {}, tag, new_tag)
     s["objects"] = objects
     s["typical_copy_of"] = base
     return s
 
 
+def objects_under(objs: list, roots: list) -> list:
+    """The objects of ``objs`` that are one of ``roots`` or under one of them (their parent chain reaches a root);
+    pure on anything with ``name`` and ``parent`` (R13: an unfurnished copy duplicates only its kept pieces)."""
+    names = {getattr(r, "name", None) for r in roots if r is not None}
+    out = []
+    for ob in objs:
+        cur, hit = ob, False
+        while cur is not None:
+            if getattr(cur, "name", None) in names:
+                hit = True
+                break
+            cur = getattr(cur, "parent", None)
+        if hit:
+            out.append(ob)
+    return out
+
+
 MODIFIER_OBJECT_ATTRS = ("object", "offset_object", "mirror_object", "start_cap", "end_cap", "curve", "target",
                          "origin")
 
 
-def copy_furniture(src: dict, level: dict, parent_collection, manifest_objects: list) -> dict:
+def copy_furniture(src: dict, level: dict, parent_collection, manifest_objects: list, only=None) -> dict:
     """The typical floor's furniture and decor objects (``src``: ``{"level", "collection", "entries", "summary"}``)
     duplicated for the copy ``level`` (bpy): every object of the source collection (nested ones too) copied with its
     data shared, parents and modifier or constraint targets inside the set pointed at the copies, the roots raised by
     the levels' height difference, the string properties (``wenart_id`` ...) moved to the copy's level; the copies go
     in ``furniture_<level>`` under ``parent_collection``. The manifest entries are added; returns ``{"summary",
-    "collection", "objects"}``."""
+    "collection", "objects"}``. With ``only`` (26 Nov 2026, R13: an unfurnished copy's stairs and drawn fixed
+    equipment) only the objects of those pieces of the typical floor (``summary["objects"]``) and what hangs under them
+    are duplicated."""
     import bpy
     from mathutils import Matrix
 
@@ -226,6 +316,9 @@ def copy_furniture(src: dict, level: dict, parent_collection, manifest_objects: 
     parent_collection.children.link(dst)
     bpy.context.view_layer.update()
     objs = list(src["collection"].all_objects)
+    if only is not None:
+        src_objects = src["summary"].get("objects") or {}
+        objs = objects_under(objs, [src_objects.get(pid) for pid in only])
     made: dict = {}
     for ob in objs:
         new = ob.copy()
@@ -260,8 +353,9 @@ def copy_furniture(src: dict, level: dict, parent_collection, manifest_objects: 
     name_map = {k: v.name for k, v in made.items()}
     manifest_objects.extend(copy_entries(src["entries"], name_map, base, copy_id, dz))
     objects = {id_of(pid): made[ob.name] for pid, ob in (src["summary"].get("objects") or {}).items()
-               if getattr(ob, "name", None) in made}
-    return {"summary": copy_summary(src["summary"], base, copy_id, objects), "collection": dst, "objects": len(made)}
+               if getattr(ob, "name", None) in made and (only is None or pid in only)}
+    return {"summary": copy_summary(src["summary"], base, copy_id, objects, only), "collection": dst,
+            "objects": len(made)}
 
 
 def copy_scene_report(report: Optional[dict], base: str, copy_id: str) -> dict:

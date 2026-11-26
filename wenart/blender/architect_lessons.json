@@ -4548,6 +4548,66 @@
    "request": "26 Nov 2026 (user, answer to the audit question on UL200: '3 keep bathtub'): a bathtub the plan clearly draws (a tub outline with a drain, a curved corner tub, a bathtub block) stays a bathtub in every bathroom, even with no word like KÜVET, as the fixed-equipment rule says; UL200's walk-in shower applies only where the plan draws no tub (an undrawn or uncertain wet area). real06's corner bath stays a corner bath; real10's two drawn bathtubs per floor are built as bathtubs.",
    "lesson": "26 Nov 2026 (user, answer to the audit question on UL200: '3 keep bathtub'): a bathtub the plan clearly draws (a tub outline with a drain, a curved corner tub, a bathtub block) stays a bathtub in every bathroom, even with no word like KÜVET, as the fixed-equipment rule says; UL200's walk-in shower applies only where the plan draws no tub (an undrawn or uncertain wet area). real06's corner bath stays a corner bath; real10's two drawn bathtubs per floor are built as bathtubs.",
    "question": null
+  },
+  {
+   "id": "UL398",
+   "date": "2026-11-26",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "26 Nov 2026 (audit rule R19, real17 run 20261126-110510-full: the 0.5 x 0.5 m air shaft 'H.B 50X50' was an inside room to the architect, so W2 made the WC's vent onto it a 0.80 m door and closed the bath's and shower's vents): one shared open-air check (outdoor.is_open_air / is_void: light wells and air shafts by type, subtype or label, the open-air flags) is used by every rule; W2, W5 and E1 never act on openings onto such a void, windows onto it stay windows, a void is never a landing, and a door is never wider than the side of the room it opens into.",
+   "lesson": "26 Nov 2026 (audit rule R19, real17 run 20261126-110510-full: the 0.5 x 0.5 m air shaft 'H.B 50X50' was an inside room to the architect, so W2 made the WC's vent onto it a 0.80 m door and closed the bath's and shower's vents): one shared open-air check (outdoor.is_open_air / is_void: light wells and air shafts by type, subtype or label, the open-air flags) is used by every rule; W2, W5 and E1 never act on openings onto such a void, windows onto it stay windows, a void is never a landing, and a door is never wider than the side of the room it opens into.",
+   "question": null
+  },
+  {
+   "id": "UL399",
+   "date": "2026-11-26",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "26 Nov 2026 (audit rule R04, real17: the 5 cm band on the open edges of the corner balconies was built as 3 m storey walls on L1 and L2, the balcony door opened into a dark box): on every level above the ground floor, a wall with a balcony, terrace or loggia (room or os_* space) on one side and the outside on the other is a guard (parapet: a 1.10 m solid parapet for a band of 0.10 m or more, a railing on a kerb for a thinner line, guard_of recorded), never a storey wall; it keeps full height where a room, a party wall or a second balcony lies beyond, where a door or window sits in it, or where a full wall of the floor above stands on it; the build never runs a parapet wall to the slab above or the roof.",
+   "lesson": "26 Nov 2026 (audit rule R04, real17: the 5 cm band on the open edges of the corner balconies was built as 3 m storey walls on L1 and L2, the balcony door opened into a dark box): on every level above the ground floor, a wall with a balcony, terrace or loggia (room or os_* space) on one side and the outside on the other is a guard (parapet: a 1.10 m solid parapet for a band of 0.10 m or more, a railing on a kerb for a thinner line, guard_of recorded), never a storey wall; it keeps full height where a room, a party wall or a second balcony lies beyond, where a door or window sits in it, or where a full wall of the floor above stands on it; the build never runs a parapet wall to the slab above or the roof.",
+   "question": null
+  },
+  {
+   "id": "UL400",
+   "date": "2026-11-26",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "26 Nov 2026 (audit rule R10, real06: glass guards stood across both balcony doors because the guard test saw only balcony rooms, not the outdoor space os_L1_balkon; the ground-floor windows of a 0.5 m plinth got guards because the drop counted from the sill): one landing test (site.landing_at: a balcony or terrace room, an outdoor space or a platform at the floor, within 0.25 m) for the facade guards, the model review's M3, the architect's E1 and O2 and the report's rise table; an opening with a landing never gets a guard, whatever an answer asked; the drop counts from the floor (level elevation plus the room's floor offset) to the ground.",
+   "lesson": "26 Nov 2026 (audit rule R10, real06: glass guards stood across both balcony doors because the guard test saw only balcony rooms, not the outdoor space os_L1_balkon; the ground-floor windows of a 0.5 m plinth got guards because the drop counted from the sill): one landing test (site.landing_at: a balcony or terrace room, an outdoor space or a platform at the floor, within 0.25 m) for the facade guards, the model review's M3, the architect's E1 and O2 and the report's rise table; an opening with a landing never gets a guard, whatever an answer asked; the drop counts from the floor (level elevation plus the room's floor offset) to the ground.",
+   "question": null
+  },
+  {
+   "id": "UL401",
+   "date": "2026-11-26",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "26 Nov 2026 (audit rule R13, real10: the six copied typical floors L1-L6 were built with stairs only, every bathroom and kitchen empty): a typical floor's copy left unfurnished (more than 3 identical floors) keeps the typical floor's stairs and drawn fixed equipment (sanitary ware, kitchen runs and their appliances, drawn built-ins) as linked duplicates; only loose furniture and decor are left out.",
+   "lesson": "26 Nov 2026 (audit rule R13, real10: the six copied typical floors L1-L6 were built with stairs only, every bathroom and kitchen empty): a typical floor's copy left unfurnished (more than 3 identical floors) keeps the typical floor's stairs and drawn fixed equipment (sanitary ware, kitchen runs and their appliances, drawn built-ins) as linked duplicates; only loose furniture and decor are left out.",
+   "question": null
+  },
+  {
+   "id": "UL402",
+   "date": "2026-11-26",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "26 Nov 2026 (audit rule R25, real17: three 3 m sunken courts with 0.9 m parapets were dug for two WC and store vents and an unclassified gap beside the entrance, and the shop windows a few cm under the pavement got concrete pits, one raised to 3.35 m by the L1 balcony above): a sunken court only for the main window of a habitable room with no other daylight and 0.6 m2 of glass or more, never for a vent of 0.36 m2 or less (a small grated vent pit instead), an unclassified gap, a WC or a store, never within 1.5 m of an entrance or exit door; a light well only where the ground stands 0.45 m or more over the sill (less is a kerb or regraded ground); only ground platforms, never an elevated one, set a well's top.",
+   "lesson": "26 Nov 2026 (audit rule R25, real17: three 3 m sunken courts with 0.9 m parapets were dug for two WC and store vents and an unclassified gap beside the entrance, and the shop windows a few cm under the pavement got concrete pits, one raised to 3.35 m by the L1 balcony above): a sunken court only for the main window of a habitable room with no other daylight and 0.6 m2 of glass or more, never for a vent of 0.36 m2 or less (a small grated vent pit instead), an unclassified gap, a WC or a store, never within 1.5 m of an entrance or exit door; a light well only where the ground stands 0.45 m or more over the sill (less is a kerb or regraded ground); only ground platforms, never an elevated one, set a well's top.",
+   "question": null
+  },
+  {
+   "id": "UL403",
+   "date": "2026-11-26",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "26 Nov 2026 (audit rule R26, real10: final/real10 published 29 interior views rendered from a build three weeks older, showing walls and a stair pit the current model does not have): a view rendered from another scene build is marked stale by the render (stale_build) and left out of the final views, and the report refuses a view whose JSON cross-check names elements the current building does not hold or holds as another type; every view shown is the current building.",
+   "lesson": "26 Nov 2026 (audit rule R26, real10: final/real10 published 29 interior views rendered from a build three weeks older, showing walls and a stair pit the current model does not have): a view rendered from another scene build is marked stale by the render (stale_build) and left out of the final views, and the report refuses a view whose JSON cross-check names elements the current building does not hold or holds as another type; every view shown is the current building.",
+   "question": null
   }
  ]
 }

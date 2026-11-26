@@ -438,6 +438,23 @@ def building_lines(block: dict, fmt: Fmt = metres) -> list[str]:
     return lines
 
 
+def entrance_landing(b: dict, e: dict) -> Optional[dict]:
+    """What an entrance door steps onto (26 Nov 2026, audit rule R10: real06's report listed both balcony doors with a
+    3.50 m rise and no solution while it named the balcony their landing): the guard rule's one landing test
+    (``site.landing_at``) 0.5 m out of the door's face at its threshold; None when there is none or the record lacks
+    the face."""
+    face, out, thr = e.get("face"), e.get("outward"), e.get("threshold_z")
+    if not (isinstance(face, (list, tuple)) and len(face) >= 2 and isinstance(out, (list, tuple)) and len(out) >= 2
+            and isinstance(thr, (int, float))):
+        return None
+    try:
+        from wenart.blender import site as S
+    except ImportError:                    # pragma: no cover - the report runs where the build's modules are
+        return None
+    probe = (float(face[0]) + float(out[0]) * 0.5, float(face[1]) + float(out[1]) * 0.5)
+    return S.landing_at(b, e.get("level_id"), probe, float(thr))
+
+
 def level_summary(b: dict) -> Optional[dict]:
     """Milestone 12 (docs/milestone12.md §3, track L): the level marks, datum, ground, entrances, plinth, room floors
     and what was inferred (``level_inference``), for the report; None for a building without them."""
@@ -456,7 +473,7 @@ def level_summary(b: dict) -> Optional[dict]:
              "rise": e.get("rise"), "solution": e.get("solution"), "main": bool(e.get("main")),
              "risers": (e.get("steps") or {}).get("count"), "riser": (e.get("steps") or {}).get("riser"),
              "ramp": (e.get("ramp") or {}).get("ratio"), "into_air": bool(e.get("into_air")),
-             "below_ground": bool(e.get("below_ground"))}
+             "below_ground": bool(e.get("below_ground")), "landing": entrance_landing(b, e)}
             for e in site.get("entrances") or [] if isinstance(e, dict)]
     plinth = site.get("plinth") if isinstance(site.get("plinth"), dict) else None
     return {"marks": len(marks), "kinds": kinds, "datum": _num(datum), "datum_state": _rec_state(datum)[1]
@@ -490,6 +507,15 @@ def level_lines(block: Optional[dict], fmt: Fmt = metres) -> list[str]:
         lines += ["", "| Door | Threshold | Ground | Rise | Solution | Main |", "|---|---|---|---|---|---|"]
         for e in block["entrances"]:
             sol = e["solution"]
+            land = e.get("landing")
+            if land is not None:
+                # 26 Nov 2026 (R10): a door onto a balcony, a terrace or a platform at its floor steps onto it (its rise
+                # is the step to that landing, never the drop to the ground under it)
+                lz = land.get("z")
+                rise = (float(e["threshold_z"]) - float(lz)) if isinstance(lz, (int, float)) else 0.0
+                lines.append(f"| {e['door_id']} | {fmt(e['threshold_z'])} | {fmt(e['ground_z'])} | {fmt(rise)} | "
+                             f"lands on the {land.get('kind')} {land.get('id')} | {'yes' if e['main'] else ''} |")
+                continue
             if e["risers"]:
                 sol += f" ({e['risers']} x {e['riser']:.3f} m)"
             if e["ramp"]:

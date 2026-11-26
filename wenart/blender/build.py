@@ -1622,6 +1622,12 @@ def prepare_once(building_all: dict, variant: str = "base", brief: dict | None =
                 out["typical_copies"][rec["object"][len("level_"):]] = rec["value"][len("as "):]
             else:                                       # left unfurnished (more than 3 identical floors)
                 out.setdefault("unfurnished_copies", []).append(rec["object"][len("level_"):])
+                if rec["value"].startswith("fixed as "):
+                    # 26 Nov 2026 (audit rule R13): its stairs and drawn fixed equipment, linked duplicates of the
+                    # typical floor's objects (``typical_copies.copy_furniture`` with ``only``)
+                    out["typical_copies"][rec["object"][len("level_"):]] = rec["value"][len("fixed as "):]
+                    out.setdefault("typical_fixed_only", {})[rec["object"][len("level_"):]] = \
+                        list(rec.get("kept_of_typical") or [])
     # 27 Oct 2026 (real06's first floor: the stair arrived on a strip by the outer wall that its floor opening cut off
     # from the hall; user: "Needs a pathway here, how will the people go up to 2nd floor otherwise?"): before anything
     # is planned, every stair of a whole building must lead into its floors; an assumed stair that does not takes the
@@ -2240,7 +2246,8 @@ def main(argv: list[str]) -> int:
         copied = None
         if copy_src is not None and not level.get("ceiling_planes") and not copy_src["level"].get("ceiling_planes"):
             try:
-                copied = TC.copy_furniture(copy_src, level, col, manifest_objects)
+                copied = TC.copy_furniture(copy_src, level, col, manifest_objects,
+                                           (prep.get("typical_fixed_only") or {}).get(level["id"]))
                 print(f"level {level['id']}: {copied['objects']} furniture and decor objects copied from the typical "
                       f"floor {copy_src['level']['id']} (linked duplicates)")
             except Exception as exc:  # noqa: BLE001 - any bpy error: the pieces are built on their own instead
@@ -2269,7 +2276,9 @@ def main(argv: list[str]) -> int:
         # Milestone 12 (docs/milestone12.md §4.6-§4.7, contract §13.3; hook owned by track S): the scene checks S1-S6
         # of this level's built furniture and decor (``summary["objects"]``: {piece or decor id: object}).
         from wenart.blender import scene_checks as SC
-        if copied is not None:              # a typical floor's copy: the same meshes one storey up (its report)
+        if copied is not None and level["id"] not in (prep.get("typical_fixed_only") or {}):
+            # a typical floor's copy: the same meshes one storey up (its report); a copy that keeps only the fixed
+            # equipment (R13) is checked on its own objects below
             scene_report = TC.copy_scene_report(copy_src["scene_report"], copy_src["level"]["id"], level["id"])
             SC.write_report(scene_report, out / "checks" / f"scene_{level['id']}.json")
         else:
@@ -2412,7 +2421,8 @@ def main(argv: list[str]) -> int:
             extra_collections.append(fac_col)
             fplan = FA.articulation_plan(building, levels, prep["outlines"], prep["ground_outline"],
                                          (prep["site"] or {}).get("terrain"), roof, style, looks,
-                                         (prep["site"] or {}).get("wells") or [])
+                                         (prep["site"] or {}).get("wells") or [],
+                                         (prep["site"] or {}).get("platforms"))
             whole_info["facade_details"] = FA.build_articulation(fplan, fac_col,
                                                                  lambda look: library.thin_glass()
                                                                  if look.get("material") == "glass_guard"
