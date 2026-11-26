@@ -879,8 +879,10 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
     for wall in walls:
         height, wall_assumed = wall_height(wall, level, has_above)
         # 26 Nov 2026 (audit rule R04): a parapet (guard) wall on a balcony's or terrace's open edge keeps its own
-        # height (1.0-1.1 m, or a kerb under a railing): never run to the slab above or the roof's underside
-        guard_wall = bool(wall.get("parapet"))
+        # height (1.0-1.1 m, or a kerb under a railing): never run to the slab above or the roof's underside. Only the
+        # guards ``ingest.edge_guards`` made (``guard_of``): a roof terrace's parapet wall partly under the roof
+        # (sheets.to_building, real10 w_L7_011) keeps the roof cut and its ``roof.parapet_cuts`` spans (review of 26 Nov)
+        guard_wall = bool(wall.get("parapet") and wall.get("guard_of"))
         if slab_above is not None and not guard_wall:
             # 31 Oct 2026 (user on real04 run 181158, the attic play room: "Something wrong within cyan outline": the
             # tops of the walls below showed through the attic floor and its rug as a grey band and white lines): a

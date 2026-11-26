@@ -155,10 +155,13 @@ VOID_TYPES = ("light_well", "air_shaft")
 LIGHT_WELL_PATTERN = (r"(?<![a-z])(?:aydinlik|isiklik|aydinlatma\s+boslugu|light\s*well|lightwell|lichthof"
                       r"|lichtschacht|courette|patio\s+de\s+luces)")
 AIR_SHAFT_PATTERN = (r"(?<![a-z0-9])(?:h\s*\.\s*b\b\.?|hb\s*\d{2,3}\s*[/x*]\s*\d{2,3}|hava\s*(?:bacasi|baca|boslugu)"
-                     r"|havalandirma|air\s*shaft|vent(?:ilation)?\s*shaft)")
+                     r"|havalandirma\s*(?:bacasi|baca|boslugu)|air\s*shaft|vent(?:ilation)?\s*shaft)")
+# a bare 'Havalandırma' names a void only on a room typed shaft: 'Havalandırma Odası' is a plant room (review, 26 Nov)
+SHAFT_ONLY_PATTERN = r"(?<![a-z])havalandirma(?!\s*odasi)"
 LIFT_PATTERN = r"(?<![a-z])(?:asansor|lift|elevator|aufzug|ascenseur)"
 _VOID_WORD_RE = re.compile(f"{LIGHT_WELL_PATTERN}|{AIR_SHAFT_PATTERN}")
 _LIFT_WORD_RE = re.compile(LIFT_PATTERN)
+_SHAFT_ONLY_RE = re.compile(SHAFT_ONLY_PATTERN)
 
 
 def _label(room: dict) -> str:
@@ -180,7 +183,9 @@ def is_void(room: Optional[dict]) -> bool:
     if str(room.get("room_type") or "").lower() not in ("shaft", "", "unknown", "none", "other"):
         return False
     label = _label(room)
-    return bool(_VOID_WORD_RE.search(label)) and not _LIFT_WORD_RE.search(label)
+    hit = _VOID_WORD_RE.search(label) or (str(room.get("room_type") or "").lower() == "shaft"
+                                          and _SHAFT_ONLY_RE.search(label))
+    return bool(hit) and not _LIFT_WORD_RE.search(label)
 
 
 def is_open_air(room: Optional[dict], sky_ids=()) -> bool:

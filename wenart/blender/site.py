@@ -1357,10 +1357,16 @@ def landing_at(building: dict, level_id, probe, floor_z: float, platforms: Optio
     from wenart.blender import outdoor as OD
 
     px, py = float(probe[0]), float(probe[1])
+    lv = next((x for x in building.get("levels") or [] if isinstance(x, dict) and x.get("id") == level_id), None)
     for r in building.get("rooms") or []:
         if isinstance(r, dict) and r.get("level_id") == level_id and len(r.get("polygon") or []) >= 3 \
                 and OD.is_open_air(r) and not OD.is_void(r) and G.point_in_polygon((px, py), r["polygon"]):
-            return {"kind": str(r.get("room_type") or "open-air room"), "id": r.get("id"), "z": None}
+            # review of 26 Nov 2026: the room's own floor (its level + floor_offset_m), within ``tol`` like a space
+            z = float(lv.get("elevation") or 0.0) + float(r.get("floor_offset_m") or 0.0) if lv is not None else None
+            if z is not None and abs(z - float(floor_z)) > tol + 1e-9:
+                continue
+            return {"kind": str(r.get("room_type") or "open-air room"), "id": r.get("id"),
+                    "z": round(z, 3) if z is not None else None}
     site = building.get("site") if isinstance(building.get("site"), dict) else {}
     for s in site.get("outdoor_spaces") or []:
         if not isinstance(s, dict) or len(s.get("polygon") or []) < 3:
@@ -4548,9 +4554,43 @@ def _outside_gaps(length: float, gaps: Sequence, min_m: float = 0.1) -> list[tup
     return out
 
 
+GUARD_EDGE_REACH_M = 0.15     # a platform edge this far (plus half the wall) from a guard wall runs along it
+
+
+def guarded_edges(polygon: Sequence, walls: Sequence[dict], reach: float = GUARD_EDGE_REACH_M) -> list[int]:
+    """The edges of ``polygon`` a guard wall runs along (pure; review of 26 Nov 2026, audit rule R04: real17's
+    balcony os_L1_balkon_1 got the site's railing on its west edge 2.5 cm beside the guard w_L1_042 and its own
+    balustrade): edge ``i`` (from point ``i`` to ``i + 1``) when it is parallel to a wall of ``walls`` (within about 5
+    degrees), its midpoint lies within half the wall's thickness plus ``reach`` of the wall's centre line and within
+    the wall's length (plus ``reach``)."""
+    out = []
+    n = len(polygon)
+    for i in range(n):
+        (ax, ay), (bx, by) = polygon[i][:2], polygon[(i + 1) % n][:2]
+        el = math.hypot(bx - ax, by - ay)
+        if el < 1e-6:
+            continue
+        ex, ey = (bx - ax) / el, (by - ay) / el
+        mx, my = (ax + bx) / 2.0, (ay + by) / 2.0
+        for w in walls:
+            (sx, sy), (tx, ty) = w["start"][:2], w["end"][:2]
+            wl = math.hypot(tx - sx, ty - sy)
+            if wl < 1e-6:
+                continue
+            ux, uy = (tx - sx) / wl, (ty - sy) / wl
+            if abs(ex * ux + ey * uy) < 0.996:
+                continue
+            off = abs((mx - sx) * -uy + (my - sy) * ux)
+            along = (mx - sx) * ux + (my - sy) * uy
+            if off <= float(w.get("thickness") or 0.0) / 2.0 + reach and -reach <= along <= wl + reach:
+                out.append(i)
+                break
+    return out
+
+
 def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (),
               facades: Optional[dict] = None, band_keep: Sequence[tuple[str, list]] = (),
-              outlines: Optional[dict] = None) -> list[dict]:
+              outlines: Optional[dict] = None, guard_walls: Sequence[dict] = ()) -> list[dict]:
     """One level per drawn terrace, pool or parking polygon (pure; Milestone 13 T6, docs/milestone13.md §13.2):
     ``[{"id", "polygon", "holes", "z", "kind": terrace | pool | parking | path, "edge": retaining | kerb | steps |
     none, "source", "z_source", "marks", "ground": {min, mean, max}, "drop_m", "rise_m", "sloped", "steps_edge",
@@ -4565,7 +4605,9 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
     longest such edge, retaining walls on the others), else ``retaining``; ``railing_edges`` are the edges with a
     drop over ``railing_drop``. ``keep_out``: the building's ground outline and the copies' footprints (``site_plan``,
     ``platforms_into_building``): the edges facing them are ``against_edges`` (no wall, band, steps or railing) and no
-    stepped band enters them (review of round 3)."""
+    stepped band enters them (review of round 3). ``guard_walls``: the building's guard walls (``ingest.edge_guards``,
+    ``guard_of`` a space): an elevated space's edge along one is guarded by that wall (``guarded_edges``), never by a
+    second railing (review of 26 Nov 2026, real17's balconies)."""
     gz = _site_ground_fn(site, terrain)
     keep = [geom2d.ccw(p) for p in (keep_out or []) if len(p or []) >= 3]
     keep_inner = [q for q in (geom2d.offset_polygon(p, PLATFORM["keep_out_wall"]) for p in keep) if len(q) >= 3]
@@ -4697,8 +4739,12 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
         if pf.get("elevated"):
             # an upper balcony or terrace: a slab with a guard on every open edge; no base wall, no steps
             n = len(pf["polygon"])
+            walled = guarded_edges(pf["polygon"], [w for w in guard_walls or []
+                                                   if pf.get("space") and w.get("guard_of") == pf.get("id")])
             pf.update(edge="none", steps_edge=None,
-                      railing_edges=[i for i in range(n) if i not in pf["against_edges"]])
+                      railing_edges=[i for i in range(n) if i not in pf["against_edges"] and i not in walled])
+            if walled:
+                pf["guard_wall_edges"] = walled
             pf.pop("steps_dir", None)
             pf.pop("up_edges", None)
         elif pf.get("steps_drawn") and pf.get("drop_m", 0.0) > PLATFORM["level_tol"]:
@@ -7183,7 +7229,8 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
         if levers["platforms"]:
             pfs = platforms(site, terrain, keep_out=[geom2d.ccw(outline)] + copy_holes,
                             facades=facade_openings(building, levels, outline, outlines),
-                            band_keep=hedge_keep_out(hedges), outlines=outlines)
+                            band_keep=hedge_keep_out(hedges), outlines=outlines,
+                            guard_walls=[w for w in building.get("walls") or [] if w.get("guard_of")])
             # 28 Oct 2026: the platforms' banks are part of the ground from here on (grading.graded_terrain)
             terrain = GR.graded_terrain(terrain, pfs)
             for row in terrain.get("grading") or []:
@@ -8783,7 +8830,8 @@ def platforms_into_building(building: dict) -> dict:
                 and any(w.get("level_id") == lv.get("id") for w in building.get("walls") or [])}
     pfs = json.loads(json.dumps(platforms(site, keep_out=building_keep_out(building),
                                           facades=building_facades(building), band_keep=hedge_keep_out(hedges),
-                                          outlines=outlines)))
+                                          outlines=outlines,
+                                          guard_walls=[w for w in building.get("walls") or [] if w.get("guard_of")])))
     site["platforms"] = pfs
     kinds: dict[str, int] = {}
     for pf in pfs:

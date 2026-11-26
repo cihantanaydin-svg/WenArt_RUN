@@ -267,6 +267,10 @@ def copy_summary(summary: dict, base: str, copy_id: str, objects: dict, only=Non
         s = {k: v for k, v in s.items() if k not in ("by_method", "bedding", "decor_skipped", "dressed_beds")}
         s["fallbacks"] = [x for x in summary.get("fallbacks") or [] if isinstance(x, dict) and x.get("id") in keep]
         s["not_built"] = [x for x in summary.get("not_built") or [] if isinstance(x, dict) and x.get("id") in keep]
+        # review of 26 Nov 2026: no decor is copied, and only the kept pieces' built-in records belong to the copy
+        # (a built-in is kept, ``copy_fixed``); the typical floor's others named hosts the copy lacks
+        s["decor_not_rested"] = []
+        s["built_in"] = [x for x in summary.get("built_in") or [] if isinstance(x, dict) and x.get("id") in keep]
         s["pieces"], s["decor"], s["proxies"] = len(objects), 0, 0
         s["fixed_only"] = True
     s = _renamed(_copy.deepcopy(s), {}, tag, new_tag)
