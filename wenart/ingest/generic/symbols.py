@@ -4125,10 +4125,40 @@ def split_by_instance(segs: list[Seg]) -> list[Cluster]:
     return parts + clusters_of(loose, CLUSTER_M)
 
 
+def no_counter_outlines(split: dict, table: dict) -> dict:
+    """``{id(segment list): (hatch entity ids, (short, long) side of its free block)}``: the outlines of a kitchen split
+    drawn as a hatch whose free block is deeper than any kitchen counter or island of the size table (its short side
+    over both types' deepest, +15 %; a long island keeps its outline). Review of f706c8a1: an outline drawn in lines
+    (a real U or L run with a deep peninsula) keeps its pieces, its block listed for review (pure apart from the
+    table)."""
+    deepest = max(float(max((table.get(t) or ((0.0, 0.0), (0.0, 0.0)))[1])) for t in ("kitchen_counter",
+                                                                                   "kitchen_island"))
+    bad: dict = {}
+    for (x0, y0, x1, y1), ss in split.get("blocks") or []:
+        if deepest <= 0 or min(x1 - x0, y1 - y0) <= deepest * (1 + SIZE_TOLERANCE):
+            continue
+        ents = sorted({str(sg.stroke.id).split("#")[0] for sg in ss})
+        if ents and all(e.startswith("HATCH") for e in ents):
+            bad[id(ss)] = (ents, (round(min(x1 - x0, y1 - y0), 2), round(max(x1 - x0, y1 - y0), 2)))
+    return bad
+
+
 def kitchen_items(split: dict, walls: list, ctx: _Ctx, raster: bool, table: dict, wall_polys: list,
                   notes: list) -> list[FurnitureItem]:
     """The counter legs (``_counter_item``), the free blocks (a peninsula or island: ``kitchen_island``) and the rest
     by block instance: a named block (hob, sink) by its name, every other part unknown and not asked."""
+    # 24 Nov 2026 (real17 L1/L2 'mutfak 2': the kitchen's floor hatch around the drawn counter was split into three
+    # "counter legs" along the walls and a 3.71 x 2.12 m free block, a marble slab over most of the room): a closed
+    # outline whose free part fits neither a counter nor an island is no counter run (a floor hatch, a tiled area, a
+    # rug): none of its legs and blocks is built (``no_counter_outlines``)
+    bad = no_counter_outlines(split, table)
+    for ents, (short, long_) in bad.values():
+        legs = sum(1 for lg in split["legs"] if id(lg["segs"]) in bad)
+        notes.append(f"kitchen hatch {', '.join(ents)}: its free part {long_:.2f} x {short:.2f} m is deeper than any "
+                     f"counter or island: a floor hatch, no counter run ({legs} leg(s) and its block not built)")
+    if bad:
+        split = dict(split, legs=[lg for lg in split["legs"] if id(lg["segs"]) not in bad],
+                     blocks=[(b, ss) for b, ss in split["blocks"] if id(ss) not in bad])
     out = [_counter_item(leg, walls, ctx, raster) for leg in split["legs"]]
     for item in out:
         item.evidence["note"] = "kitchen counter run drawn as a closed outline along the walls (M11 split)"

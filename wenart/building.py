@@ -383,6 +383,10 @@ _TURKISH_ABBREVIATIONS = ((re.compile(r"(?<![a-z.])y\s*\.\s*(?=od)"), "yatak "),
                           (re.compile(r"(?<![a-z.])o\s*\.\s*(?=od)"), "oturma "),
                           (re.compile(r"(?<![a-z.])e\s*\.\s*(?=yat)"), "ebeveyn "),
                           (re.compile(r"(?<![a-z])yat\s*\.\s*(?=od)"), "yatak "))
+# 24 Nov 2026 (real15: 'Lav.', the guest WC, typed other; review of f706c8a1: 'LAV.+DUŞ' is a bathroom): LAV. is
+# lavabo (a WC) when the label names no shower or bath
+_LAV_RE = re.compile(r"(?<![a-z])lav\s*\.(?![a-z])")
+_BATH_WORDS_RE = re.compile(r"(?<![a-z])(?:dus|banyo|kuvet|kuvvet|jakuzi|bath|shower)")
 # ... and a two-word room name written as one word (``SUDEPOSU`` su deposu, ``YANGINMERDIVENI``): a word starting with
 # one of these modifiers whose rest starts with a Turkish room keyword is read as the two words
 _TURKISH_COMPOUND_HEADS = ("su", "yangin", "kat", "cop", "asansor", "elektrik", "yakit", "isi", "hava", "servis",
@@ -393,6 +397,8 @@ def _room_words(folded: str) -> str:
     """The folded label with the Turkish abbreviations written out and compound room names split (see above)."""
     for rx, word in _TURKISH_ABBREVIATIONS:
         folded = rx.sub(word, folded)
+    if not _BATH_WORDS_RE.search(folded):
+        folded = _LAV_RE.sub("lavabo ", folded)
     words = []
     for w in folded.split(" "):
         for head in _TURKISH_COMPOUND_HEADS:
@@ -486,6 +492,78 @@ def room_type_for(label: str, face_area_m2: Optional[float] = None, face_aspect:
         # bed is drawn (real06's "ODA" with a sofa is a living room), logged corrected_by_ai.
         return "bedroom"
     return "other"
+
+
+# 24 Nov 2026 (real17: 'S.ODASI', two rooms of 7-9 m2 with a window per flat beside its one ODA, typed other; review of
+# f706c8a1: the letter alone may be makine, hidrofor, pano, depo, sandık or ütü): a room labelled with an abbreviation
+# the vocabulary does not know before ODASI / OD. is a bedroom only in a flat's context: a kitchen or living room on its
+# floor, a window to the outside and a bed's size (``BEDROOM_MIN_M2``); typed so it is ``inferred`` and listed; without
+# that context it stays other and is listed for review
+ABBREVIATED_ROOM_RE = re.compile(r"^\s*([a-z])\s*\.\s*(?:odasi|od\.?)\s*\d*\s*$")
+FLAT_ROOM_TYPES = ("kitchen", "living")
+
+
+def _poly_area(poly) -> float:
+    return abs(0.5 * sum(poly[i][0] * poly[(i + 1) % len(poly)][1] - poly[(i + 1) % len(poly)][0] * poly[i][1]
+                         for i in range(len(poly))))
+
+
+def window_to_outside(room: dict, rooms: list[dict], openings: list[dict]) -> Optional[str]:
+    """The id of a window on ``room``'s outline whose other side lies in no indoor room of its level (pure), or None."""
+    from shapely.geometry import Point, Polygon
+
+    poly = Polygon(room["polygon"])
+    if not poly.is_valid or poly.area <= 0:
+        return None
+    others = [Polygon(r["polygon"]) for r in rooms if r is not room and r.get("level_id") == room.get("level_id")
+              and len(r.get("polygon") or []) >= 3 and r.get("room_type") not in ("balcony",)]
+    for o in openings:
+        if o.get("type") != "window" or o.get("level_id") != room.get("level_id") or not o.get("center"):
+            continue
+        c = Point(o["center"])
+        if poly.exterior.distance(c) > 0.4:
+            continue
+        near = poly.exterior.interpolate(poly.exterior.project(c))
+        dx, dy = c.x - near.x, c.y - near.y
+        if abs(dx) + abs(dy) < 1e-6:
+            inner = poly.representative_point()
+            dx, dy = c.x - inner.x, c.y - inner.y
+        n = (dx * dx + dy * dy) ** 0.5 or 1.0
+        probe = Point(c.x + 0.6 * dx / n, c.y + 0.6 * dy / n)
+        if poly.contains(probe):
+            probe = Point(c.x - 0.6 * dx / n, c.y - 0.6 * dy / n)
+        if not any(p.is_valid and p.contains(probe) for p in others):
+            return o["id"]
+    return None
+
+
+def abbreviated_room_types(b: dict) -> list[str]:
+    """The rule above on a building (rooms typed in place); returns the warning lines (one per room it looked at)."""
+    rooms = b.get("rooms") or []
+    lines = []
+    for r in rooms:
+        if r.get("room_type") not in ("other", "unknown") or len(r.get("polygon") or []) < 3:
+            continue
+        m = ABBREVIATED_ROOM_RE.match(fold_ascii(str(r.get("label_raw") or r.get("label") or "")).lower())
+        if not m or m.group(1) in ("y", "c", "o", "e"):
+            continue
+        area = _poly_area(r["polygon"])
+        flat = [x["id"] for x in rooms if x.get("level_id") == r.get("level_id")
+                and x.get("room_type") in FLAT_ROOM_TYPES]
+        win = window_to_outside(r, rooms, b.get("openings") or [])
+        if flat and win and area >= BEDROOM_MIN_M2:
+            r["room_type"] = "bedroom"
+            r["inferred"] = True
+            r["type_reason"] = (f"'{r.get('label')}': an abbreviation before ODASI the vocabulary does not "
+                                f"know, in a flat (kitchen or living room on its floor: {flat[0]}), with the window "
+                                f"{win} to the outside and {area:.1f} m2: a bedroom (inferred)")
+            lines.append(f"room {r['id']} {r['type_reason']}")
+        else:
+            why = ("no kitchen or living room on its floor" if not flat else "no window to the outside" if not win
+                   else f"{area:.1f} m2, under a bed's room")
+            lines.append(f"room {r['id']} '{r.get('label')}': an abbreviation before ODASI the vocabulary does "
+                         f"not know; {why}: stays {r.get('room_type')} (listed for review)")
+    return lines
 
 
 # 26 Oct 2026: a room label made only of a generic word ("room") and a number names no use of its own

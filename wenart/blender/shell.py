@@ -3716,9 +3716,13 @@ def slab_plan(building: dict, levels: list[dict], brief_thickness: float = 0.20,
                    "below_level_id": below["id"] if below else None, "source": "derived", "status": "assumed",
                    "evidence": [], "assumed": notes}
         rec["stairs"] = []
+        # 24 Nov 2026 (real17): a stair the reading found ending on the level below (``to_building.arrival_only``,
+        # evidence rule stair_ends_below) gets no opening in this slab
+        ended = {x.strip() for e in ((s or {}).get("evidence") or []) if isinstance(e, dict)
+                 and e.get("rule") == "stair_ends_below" for x in str(e.get("entity") or "").split(",")}
         if below is not None:
             for item in plan_stairs(building, below, slab_void=True):
-                if item["plan"] is None:
+                if item["plan"] is None or item["piece"]["id"] in ended:
                     continue
                 pid = item["piece"]["id"]
                 rec["stairs"].append(pid)

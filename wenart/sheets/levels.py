@@ -30,7 +30,9 @@ LEVEL_WORDS: list[tuple[object, str, str, str, str]] = [
     ("top", "roof_terrace", "Roof Terrace", r"\bROOF TERRACE\b", "en"),
     ("top", "roof_terrace", "Dachterrasse", r"\bDACHTERRASSE\b", "de"),
     ("top", "roof_terrace", "Toit-terrasse", r"\bTOIT-TERRASSE\b|\bTOIT TERRASSE\b", "fr"),
-    ("top", "attic", "Çatı Katı", r"\bCATI KATI?\b", "tr"),
+    # 24 Nov 2026: 'ÇATI ARASI KATI' / 'ÇATI ARASI PLANI' title the roof storey; 'ÇATI ARASI' alone is a room or space
+    # label (real12's sections label the roof space so), never a level title (``SECTION_TOP_RE`` reads it on sections)
+    ("top", "attic", "Çatı Katı", r"\bCATI KATI?\b|\bCATI ARASI\s*(?:KATI?|PLANI)\b", "tr"),
     ("top", "attic", "Attic", r"\bATTIC\b|\bLOFT\b", "en"),
     ("top", "attic", "Dachgeschoss", r"\bDACHGESCHOSS\b", "de"),
     ("top", "attic", "Combles", r"\bCOMBLES\b", "fr"),
@@ -54,12 +56,13 @@ _NTH_BASEMENT_RE = [
     (re.compile(r"\b(\d{1,2})\s*\.\s*(?:UG|UNTERGESCHOSS)\b"), "de", "{n}. Untergeschoss"),
     (re.compile(r"\b(\d{1,2})\s*(?:ER|E|EME)\s+SOUS-SOL\b"), "fr", "{n}e sous-sol"),
 ]
-_NTH_NORMAL_RE = re.compile(r"\b(\d{1,2})\s*\.\s*(?:NORMAL|TIP)\s+KAT\b")
+# 24 Nov 2026 (real17's section: '(1.NOR. KAT)' ... '(3.NOR. KAT)'): the abbreviation NOR. is NORMAL
+_NTH_NORMAL_RE = re.compile(r"\b(\d{1,2})\s*\.\s*(?:NORMAL\s+|NOR\.\s*|TIP\s+)KAT\b")
 # 4 Nov 2026 (real17: '1.2. NORMAL KAT PLANI' read as the 2nd floor only): a title listing its floors ('1.2.', '1-2',
 # '2-3-4.', '1,2.') before (NORMAL / TIP) KAT stands for those floors; two numbers joined by '-' are a range
 _LISTED_RE = re.compile(r"(?<![\d.,])(\d{1,2}(?:\s*[.,\-/]+\s*\d{1,2})+)\s*\.?\s*((?:NORMAL|TIP)\s+)?KAT\b")
 _TYPICAL_RE = [
-    (re.compile(r"\bNORMAL KAT\b|\bTIP KAT\b"), "tr", "Normal Kat"),
+    (re.compile(r"\bNORMAL KAT\b|\bNOR\.\s*KAT\b|\bTIP KAT\b"), "tr", "Normal Kat"),
     (re.compile(r"\bTYPICAL FLOOR\b|\bTYPICAL PLAN\b"), "en", "Typical Floor"),
     (re.compile(r"\bREGELGESCHOSS\b|\bNORMALGESCHOSS\b"), "de", "Regelgeschoss"),
     (re.compile(r"\bETAGE COURANT\b"), "fr", "Étage courant"),
@@ -76,7 +79,10 @@ _NTH_RE = [
 ]
 _ORDINALS = {"FIRST": 1, "SECOND": 2, "THIRD": 3, "FOURTH": 4, "I": 1, "II": 2, "III": 3, "IV": 4, "V": 5,
              "VI": 6, "VII": 7, "VIII": 8, "IX": 9, "X": 10}
-_LEVEL_MARK_IN_BRACKETS_RE = re.compile(r"\([^()]*\d[^()]*\)")
+# 24 Nov 2026 (real17's section prints its storey names in brackets, '(1.BODRUM KAT)', '(3.NOR. KAT)'; the old pattern
+# took any bracket holding a digit for a level mark and the storey's name was lost): only a bracket holding a level
+# mark ('+5.20', '±0.00', '98,50', a number before KOT / KOTU) is left out
+_LEVEL_MARK_IN_BRACKETS_RE = re.compile(r"\([^()]*(?:\d[.,]\d{2}(?!\d)|\d\s*KOTU?\b)[^()]*\)")
 
 
 @dataclass
@@ -279,7 +285,41 @@ def _rises_ok(found: dict) -> bool:
     return all(b[1] - a[1] >= SECTION_STOREY_MIN_M * (b[0] - a[0]) for a, b in zip(seq, seq[1:]))
 
 
-def storey_elevations(regions: list) -> dict:
+# 24 Nov 2026 (real17's section: '+12.50 (ÇATI ARASI DÖŞEMESİ)'): on a section, the floor of the roof space over the
+# top storey names the top of the storeys
+SECTION_TOP_RE = re.compile(r"\(\s*CATI ARASI\b|\bCATI ARASI\s+(?:DOSEME|PIYES|KOTU)")
+FIT_OUTLIER_M = 1.0                # a mark this far (and five times the median residual) off the others' line is no
+                                   # mark of this height frame (an absolute level printed beside the relative ones)
+
+
+def robust_line(marks: list) -> Optional[tuple[float, float]]:
+    """``(alpha, beta)`` of ``value = alpha + beta * height`` most of ``marks`` (height, value) fit (pure): the
+    median of the pairwise slopes and the median offset (Theil-Sen, so a few absolute levels or a mark of another
+    drawing in the region cannot pull it); None with fewer than four marks or no two heights apart."""
+    if len(marks) < 4:
+        return None
+    slopes = sorted((v2 - v1) / (y2 - y1) for k, (y1, v1) in enumerate(marks) for y2, v2 in marks[k + 1:]
+                    if abs(y2 - y1) > 1e-9)
+    if not slopes:
+        return None
+    beta = slopes[len(slopes) // 2]
+    offsets = sorted(v - beta * y for y, v in marks)
+    return offsets[len(offsets) // 2], beta
+
+
+def fit_outliers(marks: list) -> set:
+    """The indices of ``marks`` (height, value) that lie far off their ``robust_line``: more than ``FIT_OUTLIER_M``
+    and five median residuals (pure)."""
+    line = robust_line(marks)
+    if line is None:
+        return set()
+    alpha, beta = line
+    res = [abs(v - (alpha + beta * y)) for y, v in marks]
+    med = sorted(res)[len(res) // 2]
+    return {k for k, r in enumerate(res) if r > max(FIT_OUTLIER_M, 5.0 * med)}
+
+
+def storey_elevations(regions: list, notes: Optional[list] = None) -> dict:
     """3 Nov 2026 (real09, user: "You can understand this by checking the other sections in the drawing like this one":
     B-B KESİTİ names 1.BODRUM KAT 0.00, ZEMİN KAT +2.50, 1.NORMAL KAT +5.50, 2.NORMAL KAT +8.50, ÇATI KAT +11.50):
     ``{order or "top": floor elevation}`` from the sections: the level marks' values against their height on the
@@ -297,7 +337,18 @@ def storey_elevations(regions: list) -> dict:
     out: dict = {}
     for r in regions:
         texts = getattr(r, "texts", None) or []
-        marks = [(t.point[1], v) for t, v in UC.mark_texts(texts)]
+        # 24 Nov 2026 (real17: its section prints the absolute levels 160.64 / 161.18 / 161.64 beside the relative storey
+        # marks; fitted together, the straight line of value against height failed and no storey was named): marks far
+        # off the line of the others (``fit_outliers``) are left out of the fit (real09's unsigned 11.50 of its ÇATI
+        # KAT is no outlier: it lies on the line)
+        allm = UC.mark_texts(texts)
+        off = fit_outliers([(t.point[1], v) for t, v in allm])
+        pairs = [pr for k, pr in enumerate(allm) if k not in off]
+        if off and notes is not None:
+            dropped = ", ".join(allm[k][0].text for k in sorted(off))
+            notes.append(f"section {getattr(r, 'id', '?')}: the level marks {dropped} lie off the line of its other "
+                         f"marks (absolute levels): left out of the storey fit")
+        marks = [(t.point[1], v) for t, v in pairs]
         if len(marks) < 3:
             continue
         ys = [m[0] for m in marks]
@@ -307,17 +358,29 @@ def storey_elevations(regions: list) -> dict:
         if sxx <= 0:
             continue
         beta = sum((y - my) * (v - mv) for y, v in zip(ys, vs)) / sxx
+        alpha = mv - beta * my
+        if off:
+            # 24 Nov 2026 (review of f706c8a1, real13: with marks of another drawing in the region, the least-squares
+            # line of the rest put 'ÇATI KAT' at +13.30 instead of +14.20): where marks were left out, the robust line
+            line = robust_line([(t.point[1], v) for t, v in allm])
+            if line is not None:
+                alpha, beta = line
         if beta <= 0:
             continue                                   # marks rise with the section's height
-        alpha = mv - beta * my
         vals = sorted(set(round(v, 2) for v in vs))
-        ev = mark_evidence(r, UC.mark_texts(texts), alpha, beta)
+        ev = mark_evidence(r, pairs, alpha, beta)
         names = []
+        roof_space = []
         for t in texts:
             lw = level_of(t.text)
+            if lw is None and SECTION_TOP_RE.search(_fold(t.text)):
+                roof_space.append((alpha + beta * t.point[1], "top"))
+                continue
             if lw is None or lw.typical:
                 continue
             names.append((alpha + beta * t.point[1], "top" if lw.order is None else lw.order))
+        if not any(key == "top" for _h, key in names):
+            names += roof_space                        # a named roof storey (ÇATI KAT) outranks the roof space's floor
         plain: dict = {}
         found: dict = {}
         floor_below = None

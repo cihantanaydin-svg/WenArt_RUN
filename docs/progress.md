@@ -4796,6 +4796,108 @@ projects (10 on walls the outline rule clears later, 5 where the truth has no wa
   the missed wall, not dropping. The ranker's gap-time `exterior` feature keeps the old test (a retrain would need the
   final definition). An arc inside a furniture block (a wardrobe's door swing) is still a door candidate (not measured this round).
 
+## 24 Nov 2026, render audit of the structure pod (the user: "real17 terrible results", "Renders have lots of mistakes"; CPU only, no pod)
+
+Every image of the two structure pods of 24 Nov (`runs/20261124-042405-full`: real10, real15, real06; `runs/20261124-061146-full`:
+real17 after the bath/shower fix) read against the source drawing (compare sheet panel 1), the section and the building JSON.
+Stages: R reading, S building sense, A architect, L layout/furniture, B build/Blender, C camera/light.
+
+| # | Project, image | Floor, element | What is wrong | Stage | General class |
+|---|---|---|---|---|---|
+| 1 | real17 ext_2..ext_8, every top-down | all levels | The whole model sits one storey low against the drawing's own level marks: the section's slab bands were mapped bottom-up from the frame border's double line (L-1) and the lean-concrete band under the raft (L0, its top `-3.40 TEMEL ALTI` taken as ±0 of the ground floor); every plan mark is read 3.40 m too high, the ground (`+0.46`, `-1.04` ...) lands at +2.4..+3.9 m and buries the shop floor L0. The outside shows 3 storeys instead of 4, no shop front, the L1 balconies at the ground, 7 inferred "sunken front courts" 3-7 m deep. The section prints the right levels: `-2.80 (1.BODRUM KAT)`, `+0.20 (ZEMIN KAT)`, `+3.50 (1.NOR. KAT)`, `+6.50`, `+9.50`, `+12.50 (CATI ARASI DOSEMESI)`. | R | section bands mapped to levels by order, not by their printed level names; non-floor bands (frame, foundation) taken as floors |
+| 2 | real17 ext_2..ext_8 | roof | Built flat; the section draws a 40 % pitched roof over an attic floor (+12.50), ridge `+15.72 MAHYA`, lift tower `+16.00`. | R | roof type of the section not read (follows from 1: the roof band was taken as L3's floor) |
+| 3 | real17 top_L2, top_L3; real06 top_L1; real15 top_L1; real10 top_L-1 (and real21 top_L4 of 20 Nov) | whole floor | A dark plate covers the floor at the cut height (0.6 m); only tall fixtures poke through. The angled view's section cut caps an open site surface (the ground or its backdrop ring) with one large face; the footprint carve tests only vertices, and that face has none inside the footprint, so it stays. | B | a surface above the level's floor covering the level in its own top-down |
+| 4 | real17 top_L0, top_L1, top_L2, top_L3 | stairs f_L0_001, f_L0_002, f_L1_011 ... | Black handrail lines across the shops, halls and living rooms; the stair core in pieces. f_L0_001 holds flights of three drawn stairs (shop 8's stair, a flight of the core stair 2.4 m away); the turn between flights 3 and 4 and its rails bridge the room (the 23 Nov change "side paths carry the turns" draws a rail along every turn, also a turn 2.4 m long). real10's stairs are fine. | R + B | a stair turn (and its rail) built between flights that are no neighbours |
+| 5 | real17 top_L1, top_L2 | mutfak 2 (f_L1_001/002/003, f_L2_...) | The kitchen's floor hatch (HATCH:FC33, around the drawn counter) read as a counter run along three walls plus a 3.71 x 2.12 m "counter" block; a marble slab fills the room. | R | a hatch that fills the kitchen floor read as counters; a counter block outside every counter and island size kept |
+| 6 | real17 top_L1..L3 legends | S.ODASI x4 per floor | "S.odası" (a room with a window, 5.6-9.3 m2) typed `other`. Same family: real15 "Calisma Od." (study) other, "Giyinme Bol." (dressing) other, "Lav." other, "Merdiven" unknown; real06 "Soyunma Odasi" (dressing) other/storage. | R | abbreviated or compound room names not typed |
+| 7 | real10 top_L1..top_L5 | Gunluk Oda x2 per floor (10 rooms) | Retyped living -> storage by the AI architect's own floor look ("no window and no free outer wall") while the code measures glass 1/4 of the floor (the base floor L0 and the copy L6 stay living). | A | an AI decision whose stated fact the code's own measure contradicts is accepted |
+| 8 | real10 top_L7 | roof terrace (TERAS KAT) | The view shows L6's rooms: the slab under L7 covers only the stair house (30.6 of 333 m2); the terrace has no slab, only L6's ceilings close it. The level below is a typical copy with no wall union of its own. | R | the slab under a smaller top level does not cover the floor below it |
+| 9 | real15 ext_2, ext_3, ext_7; compare_L1 | L1 "TERAS" | The whole area left of the stair is one walkable terrace with glass rails; the L1 plan draws half of it as a lower hip roof (`%30 EGIM` hip lines) over the ground floor's salon. | R | lower roofs drawn on an upper plan read as a terrace |
+| 10 | real17 compare_L-1 | the two depots, the second WC | The wall between "7 NOLU" and "8 NOLU DUKKAN AIT DEPO" is not built (one 141 m2 room) and the lower WC is missing. | R (walls) | drawn partition not built (reported to the wall-reading agent) |
+| 11 | real15 compare_L0 | salon, dining | The salon (drawn 60 m2) merges with the dining part (model 90.8 m2); outline-closure walls on the salon's facade. | R (walls) | reported to the wall-reading agent |
+| 12 | real06 top_L0 | banyo | The drawn corner bathtub is built as a glass shower (the bath/shower swap of UL "Not all the bathrooms requires a bath"). | L | open question: a drawn bathtub shape is the drawing's own statement |
+| 13 | real10 ext_2, ext_3, ext_4, ext_7, ext_8 | sky | A strong blue haze washes the facades out. | C | exterior haze too strong in some views (not fixed this round) |
+| 14 | real06 compare_L0 | Antre | Label "Antre M2" carries the area unit. | R | minor label clean-up (not fixed this round) |
+
+Counts per project (by class): real17 8 (R 6, B 2 shared); real10 4 (A 1, R 1, B 1, C 1); real15 4 (R 3, B 1); real06 4 (B 1, R 2, L 1).
+
+**Fixes of this round (general rules, each in the stage that causes it; tests `tests/test_render_audit_20261124.py`).**
+
+| Class (audit #) | Cause | Rule now | Stage, files |
+|---|---|---|---|
+| Storeys one band low, the ground floor buried (1) | `level_of` dropped every bracket holding a digit, so `(1.BODRUM KAT)` and `(3.NOR. KAT)` named no storey; `NOR.` was unknown; the storey fit took the absolute levels (161.18 ...) with the relative marks and failed; the section's frame (three nested rectangles) was read as the outer walls and its double lines as slab bands | Only a bracket holding a level mark (`+5.20`, `98,50`, `... KOTU`) is left out; `NOR.` is NORMAL, `CATI ARASI` the roof storey; marks far off the line the others fit (a median fit: absolute levels printed beside the relative ones) stay out of the storey fit; lines at the region box's edges that close all four sides are a frame, never walls or bands; an elevation reads its first mark in the datum's frame. real17 now: L-1 -3.00, L0 0.00, L1 +3.30, L2 +6.30, L3 +9.30 (the printed -2.80 / +0.20 / +3.50 / +6.50 / +9.50), the ground at -1.24..+0.34, the roof on the attic floor +12.30 | R: `sheets/levels.py`, `sheets/heights.py`, `sheets/exterior.py` |
+| Flat roof for a pitched section (2) | follows from 1, then a one-pitch profile in three pieces counted as two slopes | rising pieces within 2 deg are one slope: real17's 40 % roof is a gable (eaves +12.30, ridge +15.52, 21.8 deg); a roof plan with two or more hip or valley lines outranks any section-only type (flat, gable, gambrel), so real07 keeps its hip roof now that its section, framed too, gives a profile (eaves +6.67, ridge +9.10) | R: `sheets/exterior.py` |
+| A plate over a whole floor in the top-down (3) | the angled view's section cut capped an open site surface with one big face; the footprint carve checks vertices only | `topdown.hide_covers`: a visible mesh with up-facing faces 0.3 m or more over the floor that hold sample points of the footprint in two rows and two columns is a cover: a wall, door or window is cut again by a plane, anything else hidden; each named in the log (`TOPDOWN_COVER`), and the job now keeps the view log (`scripts/jobs/full.sh`) | B: `blender/topdown.py` (needs the pod to confirm) |
+| Handrails across rooms, the stair core in pieces (4) | a stair held flights of other stairs; since 23 Nov the side paths draw a rail along every turn, also a 2.4 m one; the shop stairs' top (drawn again on L0) was built as a stair up to L1 with a hole and glass guards in L1's hall | a turn (treads and rail) only joins flights within reach (mean width + 0.9 m; in line + 3.0 m) (`parametric.flights_join`, `stair_rails.side_paths`); `arrival_only` leaves out the part of a stair's box other stairs of its level cover; the top of a stair from below is not built again (`build: false`, evidence `stair_ends_below`) and the build cuts no opening for it | R + B: `sheets/to_building.py`, `blender/parametric.py`, `blender/stair_rails.py`, `blender/shell.py` |
+| Kitchen floor hatch as counters (5) | the M11 split took the hatch around the counter for legs along three walls and a free block | an outline whose free block is deeper than any counter or island (+15 %) is no counter run: none of its parts is built | R: `ingest/generic/symbols.py` |
+| Abbreviated room names (6) | `S.ODASI`, `LAV.` matched no word | any other one-letter abbreviation before ODASI / OD. reads as a bedroom by the bed-size rule (6 m2; not T., K., G.); `LAV.` is a WC. real17: the 9.0 and 9.3 m2 S.ODASI bedrooms, the 5.2 and 5.6 m2 ones stay other. (Study, dressing and laundry stay `other` by the schema; their subtypes come later.) | R: `building.py` |
+| AI retype against the code's measure (7) | the AI architect's floor look retyped lit living rooms as storage; the code checked only that nothing new broke | `architect_ai.dark_retype_refusal`: a lived-in room the code measures with glass of 1/10 of its floor or more is never made storage / technical / shaft by a decision (real10: the retyped Gunluk Oda / oda 6 of L1-L5 have 5.25 m2 of glass, 1/3 of their floor: refused) | A: `agent/architect_ai.py` |
+| No slab under a roof terrace (8) | the level below (a typical copy) closes no wall union, so the larger-outline rule had nothing to compare | the level below's outline falls back to its walls' outline, else its typical floor's: real10 sl_L7 30.6 -> 333.3 m2 | R: `sheets/to_building.py` |
+
+- **Gate:** `score --gate` holds against 381016c0 (never --update): synthetic overall 97.5 (every synthetic project as
+  before), real06/07/09/10/17 100; real15 60 (`u_C0099_1`, the user's 24 Nov answer on d_L0_013, a door this round does
+  not touch, is not satisfied at the base commit either).
+- **Regress** (real08 left out): the 15 synthetic baselines hold. Against readings of the base commit: real06, real10
+  (counts; its sl_L7 grows 30.6 -> 333.3 m2) and real15 (one room typed wc: LAV.) the same, so their differences from
+  the 12 Nov baselines are the base commit's; the sheets stage of all 19 real projects is the same at the base except
+  real17 (intended: levels, ground, gable), real07 (its section now gives eaves +6.67 / ridge +9.10 and a 2.9 m ground
+  floor ceiling; the hip roof stays), real12 (its 'ÇATI ARASI' plan is now the attic level L3: one more level left out,
+  critical findings 9 -> 10, like its other four levels) and real13 (a warning's wording only). real17 against the base:
+  the levels, the gable, 6 hatch 'counters' fewer per flat floor, 2 S.ODASI per floor bedrooms, the two shop stairs of
+  L0 not built again, o_L0_001 a window (below).
+- **Bench** (`/home/user/bench_data/bench_render.*`, `work_render`, against `work_narrow` / `bench_narrow.*`): mean
+  75.16 -> 75.16, scale read 78.88 -> 78.88, every project and every element kind unchanged; swiss-b2440 fails to read
+  in both.
+- **Tests:** the new file 32 passed; the touched modules' files 915 + 458 + 422 passed (sheets stage, levels marks,
+  reading rounds of 3-4 Nov and 13 Nov, pre-pod 20 Nov, reader targets A and B, exterior and facades, symbols, kitchen
+  design, stair access, stair rails, top stair, architect AI, building).
+- **Tried and reverted:** a framed facade gap (jamb marks) up to 1.2 m over the ground typed an entrance door: it fired
+  on real06's tagged ground-floor windows (0.50 m over the ground, with frame marks too) and on three bench floors.
+- **Lessons:** UL390 (storeys from the printed storey names, never the band order), UL391 (top-down covers, stair turns,
+  stair tops drawn twice, terrace slabs), UL392 (kitchen hatch, abbreviated room names, AI decisions against the code's
+  measure, one-pitch gable).
+
+**Re-render (structure profile) and what each should show.**
+
+| Project | Should show |
+|---|---|
+| real17 | 4 storeys over the ground (L0 the shop floor with its glazing at the street, L1-L3 the flats) and the basement under it; the ground at -1.24..+0.34 m, no sunken courts; the L1 balconies a storey up; a 40 % gable roof (eaves +12.30, ridge +15.52) over the attic floor; top-downs of L2 and L3 without a plate, no black rail lines across halls or living rooms, the core stair whole, the shop stairs only on L-1 (rising to the shops, openings in L0's floor, none in L1's); mutfak 2 with its drawn counter only; S.ODASI 9.0 / 9.3 m2 bedrooms; the logs name every cover the view removed (`TOPDOWN_COVER`). |
+| real10 | top_L7: the roof terrace floor round the stair house (not L6's rooms); top_L-1 without the plate; L1-L5 Gunluk Oda stay living. |
+| real06 | top_L1 without the plate. |
+| real15 | top_L1 without the plate. |
+| real07 (optional) | its roof stays hip, now at the section's eaves +6.67 / ridge +9.10. |
+
+**Left open (why).** real17 o_L0_001, the shop 7 entrance on the left facade, is now a window: the facade-gap rule types a
+framed gap 0.55 m over the (now right) ground as a window; a rule needs the entrance label (DÜKKAN GİRİŞİ) or the
+threshold mark beside it (the jamb test alone misfired). real17 L-1: the wall between the two depots and the lower WC
+(wall reading, reported to the wall agent); real15 L0 salon merged with its dining part (wall reading). real15 L1: the
+lower hip roofs drawn on the upper plan read as one walkable terrace (#9, needs a roof-over-the-floor-below reader).
+real17's attic rooms under the roof have no plan (not built); real17's roof plan is not read (no closed eaves loop), so
+the section's gable stands. The haze of some real10 exteriors (#13), the 'Antre M2' label (#14) and real06's drawn
+corner bath built as a shower (#12, the user's bath/shower rule) are not changed. The top-down cover fix needs the pod
+(Blender is not installed here).
+
+### Review of f706c8a1 (24 Nov 2026): the reviewer's findings and their fixes
+
+An independent review asked for fixes before the merge. Corrections to the text above: the stair rule (row 4) took the
+rails off real U stairs and is replaced; real12's "attic level L3" was a wrong reading (a room label inside its
+sections), now gone; real13 changed more than a warning's wording (its stair f_L-1_002 and, once the bands were matched
+by height, its storeys); the lessons are UL390-UL392 (UL382-UL384 belong to the walls round).
+
+| # | Finding | Fixed? How |
+|---|---|---|
+| 1 | Stair rule removed the landing rails of real U stairs; turn treads dropped for 3+ flights | Fixed. `flights_join` is gone and `side_paths` is as before. A turn of ordered flights with no drawn landing is refused only when its own surface (without walls) lies mostly outside the stair's extent (its box and flights, a flight's width + 0.3 m round them) or in walls, both over 0.5 m2 (`parametric.turn_misfit`, warned). A drawn landing is never judged. Rails now match the base on real09, real15 and real17 (real17: f_L0_002 5.06 m, f_L3_001 3.36 m). The stray rails across real17's rooms stay gone: they came from the shop stairs rising into L1 (now not built) and their slab hole's guards, not from a turn (that turn's surface was empty). Tests: U turns with 1.0, 1.5 and 2.0 m wells, a long L landing, a turn across a room and one through a wall |
+| 2 | 'ÇATI ARASI' inside real12's sections became a level title | Fixed. 'ÇATI ARASI' titles a level only with KAT or PLANI; on a section, '(ÇATI ARASI ...)' or 'ÇATI ARASI DÖŞEMESİ / PİYESİ' names the top storey only when no roof storey (ÇATI KAT) is named. real12 is as at the base. The region classing is unchanged (r11 is still classed a floor plan at the base too) |
+| 3 | 2+ hip/valley lines beat any section type | Fixed. Only hips ending at convex corners of the eaves loop count (valleys at reflex corners do not); a section's gambrel stays when the plan draws a break loop; the section's "choice across the section" note leaves a roof the plan made hip. real07 stays hip (3 convex hips) |
+| 4 | Any X.ODASI of 6 m2 became a bedroom; LAV.+DUŞ became a WC | Fixed. An unknown one-letter X.ODASI is a bedroom only with a kitchen or living room on its floor, a window to the outside and a bed's size, marked inferred and listed; otherwise listed for review (`building.abbreviated_room_types`, in the reading). LAV. is a WC only with no shower or bath word. real17: the 9.0 and 9.3 m2 S.ODASI are bedrooms, the 5.2 and 5.6 m2 ones stay other |
+| 5 | A small step under a main stair made it "the top of the stair below" | Fixed. The stair below must cover half of this stair's own box (other stairs of its level left out) and draw a full storey's steps (60 % of the storey's rise over 0.19 m) |
+| 6 | A deep free block dropped a real U/L run | Fixed. Only an outline drawn as a hatch is dropped, each one logged with its entity ids and size; an outline drawn in lines keeps its pieces (the old size note lists the block) |
+| 7 | real07: a ground line at +2.86 m; bands mapped by order | Fixed. A ground line over 3/4 of the ground floor's ceiling is a canopy or terrace line when a lower line is drawn on that side (real07 left: +0.04 m); with storey marks the slab bands are matched to the storeys by height (the frame set on the band tops nearest the floor marks), a band thinner than 0.12 m gives no slab thickness (real07's 0.10 m bands: assumed) |
+| 8 | real13: f_L-1_002 not built; the section's L4 pairs +13.30 | Confirmed and fixed. f_L-1_002 lies on f_L-2_007 (which lies on f_L-3_004) and L0 draws a bedroom and a bathroom over it: the top of the basement stair, drawn again, correctly not built. The +13.30 pairing came from my 'ÇATI ARASI' top rule (a roof-space label lower down): fixed by 2. When the bands were matched by height its section no longer counted as "no storeys" and its marks (ground floor +3.70) stood 1.20 m off the plans' titles (+2.50 KOTU): now the plans' title elevations outrank section marks whose ground floor disagrees. real13's storeys are as at the base |
+| 9 | Top-down covers hid the level's own slab, whole terrains; unreal kinds | Fixed (needs the pod). The height counts from the level's own slab top, the level's own slab never counts, a site surface loses only its covering faces (its other modifiers: hidden as before), the keep kinds are kinds the build gives |
+| 10 | Silent changes; sl_L7 evidence; bare terrace; o_L0_001; frame guard | Fixed. Warnings for the frame lines left out, the marks left out of the storey fit and every refused turn; sl_L7's evidence says its outline is the floor below's fallback outline (inferred); a roof terrace level's floor outside its rooms becomes outdoor room(s) 'Teras' (balcony type, inferred: real10 L7 two pieces round the stair house, real13 L4 one); real17 o_L0_001 is a door again: a ground or threshold mark right outside a gap at the floor marks an entrance (its -0.35 mark); a frame is left out only when at most 5 % of the section's other lines end at it |
+| 11 | Lesson ids taken by the walls round | Fixed: UL390, UL391, UL392 |
+
 ## 24 Nov 2026, walls round 2, C0099 and short steps (the user: "Start now"; CPU only, no pod)
 
 Base 1a1813a4. Lessons UL382 (holes of the wall outline), UL383 (title strips); the main session's UL380 (C0099) and
@@ -5010,3 +5112,28 @@ convention, crop `lift_doors_convention.png`), and b2383 (90.43 -> 90.40, explai
 Sealed: 52 buildings rise, 3 fall (largest -2.45). Reading: the gains carry to unseen buildings at about 60-90 % of
 the bench gain per kind (rooms and walls best): general, with some fit to the bench; the sealed falls are recorded,
 not shown to agents.
+
+### Render-audit round after the review, verified on the merged branch (4d6e06df: the review fixes + walls round 2/2b/2c)
+
+- **Merge.** opus_branch_11 (df329b61) merged. Conflicts in this file and the lessons file only (mine UL390-UL392 after
+  the walls round's UL382-UL385). The walls round's short runs of steps (`stair.short_steps`) get no slab opening and
+  are never the stair below an arrival nor an arrival (`to_building.short_run`, test).
+- **Gate:** `score --gate` holds against 381016c0 (never --update): synthetic overall 97.5; real06, real07, real09,
+  real10, real15, real17 at 100.
+- **Readings, base (df329b61) against merged, all 19 real projects (real08 out):** the same for real01, 02, 03, 04,
+  06, 09, 12, 14, 19, 20, 21. Changed, each by a rule of this round: real17 (levels in the section's frame, gable roof,
+  6 hatch "counters" fewer per flat floor, 2 S.ODASI bedrooms per floor, the two shop stairs of L0 not built again,
+  o_L0_001 an entrance door, sl_L0 166.2 m2 from L-1's outline); real10 (sl_L7 30.6 -> 333.3 m2, 2 'Teras' rooms on
+  L7); real13 (1 'Teras' room on L4; f_L-1_002 not built: it lies on f_L-2_007 under L0's bedroom and bathroom);
+  real11 (f_L-1_022 not built: it lies on f_L-2_008, 19 steps, 73 % of its box, under L0's bedroom); real07 (L0
+  ceiling 2.9 m from its section's band, hip roof kept); real15 (LAV. a WC); real16 (sl_L1 380.3 -> 427.9 m2: the
+  larger floor below, its walls' outline, inferred); real18 (one of two S.ODASI a bedroom: the other has no window to
+  the outside).
+- **Regress against the 12 Nov baselines:** the 15 synthetic baselines hold; real03, 06, 07, 10, 12, 15, 17, 19, 21
+  differ from their baselines exactly as the base commit does (wall, door, window and room counts this round does not
+  touch; real12's tenth critical finding is the base's too); real01, 02, 04, 09, 11, 13, 14, 16, 18, 20 ok.
+- **Bench** (`/home/user/bench_data/bench_render2.*`, `work_render2`, at 4d6e06df, against `bench_walls2c.*`): mean
+  76.22 -> 76.22, scale read 79.99 -> 79.99, every project and every element kind unchanged, swiss-b2440 fails to read
+  in both.
+- **Tests:** the touched modules' files on the merged code: 1460 passed, 3 skipped, 22 xfailed (the known synthetic
+  failure classes).

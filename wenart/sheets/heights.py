@@ -48,6 +48,9 @@ GROUND_TOUCH_M = 0.05                  # ... to a wall face it ends on (within t
 GROUND_MARK_TOL_M = 0.20               # a level mark up to this far above a ground line stands on it (real10: its point
                                        # 0.144 m above the line, as every mark of that section)
 MARK_TOL_M = 0.05
+BAND_MATCH_M = 0.10                    # 24 Nov 2026: a slab band's top this close to a storey's floor mark is its slab
+SLAB_MIN_M = 0.12                      # ... and a band thinner than this is a finish's lines, no slab's thickness
+BAND_REFINE_M = 0.25                   # ... the bands' frame set on the band tops nearest the floor marks within this
 SECTION_WIDTH_TOL = (0.01, 0.05)       # 1 % or 5 cm
 PROFILE_TOL_M = 0.01
 ROOF_THICKNESS_M = (0.05, 0.6)
@@ -84,6 +87,7 @@ class SectionGeometry:
     roof_lines: int = 0
     ground: list = field(default_factory=list)           # [(side, y, id)]
     marks: list = field(default_factory=list)            # [(Txt, value, (x, y), how)]
+    frame_lines: int = 0                                 # lines of a drawing frame round it, left out (24 Nov 2026)
 
     @property
     def width(self) -> Optional[float]:
@@ -106,12 +110,71 @@ def _metres(units: float, mpu: Optional[float], fallback_rel: float, ref: float)
     return units / mpu if mpu else fallback_rel * ref
 
 
+# 24 Nov 2026 (real17's section r8 sits in a drawing frame of three nested rectangles: its sides were read as the
+# outer walls (the building 21.5 m wide, the frame's width) and its double lines as slab bands, the bottom one mapped to
+# the basement and every storey one band low): a frame line lies within this share of the region box's side from the
+# box edge and spans at least this share of it; the frame is left out when such lines close all four sides
+FRAME_EDGE_SHARE = 0.02
+FRAME_SPAN_SHARE = 0.9
+FRAME_TOUCH_SHARE = 0.05
+
+
+def frame_keys(lines: list, box) -> set:
+    """The keys of ``lines`` that draw a frame around the region (the constants above; pure): empty unless frame
+    lines stand on all four sides of ``box``."""
+    w, h = max(box[2] - box[0], 1e-9), max(box[3] - box[1], 1e-9)
+    sides: dict[str, set] = {"left": set(), "right": set(), "bottom": set(), "top": set()}
+    for ln in lines:
+        a = ln.angle
+        if abs(a - 90.0) <= H_TOL_DEG and ln.length >= FRAME_SPAN_SHARE * h:
+            x = (ln.a[0] + ln.b[0]) / 2.0
+            if x - box[0] <= FRAME_EDGE_SHARE * w:
+                sides["left"].add(ln.key)
+            elif box[2] - x <= FRAME_EDGE_SHARE * w:
+                sides["right"].add(ln.key)
+        elif min(a, 180.0 - a) <= H_TOL_DEG and ln.length >= FRAME_SPAN_SHARE * w:
+            y = (ln.a[1] + ln.b[1]) / 2.0
+            if y - box[1] <= FRAME_EDGE_SHARE * h:
+                sides["bottom"].add(ln.key)
+            elif box[3] - y <= FRAME_EDGE_SHARE * h:
+                sides["top"].add(ln.key)
+    if not all(sides.values()):
+        return set()
+    keys = set().union(*sides.values())
+    # review of f706c8a1: a tightly cropped section with no frame has its outer faces, raft or parapet at the box's
+    # edges, and the section's own lines run into them; a frame stands free: at most FRAME_TOUCH_SHARE of the other
+    # lines end within the edge band of a frame line
+    frame = [ln for ln in lines if ln.key in keys]
+    others = [ln for ln in lines if ln.key not in keys]
+    if others:
+        band = FRAME_EDGE_SHARE * min(w, h)
+        touching = 0
+        for ln in others:
+            if any(min(_dist_to(ln.a, f), _dist_to(ln.b, f)) <= band for f in frame):
+                touching += 1
+        if touching > FRAME_TOUCH_SHARE * len(others):
+            return set()
+    return keys
+
+
+def _dist_to(p, ln) -> float:
+    """Distance from point ``p`` to the segment of ``ln`` (pure)."""
+    (ax, ay), (bx, by) = ln.a, ln.b
+    dx, dy = bx - ax, by - ay
+    t = 0.0 if dx == dy == 0 else max(0.0, min(1.0, ((p[0] - ax) * dx + (p[1] - ay) * dy) / (dx * dx + dy * dy)))
+    return math.hypot(p[0] - (ax + t * dx), p[1] - (ay + t * dy))
+
+
 def read_section(region, mpu: Optional[float]) -> SectionGeometry:
     g = SectionGeometry(region=region, mpu=mpu)
     lines = _lines(region)
     if not lines:
         return g
     box = region.geometry_box
+    framed = frame_keys(lines, box)
+    if framed:
+        lines = [ln for ln in lines if ln.key not in framed]
+        g.frame_lines = len(framed)
     height = max(box[3] - box[1], 1e-9)
     horiz, vert, slope = [], [], []
     for ln in lines:
@@ -337,6 +400,9 @@ def heights(section: Optional[SectionGeometry], levels: list[dict], reference_ex
     r = section.region
     rid = r.id
     out["section_regions"] = [rid]
+    if getattr(section, "frame_lines", 0):
+        warnings.append(f"section {rid}: {section.frame_lines} lines of a drawing frame round it left out (no outer "
+                        f"walls, no slab bands)")
     bands = section.bands
     n = len(levels)
     if len(bands) == n or len(bands) == n + 1:
@@ -370,6 +436,8 @@ def heights(section: Optional[SectionGeometry], levels: list[dict], reference_ex
                       (None if rec.get("relative") else rec["value"])})
     # 4 Nov 2026 (real10): the relative marks with the slab-band z they point at, for ``apply_storey_marks``
     out["_mark_frame"] = [(float(m["rel"]), z(m["y"])) for m in marks if m["rel"] is not None]
+    # 24 Nov 2026 (review of f706c8a1): the slab bands in this frame, for ``apply_storey_marks`` (by height, not order)
+    out["_bands"] = [(z(yb), z(yt), idb, idt) for yb, yt, idb, idt in bands]
     datum = None
     if marks:
         near = min(marks, key=lambda m: abs(m["y"] - zero_y))
@@ -784,6 +852,29 @@ def apply_storey_marks(out: dict, levels: list[dict], storey_el: dict, slab_defa
     top_mark = storey_el.get("top")
     by_id = {e["level_id"]: e for e in out.get("levels") or []}
     lines = []
+    # 24 Nov 2026 (review of f706c8a1, real07: '4 slab bands for 2 plan levels' were mapped by their order): a named
+    # storey takes the slab band whose top lies at its floor mark (``BAND_MATCH_M``, in the marks' frame), by height;
+    # its ceiling is the next named storey's band bottom; a storey with no band at its floor, or a band thinner than
+    # ``SLAB_MIN_M``, keeps assumed values
+    bands = out.pop("_bands", None) or []
+    shift0 = _frame_shift(out.get("_mark_frame") or [], base) or 0.0
+    if bands:
+        # the marks' symbols stand a little over their lines (real10: 0.144 m): the bands' frame is set on the band
+        # tops nearest the storeys' floor marks (their median offset within BAND_REFINE_M)
+        res = []
+        for o in seq:
+            zf = known[o] - base
+            d = min((zf - (zt + shift0) for _zb, zt, _a, _b in bands), key=abs)
+            if abs(d) <= BAND_REFINE_M:
+                res.append(d)
+        if res:
+            shift0 += sorted(res)[len(res) // 2]
+
+    def band_at(zf: float):
+        hits = [(abs(zt + shift0 - zf), zb + shift0, zt + shift0, idb, idt) for zb, zt, idb, idt in bands
+                if abs(zt + shift0 - zf) <= BAND_MATCH_M]
+        return min(hits)[1:] if hits else None
+    unmatched = []
     for k, o in enumerate(seq):
         lid = orders[o]
         entry = by_id.get(lid)
@@ -801,11 +892,36 @@ def apply_storey_marks(out: dict, levels: list[dict], storey_el: dict, slab_defa
             ftf = nxt - known[o]
             entry["floor_to_floor"] = _value(ftf, "vector", ev, note="the next storey's floor mark less this one")
             ceil = entry.get("ceiling_height") or {}
-            if ceil.get("method") != "vector" or not (0 < float(ceil.get("value") or 0) < ftf):
+            if bands and rule == "section_storey_marks":
+                above = band_at(nxt - base)
+                if above is not None and 0 < above[0] - (known[o] - base) < ftf:
+                    entry["ceiling_height"] = _value(above[0] - (known[o] - base), "vector",
+                                                     [_ev(file_rel or "", above[2], "slab_bands", region_id or "")],
+                                                     note="to the slab band at the next storey's floor mark")
+                else:
+                    entry["ceiling_height"] = assumed(round(ftf - slab_default, 3),
+                                                      f"floor to floor {ftf:.2f} m less the slab {slab_default:.2f} m "
+                                                      f"(no slab band at the next storey's floor mark)")
+            elif ceil.get("method") != "vector" or not (0 < float(ceil.get("value") or 0) < ftf):
                 entry["ceiling_height"] = assumed(round(ftf - slab_default, 3),
                                                   f"floor to floor {ftf:.2f} m less the slab {slab_default:.2f} m")
+        if bands and rule == "section_storey_marks":
+            mine = band_at(known[o] - base)
+            sl = next((x for x in out.get("slabs") or [] if (x.get("between") or [None, None])[1] == lid), None)
+            if mine is None or mine[1] - mine[0] < SLAB_MIN_M:
+                unmatched.append(lid)
+                if sl is not None:
+                    sl["thickness"] = assumed(slab_default, "no slab band of a slab's thickness at its floor mark "
+                                                            "(brief slab_thickness)")
+            elif sl is not None:
+                sl["thickness"] = _value(mine[1] - mine[0], "vector",
+                                         [_ev(file_rel or "", mine[2], "slab_bands", region_id or "")],
+                                         note="the slab band at its floor mark")
         lines.append(f"{lid}: floor {known[o]:+.2f} m ({'section' if rule == 'section_storey_marks' else 'title'} "
                      f"mark) -> z {known[o] - base:+.2f} m")
+    if unmatched:
+        lines.append(f"no slab band of a slab's thickness at the floor mark of {', '.join(unmatched)}: their slab "
+                     f"thickness assumed (the bands are matched to the storeys by height, not by order)")
     if abs(base) > 0.005 and out.get("datum") is None:
         # 3 Nov 2026 (real10, user: "this should be the main entrance to the building"): the ground floor's printed
         # floor mark (+2.50) is building z 0, so every printed relative mark of the plans and elevations is read in
@@ -892,6 +1008,41 @@ def apply_storey_marks(out: dict, levels: list[dict], storey_el: dict, slab_defa
             moved.append(f"datum {float(old.get('value') or 0):+.2f} -> {base:+.2f}" if old else f"datum {base:+.2f}")
         if moved:
             lines.append(f"into the storey marks' frame too ({shift:+.2f} m): " + ", ".join(moved))
+    return lines
+
+
+GROUND_HIGH_SHARE = 0.75               # 24 Nov 2026: a ground line over this share of the ground floor's ceiling
+
+
+def high_ground(out: dict, levels: list[dict]) -> list[str]:
+    """24 Nov 2026 (review of f706c8a1, real07: once the section's frame was left out, a line at +2.86 m left of the
+    house, near the first floor, was read as the terrain while the plans' ground marks lie at -1.90..0.00): on each
+    side the terrain is the highest line drawn there at most ``GROUND_HIGH_SHARE`` of the ground floor's ceiling over
+    its floor (a line higher up is a canopy, a balcony or a terrace over the ground); when every line stands higher the
+    upper one stays (a hillside). Returns the warning lines (pure)."""
+    ground_id = next((lv["id"] for lv in levels if lv.get("order") == 0), None)
+    entry = next((e for e in out.get("levels") or [] if e.get("level_id") == ground_id), None)
+    if entry is None:
+        return []
+    floor = float((entry.get("floor_z") or {}).get("value") or 0.0)
+    ceil = float((entry.get("ceiling_height") or {}).get("value") or 2.7)
+    limit = floor + GROUND_HIGH_SHARE * ceil
+    lines = []
+    for g in out.get("ground") or []:
+        zv = g.get("z") or {}
+        if zv.get("value") is None or float(zv["value"]) <= limit:
+            continue
+        low = sorted((ln for ln in zv.get("lines") or [] if ln.get("z") is not None and float(ln["z"]) <= limit),
+                     key=lambda ln: -float(ln["z"]))
+        if not low:
+            continue
+        was = float(zv["value"])
+        zv["value"] = round(float(low[0]["z"]), 3)
+        zv["note"] = ((zv.get("note") + "; ") if zv.get("note") else "") + \
+            f"the line at {was:+.2f} m stands over {limit:+.2f} m (3/4 of the ground floor's ceiling): no terrain"
+        lines.append(f"section ground {g.get('side')}: the line at {was:+.2f} m stands over {GROUND_HIGH_SHARE:.2f} of "
+                     f"the ground floor's ceiling ({limit:+.2f} m): a canopy, balcony or terrace line; the terrain is "
+                     f"the line at {zv['value']:+.2f} m ({low[0].get('entity')})")
     return lines
 
 
