@@ -123,3 +123,17 @@ def test_the_crop_can_show_the_drawing(tmp_path):
     p = remark.draw_crop(B, "L0", {"x": 2, "y": 1}, [], tmp_path / "C0002.png",
                          lines=[((1.0, 0.0), (1.0, 0.1)), ((1.9, 0.0), (1.9, 0.1))])
     assert p.is_file() and p.stat().st_size > 1000
+
+
+def test_every_new_record_says_whether_it_is_placed_and_by_whom():
+    """26 Nov 2026: ``remark add`` writes ``placeable``, ``place_source``, ``place_confidence`` and a place note at
+    capture, so a new record never fails the truth checks for lack of them (C0100 had to be filled by hand)."""
+    from wenart.reading_check import remark as RM
+    given = RM.build_record([], project="p", text="a sliding door", level="L0", place={"x": 1.0, "y": 2.0},
+                            kind="door")
+    assert given["placeable"] is True and given["place_source"] == "given_by_user"
+    assert given["place_confidence"] == 1.0 and given["place_note"]
+    noted = RM.build_record([], project="p", text="the stair is wrong", kind="stair", place_note="the whole flight")
+    assert noted["placeable"] is False and noted["why"] == "the whole flight"
+    other = RM.build_record([], project="p", text="nicer sofas", kind="other")
+    assert other["placeable"] is False and other["why"]

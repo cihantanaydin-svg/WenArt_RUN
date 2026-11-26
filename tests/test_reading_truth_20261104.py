@@ -516,7 +516,8 @@ def test_every_correction_record_is_placed_or_says_why_and_the_replayed_ones_are
     assert "UL287" in TR.correction_applicable(by_id["C0018"])               # held by the review of 5 Nov 2026
     assert "under 0.6" in TR.correction_applicable(by_id["C0021"])           # a low-confidence place waits
     real06 = TR.load_truth("real06")                    # C0065 is a question of the user's: not measurable (12 Nov)
-    assert real06["corrections"] == ["C0063", "C0064"]
+    # C0100: the user's answer of 26 Nov 2026 to that question (the drawn 2.0 m sliding door, UL395)
+    assert real06["corrections"] == ["C0063", "C0064", "C0100"]
     # C0047: one door at the drawn centre (the DXF jambs 5.34 and 6.14), the size tag's second door a double read; the
     # sparse truth keeps no width the user did not state
     doors = TR.load_truth("real07")["per_level"]["L0"]["doors"]

@@ -136,6 +136,7 @@ def build_record(records: list[dict], *, project: str, text: str, level: str | N
     if not text.strip():
         raise ValueError("the user's words are empty")
     ids = list(element_ids or [])
+    given_place = place is not None
     if ids and building is not None:
         for eid in ids:
             hit = find_element(building, eid)
@@ -153,6 +154,16 @@ def build_record(records: list[dict], *, project: str, text: str, level: str | N
     rec = {"id": next_id(records), "date": date or today(), "project": project, "level": level, "place": place,
            "element_kind": kind, "reader_answer": reader_answer, "right_answer": right_answer,
            "user_words": text, "lesson": lesson, "source": SOURCE_USER, "status": STATUS_ACCEPTED}
+    # 26 Nov 2026: every record says at capture whether it is placed, by whom and how sure (``truth.correction_errors``
+    # and the truth tests need it); a place the user gave is ``given_by_user``, one taken from a named element of the
+    # reading is ``located_by_machine``; a remark with no place says why
+    if place is not None:
+        rec.update(placeable=True, place_source="given_by_user" if given_place else "located_by_machine",
+                   place_confidence=1.0)
+        note_place = note_place or ("given with `remark add --place`" if given_place
+                                    else f"taken from the named element {ids[0]}")
+    else:
+        rec.update(placeable=False, why=note_place or f"a {kind} remark names no place on a drawing")
     if note_place:
         rec["place_note"] = note_place
     if ids:
