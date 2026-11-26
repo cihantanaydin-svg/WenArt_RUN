@@ -5097,3 +5097,28 @@ convention, crop `lift_doors_convention.png`), and b2383 (90.43 -> 90.40, explai
 **Real projects against base-commit readings** (read in this round): real02, real12, real16 and real18 are identical to the base commit (every wall, opening and room in place within 2 cm); real14 is identical on all 18 floors but L7b and L7d (the box rule on its two flue boxes, as in round 2b; the hole rule's drops on its plaster layer SIVA change no wall). The other real changes are those of round 2 (real15 C0099 and a 0.13 m2 triangle, real10 L7, real19 L2's crossed shaft box).
 
 **Tests:** CPU 590 passed (the new file 25; the touched modules' files), stair and shell files 64 passed (4 skipped).
+
+### Render-audit round after the review, verified on the merged branch (4d6e06df: the review fixes + walls round 2/2b/2c)
+
+- **Merge.** opus_branch_11 (df329b61) merged. Conflicts in this file and the lessons file only (mine UL390-UL392 after
+  the walls round's UL382-UL385). The walls round's short runs of steps (`stair.short_steps`) get no slab opening and
+  are never the stair below an arrival nor an arrival (`to_building.short_run`, test).
+- **Gate:** `score --gate` holds against 381016c0 (never --update): synthetic overall 97.5; real06, real07, real09,
+  real10, real15, real17 at 100.
+- **Readings, base (df329b61) against merged, all 19 real projects (real08 out):** the same for real01, 02, 03, 04,
+  06, 09, 12, 14, 19, 20, 21. Changed, each by a rule of this round: real17 (levels in the section's frame, gable roof,
+  6 hatch "counters" fewer per flat floor, 2 S.ODASI bedrooms per floor, the two shop stairs of L0 not built again,
+  o_L0_001 an entrance door, sl_L0 166.2 m2 from L-1's outline); real10 (sl_L7 30.6 -> 333.3 m2, 2 'Teras' rooms on
+  L7); real13 (1 'Teras' room on L4; f_L-1_002 not built: it lies on f_L-2_007 under L0's bedroom and bathroom);
+  real11 (f_L-1_022 not built: it lies on f_L-2_008, 19 steps, 73 % of its box, under L0's bedroom); real07 (L0
+  ceiling 2.9 m from its section's band, hip roof kept); real15 (LAV. a WC); real16 (sl_L1 380.3 -> 427.9 m2: the
+  larger floor below, its walls' outline, inferred); real18 (one of two S.ODASI a bedroom: the other has no window to
+  the outside).
+- **Regress against the 12 Nov baselines:** the 15 synthetic baselines hold; real03, 06, 07, 10, 12, 15, 17, 19, 21
+  differ from their baselines exactly as the base commit does (wall, door, window and room counts this round does not
+  touch; real12's tenth critical finding is the base's too); real01, 02, 04, 09, 11, 13, 14, 16, 18, 20 ok.
+- **Bench** (`/home/user/bench_data/bench_render2.*`, `work_render2`, at 4d6e06df, against `bench_walls2c.*`): mean
+  76.22 -> 76.22, scale read 79.99 -> 79.99, every project and every element kind unchanged, swiss-b2440 fails to read
+  in both.
+- **Tests:** the touched modules' files on the merged code: 1460 passed, 3 skipped, 22 xfailed (the known synthetic
+  failure classes).
