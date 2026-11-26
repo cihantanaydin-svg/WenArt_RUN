@@ -4518,6 +4518,36 @@
    "request": "26 Nov 2026 (user: 'real17 terrible results'; real17 re-render pod 23367e58pfhcq9: the handrails of the stair from L1 up to L2 hung over the L1 hall as black lines in the top-down view): the top-down plan views cut every stair as an architect's plan does, 1.2 m over the level's floor (topdown.STAIR_CUT_M): its first flight shows, the rest and its rails are cut away; the flight arriving from below stays whole.",
    "lesson": "26 Nov 2026 (user: 'real17 terrible results'; real17 re-render pod 23367e58pfhcq9: the handrails of the stair from L1 up to L2 hung over the L1 hall as black lines in the top-down view): the top-down plan views cut every stair as an architect's plan does, 1.2 m over the level's floor (topdown.STAIR_CUT_M): its first flight shows, the rest and its rails are cut away; the flight arriving from below stays whole.",
    "question": null
+  },
+  {
+   "id": "UL395",
+   "date": "2026-11-26",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "26 Nov 2026 (user, answer to the audit question on real06's kitchen/dining wall: '1 sliding door'): when two readings of one opening merge (a wall read twice), the typed opening (sliding leaves on a door layer, a swing arc, a door block, a size tag) outranks an unclassified gap; its width comes from the typed opening or the dimension chain and the drawn piers stay. real06 L0: the drawn 2.00 m two-leaf sliding door between the kitchen and the dining area is built as a sliding door (shown open in the renders), not a 2.9 m open passage.",
+   "lesson": "26 Nov 2026 (user, answer to the audit question on real06's kitchen/dining wall: '1 sliding door'): when two readings of one opening merge (a wall read twice), the typed opening (sliding leaves on a door layer, a swing arc, a door block, a size tag) outranks an unclassified gap; its width comes from the typed opening or the dimension chain and the drawn piers stay. real06 L0: the drawn 2.00 m two-leaf sliding door between the kitchen and the dining area is built as a sliding door (shown open in the renders), not a 2.9 m open passage.",
+   "question": null
+  },
+  {
+   "id": "UL396",
+   "date": "2026-11-26",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "26 Nov 2026 (user, answer to the audit question 'a new reading changes an element one of your own stored answers named: ask you again, or let the AI architect decide?': '2 AI decides'): a stored answer applies only while its question is raised again for the same element and its premise still holds; when a new reading moved or changed that element, the answer is not replayed by place: the AI architect decides again (also for the user's own answers), the change is logged and shown in the report, and the user is not asked again.",
+   "lesson": "26 Nov 2026 (user, answer to the audit question 'a new reading changes an element one of your own stored answers named: ask you again, or let the AI architect decide?': '2 AI decides'): a stored answer applies only while its question is raised again for the same element and its premise still holds; when a new reading moved or changed that element, the answer is not replayed by place: the AI architect decides again (also for the user's own answers), the change is logged and shown in the report, and the user is not asked again.",
+   "question": null
+  },
+  {
+   "id": "UL397",
+   "date": "2026-11-26",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "26 Nov 2026 (user, answer to the audit question on UL200: '3 keep bathtub'): a bathtub the plan clearly draws (a tub outline with a drain, a curved corner tub, a bathtub block) stays a bathtub in every bathroom, even with no word like KÜVET, as the fixed-equipment rule says; UL200's walk-in shower applies only where the plan draws no tub (an undrawn or uncertain wet area). real06's corner bath stays a corner bath; real10's two drawn bathtubs per floor are built as bathtubs.",
+   "lesson": "26 Nov 2026 (user, answer to the audit question on UL200: '3 keep bathtub'): a bathtub the plan clearly draws (a tub outline with a drain, a curved corner tub, a bathtub block) stays a bathtub in every bathroom, even with no word like KÜVET, as the fixed-equipment rule says; UL200's walk-in shower applies only where the plan draws no tub (an undrawn or uncertain wet area). real06's corner bath stays a corner bath; real10's two drawn bathtubs per floor are built as bathtubs.",
+   "question": null
   }
  ]
 }
