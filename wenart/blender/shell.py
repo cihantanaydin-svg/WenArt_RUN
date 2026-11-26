@@ -338,7 +338,9 @@ def wall_height(wall: dict, level: dict, has_level_above: bool) -> tuple[float, 
         h = float(level["ceiling_height"])
         assumed["height"] = h
     h = float(h)
-    if has_level_above:
+    # 26 Nov 2026 (audit rule R04, real17: the 5 cm balcony guard lines stood 3 m high to the next slab): a parapet
+    # (guard) wall keeps its own height; it never runs into the slab above
+    if has_level_above and not wall.get("parapet"):
         h += DEFAULTS["slab_thickness"]
         assumed["slab_thickness"] = DEFAULTS["slab_thickness"]
     return h, assumed
@@ -876,7 +878,10 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
     entries: dict[str, dict] = {}         # wall id: its manifest entry
     for wall in walls:
         height, wall_assumed = wall_height(wall, level, has_above)
-        if slab_above is not None:
+        # 26 Nov 2026 (audit rule R04): a parapet (guard) wall on a balcony's or terrace's open edge keeps its own
+        # height (1.0-1.1 m, or a kerb under a railing): never run to the slab above or the roof's underside
+        guard_wall = bool(wall.get("parapet"))
+        if slab_above is not None and not guard_wall:
             # 31 Oct 2026 (user on real04 run 181158, the attic play room: "Something wrong within cyan outline": the
             # tops of the walls below showed through the attic floor and its rug as a grey band and white lines): a
             # wall stops WALL_UNDER_FLOOR_GAP under the floor above, inside the slab, never in the floor's plane
@@ -895,7 +900,7 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
         wall_planes = ((roof_cut.get("wall_planes") or {}).get(wall["id"]) or cut_planes) if roof_cut else None
         part_spans = plane_spans(wall, start, end, (roof_cut.get("wall_spans") or {}).get(wall["id"]) or []) \
             if roof_cut else []
-        if cut_planes is not None and not outside_roof(wall, roof_cut):
+        if cut_planes is not None and not guard_wall and not outside_roof(wall, roof_cut):
             # Under the roof: a box up past the ridge, cut by the roof underside (knee wall, gable end);
             # under a roof terrace the parapet height instead (roof.parapet_cuts).
             height, wall_assumed = float(roof_cut["top"]) + 0.5 - floor_z, {}
@@ -1019,10 +1024,16 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
                          accent_reason="; ".join(str(look.get("reason") or "") for _rid, look in marked))
         if wall["id"] in extended:
             entry["corner_join"] = {k: [round(c, 4) for c in v] for k, v in extended[wall["id"]].items()}
-        if slab_above is not None:
+        if slab_above is not None and not guard_wall:
             entry["runs_to"] = f"the next floor (slab {slab_above['id']} top {float(slab_above['z_top']):.3f} m)"
-        if cut_planes is not None:
+        if cut_planes is not None and not guard_wall:
             entry["runs_to"] = "the roof underside (knee wall / gable end)"
+        if guard_wall:
+            g = wall.get("guard") if isinstance(wall.get("guard"), dict) else {}
+            entry["runs_to"] = (f"a guard (parapet) {height:.2f} m high" + (
+                f" with a {g.get('kind')} to {float(g['top_m']):.2f} m" if g.get("top_m") is not None else "")
+                + (f" on the open edge of {wall['guard_of']}" if wall.get("guard_of") else ""))
+            entry["z_range"] = [round(wz, 4), round(wz + height, 4)]
             entry["z_range"] = [round(wz, 4), round(wz + height, 4)]
         if drop < 0:
             entry["base_drop"] = round(drop, 4)          # Milestone 12: down to a sunken room floor beside it
@@ -4226,7 +4237,8 @@ def build_outside_details(building: dict, level: dict, collection, library, look
                                     status="assumed", materials=[rail_mat, glass], face_material_indices=slots)
         ob.pass_index = 0
         top = max(float(w["guard"]["top_m"]) for w in guarded)
-        reason = (f"{len(guarded)} parapet wall(s) of the roof terrace: a low wall with a {kind.replace('_', ' ')} "
+        reason = (f"{len(guarded)} parapet wall(s) of a roof terrace's or a balcony's open edge: a low wall with a "
+                  f"{kind.replace('_', ' ')} "
                   f"handrail on it up to {top:.2f} m (the kind follows the style)")
         manifest_objects.append({
             "name": ob.name, "wenart_id": name, "kind": "railing", "status": "assumed", "level_id": level["id"],

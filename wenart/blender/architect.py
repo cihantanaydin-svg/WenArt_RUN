@@ -1514,7 +1514,6 @@ def outer_gaps(building: dict, prep: dict) -> list[dict]:
     (an open-air room, a site platform, a lower roof, the ground within 0.2 m) or is None; ``drop`` is its bottom
     over the ground outside; ``upper``: its level stands over the ground floor."""
     from wenart.blender import site as S
-    from wenart.blender import architect_actions as AA
 
     levels = building.get("levels") or []
     if not levels or len(prep.get("ground_outline") or []) < 3:
@@ -1528,7 +1527,6 @@ def outer_gaps(building: dict, prep: dict) -> list[dict]:
     up = [lv for lv in order if float(lv["elevation"]) >= -0.5]
     gl = float((zero or up or order)[0]["elevation"])
     gz = (lambda x, y: S.ground_z(terrain, x, y)) if terrain else (lambda x, y: gl)
-    rooms = [r for r in building.get("rooms") or [] if len(r.get("polygon") or []) >= 3]
     outlines = prep.get("outlines") or {}
     out = []
     for r in S.outer_openings(building, levels, prep.get("ground_outline") or [], outlines, kinds=("door", "opening")):
@@ -1537,16 +1535,12 @@ def outer_gaps(building: dict, prep: dict) -> list[dict]:
         probe = (cx + ox * (r["half_t"] + LANDING_PROBE_M), cy + oy * (r["half_t"] + LANDING_PROBE_M))
         bottom = float(r["bottom"])
         lands = None
-        room = next((x for x in rooms if x.get("level_id") == lv["id"] and G.point_in_polygon(probe, x["polygon"])),
-                    None)
-        if room is not None and AA.is_open_air(room):
-            lands = f"the {room.get('room_type')} {room['id']}"
-        if lands is None:
-            pf = next((p for p in site.get("platforms") or [] if len(p.get("polygon") or []) >= 3
-                       and isinstance(p.get("z"), (int, float)) and abs(float(p["z"]) - bottom) <= LANDING_TOL_M
-                       and G.point_in_polygon(probe, p["polygon"])), None)
-            if pf is not None:
-                lands = f"the {pf.get('kind', 'platform')} {pf.get('id')}"
+        # 26 Nov 2026 (audit rules R10 / R19): the one landing test (``site.landing_at``): an open-air room that is no
+        # void (a light well or an air shaft is nothing to step onto: a door or a gap onto it reads as a window), an
+        # outdoor space of the site or a platform at the opening's bottom
+        land = S.landing_at(building, lv["id"], probe, bottom, site.get("platforms") or [], tol=LANDING_TOL_M)
+        if land is not None:
+            lands = f"the {land['kind']} {land['id']}"
         if lands is None:
             # 20 Nov 2026 (real20: the doors of storeys 3-5 "landed on the roof of level L0", 3-9 m below them): a lower
             # roof is a landing only when it is the storey right under the door's own (its top is the door's floor)

@@ -715,6 +715,11 @@ def light_wells(building: dict, levels: Sequence[dict], terrain: dict, outline: 
     wells, warnings = [], []
     ids = {lv["id"] for lv in levels}
     walls = {w["id"]: w for w in building.get("walls") or [] if w.get("level_id") in ids}
+    # the ground floor (levels.model.ground_level's rule): the level of order 0, else the lowest at or above -0.5 m
+    order = sorted(levels, key=lambda x: float(x["elevation"]))
+    ground_floor_z = float(([x for x in order if x.get("order") == 0] or [x for x in order
+                                                                        if float(x["elevation"]) >= -0.5]
+                            or order or [{"elevation": 0.0}])[0]["elevation"])
     for o in building.get("openings") or []:
         lv = next((lv for lv in levels if lv["id"] == o.get("level_id")), None)
         wall = walls.get(o.get("wall_id"))
@@ -745,25 +750,134 @@ def light_wells(building: dict, levels: Sequence[dict], terrain: dict, outline: 
             continue
         ux, uy = (-out[1], out[0])
         below = gz - bottom
+        # 26 Nov 2026 (audit rule R25, real17: shop windows 0.16 / 0.32 m under a sloping pavement got concrete pits):
+        # a window of the ground floor or above needs the ground ``LIGHT_WELL_MIN_BELOW`` or more over its sill for a
+        # light well; less is a kerb or regraded ground at the foot of the glazing (the elevation draws the ground line
+        # crossing it). A basement window keeps its paved light well at grade (lesson UL158, user on real04)
+        if below < LIGHT_WELL_MIN_BELOW - 1e-9 and float(lv["elevation"]) >= ground_floor_z - 0.05:
+            warnings.append(f"{o['id']}: the ground outside ({gz:.2f} m) lies only {below:.2f} m over its sill "
+                            f"({bottom:.2f} m): a kerb or regraded ground at the foot of the glazing, no light well "
+                            f"(under {LIGHT_WELL_MIN_BELOW:g} m)")
+            continue
+        refused = None
         # 30 Oct 2026 (lesson UL158): ``yes`` courts only a window at least ``COURT["yes_min_below"]`` under the
         # ground; one at grade keeps its paved light well (a court's parapet would stand in front of the glazing)
         if (front_court == "yes" and below >= COURT["yes_min_below"]) or (front_court == "auto"
                                                                           and below > COURT["min_below"]):
-            wells.append(dict(court_for(o, lv, (cx, cy), out, half_t, gz, below, front_court), sill_z=bottom))
-            continue
+            court = court_for(o, lv, (cx, cy), out, half_t, gz, below, front_court)
+            refused = court_refused(building, levels, o, lv, (cx, cy), out, half_t, court["polygon"], terrain,
+                                    outline, outlines, asked=front_court == "yes")
+            if refused is None:
+                wells.append(dict(court, sill_z=bottom))
+                continue
         at_grade = (f"; brief front_court yes, but the sill lies only {below:.2f} m under the ground (under "
                     f"{COURT['yes_min_below']:g} m): no sunken court at grade (lesson UL158)"
-                    if front_court == "yes" else "")
-        w = float(o["width"]) / 2.0 + DEFAULTS["light_well_side"]
-        d0, d1 = half_t, half_t + DEFAULTS["light_well_depth"]
+                    if front_court == "yes" and refused is None else "")
+        vent = window_glass_m2(o) <= VENT_MAX_M2 + 1e-9
+        side, depth = (VENT_PIT["side"], VENT_PIT["depth"]) if vent else (DEFAULTS["light_well_side"],
+                                                                          DEFAULTS["light_well_depth"])
+        w = float(o["width"]) / 2.0 + side
+        d0, d1 = half_t, half_t + depth
         poly = [(cx + ux * s + out[0] * d, cy + uy * s + out[1] * d) for s, d in ((-w, d0), (w, d0), (w, d1), (-w, d1))]
+        what = (f"a small grated vent pit {depth:g} m deep, {2 * w:.2f} m wide (a vent of "
+                f"{window_glass_m2(o):.2f} m2)" if vent else
+                f"an open concrete light well {DEFAULTS['light_well_depth']} m deep, {2 * w:.2f} m wide")
         wells.append({"opening_id": o["id"], "level_id": lv["id"], "polygon": geom2d.ccw(poly),
                       "floor_z": bottom - DEFAULTS["light_well_below_sill"], "top_z": gz, "outward": list(out),
-                      "source": "assumed", "sill_z": bottom,
-                      "reason": f"window sill {bottom:.2f} m, ground outside {gz:.2f} m: an open concrete light "
-                                f"well {DEFAULTS['light_well_depth']} m deep, {2 * w:.2f} m wide (no light well drawn)"
-                                f"{at_grade}"})
+                      "source": "assumed", "sill_z": bottom, **({"vent_pit": True, "grate": True} if vent else {}),
+                      "reason": f"window sill {bottom:.2f} m, ground outside {gz:.2f} m: {what} (no light well drawn)"
+                                + (f"; no sunken court: {refused}" if refused else "") + f"{at_grade}"})
     return merge_courts(wells), warnings
+
+
+LIGHT_WELL_MIN_BELOW = 0.45     # 26 Nov 2026 (R25): the ground this much over a sill makes a light well (less: a kerb)
+VENT_MAX_M2 = 0.36              # ... a window of this much glass or less is a vent: a small grated pit, never a court
+VENT_PIT = {"depth": 0.5, "side": 0.1}
+COURT_MIN_GLASS_M2 = 0.6        # a sunken court only for a main window of this much glass or more ...
+COURT_ROOMS = ("bedroom", "living", "dining", "kitchen", "office", "study")     # ... of a habitable room ...
+COURT_DOOR_GAP_M = 1.5          # ... never this close to an entrance or exit door
+COURT_DOOR_RISE_M = 1.2         # (an outside door within this of the ground outside is an entrance or exit)
+UNCLEAR_GAP_TYPES = ("unclassified gap content",)
+
+
+def window_glass_m2(o: dict) -> float:
+    """A window's glass (m2): its width times its height (pure)."""
+    return float(o.get("width") or 0.0) * float(o.get("height") if o.get("height") is not None else 1.2)
+
+
+def _room_behind(building: dict, level_id, centre, out, half_t: float) -> Optional[dict]:
+    p = (centre[0] - out[0] * (half_t + 0.25), centre[1] - out[1] * (half_t + 0.25))
+    return next((r for r in building.get("rooms") or [] if isinstance(r, dict) and r.get("level_id") == level_id
+                 and len(r.get("polygon") or []) >= 3 and G.point_in_polygon(p, r["polygon"])), None)
+
+
+def court_refused(building: dict, levels: Sequence[dict], o: dict, lv: dict, centre, out, half_t: float, polygon,
+                  terrain: dict, outline, outlines: Optional[dict], asked: bool = False) -> Optional[str]:
+    """Why a sunken front court is not made in front of window ``o`` (pure; 26 Nov 2026, audit rule R25, real17: three
+    3 m courts with 0.9 m parapets dug for two 0.5 x 0.5 m WC and store vents and a 0.28 m unclassified gap, beside the
+    entrance and both exit doors, where the elevation draws plain ground), or None. A court is made only for a main
+    window of a habitable room (``COURT_ROOMS``) with no daylight from a window over the ground and with
+    ``COURT_MIN_GLASS_M2`` or more glass (the room's windows under the ground are its main windows together); never
+    for a vent (``VENT_MAX_M2``), an unclassified gap, a WC or a store; never within ``COURT_DOOR_GAP_M`` of an
+    entrance or exit door (an outside door whose bottom lies within ``COURT_DOOR_RISE_M`` of the ground). With ``asked`` (the brief's ``front_court: yes``) only the vent and the unclassified gap are
+    refused. (The elevation's ground line is not tested: the side ground levels a reading stores come from section and
+    elevation ground lines alike and say nothing of a pit drawn there.)"""
+    from wenart.blender.shell import opening_centre_on_wall, opening_vertical
+
+    glass = window_glass_m2(o)
+    if str(o.get("type_raw") or "") in UNCLEAR_GAP_TYPES or o.get("drawn_type") == "opening":
+        return f"{o['id']} is an unclassified gap of the drawing, no main window"
+    if glass <= VENT_MAX_M2 + 1e-9:
+        return f"{o['id']} is a vent ({glass:.2f} m2 of glass, {VENT_MAX_M2:g} m2 or less)"
+    if asked:
+        return None             # the brief asks for courts (site_options.front_court: yes): every window but a vent
+    if glass < COURT_MIN_GLASS_M2 - 1e-9:
+        return f"{o['id']} has only {glass:.2f} m2 of glass (a court serves a main window of {COURT_MIN_GLASS_M2:g} m2)"
+    room = _room_behind(building, lv["id"], centre, out, half_t)
+    rtype = str((room or {}).get("room_type") or "").lower()
+    if rtype not in COURT_ROOMS:
+        return f"it lights {(room or {}).get('id') or 'no room'} ({rtype or 'untyped'}), no habitable room"
+    walls = {w["id"]: w for w in building.get("walls") or [] if w.get("level_id") == lv["id"]}
+    others = []
+    for p in building.get("openings") or []:
+        wall = walls.get(p.get("wall_id"))
+        if p is o or p.get("type") != "window" or wall is None:
+            continue
+        pc = opening_centre_on_wall(p, wall)[:2]
+        pout = outward_side(wall, (outlines or {}).get(lv["id"]) or outline, pc)
+        if pout is None:
+            continue
+        r = _room_behind(building, lv["id"], pc, pout, float(wall["thickness"]) / 2.0)
+        if r is None or r.get("id") != room.get("id"):
+            continue
+        pb = opening_vertical(p, lv, any(float(x["elevation"]) > float(lv["elevation"]) for x in levels))[0]
+        pg = ground_z(terrain, pc[0] + pout[0] * (float(wall["thickness"]) / 2.0 + 0.3),
+                      pc[1] + pout[1] * (float(wall["thickness"]) / 2.0 + 0.3))
+        others.append((p, pb >= pg + LIGHT_WELL_CLEARANCE))
+    if any(lit for _p, lit in others):
+        return f"{room['id']} has daylight from another window over the ground"
+    # (the room's windows under the ground are its main windows together: each of 0.6 m2 or more gets its court, and
+    # merge_courts makes one court of those side by side)
+    # an entrance or exit door: an outside door of any level whose bottom lies within COURT_DOOR_RISE_M of the ground
+    # outside it (a door at grade or a few steps up; never an upper floor's balcony door over the court)
+    for rec in outer_openings(building, levels, outline, outlines, kinds=("door",)):
+        d = rec["opening"]
+        dc, dout = rec["centre"], rec["outward"]
+        dg = ground_z(terrain, dc[0] + dout[0] * (rec["half_t"] + 0.3), dc[1] + dout[1] * (rec["half_t"] + 0.3))
+        if abs(float(rec["bottom"]) - dg) > COURT_DOOR_RISE_M:
+            continue
+        gap = _point_polygon_gap(dc, polygon)
+        if gap < COURT_DOOR_GAP_M - 1e-9:
+            return f"it lies {max(gap, 0.0):.2f} m from the entrance or exit door {d['id']} (under {COURT_DOOR_GAP_M:g} m)"
+    return None
+
+
+def _point_polygon_gap(p, polygon) -> float:
+    """The distance from point ``p`` to ``polygon`` (0 inside; pure)."""
+    if G.point_in_polygon(p, polygon):
+        return 0.0
+    n = len(polygon)
+    return min(G.point_segment_distance(p, polygon[i], polygon[(i + 1) % n]) for i in range(n))
 
 
 # 30 Oct 2026 (lesson UL142, user on real04: "This white section needs to go all the way": the light well of
@@ -956,9 +1070,13 @@ def wells_on_platforms(wells: Sequence[dict], pfs: Sequence[dict]) -> tuple[list
     real04: a 1 m concrete well stood 0.75 m above the pool terrace beside the basement window, made against the
     sloped ground the terrace replaces). An assumed or inferred well whose middle lies on a flat platform is dropped
     when the platform's level is at least ``LIGHT_WELL_CLEARANCE`` under the window sill (the terrace lights the
-    window), else it opens at the platform's level (``top_z``); a drawn well stays as drawn."""
+    window), else it opens at the platform's level (``top_z``); a drawn well stays as drawn.
+
+    26 Nov 2026 (audit rule R25, real17: the L1 balcony os_L1_balkon_1, 3.30 m up, raised the well of the shop window
+    under it to a 3.5 m concrete box): only a platform on the ground counts (the window's level's or the garden's),
+    never an ``elevated`` one (an upper floor's balcony or terrace slab)."""
     flat = [pf for pf in pfs if not pf.get("sloped") and isinstance(pf.get("z"), (int, float))
-            and len(pf.get("polygon") or []) >= 3]
+            and len(pf.get("polygon") or []) >= 3 and not pf.get("elevated")]
     kept, dropped = [], []
     for w in wells:
         poly = w.get("polygon") or []
@@ -1217,6 +1335,48 @@ def outer_openings(building: dict, levels: Sequence[dict], outline: Sequence[Seq
         out.append({"opening": o, "level": lv, "centre": (cx, cy), "outward": side, "axis": nearest_axis(side),
                     "bottom": bottom, "top": top, "half_t": float(wall["thickness"]) / 2.0})
     return out
+
+
+LANDING_FLOOR_TOL_M = 0.25      # 26 Nov 2026 (R10): an outdoor space or platform this close to a door's floor lands it
+
+
+def landing_at(building: dict, level_id, probe, floor_z: float, platforms: Optional[Sequence[dict]] = None,
+               tol: float = LANDING_FLOOR_TOL_M) -> Optional[dict]:
+    """What an opening of ``level_id`` whose floor is ``floor_z`` steps onto at ``probe`` (pure; 26 Nov 2026, audit
+    rule R10: real06's balcony doors d_L1_002 / d_L1_007 got a glass guard across them because the guard test looked
+    only for balcony rooms, and the balcony was the outdoor space os_L1_balkon): ``{"kind", "id", "z"}`` or None.
+
+    - an open-air room of the level that is no void (a balcony, a terrace, a loggia room; never a light well or an air
+      shaft: ``outdoor.is_open_air`` / ``is_void``);
+    - an outdoor space of the site (``site.outdoor_spaces``, os_*) holding the probe whose floor ``z`` lies within
+      ``tol`` of ``floor_z`` (a space with no ``z``: one of the same level);
+    - a platform (``platforms``, else ``site.platforms``) holding the probe whose ``z`` lies within ``tol``.
+
+    The guard rule (``facade.guard_need``), the architect's outside doors (E1 / O2, ``architect.outer_gaps``) and the
+    report's rise table use this one test. A space a full step or more under the door (over ``tol``) is no landing."""
+    from wenart.blender import outdoor as OD
+
+    px, py = float(probe[0]), float(probe[1])
+    for r in building.get("rooms") or []:
+        if isinstance(r, dict) and r.get("level_id") == level_id and len(r.get("polygon") or []) >= 3 \
+                and OD.is_open_air(r) and not OD.is_void(r) and G.point_in_polygon((px, py), r["polygon"]):
+            return {"kind": str(r.get("room_type") or "open-air room"), "id": r.get("id"), "z": None}
+    site = building.get("site") if isinstance(building.get("site"), dict) else {}
+    for s in site.get("outdoor_spaces") or []:
+        if not isinstance(s, dict) or len(s.get("polygon") or []) < 3:
+            continue
+        z = s.get("z")
+        ok = abs(float(z) - float(floor_z)) <= tol + 1e-9 if isinstance(z, (int, float)) \
+            else s.get("level_id") == level_id
+        if ok and G.point_in_polygon((px, py), s["polygon"]):
+            return {"kind": str(s.get("kind") or "outdoor space"), "id": s.get("id"),
+                    "z": float(z) if isinstance(z, (int, float)) else None}
+    for p in (platforms if platforms is not None else site.get("platforms")) or []:
+        if not isinstance(p, dict) or len(p.get("polygon") or []) < 3 or not isinstance(p.get("z"), (int, float)):
+            continue
+        if abs(float(p["z"]) - float(floor_z)) <= tol + 1e-9 and G.point_in_polygon((px, py), p["polygon"]):
+            return {"kind": str(p.get("kind") or "platform"), "id": p.get("id"), "z": float(p["z"])}
+    return None
 
 
 def facade_openings(building: dict, levels: Sequence[dict], outline: Sequence[Sequence[float]],

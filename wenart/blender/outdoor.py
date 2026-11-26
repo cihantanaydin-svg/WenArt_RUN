@@ -147,6 +147,64 @@ def open_air_room_ids(building: dict) -> set:
     return {r.get("id") for r in building.get("rooms") or [] if open_air_room(r)}
 
 
+# 26 Nov 2026 (audit rule R19, real17 run 20261126-110510-full: the 0.5 x 0.5 m air shaft 'H.B 50X50', typed shaft /
+# air_shaft by the reader, was an inside room to the architect, so W2 made the WC's ventilation window onto it a
+# 0.80 m door and closed the bath's and shower's): ONE check for the open-air voids through the storeys, used by every
+# rule (architect_actions.is_open_air / Plan.is_outside, architect_rules, levels.model, completion, model_review)
+VOID_TYPES = ("light_well", "air_shaft")
+LIGHT_WELL_PATTERN = (r"(?<![a-z])(?:aydinlik|isiklik|aydinlatma\s+boslugu|light\s*well|lightwell|lichthof"
+                      r"|lichtschacht|courette|patio\s+de\s+luces)")
+AIR_SHAFT_PATTERN = (r"(?<![a-z0-9])(?:h\s*\.\s*b\b\.?|hb\s*\d{2,3}\s*[/x*]\s*\d{2,3}|hava\s*(?:bacasi|baca|boslugu)"
+                     r"|havalandirma|air\s*shaft|vent(?:ilation)?\s*shaft)")
+LIFT_PATTERN = r"(?<![a-z])(?:asansor|lift|elevator|aufzug|ascenseur)"
+_VOID_WORD_RE = re.compile(f"{LIGHT_WELL_PATTERN}|{AIR_SHAFT_PATTERN}")
+_LIFT_WORD_RE = re.compile(LIFT_PATTERN)
+
+
+def _label(room: dict) -> str:
+    from wenart.textfold import fold_ascii
+
+    return " ".join(fold_ascii(str(room.get("label") or room.get("label_raw") or "")).split())
+
+
+def is_void(room: Optional[dict]) -> bool:
+    """An open-air void through the storeys (pure; R19): a light well or an air shaft by ``room_type`` or
+    ``room_subtype`` (``VOID_TYPES``), or a shaft (or untyped face) whose label names one (``LIGHT_WELL_PATTERN``,
+    ``AIR_SHAFT_PATTERN``: 'Aydınlık', 'Hava Bacası', 'H.B 50/50') and no lift. Such a void never needs a door; the
+    windows onto it are outside windows."""
+    if not isinstance(room, dict):
+        return False
+    if str(room.get("room_type") or "").lower() in VOID_TYPES or str(room.get("room_subtype") or "").lower() \
+            in VOID_TYPES:
+        return True
+    if str(room.get("room_type") or "").lower() not in ("shaft", "", "unknown", "none", "other"):
+        return False
+    label = _label(room)
+    return bool(_VOID_WORD_RE.search(label)) and not _LIFT_WORD_RE.search(label)
+
+
+def is_open_air(room: Optional[dict], sky_ids=()) -> bool:
+    """A room open to the air (pure; R19): an open-air type (``OPEN_AIR_ROOMS``), an open-air void (``is_void``), a
+    room ``sky_ids`` names (``sky_room_ids``: open to the sky through the roof) or an open-air flag
+    (``OPEN_AIR_FLAGS``)."""
+    if not isinstance(room, dict):
+        return False
+    return str(room.get("room_type") or "").lower() in OPEN_AIR_ROOMS or is_void(room) \
+        or (room.get("id") is not None and room.get("id") in sky_ids) or any(room.get(k) for k in OPEN_AIR_FLAGS)
+
+
+def sky_room_ids(building: dict) -> set:
+    """The rooms the roof is open over (pure; R19): a roof opening of kind ``light_well`` names its room."""
+    roof = building.get("roof") if isinstance(building.get("roof"), dict) else {}
+    return {str(o["room_id"]) for o in roof.get("openings") or [] if isinstance(o, dict) and o.get("room_id")
+            and str(o.get("kind") or "") in VOID_TYPES}
+
+
+def onto_void(sides) -> bool:
+    """Whether an opening with rooms ``sides`` (``architect_actions.window_sides``) opens onto an open-air void."""
+    return any(is_void(r) for r in sides or ())
+
+
 def outside(item: dict, open_ids: set) -> bool:
     """A piece or decor item stands outside: in an open-air room (``open_ids``) or on an outdoor space of the site."""
     return bool(item.get("outdoor_space")) or item.get("open_air") is True or item.get("room_id") in open_ids

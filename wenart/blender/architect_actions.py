@@ -58,13 +58,14 @@ OPEN_AIR = ("balcony", "terrace", "roof_terrace", "loggia", "veranda", "patio", 
 def is_open_air(room: Optional[dict]) -> bool:
     """20 Nov 2026 (pre-pod review BP-01: real21's light wells, rooms of type shaft and subtype light_well that the roof
     cuts open, were inside rooms to the architect, which moved their windows onto the blank party walls): a room open
-    to the sky: an open-air type (``OPEN_AIR``), a light well (``room_subtype`` or type) or an open-air flag."""
-    from wenart.blender.outdoor import OPEN_AIR_FLAGS
+    to the sky: an open-air type (``OPEN_AIR``), a light well (``room_subtype`` or type) or an open-air flag.
+    26 Nov 2026 (audit rule R19, real17's air shaft 'H.B 50X50', subtype air_shaft, was missed): the one shared check
+    ``outdoor.is_open_air`` (light wells and air shafts by type, subtype or label, the open-air flags)."""
+    from wenart.blender import outdoor as OD
 
     if room is None:
         return False
-    return str(room.get("room_type") or "").lower() in OPEN_AIR + ("light_well",) \
-        or str(room.get("room_subtype") or "").lower() == "light_well" or any(room.get(k) for k in OPEN_AIR_FLAGS)
+    return str(room.get("room_type") or "").lower() in OPEN_AIR or OD.is_open_air(room)
 
 
 def party_wall(wall: Optional[dict]) -> bool:
@@ -428,7 +429,11 @@ class Plan:
         if room_id not in ids:
             return False
         other = sides[1 - ids.index(room_id)]
-        return is_open_air(other)
+        # 26 Nov 2026 (R19): a light well or an air shaft is open to the air but no terrace to step onto (no low sill,
+        # no garden window onto it)
+        from wenart.blender import outdoor as OD
+
+        return is_open_air(other) and not OD.is_void(other)
 
     def ceiling(self, level_id) -> float:
         lv = self.levels.get(level_id) or {}
@@ -552,6 +557,55 @@ def window_sides(plan: Plan, o: dict) -> list:
     p = (a[0] + u[0] * t, a[1] + u[1] * t)
     reach = float(w.get("thickness") or 0.2) / 2.0 + PROBE_M
     return [plan.room_at((p[0] + n[0] * k * reach, p[1] + n[1] * k * reach), w.get("level_id")) for k in (1, -1)]
+
+
+def room_side_m(plan: Plan, o: dict, room: Optional[dict]) -> Optional[float]:
+    """The length of ``room``'s side along the wall of opening ``o`` (pure; 26 Nov 2026, audit rule R19: W2 made a
+    0.50 m window a 0.80 m door into a 0.50 x 0.50 m air shaft): the stretch of the line along the wall, just inside
+    the room (the probe of ``window_sides``), that lies in the room's polygon and holds the opening's centre. None when
+    the room is not beside the opening."""
+    w = plan.walls.get(o.get("wall_id"))
+    if w is None or not isinstance(room, dict) or len(room.get("polygon") or []) < 3:
+        return None
+    a, u, _ = plan.axis(w)
+    n = (-u[1], u[0])
+    t = plan.t_of(w, o["center"])
+    p = (a[0] + u[0] * t, a[1] + u[1] * t)
+    reach = float(w.get("thickness") or 0.2) / 2.0 + PROBE_M
+    poly = room["polygon"]
+    for k in (1, -1):
+        q = (p[0] + n[0] * k * reach, p[1] + n[1] * k * reach)
+        if not G.point_in_polygon(q, poly):
+            continue
+        lo, hi = None, None
+        for i in range(len(poly)):
+            e0, e1 = poly[i], poly[(i + 1) % len(poly)]
+            dx, dy = e1[0] - e0[0], e1[1] - e0[1]
+            det = u[0] * (-dy) - u[1] * (-dx)
+            if abs(det) < 1e-12:
+                continue                    # an edge along the line: its ends are crossings of their neighbours
+            rx, ry = e0[0] - q[0], e0[1] - q[1]
+            s = (rx * (-dy) - ry * (-dx)) / det
+            r = (u[0] * ry - u[1] * rx) / det
+            if -1e-9 <= r <= 1.0 + 1e-9:
+                if s < 0:
+                    lo = s if lo is None else max(lo, s)
+                else:
+                    hi = s if hi is None else min(hi, s)
+        if lo is not None and hi is not None:
+            return hi - lo
+    return None
+
+
+def door_too_wide(plan: Plan, o: dict, width: float) -> Optional[str]:
+    """Why a door ``width`` wide at opening ``o`` is wider than the side of a room it opens into (R19: a door is never
+    wider than that side), or None."""
+    for r in window_sides(plan, o):
+        side = room_side_m(plan, o, r)
+        if side is not None and width > side + 0.02:
+            return (f"a {width:.2f} m door is wider than the {side:.2f} m side of {r['id']} "
+                    f"({r.get('room_type') or 'room'}) it opens into")
+    return None
 
 
 def act_enlarge(plan: Plan, key: str, ans: dict, room_id: str, ratio: float = DAYLIGHT_RATIO):
@@ -1096,6 +1150,9 @@ def act_widen_door(plan: Plan, key: str, ans: dict, door_id: str, room_id: Optio
             hi = min(hi, s0 - 0.1)
     if hi - lo < want:
         return False, f"{door_id}: only {hi - lo:.2f} m of wall around it"
+    too_wide = door_too_wide(plan, o, want)          # 26 Nov 2026 (R19): never wider than the room's side
+    if too_wide:
+        return False, f"{door_id}: {too_wide}"
     nt = min(max(t, lo + want / 2.0), hi - want / 2.0)
     _keep_drawn(o, "width", "center")
     x, y = plan.at_t(w, nt)
@@ -1348,6 +1405,11 @@ def act_window_to_door(plan: Plan, key: str, ans: dict, window_id: str):
     sides = window_sides(plan, o)
     if len(sides) != 2 or any(r is None or Plan.is_outside(r) for r in sides):
         return False, f"{window_id} is not between two rooms"
+    # 26 Nov 2026 (R19): a door is never wider than the side of a room it opens into (real17: a 0.80 m door into a
+    # 0.50 x 0.50 m air shaft)
+    too_wide = door_too_wide(plan, o, max(float(o.get("width") or 0.0), WC_DOOR_MIN_W))
+    if too_wide:
+        return False, f"{window_id}: {too_wide}"
     # 27 Oct 2026 (user on real06: "doors next to each other not making sense": the AI made the windows on both sides
     # of the door between a shower room and a dressing room doors, three doors side by side): a window is the door of
     # a room no door reaches, never a second door of two rooms a door or doorway joins already, and never a door whose
@@ -2123,6 +2185,8 @@ def tall_window_groups(plan: Plan, room_id: str) -> list[dict]:
     "state", "why"}]``; a window's ``state`` is ``tall`` (it is, or grows less than ``TALL_MIN_GROW_M``), ``grow`` (it
     may become tall) or ``keep`` (the documents fix it, a wall-backed piece stands in front, a garden room's window
     onto no terrace or garden); a facade grows only when none of its windows is ``keep`` (one window language)."""
+    from wenart.blender import outdoor as OD
+
     room = plan.room.get(room_id)
     if room is None or not tall_room(plan, room_id):
         return []
@@ -2143,6 +2207,8 @@ def tall_window_groups(plan: Plan, room_id: str) -> list[dict]:
         new_sill, new_head = tall_target(plan, o)
         given = heights_given(plan.b, o)
         front = front_pieces(plan, o)
+        if OD.onto_void(sides):
+            continue        # 26 Nov 2026 (R19): a window onto a light well or an air shaft stays as drawn (W5 never acts)
         if o.get("tall_window"):
             state, why = "tall", "a tall window (decided)"
         elif given:

@@ -439,6 +439,7 @@ FINAL_MANIFEST = {
         "warnings": {"type": "array", "items": {"type": "string"}},
         # fix round after P3: the previews and plan crops moved to final/earlier_run/ (move_stale_view_files)
         "earlier_run_files": {"type": "array", "items": {"type": "string"}},
+        "stale_views": {"type": "array", "items": {"type": "object", "required": ["camera", "reason"]}},
         # Milestone 7 (§9.4)
         "units": {"type": ["object", "null"], "properties": {"system": {"enum": ["metric", "imperial"]}}},
         "side_by_side": {"type": "object", "required": ["sheets"],
@@ -587,6 +588,7 @@ class Inputs:
     variant_sheets: dict = field(default_factory=dict)   # variant id -> {"interior": name, "exterior": name}
     sheets_block: Optional[dict] = None                  # the Sheets block of the report (m10.sheets_block)
     earlier_run_files: list = field(default_factory=list)   # fix round after P3: files moved to final/earlier_run/
+    stale_views: list = field(default_factory=list)      # 26 Nov 2026 (R26): views of another build, left out
 
     @property
     def gate_dir(self) -> Path:
@@ -1670,16 +1672,82 @@ def camera_plan(cam: Optional[dict]) -> Optional[dict]:
             "warning": cam.get("warning"), "placement": cam.get("placement"), "shift_y": cam.get("shift_y")}
 
 
+CROSSCHECK_ELEMENT_KINDS = ("window", "door", "opening", "furniture", "piece", "decor", "wall", "room", "stair")
+
+
+def crosscheck_strangers(cc: Optional[dict], elements: dict) -> list[str]:
+    """The element ids a view's JSON cross-check names that the current building does not hold, or holds as another
+    type (pure; 26 Nov 2026, audit rule R26, real10: the published interiors' cross-check named o_L0_002, a window of
+    an older reading, and f_L0_084 as a coffee table, a washbasin in the current one): the ids of ``projected``,
+    ``in_json_not_rendered`` and ``misplaced`` of the element kinds (``CROSSCHECK_ELEMENT_KINDS``)."""
+    if not isinstance(cc, dict) or not elements:
+        return []
+    items = []
+    for wid, it in (cc.get("projected") or {}).items() if isinstance(cc.get("projected"), dict) else []:
+        items.append((wid, it if isinstance(it, dict) else {}))
+    for key in ("in_json_not_rendered", "misplaced"):
+        items += [(it.get("id"), it) for it in cc.get(key) or [] if isinstance(it, dict) and it.get("id")]
+    out = []
+    for wid, it in items:
+        kind = str(it.get("kind") or "").lower()
+        if kind and kind not in CROSSCHECK_ELEMENT_KINDS:
+            continue
+        el = elements.get(wid)
+        if el is None:
+            out.append(f"{wid} (not in the building)")
+            continue
+        typ = it.get("type")
+        if typ and el.get("type") and str(typ) != str(el.get("type")):
+            out.append(f"{wid} (a {typ} in the view, a {el.get('type')} in the building)")
+    return sorted(set(out))
+
+
+def stale_view_reason(inp: Inputs, entry: dict, cc: Optional[dict], elements: dict) -> Optional[str]:
+    """Why a rendered view is not a view of this report's building (26 Nov 2026, audit rule R26, real10 run
+    20261126-114512-full: all 29 interior views of final/real10 were rendered from a build three weeks older), or None:
+    its render entry comes from another scene build (its ``scene_sha256`` is not the render manifest's, or the render
+    marked it ``stale_build``), or its JSON cross-check names elements the current building does not hold."""
+    current = (inp.render_manifest or {}).get("scene_sha256")
+    own = entry.get("scene_sha256")
+    if entry.get("stale_build") is not None or (current and own and own != current):
+        return (f"rendered from another scene build ({str(own or 'unknown')[:12]}; this build {str(current)[:12]}): "
+                f"not a view of the building this run built")
+    # an exterior view's cross-check tests the outer openings of its variant's scope (each as a window, the copies'
+    # ids too): its ids are no test of the building (the stored runs: every exterior view of real06 and real10)
+    if str(entry.get("camera") or "").startswith("ext_") or (isinstance(cc, dict) and "roof_not_rendered" in cc):
+        return None
+    strangers = crosscheck_strangers(cc, elements)
+    if strangers:
+        return f"its JSON cross-check names {', '.join(strangers[:6])}: checked against another building"
+    return None
+
+
 def build_views(inp: Inputs) -> list[dict]:
     """One final-manifest entry per rendered view (the render manifest's cameras, in its order).
 
     A camera that only the polish manifest has is an earlier run's camera (the polish rebuilds its views from
     the current renders): a warning, never a view of this report.
+
+    26 Nov 2026 (audit rule R26): a view rendered from another scene build, or whose JSON cross-check names elements
+    the current building does not hold, is left out (``stale_view_reason``): a warning and ``inp.stale_views``, never a
+    final preview.
     """
     elements_by_id = building_elements(inp.building)
     rtypes = room_types(inp.building)
     allowed = polish_allowed(inp.brief)
-    cams = list(inp.entries)
+    cams = []
+    for cam in inp.entries:
+        e = inp.entries.get(cam) or {}
+        cc0 = ((inp.check or {}).get("views") or {}).get(cam, {}).get("json_crosscheck") \
+            if isinstance(((inp.check or {}).get("views") or {}).get(cam), dict) else None
+        if cc0 is None:
+            cc0 = (inp.expected.get(cam) or {}).get("json_crosscheck")
+        why = stale_view_reason(inp, e, cc0, elements_by_id)
+        if why:
+            inp.stale_views.append({"camera": cam, "reason": why})
+            inp.warnings.append(f"{cam}: left out of the final views: {why}")
+            continue
+        cams.append(cam)
     for cam in inp.polish_views:
         if cam not in inp.entries:
             inp.warnings.append(f"{cam}: in the polish manifest but not in the render manifest (an earlier run's "
@@ -3013,6 +3081,7 @@ def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
         "inferred_items": AG.inferred_items(inp.building, None),
         # fix round after P3: the previews and plan crops of cameras this run does not have (final/earlier_run/)
         "earlier_run_files": list(inp.earlier_run_files),
+        "stale_views": list(inp.stale_views),             # 26 Nov 2026 (R26): views of another build, left out
         "warnings": list(inp.warnings),
     }
 

@@ -307,7 +307,7 @@ def rooms_rules(plan: AA.Plan) -> list[dict]:
     r3, r4, r5 = (_q(next(r for r in RULES if r["id"] == i)) for i in ("R3", "R4", "R5"))
     for r in plan.rooms:
         t = _rtype(r)
-        if t in AA.OPEN_AIR:
+        if t in AA.OPEN_AIR or AA.is_open_air(r):          # 26 Nov 2026 (R19): a light well or an air shaft too
             continue
         where = _where("room", r.get("level_id"), _centroid(r["polygon"]))
         ceiling = plan.ceiling(r.get("level_id"))

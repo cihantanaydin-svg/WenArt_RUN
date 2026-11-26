@@ -437,7 +437,7 @@ def plinth_cuts(building: dict, order: Sequence[dict], outlines: dict, ground_ou
 
 def articulation_plan(building: dict, levels: Sequence[dict], outlines: dict, ground_outline, terrain: Optional[dict],
                       roof_model: Optional[dict], style: Optional[dict], looks: Optional[dict],
-                      wells: Sequence[dict] = ()) -> dict:
+                      wells: Sequence[dict] = (), platforms: Optional[Sequence[dict]] = None) -> dict:
     """``{"boxes": [{"kind": plinth | band | coping | surround, "level_id", "center", "size", "rotation_deg"}],
     "looks": {kind: look}, "rules", "assumed": [{"field", "value", "reason"}]}`` (pure).
 
@@ -530,7 +530,7 @@ def articulation_plan(building: dict, levels: Sequence[dict], outlines: dict, gr
             assumed.append({"field": "surround", "value": DIMENSIONS["surround_width"],
                             "reason": out_looks["surround"]["reason"]})
     # Milestone 13 (T6): the facade kit, only where the documents or the room types imply it
-    kit = facade_kit(building, levels, outlines, ground_outline, terrain, roof_model, rules, looks, style)
+    kit = facade_kit(building, levels, outlines, ground_outline, terrain, roof_model, rules, looks, style, platforms)
     boxes += kit["boxes"]
     out_looks.update(kit["looks"])
     assumed += kit["assumed"]
@@ -1036,9 +1036,43 @@ def _runs_outside(p, u, n, length: float, holes, step: float = 0.05, min_run: fl
     return runs
 
 
+GUARD_LANDING_PROBE_M = 0.5        # the landing of an opening is looked for this far out of the wall face
+GUARD_ROOM_PROBE_M = 0.25          # ... and its room this far in
+
+
+def guard_need(building: dict, rec: dict, gz, platforms: Optional[Sequence[dict]] = None) -> dict:
+    """Whether an outside opening needs a guard (pure; 26 Nov 2026, audit rule R10; the facade kit's step 4 and the
+    model review's M3 share it): ``{"need", "asked", "landing", "floor", "drop", "bottom"}``.
+
+    - ``landing``: what the opening steps onto (``site.landing_at``: a balcony or terrace room, an outdoor space os_*
+      or a platform at its floor, within 0.25 m). An opening with a landing never gets a guard, even when an answer
+      asked for one (real06: stale French-window answers put glass guards across both balcony doors).
+    - ``floor``: the floor behind the opening (its level's elevation + its room's ``floor_offset_m``); ``drop``: that
+      floor over the ground 1 m outside. Before, the drop counted from the sill, so the ground-floor windows of a
+      0.5 m plinth (sill 0.70 + 0.50 = 1.2 m) got guards.
+    - ``need``: an asked guard (``opening.guard``) with no landing, or a bottom under ``guard_sill`` over the floor
+      with a drop of ``guard_min_drop`` or more."""
+    from wenart.blender import site as S
+
+    lv, o = rec["level"], rec["opening"]
+    (cx, cy), (ox, oy) = rec["centre"], rec["outward"]
+    inside = (cx - ox * (rec["half_t"] + GUARD_ROOM_PROBE_M), cy - oy * (rec["half_t"] + GUARD_ROOM_PROBE_M))
+    room = next((r for r in building.get("rooms") or [] if isinstance(r, dict) and r.get("level_id") == lv["id"]
+                 and len(r.get("polygon") or []) >= 3 and G.point_in_polygon(inside, r["polygon"])), None)
+    floor = float(lv["elevation"]) + float((room or {}).get("floor_offset_m") or 0.0)
+    probe = (cx + ox * (rec["half_t"] + GUARD_LANDING_PROBE_M), cy + oy * (rec["half_t"] + GUARD_LANDING_PROBE_M))
+    landing = S.landing_at(building, lv["id"], probe, floor, platforms)
+    drop = floor - float(gz(cx + ox * 1.0, cy + oy * 1.0))
+    asked = isinstance(o.get("guard"), dict)
+    low = float(rec["bottom"]) - floor < KIT["guard_sill"]
+    need = landing is None and (asked or (low and drop >= KIT["guard_min_drop"]))
+    return {"need": need, "asked": asked, "landing": landing, "floor": floor, "drop": drop,
+            "bottom": float(rec["bottom"])}
+
+
 def facade_kit(building: dict, levels: Sequence[dict], outlines: dict, ground_outline, terrain: Optional[dict],
                roof_model: Optional[dict], rules: dict, looks: Optional[dict] = None,
-               style: Optional[dict] = None) -> dict:
+               style: Optional[dict] = None, platforms: Optional[Sequence[dict]] = None) -> dict:
     """The facade kit (pure; Milestone 13 T6): ``{"boxes", "looks", "assumed", "summary"}``. Reveals around the
     windows of the families without surrounds; gutters along the eaves edges of a pitched roof and a downpipe
     ``KIT["downpipe_end_m"]`` from each eaves edge's start corner plus one every ``downpipe_every_m``, from the eaves
@@ -1194,24 +1228,17 @@ def facade_kit(building: dict, levels: Sequence[dict], outlines: dict, ground_ou
     from wenart.blender import details as D
 
     guard_kind = D.balustrade_kind(style)
-    rooms = [r for r in building.get("rooms") or [] if isinstance(r, dict) and len(r.get("polygon") or []) >= 3]
+    # 26 Nov 2026 (audit rule R10): one test with the model review's M3 (``guard_need``): outdoor spaces and platforms
+    # at the floor are landings (never a guard, whatever an answer asked), the drop counts from the floor
     for rec in (S.outer_openings(building, levels, ground_outline, outlines, kinds=("door", "window", "opening"))
                 if len(ground_outline or []) >= 3 else []):
         lv, o = rec["level"], rec["opening"]
         cx, cy = rec["centre"]
         ox, oy = rec["outward"]
-        floor = float(lv["elevation"])
-        asked = isinstance(o.get("guard"), dict)
-        if not asked and rec["bottom"] - floor >= KIT["guard_sill"]:
+        need = guard_need(building, rec, gz, platforms)
+        if not need["need"]:
             continue
-        drop = rec["bottom"] - gz(cx + ox * 1.0, cy + oy * 1.0)
-        if drop < KIT["guard_min_drop"] and not asked:
-            continue
-        probe = (cx + ox * (rec["half_t"] + 0.5), cy + oy * (rec["half_t"] + 0.5))
-        if any(r.get("level_id") == lv["id"] and str(r.get("room_type") or "") in ("balcony", "terrace", "loggia",
-                                                                                   "roof_terrace")
-               and G.point_in_polygon(probe, r["polygon"]) for r in rooms):
-            continue
+        floor = need["floor"]
         top = floor + float((o.get("guard") or {}).get("top_m") or KIT["guard_top"])
         if top <= rec["bottom"] + 0.05:
             continue

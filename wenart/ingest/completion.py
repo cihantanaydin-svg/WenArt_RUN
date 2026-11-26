@@ -133,7 +133,9 @@ def is_light_well(room: dict, texts: Optional[list] = None) -> bool:
     """A light or air well (pure): its label names one, or a light-well word stands inside it (real21: an unlabelled
     face holding 'AYDINLIK'); 21 Nov 2026: an air shaft too (``room_subtype`` air_shaft, an air-shaft word): both are
     open-air voids a window may open onto."""
-    if room.get("room_subtype") in ("light_well", "air_shaft"):
+    from wenart.blender import outdoor as OD
+
+    if room.get("room_subtype") in ("light_well", "air_shaft") or OD.is_void(room):   # 26 Nov 2026 (R19): one check
         return True
     if _well_word(room.get("label") or room.get("label_raw")):
         return True
