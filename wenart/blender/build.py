@@ -1152,6 +1152,79 @@ def style_family_of(style_path) -> Optional[str]:
     return str(data.get("family")) if isinstance(data, dict) and data.get("family") else None
 
 
+# 26 Nov 2026 (re-render of real10, pod 5n9vsxfitko5jf: the two roof terraces of the top floor, typed balcony, lay
+# outside the small flat roof over the stair core and got the level's flat ceiling, two dark plates floating over the
+# open terraces): an open-air room (``outdoor.open_air_room``; never a covered kind: a loggia, veranda or porch keeps its
+# cover) that neither the roof nor the slab of a level above covers over at least half of its area is open to the sky
+# like a roof terrace cut into the roof: no ceiling is built over it.
+OPEN_SKY_COVER_MIN = 0.5                 # share of the room's area a roof or a slab above must cover to give it a ceiling
+OPEN_SKY_STEP_M = 0.5                    # the sample grid over the room's polygon
+OPEN_SKY_RULE = "build.open_sky_rooms"
+
+
+def _poly_samples(poly, step: float = OPEN_SKY_STEP_M, cap: int = 400) -> list[tuple[float, float]]:
+    """Points of a grid inside ``poly`` (pure); the centroid when the grid finds none."""
+    from wenart import geometry as G
+    xs, ys = [float(p[0]) for p in poly], [float(p[1]) for p in poly]
+    w, h = max(xs) - min(xs), max(ys) - min(ys)
+    while step > 0.05 and (w / step + 1) * (h / step + 1) > cap:
+        step *= 1.5
+    pts = []
+    y = min(ys) + step / 2
+    while y < max(ys):
+        x = min(xs) + step / 2
+        while x < max(xs):
+            if G.point_in_polygon((x, y), poly):
+                pts.append((x, y))
+            x += step
+        y += step
+    if not pts:
+        pts = [(sum(xs) / len(xs), sum(ys) / len(ys))]
+    return pts
+
+
+def open_sky_rooms(building: dict, roof: Optional[dict], slabs: Optional[dict]) -> list[dict]:
+    """The open-air rooms nothing covers (pure): ``[{"room_id", "level_id", "covered", "reason"}]``. A point of a room
+    on level L is covered by the slab under any level above L (outside the slab's openings) or by the roof
+    (``roof.covers``) when the roof stands over L or a level above it."""
+    from wenart import geometry as G
+    from wenart.blender import outdoor as OD
+    from wenart.blender import roof as R
+    from wenart.blender.outdoor_review import COVERED_KINDS
+    levels = sorted(building.get("levels") or [], key=lambda lv: float(lv.get("elevation") or 0.0))
+    elev = {lv["id"]: float(lv.get("elevation") or 0.0) for lv in levels}
+    by_level = (slabs or {}).get("by_level") or {}
+    roof_ok = isinstance(roof, dict) and len(roof.get("outline") or []) >= 3
+    roof_elev = elev.get((roof or {}).get("over_level_id")) if roof_ok else None
+    out = []
+    for room in building.get("rooms") or []:
+        poly = room.get("polygon") or []
+        lid = room.get("level_id")
+        if len(poly) < 3 or lid not in elev or not OD.open_air_room(room) \
+                or str(room.get("room_type") or "").lower() in COVERED_KINDS:
+            continue
+        covers = []
+        for lv in levels:
+            rec = (by_level.get(lv["id"]) or {}).get("under")
+            if elev[lv["id"]] > elev[lid] + 1e-6 and rec and len(rec.get("outline") or []) >= 3:
+                covers.append((rec["outline"], [v for v in rec.get("voids") or [] if len(v) >= 3]))
+        roof_over = roof_ok and roof_elev is not None and roof_elev >= elev[lid] - 1e-6
+        pts = _poly_samples(poly)
+        hit = 0
+        for x, y in pts:
+            if roof_over and R.covers(roof, x, y):
+                hit += 1
+            elif any(G.point_in_polygon((x, y), o) and not any(G.point_in_polygon((x, y), v) for v in vs)
+                     for o, vs in covers):
+                hit += 1
+        share = hit / len(pts)
+        if share < OPEN_SKY_COVER_MIN:
+            out.append({"room_id": room["id"], "level_id": lid, "covered": round(share, 3),
+                        "reason": (f"an open-air room ({room.get('room_type')}) that no roof or slab above covers "
+                                   f"({share:.0%} of its area covered): open to the sky, no ceiling ({OPEN_SKY_RULE})")})
+    return out
+
+
 # 30 Oct 2026 (UL200, real04 run 20261030-181158-full: the bath-to-shower swap turned two L1 bathtubs under the roof into
 # 2.08 m walk-in showers where the sloped ceiling is 0.81 m high: M31 and X2 found them through the roof): a walk-in
 # shower needs its standing height over its tray (a 2.0 m enclosure and the rain head under the ceiling); a shower the
@@ -1613,6 +1686,11 @@ def prepare_once(building_all: dict, variant: str = "base", brief: dict | None =
         if roof["convex"] and roof["equations"] and lv["id"] == roof["over_level_id"]:
             lv["ceiling_planes"] = [list(p) for p in R.ceiling_planes(roof, lv)]
     out["open_rooms"] = {o["room_id"] for o in roof["openings"] if o.get("room_id")}
+    for rec in open_sky_rooms(vb, roof, out.get("slabs")):      # 26 Nov 2026: an uncovered terrace has no ceiling
+        if rec["room_id"] not in out["open_rooms"]:
+            out["open_rooms"].add(rec["room_id"])
+            out["assumed"].append({"object": rec["room_id"], "field": "open_to_sky", "value": True,
+                                   "reason": rec["reason"], "kind": "open_sky_room", "parent": rec["room_id"]})
     for rec in shower_headroom(vb):               # UL200: a walk-in shower only where it stands up
         out["assumed"].append({"object": f"furn_{rec['id']}", "field": "type", "value": "bathtub",
                                "reason": rec["reason"], "kind": "shower_headroom", "parent": rec["id"]})

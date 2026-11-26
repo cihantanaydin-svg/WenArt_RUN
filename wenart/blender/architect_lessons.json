@@ -1,7 +1,7 @@
 {
  "_note": "What the user asked and corrected while this project was built, each turned into a general lesson the architect applies to every project (wenart/blender/architect_lessons.py; user request of 25 Oct 2026: 'the architect should ask the questions and corrections I was asking all along the build; use AI to understand what I was asking and keep developing with the future requests'). checks: the architect rules that check it on every build (architect.ORDER ids) or 'build' (the build does it by itself); status: rule (a rule checks it), built (code does it), open (no automatic check yet: the AI architect looks for it on every run and it is the next rule to write), process (how we work). Add a new request with: python -m wenart.agent.lessons add \"<the request>\"",
  "version": 1,
- "updated": "2026-11-24",
+ "updated": "2026-11-26",
  "lessons": [
   {
    "id": "UL01",
@@ -4497,6 +4497,26 @@
    "checks": [],
    "request": "24 Nov 2026, the user on the structure pod ('Renders have lots of mistakes'): a kitchen outline whose free part is deeper than any counter or island (a floor hatch, a tiled area) is no counter run; abbreviated room names keep their room (S.ODASI of a bed's size a bedroom, LAV. a WC); an AI decision whose stated fact the code's own measure contradicts is refused (a lived-in room with its daylight is never made a store); a section roof of one pitch drawn in pieces is a gable",
    "lesson": "24 Nov 2026, the user on the structure pod ('Renders have lots of mistakes'): a kitchen outline whose free part is deeper than any counter or island (a floor hatch, a tiled area) is no counter run; abbreviated room names keep their room (S.ODASI of a bed's size a bedroom, LAV. a WC); an AI decision whose stated fact the code's own measure contradicts is refused (a lived-in room with its daylight is never made a store); a section roof of one pitch drawn in pieces is a gable",
+   "question": null
+  },
+  {
+   "id": "UL393",
+   "date": "2026-11-26",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "26 Nov 2026 (user: 'Renders have lots of mistakes'; real10 re-render pod 5n9vsxfitko5jf: two dark plates floated over the top floor's roof terraces): an open-air room (balcony, terrace, roof terrace, patio; never a covered kind: loggia, veranda, porch) that neither the roof nor the slab of a level above covers over at least half of its area is open to the sky: no ceiling is built over it (build.open_sky_rooms, logged as assumed).",
+   "lesson": "26 Nov 2026 (user: 'Renders have lots of mistakes'; real10 re-render pod 5n9vsxfitko5jf: two dark plates floated over the top floor's roof terraces): an open-air room (balcony, terrace, roof terrace, patio; never a covered kind: loggia, veranda, porch) that neither the roof nor the slab of a level above covers over at least half of its area is open to the sky: no ceiling is built over it (build.open_sky_rooms, logged as assumed).",
+   "question": null
+  },
+  {
+   "id": "UL394",
+   "date": "2026-11-26",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "26 Nov 2026 (user: 'real17 terrible results'; real17 re-render pod 23367e58pfhcq9: the handrails of the stair from L1 up to L2 hung over the L1 hall as black lines in the top-down view): the top-down plan views cut every stair as an architect's plan does, 1.2 m over the level's floor (topdown.STAIR_CUT_M): its first flight shows, the rest and its rails are cut away; the flight arriving from below stays whole.",
+   "lesson": "26 Nov 2026 (user: 'real17 terrible results'; real17 re-render pod 23367e58pfhcq9: the handrails of the stair from L1 up to L2 hung over the L1 hall as black lines in the top-down view): the top-down plan views cut every stair as an architect's plan does, 1.2 m over the level's floor (topdown.STAIR_CUT_M): its first flight shows, the rest and its rails are cut away; the flight arriving from below stays whole.",
    "question": null
   }
  ]

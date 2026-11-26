@@ -31,6 +31,12 @@ WALL_CUT_M = 0.6                # 25 Oct 2026 (user: "halved the walls"): an ang
 # 0.6 m cut took their cap rail and left a low strip of clear glass): railings stay whole (guards are thin, they hide
 # no room)
 CUT_KINDS = {"wall", "door", "window", "facade_detail", "splashback", "light_well", "wall_plate"}
+# 26 Nov 2026 (re-render of real17, pod 23367e58pfhcq9: the handrails of the stair from L1 up to L2 hung over the L1 hall
+# as black lines, the stair being furniture and so never cut): a stair is cut as an architect's plan cuts it, at
+# ``STAIR_CUT_M`` over the level's floor (its first flight shows, the rest of it and its rails are cut away; the flight
+# arriving from below stays whole under the floor)
+STAIR_TYPES = {"stair", "stairs"}
+STAIR_CUT_M = 1.2
 HIDE_KINDS = {"ceiling", "roof", "site_decor", "site_decor_part", "vegetation_card", "atmosphere", "building_copy",
               "site_hedge", "site_grass", "light"}
 # 31 Oct 2026 (user on real04 run 20261030-181158-full, the L-1 view: "There seems to be something wrong in the marked
@@ -57,18 +63,20 @@ def bbox(o):
     return [min(p[i] for p in pts) for i in range(3)], [max(p[i] for p in pts) for i in range(3)]
 
 
-def section_cut(z: float, kinds=None) -> int:
+def section_cut(z: float, kinds=None, types=None, cutter_name: str = "topdown_cutter") -> int:
     """Cut every rendered wall, door, window and railing (``CUT_KINDS``) that crosses height ``z`` with a Boolean
     difference of a box over ``z`` (the angled views: an architect's cutaway; full-height walls hid the rooms behind
     them); the furniture is never cut. The fast solver gives up on some meshes (real04's L1 outer wall stayed whole):
-    those get the exact solver, and a mesh still standing above ``z`` is cut by a plane (``bisect_top``)."""
+    those get the exact solver, and a mesh still standing above ``z`` is cut by a plane (``bisect_top``). ``types``
+    keeps only the objects of these ``wenart_type`` values (the stairs: ``STAIR_TYPES``); a second cut at another height
+    takes its own cutter (``cutter_name``), as a Boolean follows its cutter wherever it moves."""
     import bpy
 
-    cutter = bpy.data.objects.get("topdown_cutter")
+    cutter = bpy.data.objects.get(cutter_name)
     if cutter is None:
         bpy.ops.mesh.primitive_cube_add(size=1.0)
         cutter = bpy.context.active_object
-        cutter.name = "topdown_cutter"
+        cutter.name = cutter_name
     cutter.scale = (2000.0, 2000.0, 1000.0)
     cutter.location = (0.0, 0.0, z + 500.0)
     cutter.hide_render = True
@@ -76,7 +84,8 @@ def section_cut(z: float, kinds=None) -> int:
     cut = []
     for o in bpy.data.objects:
         if o.type != "MESH" or o.hide_render or o is cutter or o.name.startswith("topdown_") \
-                or str(o.get("wenart_kind")) not in (CUT_KINDS if kinds is None else kinds):
+                or str(o.get("wenart_kind")) not in (CUT_KINDS if kinds is None else kinds) \
+                or (types is not None and str(o.get("wenart_type")) not in types):
             continue
         lo, hi = bbox(o)
         if lo[2] < z < hi[2]:
@@ -456,6 +465,7 @@ def render_level(level_id: str, elevation: float, out: str, res: int, samples: i
     x1, y1 = max(v[0] for v in his) + PAD_M, max(v[1] for v in his) + PAD_M
     if tilt > 0:
         section_cut(wall_cut, CUT_KINDS | SITE_CUT_KINDS)
+        section_cut(elevation + STAIR_CUT_M, {"furniture"}, types=STAIR_TYPES, cutter_name="topdown_stair_cutter")
         carve_footprint((x0 + PAD_M, y0 + PAD_M, x1 - PAD_M, y1 - PAD_M), elevation - 0.05, wall_cut + 1.0)
         hide_covers(level_id, elevation, wall_cut, (x0 + PAD_M, y0 + PAD_M, x1 - PAD_M, y1 - PAD_M))
         _report_covers(level_id, wall_cut, (x0 + PAD_M, y0 + PAD_M, x1 - PAD_M, y1 - PAD_M))

@@ -5137,3 +5137,23 @@ not shown to agents.
   in both.
 - **Tests:** the touched modules' files on the merged code: 1460 passed, 3 skipped, 22 xfailed (the known synthetic
   failure classes).
+
+### Re-render after the walls and render-audit rounds (26 Nov 2026)
+
+Two pods, one after the other, each under $5: pod 1 23367e58pfhcq9 (real17, real06; 36 min, $1.60), pod 2
+5n9vsxfitko5jf (real10, real15; 72 min, $3.23). Zips in `outputs/zips_20261126/` (sent to the user).
+
+| project | fixed | still wrong |
+|---|---|---|
+| real17 | 4 storeys above ground and the gable roof; shop glazing at street level; kitchen 2 has only its drawn counter; 2 S.ODASI bedrooms per floor | the L1->L2 stair's handrails hang over the L1 hall in the top-down view (fixed below, not yet rendered) |
+| real06 | re-rendered with the same fixes | corner bath vs walk-in shower question still open with the user |
+| real10 | the top floor L7 with its two roof terraces | dark plates over the L7 terraces: they got a ceiling (fixed below, not yet rendered) |
+| real15 | rooms read (L0 18, L1 22; before: one room per floor) | the low roof over the salon built as a walkable terrace; sliver cells (0.13-0.25 m2) between walls become "unknown" rooms (Merdiven, Oda) |
+
+Fixes after the re-render (general rules, CPU-tested, not yet on a pod):
+- **UL393** `build.open_sky_rooms`: an open-air room (balcony, terrace, roof terrace, patio; never a loggia, veranda or
+  porch) that neither the roof nor the slab of a level above covers over at least half of its area is open to the sky:
+  no ceiling. Over every project's latest build it changes only real10's two L7 terraces (real17's top balconies were
+  already open through roof openings).
+- **UL394** `topdown.STAIR_CUT_M`: the top-down plan views cut every stair 1.2 m over the level's floor with a cutter of
+  its own (first flight shown, the rest and its rails cut away).
