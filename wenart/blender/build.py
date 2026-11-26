@@ -1208,6 +1208,10 @@ def open_sky_rooms(building: dict, roof: Optional[dict], slabs: Optional[dict]) 
             rec = (by_level.get(lv["id"]) or {}).get("under")
             if elev[lv["id"]] > elev[lid] + 1e-6 and rec and len(rec.get("outline") or []) >= 3:
                 covers.append((rec["outline"], [v for v in rec.get("voids") or [] if len(v) >= 3]))
+        # the floor of every room of a level above covers too (a balcony under the balcony of the floor above, which
+        # the slab drawn from the upper level's walls leaves out)
+        covers += [(r["polygon"], []) for r in building.get("rooms") or []
+                   if len(r.get("polygon") or []) >= 3 and elev.get(r.get("level_id"), -1e9) > elev[lid] + 1e-6]
         roof_over = roof_ok and roof_elev is not None and roof_elev >= elev[lid] - 1e-6
         pts = _poly_samples(poly)
         hit = 0

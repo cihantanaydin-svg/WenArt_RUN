@@ -57,6 +57,16 @@ def test_terrace_under_the_roof_keeps_its_ceiling():
     assert not B.open_sky_rooms(_building(), roof, _slabs())
 
 
+def test_balcony_under_the_balcony_above_keeps_its_ceiling():
+    # the slab under L1 is drawn from L1's walls only; the L1 balcony's own floor covers the L0 balcony
+    b = _building()
+    b["rooms"].append({"id": "r_L1_balkon", "level_id": "L1", "room_type": "balcony", "polygon": _rect(2, 8, 6, 9.5)})
+    slabs = {"by_level": {"L0": {"under": None}, "L1": {"under": {"outline": _rect(0, 0, 10, 8), "voids": []}}}}
+    got = {g["room_id"] for g in B.open_sky_rooms(b, _roof(), slabs)}
+    assert "r_L0_balkon" not in got
+    assert {"r_L1_balkon", "r_L1_teras"} <= got
+
+
 def test_no_roof_and_no_slabs():
     got = {g["room_id"] for g in B.open_sky_rooms(_building(), None, None)}
     assert got == {"r_L0_balkon", "r_L1_teras"}
