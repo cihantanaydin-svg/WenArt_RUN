@@ -365,29 +365,19 @@ def opening_centre_on_wall(opening: dict, wall: dict) -> tuple[float, float, flo
 
 
 GLUED_DOOR_GAP_M = 0.10         # R05: a parallel wall this close to a door's face stands in its passage
-COLUMN_PIECE_MAX_M = 1.0        # R03 e: a wall piece shorter than this (``twin_walls.MIN_COPY_M``) ...
-COLUMN_THICKER_M = 0.01         # ... and thicker than an opening's wall by more than this is a column or a pier
+COLUMN_PIECE_MAX_M = 1.0        # R03 e: = ``ingest.door_validity.COLUMN_PIECE_MAX_M`` (the rule lives there)
+COLUMN_THICKER_M = 0.01         # ... = ``ingest.door_validity.COLUMN_THICKER_M``
 
 
 def column_piece(wall: dict, host: Optional[dict] = None) -> bool:
     """26 Nov 2026 (R03 e): whether ``wall`` is a column (or a pier) that no other wall's door or window cuts (pure): a
     piece shorter than ``COLUMN_PIECE_MAX_M`` drawn on a structure layer (its evidence's layer: KOLON, COLUMN,
     BETONARME ...), or thicker than the opening's wall ``host`` by more than ``COLUMN_THICKER_M`` (a short, thicker
-    block in a wall is never a copy of it: ``twin_walls``)."""
-    from wenart.ingest.generic import layer_names as LN
+    block in a wall is never a copy of it: ``twin_walls``). 27 Nov 2026 (audit O5): the one rule of this cut and of the
+    reading's door check 3, ``ingest.door_validity.column_piece`` (its finding says a column is not cut)."""
+    from wenart.ingest import door_validity as DV
 
-    try:
-        length = math.dist([float(v) for v in wall["start"][:2]], [float(v) for v in wall["end"][:2]])
-    except (KeyError, TypeError, ValueError):
-        return False
-    if length >= COLUMN_PIECE_MAX_M:
-        return False
-    ev = wall.get("evidence") or []
-    if any(isinstance(e, dict) and LN.name_role(e.get("layer")) == "structure" for e in (ev if isinstance(ev, list)
-                                                                                       else [ev])):
-        return True
-    return host is not None and float(wall.get("thickness") or 0.0) > float(host.get("thickness") or 0.0) + \
-        COLUMN_THICKER_M
+    return DV.column_piece(wall, host)
 
 
 def foreign_cuts(wall: dict, walls_by_id: dict, openings: list[dict], tol_deg: float = 3.0,

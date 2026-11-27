@@ -103,6 +103,9 @@ class OpeningItem:
     # None = not read (the building JSON leaves the key out: swing, assumed).
     operation: Optional[str] = None                     # swing | double | sliding | pocket | folding | fixed | unknown
     operation_source: Optional[str] = None              # block_name | geometry | ai | assumed
+    # 27 Nov 2026 (audit O2): further evidence after ``evidence``: a drawn door a size tag re-sized keeps its own
+    # symbol's evidence here (the tag's is first); the building JSON lists them after it
+    extra_evidence: list[dict] = field(default_factory=list)
 
 
 @dataclass

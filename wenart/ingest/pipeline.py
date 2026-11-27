@@ -393,7 +393,8 @@ def _opening_dict(level_id: str, opening: OpeningItem, opening_id: str, walls: l
             build.warn(f"{opening_id}: swing side ({probe[0]:.2f}, {probe[1]:.2f}) lies in no room of {level_id}")
     out = {"id": opening_id, "type": opening.kind, "level_id": level_id, "wall_id": wall["id"] if wall else "",
            "center": list(opening.center), "width": opening.width, "height": opening.height,
-           "sill_height": opening.sill, "swing_side": swing_side, "status": status, "evidence": [opening.evidence]}
+           "sill_height": opening.sill, "swing_side": swing_side, "status": status,
+           "evidence": [opening.evidence] + [dict(e) for e in opening.extra_evidence or [] if isinstance(e, dict)]}
     if opening.assumed:
         out["assumed"] = list(opening.assumed)
     if opening.type_raw:
@@ -3386,7 +3387,8 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
     TW.stair_side_walls(building, build.warn)   # 13 Nov 2026 (review BLD-05): no wall face inside a stair's flight
     from wenart.ingest import door_validity as DV  # 26 Nov 2026 (audit rule R05): every door inside its wall, between
     from wenart.ingest.generic import facade as FCD  # two spaces, its passage free (the build checks them again)
-    DV.check(building, "reading", build.warn, mirror_axis=lambda ws: FCD.mirror_axis(ws, FCD.MIRROR_SHARE))
+    # 27 Nov 2026 (audit O3): a step that changes the model reads the strict mirror axis (facade: MIRROR_FIX_SHARE)
+    DV.check(building, "reading", build.warn, mirror_axis=lambda ws: FCD.mirror_axis(ws, FCD.MIRROR_FIX_SHARE))
     LV.apply_levels(build, works)
     RD.read_furniture(build, works)
     _infer_types(build)

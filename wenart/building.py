@@ -325,11 +325,7 @@ def turkish_title(text: str) -> str:
 fold_ascii = _textfold.fold_ascii       # 29 Oct 2026: in wenart.textfold (Blender's Python reads it there)
 
 
-def slugify(text: str) -> str:
-    """ASCII slug for IDs: ``Yatak Odası`` -> ``yatak_odasi``. Empty input -> ``room``."""
-    folded = fold_ascii(text)
-    slug = re.sub(r"[^a-z0-9]+", "_", folded).strip("_")
-    return slug or "room"
+slugify = _textfold.slugify           # 27 Nov 2026 (audit O1): in wenart.textfold too (Blender's Python reads it there)
 
 
 def variant_slug(text: str) -> str:

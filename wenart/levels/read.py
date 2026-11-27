@@ -253,6 +253,7 @@ def _outside_doors(building: dict, level_id: str, rooms: list, outline) -> list[
 TITLE_MARK_RE = re.compile(r"\d\s*KOTU?\b", re.IGNORECASE)   # '+ 3,50 kotu': a plan's or a table's floor heading
 OUTDOOR_LABEL_REACH_M = 1.0       # R01 d: a mark this close to an outdoor space's label is that space's floor ...
 RAISED_SPACE_KINDS = ("terrace", "balcony", "loggia", "deck", "veranda")   # ... of these kinds (``outdoor.space_kind``)
+RAISED_FLOOR_TOL_M = 0.20         # 27 Nov 2026 (audit H5): ... when it stands at most this (a step) under its storey's floor
 
 
 def outdoor_area_at(building: dict, level_id: Optional[str], p) -> Optional[dict]:
@@ -373,9 +374,23 @@ def classify(marks: list[dict], building: dict, params: dict) -> list[str]:
             # 26 Nov 2026 (R01 d; real15: three '+0.50' marks written in the TERAS outlines were read as the ground, the
             # terrain rose to the floor and the terraces sank into it): a mark inside a labelled outdoor space's face,
             # or within ``OUTDOOR_LABEL_REACH_M`` of its label, is that space's floor (``outdoor.outdoor_spaces``),
-            # never the ground
-            m["kind"] = "floor"
+            # never the ground. 27 Nov 2026 (audit H5: a garden terrace 'BAHÇE TERASI' prints the garden level, its
+            # marks the only ground evidence): only when it stands at its storey's floor, above it or a step under it
+            # (``RAISED_FLOOR_TOL_M``: a threshold onto the space); a mark clearly under the floor is the ground there and
+            # the space's floor too; the role is said in a warning either way
             m["outdoor_area"] = {"label": area.get("label"), "anchor": area.get("anchor"), "id": area.get("id")}
+            floor = next((float(lv["elevation"]) for lv in building.get("levels") or []
+                          if lv.get("id") == lid and lv.get("elevation") is not None), None)
+            z = m.get("z")
+            if z is None or floor is None or float(z) >= floor - RAISED_FLOOR_TOL_M:
+                m["kind"] = "floor"
+                warnings.append(f"{m['id']}: mark {m['raw']!r} in the outdoor space '{area.get('label')}': its floor, "
+                                f"not the ground (R01 d)")
+            else:
+                m["kind"] = hint if hint in ("ground_natural", "ground_finished", "slope_top") else "ground_finished"
+                warnings.append(f"{m['id']}: mark {m['raw']!r} in the outdoor space '{area.get('label')}' stands "
+                                f"{floor - float(z):.2f} m under the floor of {lid}: the ground there and the space's "
+                                f"floor (R01 d)")
         else:
             m["kind"] = hint if hint in ("ground_natural", "ground_finished", "slope_top", "plinth", "entrance") \
                 else "ground_finished"

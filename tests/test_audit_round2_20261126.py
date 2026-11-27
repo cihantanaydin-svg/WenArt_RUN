@@ -412,23 +412,36 @@ def _mirror(walls):
 
 
 def test_r05_a_door_past_its_walls_end_takes_its_twins_place_or_is_not_built():
+    """27 Nov 2026 (audit O3): a mirror twin is a door of the same width on a parallel wall that holds the whole door, at
+    the plan's strict mirror axis (``MIRROR_FIX_SHARE``); real10's 1.10 m door no longer takes the place of a 0.80 m door
+    on a perpendicular wall (tests/test_audit_round2b_20261127.py has the full rule)."""
     from wenart.ingest import door_validity as DV
+    from wenart.ingest.generic import facade as FC
+
+    def strict(walls):
+        return FC.mirror_axis(walls, FC.MIRROR_FIX_SHARE)
 
     b = _flats()
     assert DV.check(copy.deepcopy(b))["not_built"] == ["d_r"]          # without the plan's mirror axis: no twin
-    out = DV.check(b, mirror_axis=_mirror)
+    out = DV.check(b, mirror_axis=strict)                               # the 0.80 m door on a perpendicular wall: none
+    assert out["not_built"] == ["d_r"] and not out["reseated"]
+    b = _flats()
+    b["openings"][0] = {"id": "d_l", "type": "door", "level_id": "L0", "wall_id": "w_x_l", "center": [5.6, 6.48],
+                        "width": 1.1}
+    b["openings"][1]["center"] = [15.2, 6.48]
+    out = DV.check(b, mirror_axis=strict)
     d = next(o for o in b["openings"] if o["id"] == "d_r")
-    assert out["reseated"] == ["d_r"] and d["wall_id"] == "w_k_r" and d["center"] == pytest.approx([15.0, 6.0])
-    assert d["drawn_center"] == [15.53, 6.48] and d["corrected_by_ai"]["rule"] == DV.RULE
+    assert out["reseated"] == ["d_r"] and d["wall_id"] == "w_x_r" and d["center"] == pytest.approx([14.4, 6.48])
+    assert d["drawn_center"] == [15.2, 6.48] and d["corrected_by_ai"]["rule"] == DV.RULE
     b = _flats()
     b["openings"] = [o for o in b["openings"] if o["id"] != "d_l"]           # no twin: never a frame in free space
-    out = DV.check(b, mirror_axis=_mirror)
+    out = DV.check(b, mirror_axis=strict)
     assert out["not_built"] == ["d_r"] and not b["openings"] and b["openings_not_built"][0]["id"] == "d_r"
     assert b["needs_review"][0]["kind"] == "door_outside_wall"
     # a door read from its own swing drawn there keeps its place (synthetic-16: between a stub's end and the next wall)
     b = _flats()
     b["openings"][1]["evidence"] = [{"file": "p.dxf", "method": "vector", "confidence": 0.95, "entity": "ARC:AB,LINE:AA"}]
-    out = DV.check(b, mirror_axis=_mirror)
+    out = DV.check(b, mirror_axis=strict)
     assert not out["reseated"] and not out["not_built"] and b["openings"][1]["center"] == [15.53, 6.48]
 
 
@@ -476,16 +489,20 @@ REAL17_RUN = RUNS / "20261126-110510-full" / "results" / "furniture" / "real17" 
 
 @pytest.mark.skipif(not (REAL10_RUN.is_file() and REAL17_RUN.is_file()), reason="the runs of 26 Nov are not stored here")
 def test_r05_the_stored_readings_doors():
-    """The run's readings: real10's mirrored kitchen door goes to its twin's wall on every floor, its escape stair door
-    is found blocked by the glued wall; real17's flat door through the slit is found; afterwards every door stands in
-    its wall."""
+    """The run's readings: real10's escape stair door is found blocked by the glued wall; real17's flat door through
+    the slit is found; afterwards every door stands in its wall. 27 Nov 2026 (audit O2/O3/G1): real10's salon door
+    d_L0..L6_028 is never moved into the kitchen/salon wall (its twin d_L0_026 is a 0.80 m door on a perpendicular wall);
+    this older reading lost its drawn swing's evidence, so it is listed, not built (a fresh reading keeps it at its
+    drawn place: tests/test_audit_round2b_20261127.py)."""
     import json
 
     from wenart.ingest import door_validity as DV
+    from wenart.ingest.generic import facade as FC
 
     b = json.loads(REAL10_RUN.read_text(encoding="utf-8"))
-    out = DV.check(b, mirror_axis=_mirror)
-    assert {o for o in out["reseated"] if o.endswith("_028")} >= {f"d_L{k}_028" for k in range(0, 7)}
+    out = DV.check(b, mirror_axis=lambda ws: FC.mirror_axis(ws, FC.MIRROR_FIX_SHARE))
+    assert not any(o.endswith("_028") for o in out["reseated"])
+    assert {o for o in out["not_built"] if o.endswith("_028")} >= {f"d_L{k}_028" for k in range(0, 7)}
     assert ["d_L0_003", "w_L0_013"] in out["blocked"]
     walls = {w["id"]: w for w in b["walls"]}
     assert all(DV.in_span(o, walls[o["wall_id"]]) for o in b["openings"]
@@ -501,12 +518,21 @@ REAL15_RUN = RUNS / "20261126-114512-full" / "results" / "furniture" / "real15" 
 def test_r01_the_stored_readings_heights():
     """The levels model run again on the run's readings: real15 in one frame (+0.50; every marked room at its floor but
     the garage, -0.25; the ground at the plans' ±0.00, -0.50; no entrance under it); real10's lift machine room at its
-    door's floor (d_L7_001 at 21.00, the shaft head's +24.70 listed)."""
+    door's floor (d_L7_001 at 21.00, the shaft head's +24.70 listed).
+
+    27 Nov 2026 (audit H3): the run's real15 marks were typed before R01 d (its TERAS marks as ground); they are typed
+    again as a fresh reading types them (the marks in the terraces are their floors). Typed as stored, they now stand
+    flush with the doors (no door they would bury: the garage has its own way down) and stay the ground."""
     import json
 
     from wenart.levels import model as M
+    from wenart.levels import read as RD
 
-    n = M.infer_levels(json.loads(REAL15_RUN.read_text(encoding="utf-8")))
+    b = json.loads(REAL15_RUN.read_text(encoding="utf-8"))
+    for m in b["level_marks"]:
+        m["kind"] = None
+    RD.classify(b["level_marks"], b, M.level_params())
+    n = M.infer_levels(b)
     assert n["level_inference"]["frame"]["value"] == 0.5
     marked = {r["id"]: r["floor_offset_m"] for r in n["rooms"] if r.get("floor_source") == "mark"}
     assert marked.pop("r_L0_garaj") == -0.25 and set(marked.values()) == {0.0}
