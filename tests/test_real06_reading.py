@@ -160,7 +160,10 @@ def test_a_roof_plan_whose_slope_texts_agree_is_a_hip_roof():
     assert hip["type"] == "hip" and hip["slope_pct"] == 33.0
     assert hip["pitch_deg"] == pytest.approx(math.degrees(math.atan(0.33)))
     r.texts = texts[:2] + [Txt(id="TEXT:9", text="EĞİM%45", box=(0, 1, 1, 1.2), height=0.2)]
-    assert EX.roof_from_roof_plan([r]) is None                   # slopes that disagree say nothing
+    # 27 Nov 2026 (audit fix round 4, R07 b, UL429): slopes that disagree are one pitch per roof part by position, never a
+    # reason to give up; the main roof takes the slope most texts give
+    two = EX.roof_from_roof_plan([r])
+    assert two["slope_pct"] == 33.0 and sorted(p["slope_pct"] for p in two["slopes"]) == [33.0, 45.0]
 
 
 # --------------------------------------------------------------------------
