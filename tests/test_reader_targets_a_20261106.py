@@ -1448,7 +1448,11 @@ def test_a_doors_own_plan_gives_its_ground_first_its_threshold_mark_when_it_prin
     other = F.mark("lm_up", 3.0, kind="ground_finished", point=(8.0, -1.0), level="L1")
     sill = F.mark("lm_sill", 0.0, kind="threshold", point=(8.0, -0.4), level="L0")
     e = entrance([other, sill])
-    assert e["below_ground"] is False and e["ground_z"] == 0.0 and "threshold mark lm_sill" in e["ground_source"]
+    # 26 Nov 2026 (R01 e): a ground 3.00 m over the floor, its only ground mark, is refused by the ground gate: the door
+    # stands on the terrain as with its threshold mark alone, never under the ground
+    alone = entrance([sill])
+    assert e["below_ground"] is False and e["ground_z"] == alone["ground_z"]
+    assert e["ground_source"] == alone["ground_source"]
     # a ground mark of the door's own plan comes before the other plan's nearer one
     own = F.mark("lm_own", -0.45, kind="ground_finished", point=(8.0, -2.5), level="L0")
     e = entrance([other, own])

@@ -251,6 +251,35 @@ def _outside_doors(building: dict, level_id: str, rooms: list, outline) -> list[
 
 
 TITLE_MARK_RE = re.compile(r"\d\s*KOTU?\b", re.IGNORECASE)   # '+ 3,50 kotu': a plan's or a table's floor heading
+OUTDOOR_LABEL_REACH_M = 1.0       # R01 d: a mark this close to an outdoor space's label is that space's floor ...
+RAISED_SPACE_KINDS = ("terrace", "balcony", "loggia", "deck", "veranda")   # ... of these kinds (``outdoor.space_kind``)
+
+
+def outdoor_area_at(building: dict, level_id: Optional[str], p) -> Optional[dict]:
+    """26 Nov 2026 (R01 d): the labelled outdoor space (``site.areas`` whose label names one of ``RAISED_SPACE_KINDS``,
+    ``outdoor.space_kind``: a terrace, a balcony, a loggia, a deck, a veranda) of ``level_id`` whose drawn or inferred
+    outline holds ``p``, or, for a space without an outline, whose label stands within ``OUTDOOR_LABEL_REACH_M`` of it
+    (a garden mark beside a terrace's outline stays the ground's; a mark under an entrance canopy, in a courtyard or a
+    patio is the ground there: real13's '+2.50' under GİRİŞ SAÇAĞI); None (pure)."""
+    from wenart.levels import outdoor as OD
+
+    site = building.get("site") if isinstance(building.get("site"), dict) else {}
+    best = None
+    for a in site.get("areas") or []:
+        kind = OD.space_kind(a.get("label")) if isinstance(a, dict) else None
+        if kind is None or kind.get("kind") not in RAISED_SPACE_KINDS or a.get("level_id") not in (None, level_id):
+            continue
+        poly = a.get("polygon") or (a.get("outline_inferred") or {}).get("polygon")
+        if poly and len(poly) >= 3:
+            if G.point_in_polygon(tuple(p), poly):
+                return a
+            continue
+        anchor = a.get("anchor")
+        if anchor and G.distance(tuple(p), tuple(anchor[:2])) <= OUTDOOR_LABEL_REACH_M:
+            d = G.distance(tuple(p), tuple(anchor[:2]))
+            if best is None or d < best[0]:
+                best = (d, a)
+    return best[1] if best else None
 
 
 def classify(marks: list[dict], building: dict, params: dict) -> list[str]:
@@ -320,6 +349,8 @@ def classify(marks: list[dict], building: dict, params: dict) -> list[str]:
                     if G.distance(p, dd["face"]) <= reach + dd["width"] / 2.0), default=None,
                    key=lambda x: (x[0], x[1]))
         dist = LMOD._dist_to_polygon(p, outline)
+        area = outdoor_area_at(building, lid, p) if hint not in ("ground_natural", "ground_finished", "slope_top",
+                                                                    "plinth", "entrance") else None
         if door is not None and hint not in ("ground_natural", "slope_top", "plinth"):
             m["kind"] = "entrance" if hint == "entrance" else "threshold"
             m["door_id"] = door[2]["id"]
@@ -338,6 +369,13 @@ def classify(marks: list[dict], building: dict, params: dict) -> list[str]:
             m["kind"] = "unknown"
             warnings.append(f"{m['id']}: mark {m['raw']!r} {dist:.1f} m from the building: another drawing on the "
                             f"sheet, not used")
+        elif area is not None:
+            # 26 Nov 2026 (R01 d; real15: three '+0.50' marks written in the TERAS outlines were read as the ground, the
+            # terrain rose to the floor and the terraces sank into it): a mark inside a labelled outdoor space's face,
+            # or within ``OUTDOOR_LABEL_REACH_M`` of its label, is that space's floor (``outdoor.outdoor_spaces``),
+            # never the ground
+            m["kind"] = "floor"
+            m["outdoor_area"] = {"label": area.get("label"), "anchor": area.get("anchor"), "id": area.get("id")}
         else:
             m["kind"] = hint if hint in ("ground_natural", "ground_finished", "slope_top", "plinth", "entrance") \
                 else "ground_finished"

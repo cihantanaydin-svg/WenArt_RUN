@@ -209,7 +209,10 @@ def test_disagreeing_marks_in_a_room_are_a_conflict_and_far_marks_are_not_the_fl
     li = b["level_inference"]
     assert any(c["kind"] == "level_mark_mismatch" and "r_living" in c["element_ids"] for c in li["conflicts"])
     rooms = {r["id"]: r for r in b["rooms"]}
-    assert rooms["r_living"]["floor_offset_m"] == pytest.approx(0.125, abs=1e-3)
+    # 26 Nov 2026 (R01 c): marks that disagree are never averaged (it was their median, 0.125): neither is the level
+    # floor or a neighbour's, so the level floor stays, listed
+    assert rooms["r_living"]["floor_offset_m"] == 0.0 and any("r_living" in w and "level floor is kept" in w
+                                                              for w in li["warnings"])
     assert rooms["r_hall"]["floor_offset_m"] == 0.0 and any("r_hall" in w for w in li["warnings"])
 
 

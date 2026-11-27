@@ -4608,6 +4608,46 @@
    "request": "26 Nov 2026 (audit rule R26, real10: final/real10 published 29 interior views rendered from a build three weeks older, showing walls and a stair pit the current model does not have): a view rendered from another scene build is marked stale by the render (stale_build) and left out of the final views, and the report refuses a view whose JSON cross-check names elements the current building does not hold or holds as another type; every view shown is the current building.",
    "lesson": "26 Nov 2026 (audit rule R26, real10: final/real10 published 29 interior views rendered from a build three weeks older, showing walls and a stair pit the current model does not have): a view rendered from another scene build is marked stale by the render (stale_build) and left out of the final views, and the report refuses a view whose JSON cross-check names elements the current building does not hold or holds as another type; every view shown is the current building.",
    "question": null
+  },
+  {
+   "id": "UL404",
+   "date": "2026-11-26",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "26 Nov 2026 (audit rule R27, real06: the drawn 2.0 m two-leaf sliding door between the kitchen and the dining area, read on a wall read twice, was merged into the 2.9 m unclassified gap read over it and built as an open hole; the user's answer 'sliding door', C0100, UL395): when two readings of one opening merge, a typed door (its drawn swing, sliding leaves on a door layer or in a door block, a door size tag) outranks an unclassified gap; the door keeps its own width and the rest of the gap stays wall (the drawn piers). Leaf lines on no door layer and doors with inferred evidence still give way to the gap.",
+   "lesson": "26 Nov 2026 (audit rule R27, real06: the drawn 2.0 m two-leaf sliding door between the kitchen and the dining area, read on a wall read twice, was merged into the 2.9 m unclassified gap read over it and built as an open hole; the user's answer 'sliding door', C0100, UL395): when two readings of one opening merge, a typed door (its drawn swing, sliding leaves on a door layer or in a door block, a door size tag) outranks an unclassified gap; the door keeps its own width and the rest of the gap stays wall (the drawn piers). Leaf lines on no door layer and doors with inferred evidence still give way to the gap.",
+   "question": null
+  },
+  {
+   "id": "UL405",
+   "date": "2026-11-26",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "26 Nov 2026 (audit rule R03, real06, real15, real17: dotted lintel lines read as a window, a kitchen sink's bowl arcs read as a double door, shaft-box sides on the wall layer read as an open door leaf, a column in a partition gap read as a door and cut through): the gap classifier checks what each stroke is. A line on an overhead layer (IZ, KIRIS, BEAM ...) never makes a window's frame or glass or a gap's content in a wall run; a gap holding only such lines is a passage with a lintel (a dashed line alone is not enough: a drawing may draw window glass dotted). A swing arc is a leaf: at least 0.35 m (0.30 m per half of a double; a framed double's leaves at least half the gap less a frame); arcs in fixture or furniture blocks (EVYE, LAVABO, KLO ...) or on sanitary layers never count, door blocks always do. In a gap under 0.6 m, wall, plaster, structure and hatch strokes never form a leaf. A gap covered along 80 % of its width by columns, with no passable part left, is closed. Arcs and size tags of another door cast no door vote. A door never cuts a column.",
+   "lesson": "26 Nov 2026 (audit rule R03, real06, real15, real17: dotted lintel lines read as a window, a kitchen sink's bowl arcs read as a double door, shaft-box sides on the wall layer read as an open door leaf, a column in a partition gap read as a door and cut through): the gap classifier checks what each stroke is. A line on an overhead layer (IZ, KIRIS, BEAM ...) never makes a window's frame or glass or a gap's content in a wall run; a gap holding only such lines is a passage with a lintel (a dashed line alone is not enough: a drawing may draw window glass dotted). A swing arc is a leaf: at least 0.35 m (0.30 m per half of a double; a framed double's leaves at least half the gap less a frame); arcs in fixture or furniture blocks (EVYE, LAVABO, KLO ...) or on sanitary layers never count, door blocks always do. In a gap under 0.6 m, wall, plaster, structure and hatch strokes never form a leaf. A gap covered along 80 % of its width by columns, with no passable part left, is closed. Arcs and size tags of another door cast no door vote. A door never cuts a column.",
+   "question": null
+  },
+  {
+   "id": "UL406",
+   "date": "2026-11-26",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "26 Nov 2026 (audit rule R01, real15 and real10: the plans' floor marks were used without the storey frame, every marked room stood 0.5 m over the unmarked ones and the stairs arrived 0.5 m under the halls; terrace marks were read as the ground, which rose to the floor; a lift machine room took the median of its door's mark and the shaft head's): one height frame per building, read once: the ground floor's main room-floor mark (shared by most of its marked rooms) less its model elevation, whatever set that elevation; every plan mark is read in it. A shared offset of half or more of a storey's marked rooms is that storey's frame, never a step per room. Marks that disagree are never averaged: a mark over a shaft footprint is the shaft head's, the room takes the mark at the level floor or a door neighbour's floor, else the level floor, listed. A mark inside a terrace, balcony, loggia, deck or veranda outline is that space's floor, never the ground (a mark under an entrance canopy or in a courtyard stays the ground's). The ground never stands over the plinth top, an entrance threshold or a garage floor: such ground marks are refused and the ground comes from the section, else the plans' ±0.00.",
+   "lesson": "26 Nov 2026 (audit rule R01, real15 and real10: the plans' floor marks were used without the storey frame, every marked room stood 0.5 m over the unmarked ones and the stairs arrived 0.5 m under the halls; terrace marks were read as the ground, which rose to the floor; a lift machine room took the median of its door's mark and the shaft head's): one height frame per building, read once: the ground floor's main room-floor mark (shared by most of its marked rooms) less its model elevation, whatever set that elevation; every plan mark is read in it. A shared offset of half or more of a storey's marked rooms is that storey's frame, never a step per room. Marks that disagree are never averaged: a mark over a shaft footprint is the shaft head's, the room takes the mark at the level floor or a door neighbour's floor, else the level floor, listed. A mark inside a terrace, balcony, loggia, deck or veranda outline is that space's floor, never the ground (a mark under an entrance canopy or in a courtyard stays the ground's). The ground never stands over the plinth top, an entrance threshold or a garage floor: such ground marks are refused and the ground comes from the section, else the plans' ±0.00.",
+   "question": null
+  },
+  {
+   "id": "UL407",
+   "date": "2026-11-26",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "26 Nov 2026 (audit rule R05, real10, real17, real06: a door frame standing in the salon 0.58 m past the end of its wall, a flat door with the same hall on both sides through a 5 cm slit, an escape stair door walled up by a 7 cm wall 4 cm behind it, a bathroom door opening onto the stair void): every door is checked after the reading and again before the build. A door a size tag or a rule placed has its centre within its wall's span, else it takes its mirror twin's place on a wall, else it is not built and listed (a frame never stands in free space; a door read from its own drawn swing keeps its place); a door with one room on both sides is listed; a wall glued to a door's face (up to 0.10 m) across its passage is cut by the door; a door whose side opens over a floor void is not built, with the reason.",
+   "lesson": "26 Nov 2026 (audit rule R05, real10, real17, real06: a door frame standing in the salon 0.58 m past the end of its wall, a flat door with the same hall on both sides through a 5 cm slit, an escape stair door walled up by a 7 cm wall 4 cm behind it, a bathroom door opening onto the stair void): every door is checked after the reading and again before the build. A door a size tag or a rule placed has its centre within its wall's span, else it takes its mirror twin's place on a wall, else it is not built and listed (a frame never stands in free space; a door read from its own drawn swing keeps its place); a door with one room on both sides is listed; a wall glued to a door's face (up to 0.10 m) across its passage is cut by the door; a door whose side opens over a floor void is not built, with the reason.",
+   "question": null
   }
  ]
 }

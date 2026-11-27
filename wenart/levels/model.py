@@ -68,7 +68,8 @@ from wenart.levels.rules import (BUILTIN_PARAMS, _brief_values, _default_params,
 GROUND_KINDS = ("ground_natural", "ground_finished", "slope_top")
 # the keys of ``level_inference`` the levels model writes (13 Nov 2026): every other key is kept on a run again
 MODEL_KEYS = ("version", "ground_floor", "ground_source", "inferred", "conflicts", "warnings", "inner_steps", "basements",
-              "params", "params_from_brief", "flagged", "single_level_whole", "edits", "conflicts_copied")
+              "params", "params_from_brief", "flagged", "single_level_whole", "edits", "conflicts_copied", "frame",
+              "level_frames", "ground_gate")
 FLOOR_KINDS = ("floor", "entrance")
 NO_FLOOR_ROOMS = ("stair", "shaft")
 FLAT_THICKNESS = 0.30                       # the flat_cut roof slab (roof.DEFAULTS["flat_thickness"])
@@ -457,6 +458,8 @@ def _plan_frame(b: dict, marks: list, gl: Optional[dict], tol: float, inferred: 
     mark of the ground floor reading 0 keeps the marks as printed."""
     if gl is None or isinstance((b.get("project") or {}).get("datum"), dict):
         return 0.0
+    if gl.get("elevation_source") not in (None, "assumed_default"):
+        return _set_frame_once(b, marks, gl, tol, inferred, warnings)
     rooms = {r["id"]: r for r in b.get("rooms") or [] if r.get("level_id") == gl["id"]}
     own = [m for m in marks if m.get("z") is not None and not m.get("frame_shift") and (
         (m.get("kind") in FLOOR_KINDS and m.get("room_id") in rooms) or
@@ -488,6 +491,66 @@ def _plan_frame(b: dict, marks: list, gl: Optional[dict], tol: float, inferred: 
     inferred.append({"item": "plan height frame", "value": v,
                      "reason": f"{counts[v]} of the ground floor's marks read {v:+.2f} (one height frame, C0061)"})
     return v
+
+
+def _set_frame_once(b: dict, marks: list, gl: dict, tol: float, inferred: list, warnings: list) -> float:
+    """26 Nov 2026 (R01 a; real15: the section set the ground floor at building z 0, every room mark of it read
+    '+0.50' and of L1 '+3.50'; the frame was never applied, so the marked rooms stood 0.5 m above the unmarked ones and
+    the stairs arrived 0.5 m under the halls): one height frame per building, read once before any mark is used, when
+    the ground floor's elevation is not assumed (a section, a level mark, the stair check set it; an assumed one moves
+    to its marks instead, ``_level_elevations``) and no section datum gives the frame. Each marked room of the ground
+    floor (no stair, no open-air room) reads its most common floor mark; the value most of those rooms share (two rooms
+    or more, at least half of them; one room only with a threshold or entrance mark of the storey reading it too) less
+    the ground floor's model elevation is the frame: every relative plan mark is read as mark - frame
+    (``frame_shift``), so the ground floor's main floor mark reads its elevation. Returns the frame (0.0: none)."""
+    shifts = {round(float(m["frame_shift"]), 3) for m in marks if m.get("frame_shift")}
+    if len(shifts) == 1:
+        # a run again (an agent edit): the marks carry the frame already; it is recorded again, never applied twice
+        v = shifts.pop()
+        b.setdefault("level_inference", {})["frame"] = {"value": v, "ground_floor": gl["id"], "again": True,
+                                                        "source": gl.get("elevation_source")}
+        return v
+    rooms = {r["id"]: r for r in b.get("rooms") or [] if r.get("level_id") == gl["id"]}
+    per_room: dict = {}
+    for m in marks:
+        if m.get("z") is None or m.get("frame_shift") or m.get("kind") not in FLOOR_KINDS:
+            continue
+        r = rooms.get(m.get("room_id"))
+        if r is None or r.get("room_type") in NO_FLOOR_ROOMS or _open_air(r):
+            continue
+        per_room.setdefault(r["id"], []).append(round(float(m["z"]), 2))
+    if not per_room:
+        return 0.0
+    elev = float(gl.get("elevation") or 0.0)
+    vals = {}
+    for rid, zs in per_room.items():
+        vals[rid] = max(set(zs), key=lambda z: (zs.count(z), -abs(z - elev)))
+
+    def rooms_at(v: float) -> int:
+        return sum(1 for x in vals.values() if abs(x - v) <= tol)
+    v = max(sorted(set(vals.values())), key=lambda z: (rooms_at(z), -abs(z - elev)))
+    n = rooms_at(v)
+    frame = round(v - elev, 3)
+    if abs(frame) <= tol or n * 2 < len(vals):
+        return 0.0
+    confirm = [m for m in marks if m.get("z") is not None and not m.get("frame_shift") and m.get("level_id") == gl["id"]
+               and m.get("kind") in ("threshold", "entrance") and abs(float(m["z"]) - v) <= tol]
+    if n < 2 and not confirm:
+        return 0.0
+    k = 0
+    for m in marks:
+        if m.get("z") is not None and m.get("relative", True) is not False and not m.get("frame_shift"):
+            m["z"] = _r(float(m["z"]) - frame)
+            m["frame_shift"] = frame
+            k += 1
+    why = (f"{n} of the {len(vals)} marked rooms of the ground floor {gl['id']} read {v:+.2f} m while its elevation "
+           f"({gl.get('elevation_source')}) is {elev:+.2f} m: the plans' marks stand in a frame {frame:+.2f} m off; "
+           f"every plan mark ({k}) is read as mark - {frame:.2f} (one height frame, read once; no section datum)")
+    warnings.append(f"levels: {why}")
+    inferred.append({"item": "plan height frame", "value": frame, "reason": why})
+    b.setdefault("level_inference", {})["frame"] = {"value": frame, "rooms": n, "of": len(vals), "mark": v,
+                                                    "ground_floor": gl["id"], "source": gl.get("elevation_source")}
+    return frame
 
 
 def _level_elevations(b: dict, marks: list, params: dict, inferred: list, warnings: list) -> None:
@@ -672,10 +735,56 @@ def _level_elevations(b: dict, marks: list, params: dict, inferred: list, warnin
             lv["elevation_source"] = "level_mark"     # (a level that only followed stays assumed, listed as inferred)
 
 
+SHAFT_HEAD_TYPES = ("shaft", "lift", "elevator")    # R01 c: a mark over such a footprint is the shaft head's
+
+
+def _shaft_heads(b: dict, level: dict, levels: dict) -> list:
+    """The footprints (polygons) of the shafts of ``level`` and of the storey under it, air shafts left out (pure;
+    R01 c)."""
+    below = None
+    if level.get("order") is not None:
+        below = next((lv["id"] for lv in levels.values() if lv.get("order") is not None
+                      and int(lv["order"]) == int(level["order"]) - 1), None)
+    return [r["polygon"] for r in b.get("rooms") or [] if r.get("level_id") in (level["id"], below)
+            and len(r.get("polygon") or []) >= 3 and (r.get("room_type") in SHAFT_HEAD_TYPES
+                                                       or r.get("room_subtype") in SHAFT_HEAD_TYPES)
+            and r.get("room_subtype") != "air_shaft"]
+
+
+def _door_neighbours(b: dict, room: dict) -> list[dict]:
+    """The rooms a door or doorless opening joins ``room`` to (pure; R01 c)."""
+    rooms = [r for r in b.get("rooms") or [] if r.get("level_id") == room.get("level_id")]
+    outline = level_outline(b, room.get("level_id"))
+    out = []
+    for o in b.get("openings") or []:
+        if o.get("level_id") != room.get("level_id") or o.get("type") not in ("door", "opening") or o.get("virtual"):
+            continue
+        sides = opening_sides(b, o, rooms, outline)
+        ids = [r["id"] if r is not None else None for r in (sides or {}).get("rooms") or []]
+        if room["id"] in ids:
+            out += [r for r in sides["rooms"] if r is not None and r["id"] != room["id"]]
+    return out
+
+
 def _room_floors(b: dict, marks: list, params: dict, conflicts: list, warnings: list) -> None:
-    """Step 3: room floor offsets from the floor marks inside them."""
+    """Step 3: room floor offsets from the floor marks inside them.
+
+    26 Nov 2026 (R01 b, c; real10 L7: the lift machine room took the median of '+23.50' by its door and '+24.70' over
+    the lift shaft, a 0.60 m step at its door; real15: every marked room of both storeys stood 0.5 m over the unmarked
+    ones): marks that disagree are never averaged. A mark over a shaft's footprint (this storey's or the one under it)
+    is the shaft head's, listed, not the room's; of the rest the room floor is the value that equals the level floor,
+    else the one value at the floor of a room a door joins it to; when none does, the level floor stays (a
+    ``level_mark_mismatch`` either way, never silent). When half or more of a level's marked rooms (two or more, more
+    than those at the level floor) share one offset that is not 0, that offset is the level's frame, not a step in each
+    room: it is taken off every room of the level, listed (``level_inference.level_frames``)."""
     levels = {lv["id"]: lv for lv in b.get("levels") or []}
     tol = float(params["mark_tol"])
+    chosen: dict = {}                              # room id -> (z, the marks used, reference elevation)
+    agreed: dict = {}                              # room id -> the floor its marks agree on (the neighbours' check)
+    for m in marks:
+        if m.get("kind") in FLOOR_KINDS and m.get("z") is not None and m.get("room_id"):
+            agreed.setdefault(m["room_id"], []).append(float(m["z"]))
+    agreed = {k: sum(v) / len(v) for k, v in agreed.items() if max(v) - min(v) <= tol}
     for room in b.get("rooms") or []:
         if room.get("floor_source") == "agent":
             continue
@@ -691,24 +800,82 @@ def _room_floors(b: dict, marks: list, params: dict, conflicts: list, warnings: 
             warnings.append(f"{room['id']} ({room.get('room_type')}): floor mark(s) "
                             f"{', '.join(m.get('raw') or str(m['value']) for m in own)} not used (stair landings)")
             continue
-        zs = [m["z"] for m in own]
-        z = _median(zs)
         # 13 Nov 2026: a typical floor's copy re-reads that floor's marks: the offset is against that floor
         ref = levels.get(lv.get("typical_of")) if lv.get("typical_of") else None
-        offset = z - float((ref or lv)["elevation"])
+        elev = float((ref or lv)["elevation"])
+        zs = [float(m["z"]) for m in own]
+        used = list(own)
+        z = sum(zs) / len(zs)
+        if max(zs) - min(zs) > tol:
+            heads = _shaft_heads(b, lv, levels)
+            over = [m for m in own if m.get("point") is not None
+                    and any(G.point_in_polygon(tuple(m["point"][:2]), poly) for poly in heads)]
+            rest = [m for m in own if m not in over] or own
+            listed = [f"{m.get('raw') or m['id']} over a shaft's footprint (its head, not the room floor)"
+                      for m in over if m not in rest]
+            rz = [float(m["z"]) for m in rest]
+            if max(rz) - min(rz) <= tol:
+                z, used, how = sum(rz) / len(rz), rest, "the marks that agree"
+            else:
+                values = sorted({round(v, 2) for v in rz})
+                at_floor = [v for v in values if abs(v - elev) <= tol]
+                pick, how = (at_floor[0], "the mark at the level floor") if at_floor else (None, "")
+                if pick is None:
+                    near = {round(agreed.get(r["id"], float(levels.get(r.get("level_id"), lv)["elevation"])), 2)
+                            for r in _door_neighbours(b, room)}
+                    fit = [v for v in values if any(abs(v - n) <= tol for n in near)]
+                    pick, how = (fit[0], "the mark at the floor of a room a door joins it to") if len(fit) == 1 \
+                        else (None, "")
+                if pick is None:
+                    z, used, how = elev, [], "none of them is the level floor or a neighbour's: the level floor kept"
+                else:
+                    used = [m for m in rest if abs(float(m["z"]) - pick) <= tol]
+                    z = sum(float(m["z"]) for m in used) / len(used)
+                listed += [f"{m.get('raw') or m['id']} ({float(m['z']):+.2f} m)" for m in rest if m not in used]
+            conflicts.append({"kind": "level_mark_mismatch", "element_ids": [room["id"]] + [m["id"] for m in own],
+                              "description": f"{room['id']}: the floor marks inside it read "
+                                             f"{', '.join(f'{v:+.2f}' for v in zs)} m",
+                              "resolution": f"never averaged: {how} ({z:+.2f} m) used"
+                                            + (f"; listed: {'; '.join(listed)}" if listed else "")})
+            if not used:
+                warnings.append(f"{room['id']}: its floor marks disagree ({', '.join(f'{v:+.2f}' for v in zs)} m): "
+                                f"the level floor is kept, listed")
+                continue
+        chosen[room["id"]] = (z, used, elev)
+    # R01 b: a shared offset of most marked rooms of a level is its frame
+    per_level: dict = {}
+    for room in b.get("rooms") or []:
+        if room["id"] in chosen:
+            per_level.setdefault(room["level_id"], []).append(room)
+    frames = {}
+    for lid, rooms in per_level.items():
+        offs = [round(chosen[r["id"]][0] - chosen[r["id"]][2], 2) for r in rooms]
+        # a mark further off the floor than ``room_offset_max`` is no room floor (a roof's, a landing's): no frame
+        cands = sorted({o for o in offs if tol < abs(o) <= float(params["room_offset_max"])})
+        if not cands:
+            continue
+        top = max(cands, key=lambda o: (sum(1 for x in offs if abs(x - o) <= tol), -abs(o)))
+        n = sum(1 for x in offs if abs(x - top) <= tol)
+        zero = sum(1 for x in offs if abs(x) <= tol)
+        if n >= 2 and n * 2 >= len(offs) and n > zero:
+            frames[lid] = top
+            warnings.append(f"level {lid}: {n} of its {len(offs)} marked rooms stand {top:+.2f} m off its floor: the "
+                            f"level's frame, not a step in each room; taken off every room of {lid}")
+            b.setdefault("level_inference", {}).setdefault("level_frames", {})[lid] = {"value": top, "rooms": n,
+                                                                                         "of": len(offs)}
+    for room in b.get("rooms") or []:
+        if room["id"] not in chosen:
+            continue
+        z, used, elev = chosen[room["id"]]
+        offset = z - elev - frames.get(room["level_id"], 0.0)
         if abs(offset) > float(params["room_offset_max"]):
             warnings.append(f"{room['id']}: floor mark {z:+.2f} m is {offset:+.2f} m off its level floor (more than "
                             f"{float(params['room_offset_max']):.2f} m): not the room floor, listed")
             continue
-        if max(zs) - min(zs) > tol:
-            conflicts.append({"kind": "level_mark_mismatch", "element_ids": [room["id"]] + [m["id"] for m in own],
-                              "description": f"{room['id']}: the floor marks inside it read "
-                                             f"{', '.join(f'{v:+.2f}' for v in zs)} m",
-                              "resolution": f"their median {z:+.2f} m used"})
         room["floor_offset_m"] = _r(offset)
         room["floor_source"] = "mark"
-        room["floor_evidence"] = [e for m in own for e in _mark_ev(m)][:4]
-        for m in own:
+        room["floor_evidence"] = [e for m in used for e in _mark_ev(m)][:4]
+        for m in used:
             _use(m, "room_floor")
 
 
@@ -737,6 +904,53 @@ def _thresholds(b: dict, params: dict, outlines: dict) -> list[dict]:
     return steps
 
 
+GROUND_GATE_M = 0.05      # R01 e: the ground never stands more than this over the plinth top, a threshold, a garage
+FRAME_PLINTH_MAX_M = 1.5  # R01: the plans' ±0.00 is the ground only this far under the ground floor at most
+
+
+def frame_zero(b: dict, gl: dict) -> Optional[float]:
+    """The plans' ±0.00 in the model's frame when the one height frame (``_set_frame_once``) moved the marks and it lies
+    under the ground floor by at most ``FRAME_PLINTH_MAX_M``; else None (pure)."""
+    frame = ((b.get("level_inference") or {}).get("frame") or {}).get("value")
+    if not frame:
+        return None
+    fz = -float(frame)
+    drop = float(gl.get("elevation") or 0.0) - fz
+    return _r(fz) if 0.0 < drop <= FRAME_PLINTH_MAX_M else None
+
+
+def _ground_gate(b: dict, marks: list, gl: dict, outline, points: list) -> Optional[dict]:
+    """26 Nov 2026 (R01 e; real15: the ground read from three terrace marks stood 0.5 m over the ground floor, its
+    entrance 0.15 m and its garage 0.25 m under the ground): ``{"why", "limit", "frame_zero"}`` when every usable ground
+    mark (``points``) stands more than ``GROUND_GATE_M`` over the lowest of the plinth top (its SB. mark, else the
+    ground floor's floor), the ground floor's outside door thresholds and its garage floors: a building is never sunk
+    into its ground, so those marks are no ground (a sloping site keeps marks under the floor on its low side and passes);
+    ``frame_zero``: the plans' ±0.00 in the model's frame when a height frame was applied and it lies under that limit,
+    else None. None when the marks pass (pure)."""
+    elev = float(gl.get("elevation") or 0.0)
+    sb = [float(m["z"]) for m in marks if m.get("kind") == "plinth" and m.get("z") is not None]
+    lim = [(min(sb), "the plinth top (its SB. mark)") if sb else (elev, f"the floor of {gl['id']} (the plinth top)")]
+    doors = [d for d in outside_doors(b, [gl], outline, outlines_of(b)) if d["level_id"] == gl["id"]]
+    if doors:
+        d = min(doors, key=lambda x: (x["threshold"], x["id"]))
+        lim.append((float(d["threshold"]), f"the threshold of the outside door {d['id']}"))
+    lim += [(room_floor_z(b, r), f"the garage floor of {r['id']}") for r in b.get("rooms") or []
+            if r.get("level_id") == gl["id"] and r.get("room_type") == "garage"]
+    top, what = min(lim, key=lambda x: (x[0], x[1]))
+    low = min(float(m["z"]) for m in points)
+    if low <= top + GROUND_GATE_M:
+        return None
+    fz = frame_zero(b, gl)
+    if fz is not None and fz > top + GROUND_GATE_M:
+        fz = None
+    why = (f"every ground mark ({len(points)}, the lowest {low:+.2f} m) stands more than {GROUND_GATE_M:.2f} m over "
+           f"{what} ({top:+.2f} m): a building is never sunk into its ground; those marks are refused (listed), the "
+           f"ground comes from the section's ground line, else the plans' ±0.00"
+           + (f" ({fz:+.2f} m)" if fz is not None else "") + ", else the default")
+    return {"why": why, "limit": _r(top), "limit_from": what, "frame_zero": None if fz is None else _r(fz),
+            "refused": [m["id"] for m in points]}
+
+
 def _ground(b: dict, marks: list, params: dict, gl: dict, outline, inferred: list, warnings: list) -> dict:
     """Step 5: the ground (points, surface, levels). Returns ``{"source", "points", "surface"}``."""
     from wenart.blender import site as S
@@ -748,7 +962,7 @@ def _ground(b: dict, marks: list, params: dict, gl: dict, outline, inferred: lis
     # The drawn levels (sections); the ones an earlier run made from marks are made again (a mark's kind may have
     # changed since).
     drawn_levels = [g for g in ground.get("levels") or [] if isinstance(g, dict) and not g.get("from_mark")
-                    and (g.get("z") or {}).get("method") not in (None, "assumed")]
+                    and not g.get("from_frame") and (g.get("z") or {}).get("method") not in (None, "assumed")]
     file = _file_of(b)
     cand, notes = [], []
     for m in marks:
@@ -784,9 +998,22 @@ def _ground(b: dict, marks: list, params: dict, gl: dict, outline, inferred: lis
                                 f"({med:+.2f} m): listed, not used")
             else:
                 points.append(m)
+    gate = _ground_gate(b, marks, gl, outline, points) if points and force is None else None
+    if gate is not None:
+        rejected += points
+        points = []
+        warnings.append(f"levels: {gate['why']}")
+        b.setdefault("level_inference", {})["ground_gate"] = gate
     ground["points"] = [{"x": _r(m["point"][0], 4), "y": _r(m["point"][1], 4), "z": _r(m["z"]),
                          "kind": m["kind"], "mark_id": m["id"], "inferred": False, "used": m not in rejected,
                          "evidence": _mark_ev(m)} for m in points + rejected]
+    if gate is not None and not drawn_levels and gate.get("frame_zero") is not None:
+        # R01 e: no section ground line: the ground at the printed ±0.00 of the plans' frame
+        drawn_levels = [{"side": "all", "azimuth_deg": None, "from_frame": True,
+                         "z": {"value": _r(gate["frame_zero"]), "method": "derived", "confidence": 0.5,
+                               "evidence": [_evidence(file, "ground_gate", gate["why"])],
+                               "note": f"the plans' ±0.00 in the model's frame ({gate['frame_zero']:+.2f} m): {gate['why']}"}}]
+        inferred.append({"item": "site.ground", "value": _r(gate["frame_zero"]), "reason": gate["why"]})
     for m in points:
         _use(m, "ground")
     surface = None
@@ -844,7 +1071,18 @@ def _ground(b: dict, marks: list, params: dict, gl: dict, outline, inferred: lis
         for m in notes:
             _use(m, "ground_check")
     if source is None and drawn_levels:
-        source = "section"
+        source = "frame" if drawn_levels[0].get("from_frame") else "section"
+    fz = frame_zero(b, gl) if source is None else None
+    if fz is not None:
+        # R01 a/e: nothing about the ground drawn, but the plans' height frame (``_set_frame_once``) puts their ±0.00
+        # under the ground floor: the ground stands there (real15: the section's ±0.00 ground, the floor at '+0.50')
+        why = (f"no ground drawn; the plans' marks stand in a frame where the ground floor {gl['id']} reads "
+               f"{float(gl['elevation']) - fz:+.2f} m: the ground at their ±0.00 ({fz:+.2f} m)")
+        drawn_levels = [{"side": "all", "azimuth_deg": None, "from_frame": True,
+                         "z": {"value": _r(fz), "method": "derived", "confidence": 0.5,
+                               "evidence": [_evidence(file, "ground_gate", why)], "note": why}}]
+        source = "frame"
+        inferred.append({"item": "site.ground", "value": _r(fz), "reason": why})
     if source is None:
         z = float(gl["elevation"]) - float(params["ground_rise"])
         drawn_levels = [{"side": "all", "azimuth_deg": None,
@@ -860,9 +1098,10 @@ def _ground(b: dict, marks: list, params: dict, gl: dict, outline, inferred: lis
         flat_z = next(iter(zs)) if len(zs) == 1 else (sum(zs) / len(zs) if zs else 0.0)
         surface = T.fit_surface([], flat_z=flat_z, blend_m=float(params["terrain_blend"]))
         surface["kind"] = "flat" if len(zs) <= 1 else "sides"
-        surface.update(inferred=source == "D3a", source=source,
+        surface.update(inferred=source in ("D3a", "frame"), source=source,
                        reason={"D3a": "nothing about the ground drawn (D3a)", "site_note": "the site note's level",
-                               "section": "the drawn ground lines per side", "marks": "ground marks per side"}[source])
+                               "section": "the drawn ground lines per side", "marks": "ground marks per side",
+                               "frame": "the plans' ±0.00 (the ground marks stood over the floor: refused)"}[source])
     if force:
         surface["agent"] = dict(ground["terrain_override"])
     ground["surface"] = surface

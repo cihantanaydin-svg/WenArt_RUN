@@ -289,9 +289,13 @@ def test_a_gap_inside_another_piece_is_closed_not_an_opening():
     entry = [e for e in log if e["kind"] == "run" and e["width"] == pytest.approx(0.6)][0]
     assert entry["class"] == "closed" and "inside wall material" in entry["note"] and "warning" not in entry
     # A piece that covers only part of the band, or only part of the gap, is no cover: the gap stays a doorway.
-    for core_wall in (R.wall((1.9, 0.3), (2.7, 0.3), 0.5), R.wall((2.1, 0.25), (2.7, 0.25), 0.6)):
+    for core_wall in (R.wall((1.9, 0.3), (2.7, 0.3), 0.5), R.wall((2.25, 0.25), (2.7, 0.25), 0.6)):
         _, openings, _, _ = _run(walls[:2] + [core_wall], [])
         assert [o.kind for o in openings] == ["opening"]
+    # 26 Nov 2026 (R03 d, real17's column in the kitchen partition): 80 % of the gap covered and no passable part left
+    # (0.10 m < GAP_MIN_M) is wall material too
+    _, openings, _, _ = _run(walls[:2] + [R.wall((2.1, 0.25), (2.7, 0.25), 0.6)], [])
+    assert openings == []
 
 
 def test_a_door_symbol_in_a_covered_gap_keeps_its_door():
@@ -568,8 +572,10 @@ def test_real03_lift_shaft_stays_unknown_and_unfurnished():
     assert [(o.kind, o.type_raw, round(o.center[0], 2), round(o.width, 2), o.evidence.get("rule"))
             for o in lift_doors] == [("opening", "unclassified gap content", 15.56, 1.09, "no_glass"),
                                      ("opening", "unclassified gap content", 17.66, 1.09, "no_glass")]
-    assert all("INSERT:7C9C9/22/81" in o.evidence["note"] and "so no window" in o.evidence["note"]
-               for o in lift_doors)
+    # 26 Nov 2026 (R03 a): the beam outline over the lift doors (INSERT:7C9C9/22/81 on the overhead layer 'IZ-1') is an
+    # overhead line: no content of the gap, but still a line along it that says 'no window'
+    assert all("so no window" in o.evidence["note"] and "overhead or hidden lines (1)" in o.evidence["note"]
+               and "INSERT:7C9C9/22/81" not in o.evidence["note"] for o in lift_doors)
     assert [e["rule"] for e in log if e["kind"] == "run" and e.get("rule")] == ["no_glass", "no_glass"]
     face = data["lift_face"]
     kind, reason = TP.unlabelled_face_type(face, out_walls, openings)
