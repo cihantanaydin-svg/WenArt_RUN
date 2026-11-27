@@ -358,13 +358,26 @@ def test_item7_no_fallback_for_the_change_a_stale_answer_of_this_element_decided
     # the same stale answer with the default's own choice: no contradiction, the fallback is carried out
     same = dict(old, option="move_window_to_outer_wall", choice="move_window_to_outer_wall")
     prep = BB.prepare(copy.deepcopy(real06), "base", {"architect_answers": {"W2:win_L1_004": same}})
-    assert prep["architect_defaults"]["W2:win_L1_004"]["fallback"]
+    fb = prep["architect_defaults"]["W2:win_L1_004"]
+    assert fb["fallback"] and fb["replaces"][0]["key"] == "W2:win_L1_004"
+    # the stale answer of the same key gives way to the fallback that replaces it (answers_of): carried out, shown
+    done = [r for r in prep["architect_applied"] if r["key"] == "W2:win_L1_004"]
+    assert len(done) == 1 and done[0]["fallback"] and done[0]["ok"]
+    row = next(r for r in AR.stale_rows(prep["architect"]) if r["key"] == "W2:win_L1_004")
+    assert row["new"].startswith("the safe default") and "as the fallback" in row["new"]
+    # an unsigned answer shows nothing about the element (ids move between readings, item 8): the fallback stands
+    bare = {k: v for k, v in old.items() if k != "signature"}
+    prep = BB.prepare(copy.deepcopy(real06), "base", {"architect_answers": {"W2:win_L1_004": bare}})
+    fb = prep["architect_defaults"]["W2:win_L1_004"]
+    assert fb["fallback"] and fb["replaces"][0]["signed"] is False and "carries no signature" in fb["replaces"][0]["why"]
+    assert next(r for r in prep["architect_applied"] if r["key"] == "W2:win_L1_004")["ok"]
 
 
 # ---------------------------------------------------------------------- item 8: unsigned machine answers retired
 
 def test_item8_an_unsigned_machine_answer_is_not_replayed_by_id(real06, real06_plain):
-    key = "F2:d_L1_011"
+    key = "D1:d_L0_003"                      # an open point with no safe default (the stale record stays in sight)
+    assert _point(real06_plain, key)["open"] and not _point(real06_plain, key).get("default")
     signed = _answer_to(_point(real06_plain, key))
     unsigned = {k: v for k, v in signed.items() if k != "signature"}
     for by in ("ai", "argus", "architect"):
@@ -416,10 +429,10 @@ def test_item11_a_planned_building_never_hands_its_old_gate_to_a_later_prepare(r
     assert "architect_replay" not in first["building"] and first["architect_replay"]["admitted"]
     # a building that still carries a gate (an older building_built.json): a new answer is gated, not carried out
     built = dict(copy.deepcopy(real06), architect_replay=first["architect_replay"])
-    new = {"option": "interior_glazing", "by": "ai", "where": None}
-    prep = BB.prepare(built, "base", {"architect_answers": {"W2:win_L1_004": new}})
-    rec = next(r for r in prep["architect_applied"] if r["key"] == "W2:win_L1_004")
-    assert rec["stale"] and rec.get("unsigned") and "W2:win_L1_004" in prep["architect_replay"]["keys"]
+    new = {"option": "widen_door", "by": "ai", "where": None}
+    prep = BB.prepare(built, "base", {"architect_answers": {"D1:d_L0_003": new}})
+    rec = next(r for r in prep["architect_applied"] if r["key"] == "D1:d_L0_003")
+    assert rec["stale"] and rec.get("unsigned") and "D1:d_L0_003" in prep["architect_replay"]["keys"]
     # and apply_answers given a gate that never saw an answer does not carry it out
     b = _two_bedrooms()
     res = AA.apply_answers(b, {"D9:d1": {"option": "door_state", "params": {"state": "closed"}, "by": "ai"}},

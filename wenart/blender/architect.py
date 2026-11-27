@@ -1864,16 +1864,18 @@ def choice_text(ans: dict) -> str:
 
 def fallback_withheld(a: dict, olds: Sequence[dict]) -> Optional[str]:
     """Why a stale answer's point gets no fallback default (pure; audit fix round 3b, item 7), else None: a stale answer
-    that named this very element (found by its own id where it saw it: ``how`` "id", not another element found at its
-    old place) and chose otherwise than the point's safe default was a decision against that very change for this
-    element; its premise (what that decider saw) is no longer confirmed on this reading, so neither it nor the change
-    it decided against is carried out by default: the point waits for the AI architect (or the user)."""
+    shown to be about this very element (it carries a signature and is found by its own id where it saw it: ``how``
+    "id", the element whose facts changed since) that chose otherwise than the point's safe default was a decision
+    against that very change for this element; its premise (what that decider saw) is no longer confirmed on this
+    reading, so neither it nor the change it decided against is carried out by default: the point waits for the AI
+    architect (or the user). An answer without a signature shows nothing about the element (ids move between
+    readings: item 8) and another element found at its old place says nothing about this one: the fallback stands."""
     chain = chain_of(a)
     if not chain:
         return None
     for old in olds:
-        if old.get("how") != "id":
-            continue                    # another element at its old place: it says nothing about this element
+        if old.get("how") != "id" or not old.get("signed"):
+            continue                    # not shown to be about this element: it says nothing about its default
         mine = choice_text(old)
         same = mine == chain[0] or (mine.partition(":")[0] == chain[0].partition(":")[0]
                                     and (":" not in mine or ":" not in chain[0]))
@@ -1934,12 +1936,16 @@ def defaults_of(review_rec: dict, answers: dict, tried: Optional[dict] = None) -
             key = f"{q['id']}:{a['element']}"
             # 27 Nov 2026 (R02): a stale answer's point is the AI's; round 3b (item 7): outside the AI architect's own
             # plans it keeps its safe default as the fallback (``mark_stale``)
-            fallback = bool(a.get("for_ai") and a.get("fallback_for_stale"))
+            prev = answers.get(key)
+            # a fallback that could not be carried out moves on along its chain as the fallback (its stale answers
+            # kept: one of the same key gave way to it)
+            carried = prev if prev is not None and prev.get("by") == "architect" and prev.get("fallback") else None
+            fallback = bool(a.get("for_ai") and a.get("fallback_for_stale")) or carried is not None
             if not a.get("open") or (a.get("for_ai") and not fallback):
                 continue
-            prev = answers.get(key)
             if prev is not None and prev.get("by") != "architect":
                 continue                                  # the AI's or the user's answer stands
+            olds = a.get("stale_answers") or (carried or {}).get("replaces") or []
             done = set(tried.get(key) or []) | ({prev.get("choice")} if prev and prev.get("choice") else set())
             nxt = next((c for c in chain_of(a) if c not in done), None)
             opt = next((o for o in a.get("options") or [] if o.get("choice") == nxt), None) if nxt else None
@@ -1948,13 +1954,15 @@ def defaults_of(review_rec: dict, answers: dict, tried: Optional[dict] = None) -
             words = "the safe default" if not done else f"the next safe fix ({', '.join(sorted(done))} could not be done)"
             if fallback:
                 words += (" as the fallback (the point of a stale answer the AI architect did not decide again: "
-                          + ", ".join(str(x.get("key")) for x in a.get("stale_answers") or []) + ")")
+                          + ", ".join(str(x.get("key")) for x in olds) + ")")
             out[key] = {"option": opt["id"], "params": dict(opt.get("params") or {}), "by": "architect",
                         "choice": opt["choice"], "answer": words,
                         "reason": a.get("found"), "where": a.get("where"),
                         **({"signature": a["signature"]} if a.get("signature") else {}),
-                        **({"fallback": True, "fallback_for": [str(x.get("id")) for x in a.get("stale_answers") or []]}
-                           if fallback else {})}
+                        # the fallback replaces the stale answers of its point (``replaces``): one of the same key
+                        # gives way to it (``answers_of``), the report shows old and new side by side
+                        **({"fallback": True, "fallback_for": [str(x.get("id")) for x in olds],
+                            "replaces": [dict(x) for x in olds]} if fallback else {})}
     return out
 
 
@@ -2121,14 +2129,13 @@ def stale_rows(review_rec: dict) -> list[dict]:
         old = r.get("old") or {}
         oid = str(old.get("id"))
         why = old.get("why") or r.get("change")
-        new = next((x for x in applied if x.get("ok") and oid in replaced_ids(x)), None)
+        new = next((x for x in applied if x.get("ok") and not x.get("fallback") and oid in replaced_ids(x)), None)
         fell = next((x for x in applied if x.get("fallback") and oid in (x.get("fallback_for") or [])), None)
         if new is not None:
             choice = f"{new['option']} by {_who(new)} ({new['key']})" + (f": {new['change']}" if new.get("change") else "")
-        elif fell is not None and fell.get("ok"):
+        elif fell is not None and (fell.get("ok") or oid not in waiting):
             # round 3b (item 7): the AI architect did not decide the point again: its safe default as the fallback
-            choice = (f"the safe default {fell['option']} as the fallback ({fell['key']}; the AI architect did not "
-                      f"decide it again)" + (f": {fell['change']}" if fell.get("change") else ""))
+            choice = fallback_text(fell)
         elif oid in waiting:
             key, a = waiting[oid]
             choice = f"open: the AI architect decides again ({key})"
@@ -2154,7 +2161,7 @@ def stale_rows(review_rec: dict) -> list[dict]:
     # the stale answers a new answer replaced (they left the AI's answers; the new one names them in ``replaces``)
     listed = {row["id"] for row in out}
     for x in applied:
-        if not x.get("ok") or not x.get("replaces"):
+        if not x.get("replaces") or not (x.get("ok") or x.get("fallback")):
             continue
         reps = x["replaces"] if isinstance(x["replaces"], list) else [x["replaces"]]
         for old in reps:
@@ -2163,9 +2170,19 @@ def stale_rows(review_rec: dict) -> list[dict]:
             listed.add(str(old.get("id")))
             out.append({"key": old.get("key"), "by": _who(old), "old": old.get("choice") or old.get("option"),
                         "date": old.get("date"), "why": old.get("why"), "element": x.get("element"),
-                        "new": f"{x['option']} by {_who(x)} ({x['key']})" + (f": {x['change']}" if x.get("change")
-                                                                              else ""), "id": str(old.get("id"))})
+                        "new": fallback_text(x) if x.get("fallback") else
+                        f"{x['option']} by {_who(x)} ({x['key']})" + (f": {x['change']}" if x.get("change") else ""),
+                        "id": str(old.get("id"))})
     return out
+
+
+def fallback_text(rec: dict) -> str:
+    """A fallback default in the stale answers' table (round 3b, item 7)."""
+    if not rec.get("ok"):
+        return (f"open: the safe default {rec['option']} as the fallback ({rec['key']}) could not be carried out"
+                + (f" ({rec['change']})" if rec.get("change") else "") + "; the AI architect decides again")
+    return (f"the safe default {rec['option']} as the fallback ({rec['key']}; the AI architect did not decide it again)"
+            + (f": {rec['change']}" if rec.get("change") else ""))
 
 
 def stale_md(review_rec: dict) -> list[str]:

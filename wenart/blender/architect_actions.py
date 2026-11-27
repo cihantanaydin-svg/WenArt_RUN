@@ -2884,7 +2884,7 @@ def stale_summary(key: str, ans: dict, why: str, target: Optional[str] = None, h
     return {"key": key, "id": answer_id(ans), "by": ans.get("by", "user"), "option": ans.get("option") or "keep",
             "choice": ans.get("choice") or ans.get("option") or "keep", "params": dict(ans.get("params") or {}),
             "date": ans.get("date"), "answer": ans.get("answer"), "why": why, "element": target,
-            **({"how": how} if how else {})}
+            "signed": isinstance(ans.get("signature"), dict), **({"how": how} if how else {})}
 
 
 UNSIGNED_SINCE = "27 Nov 2026"
@@ -3641,7 +3641,9 @@ def apply_answers(building: dict, answers: dict, head_limit=None, replay: Option
             rec["fallback"] = True
             rec["fallback_for"] = list(ans.get("fallback_for") or [])
         stale = None
-        if replayed(ans) or key in gate_keys:
+        # a fallback default (round 3b, item 7) is this run's own answer: the gate's verdict on the stale answer it
+        # replaces (of the same key) is not its verdict
+        if (replayed(ans) or key in gate_keys) and not (ans.get("fallback") and ans.get("by") == "architect"):
             chk = replay_check(plan, key, ans)
             target, stale, params = chk["target"], chk["stale"], chk["params"]
             rec["how"] = chk["how"]
