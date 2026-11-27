@@ -157,6 +157,25 @@ def frame_keys(lines: list, box) -> set:
     return keys
 
 
+FRAME_HOLD_SHARE = 0.5             # 27 Nov 2026: a drawn frame holds at least this share of the region's entity centres
+
+
+def drawn_frame_box(region) -> Optional[tuple]:
+    """The box of the largest closed axis-aligned rectangle of ``region`` that holds at least ``FRAME_HOLD_SHARE`` of
+    its other entities' centres (a sheet frame drawn round the drawing), else None (pure)."""
+    ents = getattr(region, "ents", None) or []
+    rects = [e for e in ents if getattr(e, "rect", None) is not None]
+    if not rects or len(ents) < 4:
+        return None
+    for e in sorted(rects, key=lambda e: -((e.rect[2] - e.rect[0]) * (e.rect[3] - e.rect[1]))):
+        r = e.rect
+        inside = sum(1 for o in ents if o is not e and r[0] <= o.centre[0] <= r[2] and r[1] <= o.centre[1] <= r[3])
+        if inside >= FRAME_HOLD_SHARE * (len(ents) - 1):
+            return r
+        break                                   # only the largest rectangle can be the frame
+    return None
+
+
 def _dist_to(p, ln) -> float:
     """Distance from point ``p`` to the segment of ``ln`` (pure)."""
     (ax, ay), (bx, by) = ln.a, ln.b
@@ -172,6 +191,12 @@ def read_section(region, mpu: Optional[float]) -> SectionGeometry:
         return g
     box = region.geometry_box
     framed = frame_keys(lines, box)
+    fbox = drawn_frame_box(region)
+    if not framed and fbox is not None:
+        # 27 Nov 2026 (audit fix round 4, R06: a section's level lines ran 30 m past its sheet frame, so the frame's
+        # sides stood far inside the region's box and were read as the outer walls, 39.9 m apart): the frame drawn as
+        # one closed rectangle round most of the region is found by its own box
+        framed = frame_keys(lines, fbox)
     if framed:
         lines = [ln for ln in lines if ln.key not in framed]
         g.frame_lines = len(framed)
@@ -885,6 +910,7 @@ def apply_storey_marks(out: dict, levels: list[dict], storey_el: dict, slab_defa
         # 19 Nov 2026 (review A3, A3FC-5): the note says where the mark is printed (a section or a plan's title)
         entry["floor_z"] = _value(known[o] - base, "vector", ev,
                                   note="the floor mark of the storey the section names" if rule == "section_storey_marks"
+                                  else "its plan's floor mark, printed on the section" if rule == PLAN_MARKS_RULE
                                   else f"the floor mark its plan's title prints ({rule})")
         nxt = known[seq[k + 1]] if k + 1 < len(seq) else (float(top_mark) if top_mark is not None and
                                                            float(top_mark) > known[o] + 0.5 else None)
@@ -917,7 +943,7 @@ def apply_storey_marks(out: dict, levels: list[dict], storey_el: dict, slab_defa
                 sl["thickness"] = _value(mine[1] - mine[0], "vector",
                                          [_ev(file_rel or "", mine[2], "slab_bands", region_id or "")],
                                          note="the slab band at its floor mark")
-        lines.append(f"{lid}: floor {known[o]:+.2f} m ({'section' if rule == 'section_storey_marks' else 'title'} "
+        lines.append(f"{lid}: floor {known[o]:+.2f} m ({'section' if rule in ('section_storey_marks', PLAN_MARKS_RULE) else 'title'} "
                      f"mark) -> z {known[o] - base:+.2f} m")
     if unmatched:
         lines.append(f"no slab band of a slab's thickness at the floor mark of {', '.join(unmatched)}: their slab "
@@ -1008,6 +1034,80 @@ def apply_storey_marks(out: dict, levels: list[dict], storey_el: dict, slab_defa
             moved.append(f"datum {float(old.get('value') or 0):+.2f} -> {base:+.2f}" if old else f"datum {base:+.2f}")
         if moved:
             lines.append(f"into the storey marks' frame too ({shift:+.2f} m): " + ", ".join(moved))
+    return lines
+
+
+PLAN_MARKS_RULE = "section_plan_marks"  # 27 Nov 2026: the plans' floor marks the section prints set the storeys
+HOUSE_STOREY_MAX_M = 5.0               # 27 Nov 2026 (audit fix round 4, R06): a house storey (floor to floor) at most this
+HOUSE_STOREYS_MAX = 3                  # ... in a building of at most this many storeys at and above the ground
+PLAN_MARK_TOL_M = 0.02                 # a plan's floor mark printed on the section within this is its storey's floor
+CEILING_SLAB_M = (0.12, 0.50)          # a section mark this far under the next storey's floor is the ceiling under it
+
+
+def marks_first_reasons(out: dict, levels: list[dict], section, bands_mismatch: bool) -> list[str]:
+    """27 Nov 2026 (audit fix round 4, R06): why a section's slab bands must not set the storeys before its level
+    marks (pure): the heights are no storeys (``implausible``), its bands do not match the plans' levels, or a
+    floor-to-floor step of the bands is over ``HOUSE_STOREY_MAX_M`` in a building of at most ``HOUSE_STOREYS_MAX``
+    storeys at and above the ground while no level mark of the section stands at the upper floor."""
+    why = []
+    bad = implausible(out, levels)
+    if bad:
+        why.append(f"the slab bands give no storeys ({bad})")
+    if bands_mismatch:
+        why.append("the slab bands do not match the plans' levels")
+    above = sum(1 for lv in levels if (lv.get("order") or 0) >= 0)
+    if above <= HOUSE_STOREYS_MAX:
+        rel = [float(m[4]["value"]) for m in (getattr(section, "marks", None) or [])
+               if len(m) > 4 and m[4].get("relative")] if section is not None else []
+        datum = (out.get("datum") or {}).get("relative")
+        for e in out.get("levels") or []:
+            ftf = e.get("floor_to_floor") or {}
+            fz = e.get("floor_z") or {}
+            if ftf.get("method") != "vector" or ftf.get("value") is None or float(ftf["value"]) <= HOUSE_STOREY_MAX_M:
+                continue
+            upper = float(fz.get("value") or 0.0) + float(ftf["value"])
+            confirmed = datum is not None and any(abs((v - float(datum)) - upper) <= MARK_TOL_M for v in rel)
+            if not confirmed:
+                why.append(f"{e['level_id']} floor to floor {float(ftf['value']):.2f} m (over "
+                           f"{HOUSE_STOREY_MAX_M:.1f} m, no level mark at the floor above)")
+    return why
+
+
+def plan_marks_on_section(section, plan_marks: dict) -> dict:
+    """``{order: floor mark}`` of the plans whose own floor mark (``levels.floor_mark``) the section prints as a
+    relative level mark (within ``PLAN_MARK_TOL_M``), pure. Two or more storeys are needed (else {})."""
+    rel = [float(m[4]["value"]) for m in (getattr(section, "marks", None) or [])
+           if len(m) > 4 and m[4].get("relative")] if section is not None else []
+    out = {o: float(v) for o, v in plan_marks.items()
+           if v is not None and any(abs(float(v) - r) <= PLAN_MARK_TOL_M for r in rel)}
+    return out if len(out) >= 2 else {}
+
+
+def ceilings_from_marks(out: dict, levels: list[dict], section, storey_el: dict, file_rel: Optional[str],
+                        region_id: Optional[str]) -> list[str]:
+    """The ceiling of every storey under another named one from the section's level mark a slab's thickness
+    (``CEILING_SLAB_M``) under the next storey's floor mark (vector, rule ``level_mark``), in place; the lines."""
+    marks = [(float(m[4]["value"]), m[0]) for m in (getattr(section, "marks", None) or [])
+             if len(m) > 4 and m[4].get("relative")] if section is not None else []
+    orders = {lv["order"]: lv["id"] for lv in levels}
+    seq = sorted(o for o in storey_el if o in orders)
+    by_id = {e["level_id"]: e for e in out.get("levels") or []}
+    lines = []
+    for a, c in zip(seq, seq[1:]):
+        e = by_id.get(orders[a])
+        if e is None:
+            continue
+        lo, hi = float(storey_el[c]) - CEILING_SLAB_M[1], float(storey_el[c]) - CEILING_SLAB_M[0]
+        cands = [(v, t) for v, t in marks if lo <= v <= hi]
+        if not cands:
+            continue
+        v, t = max(cands, key=lambda x: x[0])
+        ch = v - float(storey_el[a])
+        if ch < 1.8:
+            continue
+        e["ceiling_height"] = _value(ch, "vector", [_ev(file_rel or "", t.id, "level_mark", region_id or "", t.text)],
+                                     note=f"the section's level mark {t.text} under the next storey's floor mark")
+        lines.append(f"{orders[a]} ceiling {ch:.2f} m (the level mark {t.text})")
     return lines
 
 

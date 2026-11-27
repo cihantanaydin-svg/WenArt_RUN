@@ -4868,6 +4868,66 @@
    "question": null
   },
   {
+   "id": "UL427",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 4, rule R06; real17 lost its whole attic storey, a second sheet frame titled 'Ç.A.P. PLANI' joined to the roof plan's frame): a habitable attic's plan (Ç.A.P., ÇATI ARASI PİYESİ (PLANI), DUBLEKS ÜST KAT) is a floor plan and a level above the top storey; a bare 'ÇATI ARASI' (a roof space) stays no level. Every sheet frame and every titled drawing is its own region: a closed rectangle whose corners differ by rounding is still a frame, a group standing in two drawn frames is split by them, and two titled drawings of one class (two sections, two elevations) never join because one lies in the other's box.",
+   "lesson": "27 Nov 2026 (audit fix round 4, rule R06; real17 lost its whole attic storey, a second sheet frame titled 'Ç.A.P. PLANI' joined to the roof plan's frame): a habitable attic's plan (Ç.A.P., ÇATI ARASI PİYESİ (PLANI), DUBLEKS ÜST KAT) is a floor plan and a level above the top storey; a bare 'ÇATI ARASI' (a roof space) stays no level. Every sheet frame and every titled drawing is its own region: a closed rectangle whose corners differ by rounding is still a frame, a group standing in two drawn frames is split by them, and two titled drawings of one class (two sections, two elevations) never join because one lies in the other's box.",
+   "question": null
+  },
+  {
+   "id": "UL428",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 4, rule R06; real15's section region held two sections and two elevations and gave a 7.82 m ground floor; real17's 'building outline' was its 25.39 x 28.90 m sheet frame): a section's level marks come before its slab bands: when the bands give no storeys, do not match the plans, or give a house storey over 5 m that no mark confirms, the plans' own floor marks printed on the section set the storeys and the mark a slab under the next floor their ceilings (else such a storey is refused); the frame drawn round a section or a plan is never its outer walls or its building outline; a section's cut marks are found by their geometry on any layer (the same letter on both sides of the building, each with its triangle).",
+   "lesson": "27 Nov 2026 (audit fix round 4, rule R06; real15's section region held two sections and two elevations and gave a 7.82 m ground floor; real17's 'building outline' was its 25.39 x 28.90 m sheet frame): a section's level marks come before its slab bands: when the bands give no storeys, do not match the plans, or give a house storey over 5 m that no mark confirms, the plans' own floor marks printed on the section set the storeys and the mark a slab under the next floor their ceilings (else such a storey is refused); the frame drawn round a section or a plan is never its outer walls or its building outline; a section's cut marks are found by their geometry on any layer (the same letter on both sides of the building, each with its triangle).",
+   "question": null
+  },
+  {
+   "id": "UL429",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 4, rule R07; real15's '%30 EĞİM' texts were never read and its roof built at 30 degrees with a ridge 3.3 m too high): one slope text pattern for every reader takes the number before or after the word ('%30 EĞİM', 'EĞİM %33', '30% SLOPE'); differing slopes are one pitch per roof part by position (the main roof takes the slope most texts give), never a reason to give up; a roof plan's signed level marks are the ridge (inside the eaves loop) or eaves (on it) heights of the main roof in the building's height frame, and they outrank the section's profile when the roof plan gave the roof.",
+   "lesson": "27 Nov 2026 (audit fix round 4, rule R07; real15's '%30 EĞİM' texts were never read and its roof built at 30 degrees with a ridge 3.3 m too high): one slope text pattern for every reader takes the number before or after the word ('%30 EĞİM', 'EĞİM %33', '30% SLOPE'); differing slopes are one pitch per roof part by position (the main roof takes the slope most texts give), never a reason to give up; a roof plan's signed level marks are the ridge (inside the eaves loop) or eaves (on it) heights of the main roof in the building's height frame, and they outrank the section's profile when the roof plan gave the roof.",
+   "question": null
+  },
+  {
+   "id": "UL430",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 4, rule R07; real15's full first floor got the attic's 1.0 m knee wall, its windows clipped to 0.40 m): with no eaves, knee wall or ridge drawn, a full storey's eaves stand on its floor + ceiling + slab; the knee-wall default is only for a level the drawings name an attic (ÇATI KATI, Ç.A.P., attic); a roof never clips a door or window of a full top storey: the eaves rise (logged) unless the eaves or knee wall are drawn; the ridge of a gable read from a section stands in the building's outline, never in a sheet frame's.",
+   "lesson": "27 Nov 2026 (audit fix round 4, rule R07; real15's full first floor got the attic's 1.0 m knee wall, its windows clipped to 0.40 m): with no eaves, knee wall or ridge drawn, a full storey's eaves stand on its floor + ceiling + slab; the knee-wall default is only for a level the drawings name an attic (ÇATI KATI, Ç.A.P., attic); a roof never clips a door or window of a full top storey: the eaves rise (logged) unless the eaves or knee wall are drawn; the ridge of a gable read from a section stands in the building's outline, never in a sheet frame's.",
+   "question": null
+  },
+  {
+   "id": "UL431",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 4, rule R24; real17's common stair was built with 16 risers of 0.206 m instead of the drawn '(19X17.36Rh=330/27)'): a stair formula text in or next to a stair ('(19X17.36Rh=330/27)', '(17x 17.65 / 28)') gives the riser count N and height R; it caps the stair's number chain at N (no number of the next stair is taken), the first number may stand up to 1 m from the next on the landing, R is the riser when the stair draws N risers and N x R is the storey height within 3 % (else the treads are kept and listed); risers over 0.18 m, goings that differ by more than 0.05 m and a formula rising a full storey from the top level (a level above) are findings.",
+   "lesson": "27 Nov 2026 (audit fix round 4, rule R24; real17's common stair was built with 16 risers of 0.206 m instead of the drawn '(19X17.36Rh=330/27)'): a stair formula text in or next to a stair ('(19X17.36Rh=330/27)', '(17x 17.65 / 28)') gives the riser count N and height R; it caps the stair's number chain at N (no number of the next stair is taken), the first number may stand up to 1 m from the next on the landing, R is the riser when the stair draws N risers and N x R is the storey height within 3 % (else the treads are kept and listed); risers over 0.18 m, goings that differ by more than 0.05 m and a formula rising a full storey from the top level (a level above) are findings.",
+   "question": null
+  },
+  {
+   "id": "UL432",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 4; real15's two inferred trees stood up through its first-floor terrace and roof): a site tree never stands inside the building's cover: its footprint, every level's outline, the roof's outline and every balcony or terrace of an upper level; an inferred tree's crown keeps clear of it, a drawn tree there is dropped and listed.",
+   "lesson": "27 Nov 2026 (audit fix round 4; real15's two inferred trees stood up through its first-floor terrace and roof): a site tree never stands inside the building's cover: its footprint, every level's outline, the roof's outline and every balcony or terrace of an upper level; an inferred tree's crown keeps clear of it, a drawn tree there is dropped and listed.",
+   "question": null
+  },
+  {
    "id": "UL440",
    "date": "2026-11-27",
    "area": "other",

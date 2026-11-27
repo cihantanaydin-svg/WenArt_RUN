@@ -202,6 +202,172 @@ def cut_line(plans: list, section) -> Optional[dict]:
         return {"axis": axis, "at": round(at, 4) + 0.0, "flipped": bool(flipped),
                 "view": [round(bvx, 4) + 0.0, round(bvy, 4) + 0.0], "region": r.id,
                 "entities": sorted({st.id} | {i for _, _, i in arms}), "letter": letter}
+    # 27 Nov 2026 (audit fix round 4, R06): no cut line on a cut-line layer: the cut marks found by their geometry on
+    # any layer (the same letter on both sides of the building, each with its triangle)
+    return _cut_from_marks(plans, named.group(1) if named else None)
+
+
+CUT_MARK_REACH_M = 1.0           # 27 Nov 2026 (R06): a section mark's arrow or triangle lies this close to its letter ...
+CUT_MARK_SIDE_M = (0.05, 1.0)    # ... its sides this long
+CUT_MARK_ALIGN = 0.03            # the two letters of a cut lie on one line across the plan (this share of their distance)
+CUT_MARK_BEYOND_M = 1.0          # ... each at most this far inside the building outline's box on its side
+CUT_MARK_RE = re.compile(r"^[A-Z0-9]{1,2}$")
+
+
+def _triangles_near(p, segs: list, closed: list, reach: float, side: tuple) -> list:
+    """The triangles drawn within ``reach`` of point ``p`` (pure): closed strokes of three corners, and three segments
+    whose ends meet (within 2 % of the side limit); each ``(vertices, entity id)``."""
+    out = []
+    for st in closed:
+        pts = list(st.pts)
+        if len(pts) >= 2 and math.dist(pts[0], pts[-1]) <= 1e-9:
+            pts = pts[:-1]
+        if len(pts) == 3 and all(math.dist(q, p) <= reach for q in pts) \
+                and all(side[0] <= math.dist(a, b) <= side[1] for a, b in zip(pts, pts[1:] + pts[:1])):
+            out.append((pts, st.id))
+    near = [(a, b, st) for a, b, st in segs if math.dist(a, p) <= reach and math.dist(b, p) <= reach
+            and side[0] <= math.dist(a, b) <= side[1]]
+    if len(near) > 40:
+        return out
+    tol = 0.02 * side[1]
+    for i in range(len(near)):
+        for j in range(i + 1, len(near)):
+            for k in range(j + 1, len(near)):
+                ends = [near[i][0], near[i][1], near[j][0], near[j][1], near[k][0], near[k][1]]
+                verts: list = []
+                for q in ends:
+                    hit = next((v for v in verts if math.dist(v[0], q) <= tol), None)
+                    if hit is None:
+                        verts.append([q, 1])
+                    else:
+                        hit[1] += 1
+                if len(verts) == 3 and all(v[1] == 2 for v in verts):
+                    out.append(([tuple(v[0]) for v in verts], near[i][2].id))
+    return out
+
+
+def _arrow_dir(tri: list, line_p, line_u) -> Optional[tuple]:
+    """The way a triangle points across a cut line through ``line_p`` along ``line_u`` (pure): from its base to the
+    corner opposite its shortest side when that side is clearly the shortest (an arrowhead), else from the line to its
+    centroid; a unit vector across the line, None when it lies on the line."""
+    sides = [(math.dist(tri[(k + 1) % 3], tri[(k + 2) % 3]), k) for k in range(3)]
+    sides.sort()
+    nx, ny = -line_u[1], line_u[0]
+    if sides[0][0] < 0.9 * sides[1][0]:
+        k = sides[0][1]
+        base = ((tri[(k + 1) % 3][0] + tri[(k + 2) % 3][0]) / 2.0, (tri[(k + 1) % 3][1] + tri[(k + 2) % 3][1]) / 2.0)
+        d = (tri[k][0] - base[0]) * nx + (tri[k][1] - base[1]) * ny
+    else:
+        c = (sum(q[0] for q in tri) / 3.0, sum(q[1] for q in tri) / 3.0)
+        d = (c[0] - line_p[0]) * nx + (c[1] - line_p[1]) * ny
+    if abs(d) <= 1e-9:
+        return None
+    return (nx, ny) if d > 0 else (-nx, -ny)
+
+
+def _in_bubble(p, closed: list, mpu: float) -> bool:
+    """A text inside a closed round stroke of an axis bubble's size (``GRID_BUBBLE_M``): a grid label (pure)."""
+    for st in closed:
+        if len(st.pts) < 8:
+            continue
+        xs, ys = [q[0] for q in st.pts], [q[1] for q in st.pts]
+        w, h = (max(xs) - min(xs)) * mpu, (max(ys) - min(ys)) * mpu
+        if GRID_BUBBLE_M[0] <= w <= GRID_BUBBLE_M[1] and abs(w - h) <= 0.1 * w \
+                and min(xs) <= p[0] <= max(xs) and min(ys) <= p[1] <= max(ys):
+            return True
+    return False
+
+
+def cut_marks(region, letter: Optional[str] = None) -> Optional[dict]:
+    """27 Nov 2026 (audit fix round 4, R06; real cut marks drawn on a generic layer, the letters 'A' at both ends with a
+    triangle each, were never found and the section's cut direction stayed unknown): a section's cut marks found by
+    their geometry on any layer: the same letter (``letter`` when the section's title names one) at two points on one
+    line across the plan (``CUT_MARK_ALIGN``), on opposite sides at or beyond the building outline's box
+    (``CUT_MARK_BEYOND_M``), each with a triangle or arrowhead within ``CUT_MARK_REACH_M``; never an axis bubble's
+    label. Returns ``{"a", "b", "letter", "view", "entities"}`` in source units (``view`` the way the triangles point,
+    None when they disagree or lie on the line), or None."""
+    from wenart.sheets import titles as T
+    mpu = region.metres_per_unit
+    if not mpu:
+        return None
+    strokes = region.strokes()
+    segs = UC.segments(strokes)
+    closed = [st for st in strokes if st.closed]
+    excl = set(enclosing_outlines(region, mpu)) | cut_line_entities(region) | frame_stack_ids(region)
+    poly = outline(region, mpu, excl)
+    if poly is None:
+        return None
+    bx = poly.bounds
+    beyond = CUT_MARK_BEYOND_M / mpu
+    reach = CUT_MARK_REACH_M / mpu
+    side = (CUT_MARK_SIDE_M[0] / mpu, CUT_MARK_SIDE_M[1] / mpu)
+    cands: dict = {}
+    for t in region.texts:
+        word = T.fold(t.text).strip()
+        if not CUT_MARK_RE.match(word) or (letter and word != letter):
+            continue
+        if _in_bubble(t.point, closed, mpu):
+            continue
+        tris = _triangles_near(t.point, segs, closed, reach, side)
+        if tris:
+            cands.setdefault(word, []).append((t, tris))
+    best = None
+    for word, items in cands.items():
+        for i in range(len(items)):
+            for j in range(i + 1, len(items)):
+                (ta, tra), (tb, trb) = items[i], items[j]
+                pa, pb = ta.point, tb.point
+                d = math.dist(pa, pb)
+                if d <= 0:
+                    continue
+                dx, dy = abs(pb[0] - pa[0]), abs(pb[1] - pa[1])
+                if min(dx, dy) > CUT_MARK_ALIGN * d:
+                    continue
+                axis = 0 if dx >= dy else 1
+                lo, hi = sorted((pa[axis], pb[axis]))
+                if lo > bx[axis] + beyond or hi < bx[axis + 2] - beyond:
+                    continue                          # not on both sides of the building
+                u = ((pb[0] - pa[0]) / d, (pb[1] - pa[1]) / d)
+                dirs = [_arrow_dir(tri, pa, u) for tri, _i in tra + trb]
+                dirs = [v for v in dirs if v is not None]
+                view = dirs[0] if dirs and all(abs(v[0] - dirs[0][0]) + abs(v[1] - dirs[0][1]) < 1e-6
+                                               for v in dirs) else None
+                rec = {"a": pa, "b": pb, "letter": word, "view": view,
+                       "entities": sorted({ta.id, tb.id} | {i for _t, i in tra + trb})}
+                key = (view is not None, d)
+                if best is None or key > best[0]:
+                    best = (key, rec)
+    return best[1] if best else None
+
+
+def _cut_from_marks(plans: list, letter: Optional[str]) -> Optional[dict]:
+    """``cut_line``'s record from the cut marks (``cut_marks``) of the first registered plan that draws them."""
+    for r in plans:
+        tf, mpu = r.transform_to_building, r.metres_per_unit
+        if tf is None or not mpu:
+            continue
+        m = cut_marks(r, letter)
+        if m is None:
+            continue
+        a, b = m["a"], m["b"]
+        length = math.dist(a, b)
+        ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+        bux, buy = tf[0] * ux + tf[1] * uy, tf[3] * ux + tf[4] * uy
+        axis = "x" if abs(bux) >= abs(buy) else "y"
+        mid = ((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0)
+        mx, my = tf[0] * mid[0] + tf[1] * mid[1] + tf[2], tf[3] * mid[0] + tf[4] * mid[1] + tf[5]
+        at = my if axis == "x" else mx
+        flipped, view = None, None
+        if m["view"] is not None:
+            vx, vy = m["view"]
+            bvx, bvy = tf[0] * vx + tf[1] * vy, tf[3] * vx + tf[4] * vy
+            n = math.hypot(bvx, bvy) or 1.0
+            bvx, bvy = bvx / n, bvy / n
+            left = (-bvy, bvx)
+            flipped = bool((left[0] if axis == "x" else left[1]) > 0)
+            view = [round(bvx, 4) + 0.0, round(bvy, 4) + 0.0]
+        return {"axis": axis, "at": round(at, 4) + 0.0, "flipped": flipped, "view": view, "region": r.id,
+                "entities": m["entities"], "letter": m["letter"], "method": "cut_marks"}
     return None
 
 
@@ -888,6 +1054,44 @@ SITE_RESIDUAL_MAX_M = 0.30            # site plans are drawn coarser (1/200, 1/5
 
 CHORD_SHARE = 0.8                     # wall_extent: the chord length most cross-sections reach
 CHORD_SAMPLES = 41
+
+
+FRAME_COVER_SHARE = 0.9          # 27 Nov 2026: a closed rectangle this much of the region's box on both axes is a frame
+
+
+def frame_stack_ids(region) -> set:
+    """27 Nov 2026 (audit fix round 4, R06: a plan drawn in a frame of three nested rectangles 10-15 cm apart gave the
+    'building outline' 25.39 x 28.90 m, the frame): the closed rectangles that cover at least ``FRAME_COVER_SHARE`` of
+    the region's geometry box on both axes (a sheet frame and its inner lines), never part of the building (pure)."""
+    geom = region.geometry_box
+    w, h = max(geom[2] - geom[0], 1e-9), max(geom[3] - geom[1], 1e-9)
+    return {e.id for e in region.ents if e.rect is not None
+            and (e.rect[2] - e.rect[0]) >= FRAME_COVER_SHARE * w and (e.rect[3] - e.rect[1]) >= FRAME_COVER_SHARE * h}
+
+
+def building_outline_m(region) -> Optional[Polygon]:
+    """27 Nov 2026 (audit fix round 4, R06): the plan's building outline (its long strokes without the axis lines, the
+    cut line, an enclosing roof outline and a drawn sheet frame, ``frame_stack_ids``) in building metres (through the
+    region's transform; metres from the source origin without one), or None."""
+    mpu = region.metres_per_unit
+    if not mpu:
+        return None
+    excl = set(enclosing_outlines(region, mpu)) | cut_line_entities(region) | frame_stack_ids(region)
+    poly = outline(region, mpu, excl)
+    if poly is None:
+        return None
+    tf = region.transform_to_building or [mpu, 0.0, 0.0, 0.0, mpu, 0.0]
+    return affinity.affine_transform(poly, [tf[0], tf[1], tf[3], tf[4], tf[2], tf[5]])
+
+
+def building_extent(region) -> Optional[list]:
+    """27 Nov 2026 (audit fix round 4, R06): ``[(width, height), wall_extent]`` in metres of the plan's building outline
+    (``building_outline_m``), the reference extent of the section's cut-axis check; None without one."""
+    poly_m = building_outline_m(region)
+    if poly_m is None:
+        return None
+    b = poly_m.bounds
+    return [(b[2] - b[0], b[3] - b[1]), wall_extent(poly_m)]
 
 
 def wall_extent(outline_m: Polygon) -> tuple[float, float]:

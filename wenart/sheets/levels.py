@@ -23,6 +23,10 @@ from typing import Optional
 
 from wenart import building as B
 
+# 27 Nov 2026 (audit fix round 4, R06): the titles of a habitable attic's plan, on the ASCII-folded upper-case text
+ATTIC_PLAN_RE_TEXT = (r"(?<![A-Z])C\s*\.\s*A\s*\.\s*P\b\.?|\bCATI\s+ARASI\s+PIYES(?:I|LERI)\b"
+                      r"|\bDUBLEKS\s+UST\s+KAT|\bUST\s+DUBLEKS\b")
+ATTIC_PLAN_RE = re.compile(ATTIC_PLAN_RE_TEXT)
 # Level words (§3.1 item 3): (order or "top", kind, label, pattern, language).
 LEVEL_WORDS: list[tuple[object, str, str, str, str]] = [
     # real10 (1 Nov 2026): the roof terrace floor of an apartment block (its stair house over a flat roof) is the top
@@ -33,6 +37,10 @@ LEVEL_WORDS: list[tuple[object, str, str, str, str]] = [
     # 24 Nov 2026: 'ÇATI ARASI KATI' / 'ÇATI ARASI PLANI' title the roof storey; 'ÇATI ARASI' alone is a room or space
     # label (real12's sections label the roof space so), never a level title (``SECTION_TOP_RE`` reads it on sections)
     ("top", "attic", "Çatı Katı", r"\bCATI KATI?\b|\bCATI ARASI\s*(?:KATI?|PLANI)\b", "tr"),
+    # 27 Nov 2026 (audit fix round 4, R06): a habitable attic's plan is titled 'Ç.A.P.' (çatı arası piyesi), 'ÇATI ARASI
+    # PİYESİ (PLANI)' or 'DUBLEKS ÜST KAT' (a duplex's upper floor under the roof): a level above the top storey. The bare
+    # 'ÇATI ARASI' (a roof space) stays no level
+    ("top", "attic", "Çatı Arası Piyesi", ATTIC_PLAN_RE_TEXT, "tr"),
     ("top", "attic", "Attic", r"\bATTIC\b|\bLOFT\b", "en"),
     ("top", "attic", "Dachgeschoss", r"\bDACHGESCHOSS\b", "de"),
     ("top", "attic", "Combles", r"\bCOMBLES\b", "fr"),

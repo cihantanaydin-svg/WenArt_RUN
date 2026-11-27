@@ -419,6 +419,11 @@ def split_sheet(sheet: Sheet, n_doc_entities: Optional[int] = None, gap_rel: flo
     if panel_boxes:
         groups = _split_by_panel(groups, ents, panel_boxes)
     groups, title_owner = _split_by_titles(groups, ents, texts, gap)
+    framed = _split_by_frames(groups, ents, [ents[k].rect for k in frames if k not in lines_of], gap)
+    if len(framed) != len(groups):
+        # 27 Nov 2026 (audit fix round 4, R06): the parts a frame split leaves are cut by their own titles again
+        groups, again = _split_by_titles(framed, ents, texts, gap)
+        title_owner = {**title_owner, **again}
     frame_boxes = [(ents[k].id, ents[k].rect) for k in frames]
 
     def frame_of(b: Box) -> Optional[str]:
@@ -436,7 +441,20 @@ def split_sheet(sheet: Sheet, n_doc_entities: Optional[int] = None, gap_rel: flo
             c.kind = "box"
         clusters.append(c)
 
-    clusters = _absorb_satellites(clusters)
+    # 27 Nov 2026 (audit fix round 4, R06): the parts a title cut made keep their titles' entities: two titled drawings
+    # never join (a section's 40 m level lines put another titled section inside its box)
+    by_title = {t.id: t for t in texts}
+    owners: dict = {}
+    for tid, k in title_owner.items():
+        hit = T.class_of(by_title[tid].text) if tid in by_title else None
+        if hit is not None and hit[0] in TITLED_KEEP_CLASSES:
+            owners.setdefault(id(ents[k]), set()).add(hit[0])
+    titled = {}
+    for c in clusters:
+        got = set().union(*(owners.get(id(x), set()) for x in c.ents)) if owners else set()
+        if got:
+            titled[id(c)] = got
+    clusters = _absorb_satellites(clusters, titled=titled)
 
     # Texts by their point (never bridging); a title that cut its group joins its own part.
     cluster_of = {id(x): c for c in clusters for x in c.ents}
@@ -637,11 +655,45 @@ def _split_by_panel(groups: list[list[int]], ents: list[Ent], panel_boxes: list[
     return out
 
 
+def _split_by_frames(groups: list[list[int]], ents: list[Ent], frame_boxes: list[Box],
+                     gap: float) -> list[list[int]]:
+    """27 Nov 2026 (audit fix round 4, R06; a section's level lines drawn 40 m long ran into the next sheet frame and
+    joined two sections and two elevations of two frames into one 69 m region): a group whose entities stand in two or
+    more drawn frames (the innermost frames, side by side) is split by the frame that holds each entity's centre.
+    Only parts of at least ``TITLE_PART_MIN`` entities in a frame count; the entities in no frame and the smaller parts
+    join the nearest counted part (a group with fewer than two counted parts stays as it is)."""
+    leaves = [b for b in frame_boxes
+              if not any(o is not b and o != b and box_inside(o, b, tol=gap * 0.5) for o in frame_boxes)]
+    if len(leaves) < 2:
+        return groups
+    out = []
+    for g in groups:
+        parts: dict = {}
+        for i in g:
+            c = ents[i].centre
+            parts.setdefault(next((n for n, fb in enumerate(leaves) if in_box(c, fb)), None), []).append(i)
+        big = {k: list(p) for k, p in parts.items() if k is not None and len(p) >= TITLE_PART_MIN}
+        if len(big) < 2:
+            out.append(g)
+            continue
+        boxes = {k: leaves[k] for k in big}
+        for k, p in parts.items():
+            if k in big:
+                continue
+            for i in p:
+                c = ents[i].centre
+                big[min(big, key=lambda n: (point_box_distance(c, boxes[n]), str(n)))].append(i)
+        out.extend(sorted(p) for p in big.values())
+    return out
+
+
 def _height(c: Cluster) -> float:
     b = c.geometry_box
     return b[3] - b[1]
 
 
+TITLED_KEEP_SHARE = 0.25      # 27 Nov 2026: a titled part this large against a titled host is a drawing of its own
+TITLED_KEEP_CLASSES = ("floor_plan", "section", "elevation", "roof_plan")   # ... when both titles name one of these
 STRIP_MAX_ENTS = 3            # 24 Nov 2026: a strip of at most this many straight lines or dimensions ...
 STRIP_THIN = 0.2              # ... at most this thick for its length is a satellite of the drawing next to it
 STRIP_KINDS = ("LINE", "DIMENSION")
@@ -661,17 +713,23 @@ def _line_strip(c: Cluster, w: float, h: float) -> bool:
     return all(e.kind in STRIP_KINDS and e.rect is None for e in c.ents)
 
 
-def _absorb_satellites(clusters: list[Cluster]) -> list[Cluster]:
+def _absorb_satellites(clusters: list[Cluster], titled: Optional[dict] = None) -> list[Cluster]:
     """Small clusters next to a drawing (its dimension chains, a north arrow, a door drawn apart) join it: a cluster
     whose box is <= 5 % of the drawing's (or thin), within half the drawing's shorter side, with 10 x fewer entities.
-    Title boxes and other lone rectangles never join."""
+    Title boxes and other lone rectangles never join. ``titled``: cluster id -> the classes of the drawing titles a
+    title cut gave it (27 Nov 2026): a cluster of at least ``TITLED_KEEP_SHARE`` of the other's entities (a drawing,
+    not an inset detail) never joins another titled with the same class (``TITLED_KEEP_CLASSES``: two sections, two
+    elevations) because its box lies inside it."""
+    titled = titled or {}
     out = list(clusters)
     for c in sorted(clusters, key=lambda c: c.size):
         if c.kind != "drawing" or c not in out:
             continue
         cb = c.geometry_box
         holders = [host for host in out if host is not c and host.kind == "drawing" and host.frame == c.frame
-                   and box_inside(cb, host.geometry_box) and _area(host.geometry_box) > _area(cb)]
+                   and box_inside(cb, host.geometry_box) and _area(host.geometry_box) > _area(cb)
+                   and not (titled.get(id(c), set()) & titled.get(id(host), set())
+                            and len(c.ents) >= TITLED_KEEP_SHARE * len(host.ents))]
         if holders:
             # Furniture in the middle of a room, farther than the gap from every wall: inside the drawing's box.
             min(holders, key=lambda h_: _area(h_.geometry_box)).ents.extend(c.ents)

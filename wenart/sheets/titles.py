@@ -59,6 +59,9 @@ CLASS_WORDS: list[tuple[str, str, str]] = [
     ("3d_view", r"\bPERSPECTIVE\b", "en"),
     ("3d_view", r"\b3D\b", "en"),
     ("floor_plan", r"\bKAT PLANI\b", "tr"),
+    # 27 Nov 2026 (audit fix round 4, R06): a habitable attic's plan ('Ç.A.P. PLANI', 'ÇATI ARASI PİYESİ PLANI') is a
+    # floor plan (its level word, ``levels.ATTIC_PLAN_RE``, makes it the level above the top storey)
+    ("floor_plan", r"(?<![A-Z])C\s*\.\s*A\s*\.\s*P\b\.?\s*PLANI?\b|\bCATI\s+ARASI\s+PIYES(?:I|LERI)\s+PLANI?\b", "tr"),
     ("floor_plan", r"\bFLOOR PLAN\b", "en"),
     ("floor_plan", r"\bGRUNDRISS\b", "de"),
     ("floor_plan", r"\bPLAN DU\b|\bPLAN D'ETAGE\b", "fr"),
@@ -266,3 +269,23 @@ def pick_title(texts, geometry_box, region_height: Optional[float] = None, fallb
     if not cands:
         return None
     return max(cands, key=lambda t: (t.height, -t.point[1], -t.point[0]))
+
+
+# 27 Nov 2026 (audit fix round 4, R07 a): one slope text pattern for every reader, the number before or after the word
+# ('EĞİM %33', 'EĞİM:33%', 'EĞİM%33', '%30 EĞİM', '%33 EGIM', '30% SLOPE'); only a number next to a slope word (a
+# dimension text holding '%' is no slope)
+_SLOPE_WORD = r"(?:EGIM|SLOPE|PENTE|NEIGUNG|GEFALLE)"
+_PCT = r"(\d{1,3}(?:[.,]\d+)?)"
+SLOPE_PCT_RE = re.compile(r"\b" + _SLOPE_WORD + r"\b\s*[:=]?\s*%\s*" + _PCT
+                          + r"|\b" + _SLOPE_WORD + r"\b\s*[:=]?\s*" + _PCT + r"\s*%"
+                          + r"|%\s*" + _PCT + r"\s*" + _SLOPE_WORD + r"\b"
+                          + r"|(?<![\d.,])" + _PCT + r"\s*%\s*" + _SLOPE_WORD + r"\b")
+
+
+def slope_pct(text: str) -> Optional[float]:
+    """The slope in per cent a slope text gives (``SLOPE_PCT_RE`` on the folded text), or None (pure)."""
+    m = SLOPE_PCT_RE.search(fold(text or ""))
+    if not m:
+        return None
+    v = next(g for g in m.groups() if g)
+    return float(v.replace(",", "."))

@@ -714,7 +714,10 @@ def roof_block(sheets: dict, levels: list[dict], rooms: list[dict], walls: Optio
     across = (0.0, shift[1]) if axis == "x" else (shift[0], 0.0) if axis == "y" else shift
     roof = {"type": (ex or {}).get("type") or "other", "type_source": (ex or {}).get("type_source") or "assumed",
             "over_level_id": top["id"] if top else None,
-            "eaves_height": hroof.get("eaves_z"), "ridge_height": hroof.get("ridge_z"),
+            # 27 Nov 2026 (audit fix round 4, R07 c): a roof plan's own marks (the roof it draws) outrank the section's
+            # profile heights when the roof plan gave the roof
+            "eaves_height": (ex or {}).get("eaves_height") or hroof.get("eaves_z"),
+            "ridge_height": (ex or {}).get("ridge_height") or hroof.get("ridge_z"),
             "pitches_deg": list((ex or {}).get("pitches_deg") or hroof.get("pitches_deg") or []),
             "overhang": hroof.get("overhang"),
             "thickness": hroof.get("thickness"), "knee_wall": hroof.get("knee_wall"), "profile": profile,

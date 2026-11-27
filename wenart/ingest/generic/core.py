@@ -4817,6 +4817,9 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
         # numbered, read from the numbers where the stair rule found none (generic.stair_numbers)
         from wenart.ingest.generic import stair_numbers as SN
         pieces, cands, sn_polys = SN.apply(pieces, cands, texts_m, non_wall, s, file_rel, page_no, ex.notes)
+        # 27 Nov 2026 (audit fix round 4, R24): the stair formula text in or next to a stair ('(19X17.36Rh=330/27)')
+        from wenart.ingest.generic import stair_formula as SF
+        SF.attach(pieces, texts_m, ex.notes)
         # 13 Nov 2026 (coordinator; review A2-FC5): a rule stair with nothing of a stair written by it is none
         pieces = SY.check_rule_stairs(pieces, texts_m, non_wall, TP.faces(bwalls, b_openings), ex.notes)
         if sn_polys:

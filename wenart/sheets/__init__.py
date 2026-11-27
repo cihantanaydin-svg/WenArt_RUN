@@ -329,6 +329,15 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
         b = outlines[reference.id].bounds
         # The outline's box and the extent most of it reaches (an entrance step outside the walls left out).
         ref_extent = [(b[2] - b[0], b[3] - b[1]), RG.wall_extent(outlines[reference.id])]
+        # 27 Nov 2026 (audit fix round 4, R06): the reference extent is the building's outline, never a sheet frame
+        # drawn round the plan (its frame lines left out, ``register.building_extent``)
+        if RG.frame_stack_ids(reference):
+            ext = RG.building_extent(reference)
+            if ext is not None:
+                warnings.append(f"sections: the reference plan {reference.id} is drawn in a frame: the cut-axis check "
+                                f"uses its building outline {ext[0][0]:.2f} x {ext[0][1]:.2f} m, not the frame "
+                                f"{ref_extent[0][0]:.2f} x {ref_extent[0][1]:.2f} m")
+                ref_extent = ext
     if len(sections) > 1:
         # 4 Nov 2026 (real07, user: "There are lots of details on how the roofing should have been ... why you are not
         # using it to design the roof?"): the site plan, titled by a section mark among its thumbnails, came first and
@@ -347,12 +356,23 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
             warnings.append(f"{len(sections)} sections: heights from {sections[0].id}; "
                             f"{', '.join(s.id for s in sections[1:])} not read for heights")
     cut = RG.cut_line(read_plans, sections[0]) if sections and reference is not None and outlines else None
+    if cut is not None and cut.get("method") == "cut_marks":
+        warnings.append(f"section {sections[0].id}: its cut marks '{cut['letter']}' found by their geometry on "
+                        f"{cut['region']} (no line on a cut-line layer): the cut runs along {cut['axis']} at "
+                        f"{cut['at']:.2f} m" + ("" if cut["flipped"] is not None else
+                                                "; the triangles do not say which way it looks (flipped unknown)"))
     heights_json, hw = HT.heights(section_geom, base_levels, ref_extent, values,
                                   sections[0].file if sections else None, conflict, cut)
+    named_lines = []
     if storey_el:
         # 3 Nov 2026 (real09): the storeys the sections name at their floor marks set the floor heights
-        hw += HT.apply_storey_marks(heights_json, base_levels, storey_el, float(values.get("slab_thickness", 0.20)),
-                                    sections[0].file if sections else None, sections[0].id if sections else None)
+        named_lines = HT.apply_storey_marks(heights_json, base_levels, storey_el,
+                                            float(values.get("slab_thickness", 0.20)),
+                                            sections[0].file if sections else None, sections[0].id if sections else None)
+        hw += named_lines
+    if section_geom is not None and section_geom.mpu and not any(ln.startswith("heights from") for ln in named_lines):
+        hw += _marks_first(heights_json, base_levels, section_geom, read_plans, levels_json, values,
+                           sections[0], warnings)
     heights_json.pop("_mark_frame", None)
     heights_json.pop("_bands", None)
     hw += HT.high_ground(heights_json, base_levels)
@@ -442,10 +462,14 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
     elevations = [r for r in regions if r.cls == "elevation" and r.use == "exterior"]
     sites = [r for r in regions if r.cls == "site_plan" and r.use == "exterior"]
     roof_plans = [r for r in regions if r.cls == "roof_plan" and r.use == "exterior"]
+    # 27 Nov 2026 (audit fix round 4, R06): a reference plan drawn in a frame: its building outline (frame left out)
+    bld_outline = RG.building_outline_m(reference) if reference is not None and reference.id in outlines \
+        and RG.frame_stack_ids(reference) else None
     exterior_json = EX.exterior(top_plan, section_geom, elevations, sites,
                                 outlines.get(reference.id) if reference is not None else None, conflict, warnings,
                                 reference=reference if reference is not None and reference.id in outlines else None,
-                                heights=heights_json, plans=read_plans, outlines=outlines, roof_plans=roof_plans)
+                                heights=heights_json, plans=read_plans, outlines=outlines, roof_plans=roof_plans,
+                                building_outline=bld_outline)
     if multi and not elevations:
         warnings.append("no elevation drawn: facade materials and outside openings are not drawn (facade empty)")
 
@@ -486,6 +510,58 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
     RP.write_report(doc_json, out_dir / REPORT_MD, pending)
     return Result(doc=doc_json, pending=pending, questions=len(items),
                   review=[n["reason"] for n in doc_json["needs_review"]], regions=regions)
+
+
+def _marks_first(heights_json: dict, base_levels: list, section_geom, read_plans: list, levels_json: list,
+                 values: dict, section_region, warnings: list) -> list[str]:
+    """27 Nov 2026 (audit fix round 4, R06; a section region holding two sections and two elevations gave a 7.82 m
+    ground floor from its slab bands while it printed ±0.00, +0.50, +3.20, +3.50 ... and the plans' floor marks were
+    +0.50 and +3.50): a section's level marks come before its slab bands. When the bands give no storeys, do not match
+    the plans, or give a house storey over ``heights.HOUSE_STOREY_MAX_M`` that no mark confirms
+    (``heights.marks_first_reasons``), the plans' own floor marks that the section prints set the storeys (rule
+    ``section_plan_marks``) and the section's marks a slab under the next floor their ceilings. A house storey over the
+    limit that no mark can replace is refused (the floors take the assumed heights). Returns the lines (logged)."""
+    from wenart.sheets import heights as HT
+    from wenart.sheets import levels as LV
+
+    n = len(base_levels)
+    nb = len(section_geom.bands or [])
+    why = HT.marks_first_reasons(heights_json, base_levels, section_geom, nb not in (n, n + 1))
+    if not why:
+        return []
+    marks = {}
+    for lv in levels_json:
+        if lv.get("typical") and lv.get("id") != (lv.get("typical") or {}).get("levels", [lv.get("id")])[0]:
+            continue                                  # a typical plan's copies print its first storey's marks
+        r = next((p for p in read_plans if p.id == lv.get("base_region")), None)
+        if r is None or lv.get("order") is None or lv.get("order") in marks:
+            continue
+        try:
+            marks[lv["order"]] = LV.floor_mark(r)
+        except Exception:  # noqa: BLE001 - a plan without readable marks gives none
+            marks[lv["order"]] = None
+    el = HT.plan_marks_on_section(section_geom, marks)
+    lead = f"section {section_region.id}: its level marks come before its slab bands ({'; '.join(why)})"
+    if el:
+        slab = float(values.get("slab_thickness", 0.20))
+        heights_json["levels"], heights_json["slabs"] = [], []
+        HT._assumed_levels(heights_json, base_levels, float(values.get("ceiling_height", 2.70)), slab,
+                           "not printed on the section")
+        lines = HT.apply_storey_marks(heights_json, base_levels, el, slab, section_region.file, section_region.id,
+                                      rule=HT.PLAN_MARKS_RULE, source="the plans' floor marks the section prints")
+        lines += HT.ceilings_from_marks(heights_json, base_levels, section_geom, el, section_region.file,
+                                        section_region.id)
+        out = [lead + ": " + "; ".join(lines)]
+    elif any("no level mark at the floor above" in w for w in why):
+        heights_json["levels"], heights_json["slabs"] = [], []
+        HT._assumed_levels(heights_json, base_levels, float(values.get("ceiling_height", 2.70)),
+                           float(values.get("slab_thickness", 0.20)), "a house storey over "
+                           f"{HT.HOUSE_STOREY_MAX_M:.1f} m that no level mark confirms")
+        out = [lead + ": no plan floor mark is printed on it; the floors take the assumed heights (refused)"]
+    else:
+        out = []
+    warnings.extend(out)
+    return out
 
 
 def multi_region(regions: list) -> bool:

@@ -44,7 +44,8 @@ TITLE_CONFIDENCE = 0.99
 LEVEL_ONLY_CONFIDENCE = 0.7
 GEOMETRY_CONFIDENCE = {"title_block": 0.9, "section": 0.85, "elevation": 0.7, "site_plan": 0.7, "floor_plan": 0.7,
                        "roof_plan": 0.6}
-SLOPE_TEXT = re.compile(r"\b(EGIM|SLOPE|PENTE|NEIGUNG|GEFALLE)\b\s*:?\s*%?\s*\d")
+# 27 Nov 2026 (audit fix round 4, R07 a): one shared slope pattern, the number before or after the word
+SLOPE_TEXT = T.SLOPE_PCT_RE
 STREET_WORDS = re.compile(r"\b(SOKAK|SOK|CADDE|CAD|BULVAR|YOL|PARSEL|ADA|STREET|ROAD|AVENUE|STRASSE|RUE|AVENUE)\b")
 # 11 Oct 2026 (real04): words only a site plan carries: the plot line, the building setback line, the site plan's
 # own name; with them one area label (GÜNEŞLENME ALANI, a pool) does not make the region a floor plan.
@@ -148,12 +149,18 @@ def features(region: Region, mpu: Optional[float]) -> dict:
     if not f["room_labels"] and region.class_method != "title":
         from wenart.sheets import register as RG
         f["roof_outline"] = bool(RG.enclosing_outlines(region, mpu))
-        f["slope_texts"] = sum(1 for t in region.texts if SLOPE_TEXT.search(T.fold(t.text)))
-        f["hip_lines"] = sum(1 for a, b, _ in UC.segments(region.strokes())
-                             if 20.0 <= abs(math.degrees(math.atan2(b[1] - a[1], b[0] - a[0]))) % 90.0 <= 70.0
-                             and math.dist(a, b) >= 0.1 * max(b_ - a_ for a_, b_ in zip(region.geometry_box[:2],
-                                                                                         region.geometry_box[2:])))
+        f["slope_texts"] = sum(1 for t in region.texts if T.slope_pct(t.text) is not None)
+        f["hip_lines"] = hip_line_count(region)
     return f
+
+
+def hip_line_count(region: Region) -> int:
+    """The region's diagonal lines (20-70 degrees) at least a tenth of its box's longer side long: a roof plan's hips
+    and valleys (pure)."""
+    return sum(1 for a, b, _ in UC.segments(region.strokes())
+               if 20.0 <= abs(math.degrees(math.atan2(b[1] - a[1], b[0] - a[0]))) % 90.0 <= 70.0
+               and math.dist(a, b) >= 0.1 * max(b_ - a_ for a_, b_ in zip(region.geometry_box[:2],
+                                                                           region.geometry_box[2:])))
 
 
 def _window_rows(region: Region, mpu: Optional[float]) -> int:
