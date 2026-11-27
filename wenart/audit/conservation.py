@@ -353,8 +353,33 @@ def reasons(manifest: Optional[dict]) -> list[dict]:
             for reason, ids in sorted(groups.items(), key=lambda kv: -len(kv[1]))]
 
 
-def audit(stages: list[tuple[str, dict]], manifest: Optional[dict] = None) -> dict:
-    """``{"findings": [...], "checked": {...}}`` over the stages in order (``[(name, building)]``) and the scene."""
+def bare_left_out(findings: list[dict], stages: list[tuple[str, dict]]) -> list[dict]:
+    """27 Nov 2026 (check pod 2smyy0ktv63y40: in a structure run Argus called the drawn movable pieces the bare build
+    leaves out by design "missing after the build", 194 major findings on real10): in a bare build, a C1 into the build
+    or a C3 about a furniture piece the bare building does not keep (``fixture_use.bare_keeps``) is explained, an
+    ``info`` note; the drawn fixed equipment and the stairs stay checked."""
+    from wenart.furniture.fixture_use import bare_keeps
+
+    pieces = {}
+    for _name, b in stages:
+        for f in _items(b, ("furniture",)):
+            pieces.setdefault(f["id"], f)
+    out = []
+    for f in findings:
+        ev = f.get("evidence") or {}
+        piece = pieces.get(f.get("target"))
+        into_build = f.get("check") == "C3" or (f.get("check") == "C1" and ev.get("to") == "build")
+        if (into_build and ev.get("collection") == "furniture" and piece is not None and not bare_keeps(piece)
+                and f.get("severity") != "info"):
+            f = dict(f, severity="info", message=f"{f.get('message')} (left out by the bare build of a structure run: "
+                                                 f"only the stairs and the drawn fixed equipment are built)")
+        out.append(f)
+    return out
+
+
+def audit(stages: list[tuple[str, dict]], manifest: Optional[dict] = None, bare: bool = False) -> dict:
+    """``{"findings": [...], "checked": {...}}`` over the stages in order (``[(name, building)]``) and the scene.
+    ``bare``: the run built the bare building of a structure check (``bare_left_out``)."""
     findings = []
     for (na, a), (nb, b) in zip(stages, stages[1:]):
         findings += between(na, a, nb, b)
@@ -364,6 +389,8 @@ def audit(stages: list[tuple[str, dict]], manifest: Optional[dict] = None) -> di
         findings += named_left_out(stages[-1][1])
         findings += turned_in_build(stages[-1][1], manifest)
     findings += reasons(manifest)
+    if bare:
+        findings = bare_left_out(findings, stages)
     checked = {name: sum(len(_items(b, p)) for _c, p in COLLECTIONS) for name, b in stages}
     return {"findings": findings, "checked": checked,
             "counts": {c: sum(1 for f in findings if f["check"] == c) for c in ("C1", "C2", "C3", "C4", "C5", "C6",

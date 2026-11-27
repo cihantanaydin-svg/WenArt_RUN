@@ -177,7 +177,7 @@ def file_line(inp: I.Inputs, fname: str) -> Optional[dict]:
 def lines(inp: I.Inputs) -> dict:
     """``{line: {"findings", "checked", "note"}}`` of every line (module docstring)."""
     out = {}
-    cons = CV.audit(inp.stages, inp.manifest)
+    cons = CV.audit(inp.stages, inp.manifest, bare=I.bare_run(inp.run_manifest))
     out["conservation"] = {"findings": cons["findings"], "checked": cons["checked"],
                            "note": None if inp.stages else "no stage buildings found"}
     proc = PR.audit(inp)

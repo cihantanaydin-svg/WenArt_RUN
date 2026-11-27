@@ -358,12 +358,11 @@ def bare_building(building: dict) -> tuple[dict, int, int]:
     documents (``fixture_use.FIXED_TYPES``: stairs, kitchen runs and appliances, sanitary ware; CLAUDE.md treats it
     like walls) stays; every other piece (drawn movable furniture, the AI's added pieces) and the decor go. The drawn
     pieces stay in the building JSON for the full run; only this build leaves them out."""
-    from wenart.furniture.fixture_use import FIXED_TYPES
+    from wenart.furniture.fixture_use import bare_keeps
 
     keep, out = [], 0
     for f in building.get("furniture") or []:
-        if str(f.get("type") or "") == "stair" or (f.get("type") in FIXED_TYPES
-                                                   and f.get("source") == "from_documents"):
+        if bare_keeps(f):
             keep.append(f)
         else:
             out += 1

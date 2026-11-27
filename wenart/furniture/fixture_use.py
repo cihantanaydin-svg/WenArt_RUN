@@ -144,6 +144,14 @@ TYPE_HEIGHT_M: dict[str, float] = {"wardrobe": 2.0, "tall_cabinet": 2.0, "booksh
                                    "desk": 0.75, "tv_unit": 0.50, "nightstand": 0.55}
 
 
+def bare_keeps(piece: dict) -> bool:
+    """3 Nov 2026 (the structure profile's bare building, ``wenart.blender.build.bare_building``), shared with Argus on
+    27 Nov 2026: whether a structure check builds this piece: every stair, and the fixed equipment the documents draw
+    (``FIXED_TYPES`` with ``source: from_documents``); every other piece and the decor are left out by design."""
+    t = str(piece.get("type") or "")
+    return t == "stair" or (t in FIXED_TYPES and piece.get("source") == "from_documents")
+
+
 # --------------------------------------------------------------------------
 # Geometry
 # --------------------------------------------------------------------------

@@ -82,6 +82,62 @@ def inspector_of_run(rec: Optional[dict], run_manifest: Optional[dict]) -> tuple
     return rec, None
 
 
+# 27 Nov 2026 (check pod 2smyy0ktv63y40, a structure run with no agent stage: the agent stage's building of a full run
+# of 2 Nov stayed in the project's output folder on the volume, and C1 called 799 rooms, walls and openings of the run
+# lost between "layout" and "agent"): a stage's building counts only when the run manifest says its stage ran in this
+# run. stage (conservation.STAGE_FILES) -> the run's stage names that write its file (wenart/run/stages.py)
+STAGE_RUN_NAMES = {"reading": ("pipeline_final", "pipeline"), "fit": ("fit",), "layout": ("layout",),
+                   "decor": ("decor",), "agent": ("agent_apply", "agent"), "final": ("refit",), "build": ("build",)}
+RAN = ("ok", "warning", "reused", "incomplete")
+
+
+def stages_of_run(stages: list, run_manifest: Optional[dict], project: str) -> tuple[list, list]:
+    """``(stages this run wrote, [{"record", "why"}] of the ones an earlier run left)`` (pure). Without a run manifest,
+    or one that does not list the project's stages, every stage is kept (the old behaviour). A stage counts when one
+    of its run stages ended ``ok``, ``warning``, ``reused`` or ``incomplete``; a stage the manifest lists as skipped,
+    pending or failed, or does not list at all, wrote nothing in this run, so its file is an earlier run's."""
+    if not isinstance(run_manifest, dict):
+        return list(stages), []
+    rec = next((p for p in run_manifest.get("projects") or []
+                if isinstance(p, dict) and p.get("name") == project), None)
+    if not isinstance(rec, dict) or not isinstance(rec.get("stages"), list):
+        return list(stages), []
+    status = {s.get("stage"): s.get("status") for s in rec["stages"] if isinstance(s, dict)}
+    kept, stale = [], []
+    for name, building in stages:
+        names = STAGE_RUN_NAMES.get(name)
+        if names is None or any(status.get(n) in RAN for n in names):
+            kept.append((name, building))
+            continue
+        said = ", ".join(f"{n} {status[n]}" for n in names if n in status) or "not run"
+        stale.append({"record": f"stage {name}", "why": f"stale: its stage did not run in this run ({said}); the "
+                                                         f"file an earlier run left is not compared"})
+    return kept, stale
+
+
+# 27 Nov 2026: the records only the agent phase writes (its judge's rubric, the big loop, its decision log with the
+# room critic's findings, the AI architect's look) and the final vision check belong to a run only when that phase ran
+AGENT_RUN_NAMES = ("agent_apply", "agent_previews", "agent")
+AGENT_RECORDS = ("rubric", "big_loop", "agent_log", "architect_look")
+
+
+def bare_run(run_manifest: Optional[dict]) -> bool:
+    """Whether the run built the bare building of a structure check (the run manifest's ``profile``; pure)."""
+    return isinstance(run_manifest, dict) and run_manifest.get("profile") == "structure"
+
+
+def agent_ran(run_manifest: Optional[dict], project: str) -> Optional[bool]:
+    """Whether the agent phase ran for the project in this run (pure): None when the manifest does not say."""
+    if not isinstance(run_manifest, dict):
+        return None
+    rec = next((p for p in run_manifest.get("projects") or []
+                if isinstance(p, dict) and p.get("name") == project), None)
+    if not isinstance(rec, dict) or not isinstance(rec.get("stages"), list):
+        return None
+    return any(isinstance(s, dict) and s.get("stage") in AGENT_RUN_NAMES and s.get("status") in RAN
+               for s in rec["stages"])
+
+
 def _first(*paths) -> Optional[Path]:
     return next((Path(p) for p in paths if p and Path(p).is_file()), None)
 
@@ -120,6 +176,18 @@ def _fill(inp: Inputs, scene: Path, orch: Path, recog: Path, run: Path, final: P
     if stale:
         inp.missing.append(f"inspector ({stale})")
         inp.stale.append({"record": "inspector", "why": stale})
+    if agent_ran(inp.run_manifest, inp.project) is False:
+        for name in AGENT_RECORDS + (("check",) if bare_run(inp.run_manifest) else ()):
+            if getattr(inp, name) is not None:
+                setattr(inp, name, None)
+                why = "stale: the agent phase did not run in this run" if name != "check" else \
+                    "stale: a structure run makes no final vision check"
+                inp.missing.append(f"{name} ({why})")
+                inp.stale.append({"record": name, "why": why})
+    inp.stages, old_stages = stages_of_run(inp.stages, inp.run_manifest, inp.project)
+    for rec in old_stages:
+        inp.missing.append(f"{rec['record']} ({rec['why']})")
+        inp.stale.append(rec)
     tops = {p.name: p for d in (scene, scene.parent / "renders") if d.is_dir()
             for p in sorted(d.glob("top_*_plan*.jpg"))}
     inp.top_plans = [tops[k] for k in sorted(tops)]          # the pod keeps them in renders/, a collected run in scene
