@@ -237,6 +237,15 @@ def test_r24_stair_formula_variants():
     assert SF.storey_ok(SF.parse("(19X17.36Rh=330/27)"), 3.00) is False
 
 
+def test_r24_the_size_tag_parsers_ignore_stair_formulas():
+    from wenart.ingest import sense_rules, twins
+    from wenart.ingest.generic import core
+    for text in ("(19X17.36Rh=330/27)", "(17x 17.65 / 28)", "17X17.64Rh=300/27"):
+        for rx in (core.SIZE_TAG_RE, core.OPENING_TAG_RE, core.K_TAG_RE, core.WINDOW_TAG_RE, twins.DOOR_SIZE_TAG_RE,
+                   sense_rules.TAG_RE):
+            assert not rx.search(text), (rx.pattern, text)
+
+
 def _num(v: int, x: float, y: float) -> SimpleNamespace:
     return SimpleNamespace(text=str(v), height=0.12, box=(x - 0.05, y - 0.06, x + 0.05, y + 0.06),
                            evidence=[{"layer": "MERDIVEN"}])
@@ -284,26 +293,40 @@ def test_r24_the_formula_sets_the_riser_when_the_stair_draws_its_risers_and_find
 def test_r24_the_storey_check_and_a_full_storey_from_the_top_level():
     from wenart.levels import model as LM
     rec = {"risers": 19, "riser_m": 0.1736, "text": "(19X17.36Rh=330/27)", "drawn_risers": 19, "used": "riser"}
-    stair = {"id": "f_L0_006", "type": "stair", "level_id": "L0",
-             "details": {"stair": {"flights": [{"lines": 19, "spacing": 0.27}], "formula": dict(rec), "riser_m": 0.1736,
-                                   "riser_source": "documented: the stair formula '(19X17.36Rh=330/27)'"}}}
-    top = {"id": "f_L1_001", "type": "stair", "level_id": "L1",
-           "details": {"stair": {"flights": [{"lines": 17}], "formula": {"risers": 17, "riser_m": 0.1765,
-                                                                         "text": "(17x 17.65 / 28)"}}}}
+    # the building JSON keeps a stair piece's record under 'stair' (a reading under 'details.stair')
+    stair = {"id": "f_L0_006", "type": "stair", "level_id": "L0", "footprint": {"center": [5.0, 5.0]},
+             "stair": {"flights": [{"lines": 19, "spacing": 0.27}], "formula": dict(rec), "riser_m": 0.1736,
+                       "riser_source": "documented: the stair formula '(19X17.36Rh=330/27)'"}}
+    arriving = {"id": "f_L1_001", "type": "stair", "level_id": "L1", "footprint": {"center": [5.2, 5.0]},
+                "stair": {"flights": [{"lines": 19}], "formula": dict(rec)}}
+    duplex = {"id": "f_L1_007", "type": "stair", "level_id": "L1", "footprint": {"center": [12.0, 3.0]},
+              "details": {"stair": {"flights": [{"lines": 17}], "formula": {"risers": 17, "riser_m": 0.1765,
+                                                                            "text": "(17x 17.65 / 28)"}}}}
     b = {"levels": [{"id": "L0", "order": 0, "elevation": 0.0}, {"id": "L1", "order": 1, "elevation": 3.30}],
-         "furniture": [stair, top]}
+         "furniture": [stair, arriving, duplex]}
     conflicts, warnings = [], []
     LM._stair_formulas(b, conflicts, warnings)
-    assert stair["details"]["stair"]["formula"]["storey_ok"] is True
-    assert stair["details"]["stair"]["riser_m"] == 0.1736
-    assert any("top level L1 climbs a full storey" in c["description"] for c in conflicts)
+    assert stair["stair"]["formula"]["storey_ok"] is True and stair["stair"]["riser_m"] == 0.1736
+    tops = [c for c in conflicts if "climbs a full storey" in c["description"]]
+    assert [c["element_ids"][0] for c in tops] == ["f_L1_007"]       # the arriving stair is no stair up
     assert LM.stair_formula_range(stair) == (round(3.2984 * 0.97, 3), round(3.2984 * 1.03, 3))
     # the storey disagrees: the treads stay, the formula's riser is not used
     b["levels"][1]["elevation"] = 3.00
-    stair["details"]["stair"]["riser_m"] = 0.1736
-    stair["details"]["stair"]["riser_source"] = "documented: the stair formula '(19X17.36Rh=330/27)'"
     LM._stair_formulas(b, [], warnings)
-    assert stair["details"]["stair"]["riser_m"] is None and stair["details"]["stair"]["formula"]["storey_ok"] is False
+    assert stair["stair"]["riser_m"] is None and stair["stair"]["formula"]["storey_ok"] is False
+
+
+def test_r24_a_stair_down_to_the_basement_fits_the_storey_below():
+    from wenart.levels import model as LM
+    down = {"id": "f_L0_001", "type": "stair", "level_id": "L0", "footprint": {"center": [1.0, 1.0]},
+            "stair": {"flights": [{"lines": 17}], "riser_m": 0.1764,
+                      "riser_source": "documented: the stair formula '(17X17.64Rh=300/27)'",
+                      "formula": {"risers": 17, "riser_m": 0.1764, "text": "(17X17.64Rh=300/27)", "drawn_risers": 17}}}
+    b = {"levels": [{"id": "L-1", "order": -1, "elevation": -3.0}, {"id": "L0", "order": 0, "elevation": 0.0},
+                    {"id": "L1", "order": 1, "elevation": 3.30}], "furniture": [down]}
+    LM._stair_formulas(b, [], [])
+    assert down["stair"]["formula"]["storey_ok"] is True and down["stair"]["riser_m"] == 0.1764
+    assert down["stair"]["formula"]["storey_m"] == 3.0
 
 
 # --------------------------------------------------------------------------------------------------------------------

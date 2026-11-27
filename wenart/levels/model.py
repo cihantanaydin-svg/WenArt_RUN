@@ -335,11 +335,27 @@ def storey_stairs(b: dict, level_id: str) -> list[tuple[dict, tuple[float, float
     return out
 
 
+def stair_record(f: dict) -> Optional[dict]:
+    """A stair piece's stair record: ``stair`` in the building JSON, ``details.stair`` in a reading (pure)."""
+    for rec in (f.get("stair"), (f.get("details") or {}).get("stair") if isinstance(f.get("details"), dict) else None):
+        if isinstance(rec, dict):
+            return rec
+    return None
+
+
 def stair_formula(f: dict) -> Optional[dict]:
     """27 Nov 2026 (audit fix round 4, R24): the stair formula a stair piece took (``stair_formula.attach``), or None."""
-    data = (f.get("details") or {}).get("stair") if isinstance(f.get("details"), dict) else None
-    rec = (data or {}).get("formula")
+    rec = (stair_record(f) or {}).get("formula")
     return rec if isinstance(rec, dict) and rec.get("risers") and rec.get("riser_m") else None
+
+
+def _stair_centre(f: dict) -> Optional[tuple]:
+    c = (f.get("footprint") or {}).get("center") if isinstance(f.get("footprint"), dict) else None
+    c = c or f.get("center")
+    return (float(c[0]), float(c[1])) if isinstance(c, (list, tuple)) and len(c) >= 2 else None
+
+
+ARRIVING_STAIR_M = 1.0          # a top level's stair within this of a stair of the level below is that stair arriving
 
 
 def stair_formula_range(f: dict) -> Optional[tuple[float, float]]:
@@ -356,7 +372,8 @@ def _stair_formulas(b: dict, conflicts: list, warnings: list) -> None:
     """27 Nov 2026 (audit fix round 4, R24): every stair formula checked against the storey it climbs. A formula whose
     N x R is not the storey height within 3 % keeps the treads (its riser height is not used: ``riser_m`` dropped,
     listed); a common stair's steep risers and unequal goings are findings (``stair_formula.formula_findings``); a
-    formula on the top level that rises a full storey means a level above it, a finding when no plan draws one."""
+    formula on the top level that rises a full storey means a level above it, a finding when no plan draws one (never
+    for the stair arriving from the level below, drawn at the same place, ``ARRIVING_STAIR_M``)."""
     from wenart.ingest.generic import stair_formula as SF
     levels = sorted((lv for lv in base_levels(b) if lv.get("order") is not None), key=lambda x: int(x["order"]))
     by_id = {lv["id"]: lv for lv in levels}
@@ -365,30 +382,39 @@ def _stair_formulas(b: dict, conflicts: list, warnings: list) -> None:
         rec = stair_formula(f) if f.get("type") == "stair" else None
         if rec is None or f.get("level_id") not in by_id:
             continue
-        data = f["details"]["stair"]
+        data = stair_record(f)
         lv = by_id[f["level_id"]]
         nxt = next((x for x in levels if int(x["order"]) == int(lv["order"]) + 1), None)
-        storey = None
-        if nxt is not None and isinstance(nxt.get("elevation"), (int, float)) and isinstance(lv.get("elevation"),
-                                                                                              (int, float)):
-            storey = float(nxt["elevation"]) - float(lv["elevation"])
+        below = next((x for x in levels if int(x["order"]) == int(lv["order"]) - 1), None)
+        # a stair drawn on a plan goes up to the storey above or down to the one below: its formula climbs either
+        storeys = []
+        for a, c in ((lv, nxt), (below, lv)):
+            if a is not None and c is not None and isinstance(a.get("elevation"), (int, float)) \
+                    and isinstance(c.get("elevation"), (int, float)):
+                storeys.append((float(c["elevation"]) - float(a["elevation"]), a["id"], c["id"]))
         rise = int(rec["risers"]) * float(rec["riser_m"])
-        ok = SF.storey_ok(rec, storey)
-        rec["storey_m"] = None if storey is None else round(storey, 3)
+        fits = [st for st in storeys if SF.storey_ok(rec, st[0])]
+        ok = None if not storeys else bool(fits)
+        storey = (fits or storeys or [(None, None, None)])[0]
+        rec["storey_m"] = None if storey[0] is None else round(storey[0], 3)
         rec["storey_ok"] = ok
         if ok is False and str(data.get("riser_source") or "").startswith("documented: the stair formula"):
             data["riser_m"], data["riser_source"] = None, None
             rec["used"] = "storey_differs"
         if ok is False:
-            warnings.append(f"stair {f['id']}: its formula '{rec.get('text')}' climbs {rise:.2f} m, the storey "
-                            f"{lv['id']} -> {nxt['id']} {storey:.2f} m (over {SF.STOREY_TOL:.0%} apart): the treads "
-                            f"are kept, the formula's riser not used")
+            warnings.append(f"stair {f['id']}: its formula '{rec.get('text')}' climbs {rise:.2f} m, no storey it "
+                            f"joins (" + ", ".join(f"{a} -> {c} {h:.2f} m" for h, a, c in storeys) + f") within "
+                            f"{SF.STOREY_TOL:.0%}: the treads are kept, the formula's riser not used")
         for what in SF.formula_findings(data):
             warnings.append(f"stair {f['id']} ({lv['id']}): {what}")
             conflicts.append({"kind": "other", "element_ids": [f["id"]],
                               "description": f"stair {f['id']} on {lv['id']}: {what}",
                               "resolution": "listed (R24): the drawn stair is kept"})
-        if f["level_id"] == top and rise >= STOREY_MIN_M:
+        here = _stair_centre(f)
+        arriving = below is not None and here is not None and any(
+            g.get("type") == "stair" and g.get("level_id") == below["id"] and _stair_centre(g) is not None
+            and math.dist(_stair_centre(g), here) <= ARRIVING_STAIR_M for g in b.get("furniture") or [])
+        if f["level_id"] == top and rise >= STOREY_MIN_M and not arriving:
             what = (f"stair {f['id']} on the top level {top} climbs a full storey ({rec.get('text')}: {rise:.2f} m): "
                     f"a level above it is drawn on no plan")
             warnings.append(what)
