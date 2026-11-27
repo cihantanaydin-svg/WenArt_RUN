@@ -5489,3 +5489,108 @@ the wall and whose opening the wall reader closed with two section lines: the do
 wall there) and real17's 'HİDROFOR' / 'TABİ ZEMİNE GÖMÜLÜ SU DEPOSU' (labels 2 m outside the walls on the roof layer:
 a buried water tank and its pump in the garden, site installations, not rooms; Argus counts them as rooms). Files of
 round 5b touched: `wenart/levels/outdoor.py` (the R16 hook in `outdoor_spaces`, 20 lines). No pod run.
+### Audit fix round 4b (27 Nov 2026)
+
+An independent review of round 4 (483522dc, 05fca115, 3ffd8b7f) found 14 confirmed defects, two of them regressions on
+real projects the gates did not see (real09's section read mirrored, real13's flat roof read as a gambrel), and a list
+of plausible concerns. Each is fixed as a rule for every project, CPU only, no pod; lessons UL480-UL492 (UL493: the
+eaves default verdict). Tests: `tests/test_audit_round4b_20261127.py` (29 tests from the reviewer's repros, every one
+fails on 0a678fd1); round 4's file changed where it pinned a defect (the duplex attic, the `slopes` list, the steep and
+goings findings, the dropped drawn tree) and its weak knee-wall assertion is now exact; `test_real06_reading` no longer
+reads the removed `slopes` list. The stair formula parser keeps its public names (`FORMULA_RE` still finds the 'N x R'
+shape; `parse` now also asks for a formula's context; new: `is_formula`, `formula_context`, `SIZE_WORD_RE`;
+`COMMON_RISER_MAX_M` is gone): the size-tag parsers should exclude formulas with `parse` / `is_formula`, not with
+`FORMULA_RE` alone, or '20x20' tile tags are lost too.
+
+| item | what was wrong | rule now | test |
+|---|---|---|---|
+| D1 duplex titles | 'DUBLEKS ÜST KAT' was an attic word: a ground-floor duplex's upper floor went above the top storey | no attic word; a numbered title is its floor (the attic word gives only the kind); only an unnumbered attic goes on top | d1 |
+| D2 cut view | the triangle's centroid was measured against the line through the two letters | the side on the cut line is the base, the opposite corner the view; else a clear arrowhead pointing across; an arrow along the line says nothing | d2 (3 shapes, both letter places) |
+| D3 roof pitch | drain falls outvoted the roof's pitch texts | only 10-150 % votes, never a slope with or beside a drain or ramp word, only texts inside the eaves loop when it is read | d3 |
+| D4 tall storey | one unconfirmed storey over 5 m made every level assumed; absolute marks could not confirm | it refuses itself and the storeys above (listed conflict); marks read in the datum's own frame; bands with no storeys at all: every floor assumed, as before round 4 | d4 |
+| D5 z 0 | with the ground floor's mark not printed, the lowest printed storey became z 0 | the ground floor's own floor mark (its plan's) is z 0; none: the printed marks set nothing | d5 |
+| D6 real13 roof | no slab band: every sloped line of the region became a gambrel profile | with no band only lines above the highest storey mark printed in two columns count (none: every line, as before); outer walls with nothing over them read flat | d6 |
+| D7 turned ridge | the raise checked the walls of the unturned ridge | the ridge actually built | d7 |
+| D8 set-back wall | every outer wall was taken to stand at the eaves | each opening at its own wall face (both head corners, outer face) against the roof plane over it; gable-end windows checked at the slope over their corners | d8 |
+| D9 default heights | a window with default heights moved a drawn ridge | only drawn opening heights move a drawn ridge (conflict listed); a default one is clipped, conflict listed | d9 |
+| D10 size labels | '20x20 SERAMİK', '15X15', '2x0.15' parsed as formulas | a formula needs a written H, a written going, or brackets with a storey's rise and N not R's own number; never beside a size or material word | d10 |
+| D11 neighbour formula | the formula nearest a chain's first number capped it, whichever stair it belonged to | each formula to the nearest whole chain, one per chain | d11 |
+| D12 flight down | a formula fitting the storey below set the climbing range of the storey above | such a formula sets no climbing range | d12 |
+| D13 R24 findings | goings from reader noise; steep on private stairs | a written going wins; the steep finding is the regulation's (`regulations.riser_limit`, 0.18 / 0.16 m, one source) on common stairs only; the missing-level finding says it may be a stair to the roof (real17: 8 R24 findings -> 1, its common stair drawing 18 risers against the formula's 19) | d13 (2), item3 |
+| D14 courtyard tree | a drawn tree in a courtyard was dropped | a drawn tree is never dropped (kept, listed for review); open-to-sky parts (roof openings, open-air rooms no floor above covers, ground outdoor spaces) are no cover | d14 |
+
+Concerns fixed with them:
+
+| concern | rule now | test |
+|---|---|---|
+| no datum taken as ±0.00 | the ground floor plan's own floor mark is building z 0 for the roof plan's marks; ±0.00 only when it prints none (assumed, logged) | concern |
+| the highest mark as the main ridge | never a mark on a lower roof, in a small closed rectangle on the roof, or beside a stair house, lift, chimney or tank word | concern |
+| the roof plan's mark replaced the section's ridge silently | a listed conflict when they differ by more than 0.10 m (the plan still wins; it says when the section prints the same mark) | concern (real07: +8.65 against the 9.10 vent top) |
+| a section's ridge placed without its width | it keeps its share of the section's width when the section is not as wide as the building (real17: 15.09 m against 13.72 m, the ridge moves 0.68 m to the centre) | concern |
+| grid labels in squares or hexagons | any closed shape of a bubble's size and square box (never a triangle) | concern |
+| two swallowed exceptions | a plan floor mark that cannot be read and an opening the roof check cannot read are logged | 2 concerns |
+| the frame split could cut a plan in two | a drawing whose entities in no inner frame outnumber every framed part stays one | concern |
+| 'ÇATI EĞİMİ %30' never parsed | 'EĞİMİ' is a slope word too | - |
+| the per-part `slopes` list was used nowhere | removed; the note lists the other slopes and says one pitch per roof part is not built yet (multi-part roofs: round 5b) | round 4's test |
+
+The regression set prints `struct:` lines per project (item 6): each level's floor and ceiling and their sources, the
+section's cut axis, cut place and flip, the roof as read (type, source, pitches, ridge, eaves, ridge lines) and as the
+build derives it (eaves, ridge, pitch, ridge direction, raise), and each stair's risers and riser height as the build
+plans it. They are additive: the existing lines are unchanged, so old logs still compare (`regcmp` shows them as new
+lines). The stored baselines (`results/reading_baseline/`) hold no `structure` yet: they are not compared on it (no
+note, no regression) until the user accepts an update; a baseline written after that compares the struct lines as
+notes ("struct changed: ..."), never as a regression. No store was updated.
+
+The R24 steep finding uses the regulation check's own common-stair test, which was itself improved: a stair whose
+centre stands in a room of one dwelling is that dwelling's own (real17's 15 x 20 duplex stairs stood in the flats'
+salons a wall away from the floor hall and were judged common; `regulations.Context.common_stair`).
+
+Sheet compare against the code before round 4 (e1c6bdfa; the reviewer's dumps, 19 real and 3 synthetic projects):
+
+| project | differs from pre-round-4 | intended |
+|---|---|---|
+| real17 | attic L4 (Ç.A.P.) at z 12.30; cut along x at 11.96 m from the 'A' marks, not flipped; the gable ridge north-south over the building's centre (x 13.03; round 4: 13.71, 0.68 m off); two old conflicts gone | yes (round 4's gains; the ridge by its share of the section's width) |
+| real15 | A-A and B-B and the elevations separate; L1 3.00 m, L0 ceiling 2.70 m, datum +0.50 (section_plan_marks); hip roof at 30 % = 16.7 degrees, ridge +7.45 -> z 6.95; a listed conflict: the roof plan's ridge 6.95 against the section's 7.24 | yes |
+| real07 | the roof plan's ridge +8.65 -> z 8.15; a listed conflict against the section's 9.10 (a vent top; the section prints +8.65 itself) | yes |
+| real09 | the cut marks 'A' found on r1: cut along x at 10.08 m, not flipped (round 4: flipped, the section mirrored); the ground sides named left / right | yes |
+| real13 | roof flat as before round 4; the section's frame lines are no longer read as 4 slab bands, so its heights come from the storey marks only (the floors as before; two conflicts that came from the frame lines gone) | yes |
+| real14 | the same floors by the rule section_plan_marks instead of plan_title_marks | yes (round 4, reviewed) |
+| real20 | one warning: the reference plan's building outline used for the cut-axis check, not its frame | yes (round 4) |
+| real16, real18 | none (round 4 had changed real16's message; real18 keeps its section's roof) | - |
+| the other 13 | none | - |
+
+The eaves default of round 4 (a full top storey's eaves on its ceiling and slab; the 1.0 m knee wall only for a level
+named an attic), measured with the roof code before round 4, round 4's and this round's on this round's readings of
+every project with a pitched roof (UL493):
+
+| project | roof, top level | eaves rule | eaves before -> after round 4 | top-storey openings the roof clips | verdict |
+|---|---|---|---|---|---|
+| real02, real04 | mansard, attic | drawn | 3.65, 3.75 (same) | 0 | not affected |
+| real06, real07, real15 | hip, full storey | drawn (section) | 6.00, 6.67, 5.78 (same) | 0 | not affected |
+| real09 | gambrel, attic | drawn | 9.42 (same) | as before | not affected |
+| real16 | gambrel, full storey | drawn | 13.62 (same) | 0 | not affected (its roof stands in another frame: see below) |
+| real17 | gable, attic L4 | drawn | 12.30 (same) | as before | not affected |
+| real18 | gambrel, full storey 3. Normal Kat | the default | 9.71 -> 11.90 | 19 of 19 -> 0 of 19 | right: its section draws the roof on the top slab |
+| real10, real13, real14 | flat in the building | - | - | - | not affected |
+
+The default is kept: only real18 uses it, and there it is right. The eaves raise for openings (round 4's R07 f, now per
+wall face) fired on no project: every pitched roof over a full storey draws its eaves.
+
+Gates (this round's final code; "main" = 0a678fd1):
+
+| gate | main | this round | holds |
+|---|---|---|---|
+| sheet compare against pre-round-4 (22 projects) | 8 projects changed, 2 of them wrongly (real09 mirrored, real13 gambrel) | 7 changed, every change intended (table above); real16 and real18 as before round 4 | yes |
+| `score --gate` against 381016c0 (never --update) | overall 97.9, synthetic (gated) 97.5, real06 100 | the same; every row identical | yes |
+| regress set (34 projects, real08 left out) | main's lines | every project's lines identical; the new `struct:` lines added | yes |
+| dataset bench (107 projects, 201 floors) | mean 76.34; F1 levels .889, rooms .778, walls .751, doors .818, windows .777, stairs .759 | identical, every project's total the same | yes |
+| new tests | - | 29 pass (`test_audit_round4b_20261127.py`); all 29 fail on 0a678fd1 | yes |
+| `pytest -m "not gpu"` (three batches) | 12 known failures | 10015 passed, 266 skipped, 28 xfailed, 14 failed: the 12 known and two this round caused, both fixed and rerun (47 pass): `test_blender_imports` (`site.open_to_sky` imported wenart.building, which Blender's Python cannot: a local fold now) and `test_real06_reading` (it pinned the removed `slopes` list: now the note) | yes |
+
+Found by the new struct lines, not fixed here (next round): real16's section gives no storeys (every floor assumed),
+but its roof profile's eaves 13.62 and ridge 15.74 stay in that section's frame: the roof is built about 8 m over the
+top ceiling (5.70). real15's roof is built at 6.5 degrees: the section's eaves 5.78 and the roof plan's ridge 6.95
+both drawn, against the plan's written 30 % (16.7 degrees); the three do not agree. real18's section region also holds
+its attic plan (one region of two drawings): no slab band is found, and its pitched roof stays a 'gambrel' as before
+round 4. Not done here: one pitch per roof part (multi-part roofs, round 5b), a roof plan arrow's ridge direction,
+real17's 19-riser stair still built with 18 risers, the torn gable over real17's recessed terrace. No pod run.

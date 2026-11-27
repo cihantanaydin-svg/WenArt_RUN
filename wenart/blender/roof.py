@@ -794,20 +794,40 @@ def attic_level(level: Optional[dict]) -> bool:
 
 
 OPENING_EAVES_GAP_M = 0.05       # an opening's head stays this far under the roof underside (OPENING_ROOF_GAP)
-EAVES_WALL_DEG = 15.0            # a wall within this of the ridge direction runs under an eaves (a gable roof)
+EAVES_WALL_DEG = 15.0            # (kept for callers) a wall within this of the ridge direction runs under an eaves
 
 
-def opening_eaves(building: dict, level: dict, overhang: float, tan_pitch: float,
-                  ridge_dir: Optional[Sequence[float]]) -> tuple[Optional[float], str]:
-    """27 Nov 2026 (audit fix round 4, R07 f): the lowest eaves height (the eaves edge ``overhang`` outside the wall
-    face, the slope at ``tan_pitch``, the roof's assumed thickness) under which every door and window of ``level`` in
-    a wall under an eaves keeps its head ``OPENING_EAVES_GAP_M`` under the roof underside, and the opening that sets it;
-    ``ridge_dir`` None (a hip roof): every wall runs under an eaves (pure)."""
+def roof_rise_distance(p: Sequence[float], frame: dict) -> float:
+    """27 Nov 2026 (audit fix round 4b, defects 7 and 8): how far the roof surface over plan point ``p`` has risen from
+    its eaves edge, in plan metres (the surface there is ``eaves + tan(pitch) * distance``; pure). ``frame``: ``center``,
+    ``r`` (the ridge direction actually built, turned or not), ``across``, ``half_along``, ``half_across``, ``hip``
+    (a hip roof: its ends rise too) and ``outline`` (a stepped hip roof: the distance to the outline's edges). Never
+    under 0."""
+    if frame.get("stepped") and len(frame.get("outline") or []) >= 3:
+        poly = frame["outline"]
+        return max(0.0, geom2d.distance_to_polygon_edges(p, poly)) if G.point_in_polygon(tuple(p[:2]), poly) else 0.0
+    cx, cy = frame["center"]
+    dx, dy = p[0] - cx, p[1] - cy
+    ax, ay = frame["across"]
+    d = frame["half_across"] - abs(dx * ax + dy * ay)
+    if frame.get("hip"):
+        rx, ry = frame["r"]
+        d = min(d, frame["half_along"] - abs(dx * rx + dy * ry))
+    return max(0.0, d)
+
+
+def opening_needs(building: dict, level: dict, tan_pitch: float, frame: dict) -> list[tuple[float, str, bool]]:
+    """27 Nov 2026 (audit fix round 4b, defects 7-9): ``[(eaves needed, "door d_x", drawn)]`` for every door and window
+    of ``level`` in an outer wall (pure): the lowest eaves under which its head keeps ``OPENING_EAVES_GAP_M`` under the
+    roof underside (the roof's assumed thickness) at its own wall face: both head corners at both faces of its wall, the
+    roof's height there from ``roof_rise_distance`` (a wall set back under the roof, a terrace door 3 m in, needs no
+    raise; a window on a gable end is checked at the slope over its corners, not skipped). ``drawn``: its head comes from
+    drawn heights (no default filled its sill or height)."""
     from wenart.blender import shell
     walls = {w["id"]: w for w in building.get("walls") or [] if w.get("level_id") == level.get("id")}
     cos_p = 1.0 / math.sqrt(1.0 + tan_pitch * tan_pitch)
-    under_drop = DEFAULTS["thickness"] / max(cos_p, 1e-6) - overhang * tan_pitch
-    best, who = None, ""
+    thick = DEFAULTS["thickness"] / max(cos_p, 1e-6)
+    out = []
     for o in building.get("openings") or []:
         if o.get("level_id") != level.get("id") or o.get("type") not in ("door", "window") or o.get("virtual") \
                 or str(o.get("kind") or "") in ROOF_WINDOW_WORDS:
@@ -815,18 +835,49 @@ def opening_eaves(building: dict, level: dict, overhang: float, tan_pitch: float
         w = walls.get(o.get("wall_id"))
         if w is None or not w.get("start") or not w.get("end") or w.get("exterior") is not True:
             continue
-        if ridge_dir is not None:
-            ux, uy = _unit(w)
-            if abs(ux * ridge_dir[0] + uy * ridge_dir[1]) < math.cos(math.radians(EAVES_WALL_DEG)):
-                continue
         try:
-            _bottom, top, _a = shell.opening_vertical(o, level, False)
-        except (KeyError, TypeError, ValueError):
+            _bottom, top, flags = shell.opening_vertical(o, level, False)
+            c = (float(o["center"][0]), float(o["center"][1]))
+            half = float(o.get("width") or 0.0) / 2.0
+        except (KeyError, TypeError, ValueError, IndexError) as exc:
+            out.append((None, f"{o.get('type')} {o.get('id')}: not checked ({type(exc).__name__}: {exc})", False))
             continue
-        need = float(top) + OPENING_EAVES_GAP_M + under_drop
-        if best is None or need > best:
-            best, who = need, f"{o.get('type')} {o.get('id')}"
-    return best, who
+        ux, uy = _unit(w)
+        t2 = float(w.get("thickness") or 0.0) / 2.0
+        pts = [(c[0] + s1 * half * ux + s2 * t2 * -uy, c[1] + s1 * half * uy + s2 * t2 * ux)
+               for s1 in (-1.0, 1.0) for s2 in (-1.0, 1.0)]
+        d = min(roof_rise_distance(q, frame) for q in pts)
+        need = float(top) + OPENING_EAVES_GAP_M + thick - tan_pitch * d
+        drawn = not any(k in (flags or {}) for k in ("height", "sill_height"))
+        out.append((need, f"{o.get('type')} {o.get('id')}", drawn))
+    return out
+
+
+def opening_eaves(building: dict, level: dict, overhang: float, tan_pitch: float,
+                  ridge_dir: Optional[Sequence[float]], frame: Optional[dict] = None) -> tuple[Optional[float], str]:
+    """27 Nov 2026 (audit fix round 4, R07 f): the lowest eaves height under which every door and window of ``level``
+    keeps its head under the roof underside, and the opening that sets it (pure). 27 Nov 2026 (round 4b): measured at
+    each opening's own wall face (``opening_needs``); without a ``frame``, the roof over the walls' outline grown by
+    ``overhang`` (``ridge_dir`` None: a hip roof)."""
+    if frame is None:
+        wl = [w for w in building.get("walls") or [] if w.get("level_id") == level.get("id")]
+        line, _how = geom2d.wall_outline(wl)
+        if len(line) < 3:
+            return None, ""
+        outline = geom2d.ccw(geom2d.offset_polygon(line, -overhang) if overhang > 0 else line)
+        rect = geom2d.oriented_rectangle(outline)
+        u, v = rect["u"], rect["v"]
+        a, b = rect["half"]
+        if ridge_dir is not None and abs(ridge_dir[0] * v[0] + ridge_dir[1] * v[1]) > abs(ridge_dir[0] * u[0]
+                                                                                           + ridge_dir[1] * u[1]):
+            u, v, a, b = v, (-v[1], v[0]), b, a
+        frame = {"center": rect["center"], "r": u, "across": v, "half_along": a, "half_across": b,
+                 "hip": ridge_dir is None}
+    needs = [n for n in opening_needs(building, level, tan_pitch, frame) if n[0] is not None]
+    if not needs:
+        return None, ""
+    best = max(needs, key=lambda n: n[0])
+    return best[0], best[1]
 
 
 def derive(roof: dict, building: dict) -> dict:
@@ -978,14 +1029,41 @@ def _derive(roof: dict, building: dict, pitch: Optional[float] = None, turn: boo
     if rtype != "flat" and level is not None and not attic_level(level) \
             and not any(_value(roof.get(k)) is not None and not _is_assumed(roof.get(k))
                         for k in ("eaves_height", "knee_wall")):
-        need, who = opening_eaves(building, level, overhang, t1, axis0[0] if rtype != "hip" else None)
-        if need is not None and need > eaves + 1e-3:
-            raised = math.ceil((need - eaves) / SLOPE_RAISE_STEP_M - 1e-9) * SLOPE_RAISE_STEP_M
+        # 27 Nov 2026 (audit fix round 4b): every opening at its own wall face under the roof actually built (the turned
+        # ridge, ``r``, defect 7; a wall set back from the eaves, defect 8); only drawn opening heights move a drawn
+        # ridge height, an opening whose head is a default never does (defect 9: it is clipped, the conflict listed)
+        frame = {"center": rect["center"], "r": r, "across": across, "half_along": half_along,
+                 "half_across": half_across, "hip": rtype == "hip", "stepped": stepped, "outline": outline}
+        needs = opening_needs(building, level, t1, frame)
+        for n in needs:
+            if n[0] is None:
+                warnings.append(f"the roof is not checked against {n[1]} of the top storey {level['id']}")
+        needs = [n for n in needs if n[0] is not None]
+        ridge_drawn = ridge is not None and not _is_assumed(roof.get("ridge_height"))
+        movers = [n for n in needs if n[2] or not ridge_drawn]
+        mover = max(movers, key=lambda n: n[0]) if movers else None
+        target = mover[0] if mover is not None else None
+        kept_out = [n for n in needs if not n[2] and ridge_drawn and n[0] > max(eaves, target or eaves) + 1e-3]
+        for need, who, _drawn in sorted(kept_out, key=lambda n: -n[0])[:5]:
+            text = (f"conflict: the roof clips {who} of the full storey {level['id']} (it needs the eaves at "
+                    f"{need:.3f} m, the drawn ridge {ridge:.3f} m puts them at {eaves:.3f} m); its head height is not "
+                    f"drawn (a default): the drawn ridge is kept and the opening is clipped to the roof")
+            warnings.append(text)
+            assumed.append({"field": "conflict", "value": who, "reason": text})
+        if target is not None and target > eaves + 1e-3:
+            who = mover[1]
+            raised = math.ceil((target - eaves) / SLOPE_RAISE_STEP_M - 1e-9) * SLOPE_RAISE_STEP_M
             warnings.append(f"the roof would clip {who} of the top storey {level['id']} (a full storey): the eaves "
                             f"rise {raised:.2f} m from {eaves:.3f} m (R07 f; the drawn openings are kept)")
             assumed.append({"field": "eaves_raise", "value": round(raised, 3),
                             "reason": f"refused a roof that clips {who} of the full storey {level['id']}: the eaves "
                                       f"rise from {eaves:.3f} to {eaves + raised:.3f} m (logged, R07 f)"})
+            if ridge_drawn:
+                text = (f"conflict: the drawn ridge height {ridge:.3f} m is not kept: the drawn head of {who} of the "
+                        f"full storey {level['id']} needs the eaves at {target:.3f} m (drawn against drawn: the "
+                        f"opening's heights win, the roof rises {raised:.2f} m)")
+                warnings.append(text)
+                assumed.append({"field": "conflict", "value": who, "reason": text})
             eaves += raised
             if ridge is not None:
                 notes.append(f"the drawn ridge height {ridge:.3f} m is not kept: the eaves rose for the top storey's "

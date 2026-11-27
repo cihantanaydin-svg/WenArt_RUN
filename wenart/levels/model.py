@@ -325,14 +325,40 @@ def stair_rise_range(lines: int) -> Optional[tuple[float, float]]:
 
 
 def storey_stairs(b: dict, level_id: str) -> list[tuple[dict, tuple[float, float]]]:
-    """The stair pieces of a level with the storey heights each can climb (``stair_rise_range``) (pure)."""
+    """The stair pieces of a level with the storey heights each can climb up (``stair_rise_range``; its formula's
+    range, ``stair_formula_range``, only when the formula is a flight up: 27 Nov 2026, audit fix round 4b, defect 12:
+    a ground-floor stair with the basement's formula, 17 x 17.64 = 3.00, made the section's 3.30 m storey above a
+    mismatch; a formula that fits the storey below and not the one above is the flight down) (pure)."""
     out = []
     for f in b.get("furniture") or []:
         if f.get("type") == "stair" and f.get("level_id") == level_id:
-            rng = stair_formula_range(f) or stair_rise_range(stair_lines(f))
+            rng = stair_formula_range(f) if not formula_goes_down(b, f) else None
+            rng = rng or stair_rise_range(stair_lines(f))
             if rng is not None:
                 out.append((f, rng))
     return out
+
+
+def formula_goes_down(b: dict, f: dict) -> bool:
+    """27 Nov 2026 (audit fix round 4b, defect 12): True when a stair piece's formula climbs the storey below its level
+    (``stair_formula.storey_ok``) and not the one above (pure; False without a formula or the storeys' elevations)."""
+    from wenart.ingest.generic import stair_formula as SF
+    rec = stair_formula(f)
+    if rec is None:
+        return False
+    levels = {int(lv["order"]): lv for lv in base_levels(b) if lv.get("order") is not None}
+    lv = next((x for x in levels.values() if x["id"] == f.get("level_id")), None)
+    if lv is None:
+        return False
+    o = int(lv["order"])
+
+    def storey(a, c) -> Optional[float]:
+        if a is None or c is None or not isinstance(a.get("elevation"), (int, float)) \
+                or not isinstance(c.get("elevation"), (int, float)):
+            return None
+        return float(c["elevation"]) - float(a["elevation"])
+    up, down = storey(lv, levels.get(o + 1)), storey(levels.get(o - 1), lv)
+    return bool(down is not None and SF.storey_ok(rec, down) and not (up is not None and SF.storey_ok(rec, up)))
 
 
 def stair_record(f: dict) -> Optional[dict]:
@@ -378,6 +404,7 @@ def _stair_formulas(b: dict, conflicts: list, warnings: list) -> None:
     levels = sorted((lv for lv in base_levels(b) if lv.get("order") is not None), key=lambda x: int(x["order"]))
     by_id = {lv["id"]: lv for lv in levels}
     top = levels[-1]["id"] if levels else None
+    ctx_box: dict = {}
     for f in b.get("furniture") or []:
         rec = stair_formula(f) if f.get("type") == "stair" else None
         if rec is None or f.get("level_id") not in by_id:
@@ -405,7 +432,11 @@ def _stair_formulas(b: dict, conflicts: list, warnings: list) -> None:
             warnings.append(f"stair {f['id']}: its formula '{rec.get('text')}' climbs {rise:.2f} m, no storey it "
                             f"joins (" + ", ".join(f"{a} -> {c} {h:.2f} m" for h, a, c in storeys) + f") within "
                             f"{SF.STOREY_TOL:.0%}: the treads are kept, the formula's riser not used")
-        for what in SF.formula_findings(data):
+        found = list(SF.formula_findings(data))
+        steep = _steep_formula(b, f, rec, ctx_box, warnings)
+        if steep:
+            found.insert(0, steep)
+        for what in found:
             warnings.append(f"stair {f['id']} ({lv['id']}): {what}")
             conflicts.append({"kind": "other", "element_ids": [f["id"]],
                               "description": f"stair {f['id']} on {lv['id']}: {what}",
@@ -416,10 +447,37 @@ def _stair_formulas(b: dict, conflicts: list, warnings: list) -> None:
             and math.dist(_stair_centre(g), here) <= ARRIVING_STAIR_M for g in b.get("furniture") or [])
         if f["level_id"] == top and rise >= STOREY_MIN_M and not arriving:
             what = (f"stair {f['id']} on the top level {top} climbs a full storey ({rec.get('text')}: {rise:.2f} m): "
-                    f"a level above it is drawn on no plan")
+                    f"a level above it is drawn on no plan, or it is a stair up to the roof (a roof terrace, a roof "
+                    f"hatch or a stair house)")
             warnings.append(what)
             conflicts.append({"kind": "other", "element_ids": [f["id"], top], "description": what,
                               "resolution": "listed (R06/R24): a missing upper level (an attic or duplex floor)"})
+
+
+def _steep_formula(b: dict, f: dict, rec: dict, ctx_box: dict, warnings: list) -> Optional[str]:
+    """27 Nov 2026 (audit fix round 4b, item 3; real17's private 15 x 20 duplex stairs were 'steep'): the regulation's
+    steep-riser finding of a stair's formula riser, on a common stair only (``regulations.steep_common_riser`` with the
+    regulation's limits, 0.18 m with a lift, 0.16 m without); the regulation context is built once per building and
+    only for a riser over the lower limit. A context that cannot be built is logged, never silent."""
+    from wenart.reading_check import regulations as REG
+    riser = rec.get("riser_m")
+    if not isinstance(riser, (int, float)):
+        return None
+    if "limits" not in ctx_box:
+        ctx_box["limits"] = REG.load_limits()
+    lim = ctx_box["limits"]
+    if riser <= min(REG.riser_limit(lim, True), REG.riser_limit(lim, False)) + REG.RISER_TOL_M:
+        return None
+    if "ctx" not in ctx_box:
+        try:
+            ctx_box["ctx"] = REG.Context(b, lim)
+        except Exception as exc:  # noqa: BLE001 - logged: the steep check is skipped, the stair kept
+            ctx_box["ctx"] = None
+            warnings.append(f"stairs: the regulation context could not be built ({type(exc).__name__}: {exc}): the "
+                            f"steep-riser check of the stair formulas is skipped")
+    if ctx_box["ctx"] is None:
+        return None
+    return REG.steep_common_riser(ctx_box["ctx"], f.get("level_id"), f, float(riser))
 
 
 def _floor_mark(b: dict, marks: list, level_id: str) -> Optional[tuple[float, int, int]]:
