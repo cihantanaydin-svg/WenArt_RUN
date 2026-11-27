@@ -172,6 +172,19 @@ Fix round after P6b (23 Oct 2026; the library lens of the P6b analysis): the cre
 - How: decoded where the file is written; the catalogue keeps its text (``growth_entries.source_text`` decodes the
   titles of new entries), and a credit without an entity is unchanged.
 
+27 Nov 2026 (check pod 2smyy0ktv63y40): the run-product folders carry only this run's files.
+
+- What: the files of a run-product folder (``RUN_PRODUCT_SOURCES``: the agent's round images and before/after
+  sheets, its previews, the polish, gate, detect and export folders) are copied only when they were written at or
+  after this run's start (``run_window``: the earliest ``started_utc`` of this run's stage records, less
+  ``RUN_START_MARGIN_S``), unless a stage that owns the folder was ``reused`` in this run (its earlier files are then
+  this run's result). A hand run without run ids copies everything as before. Nothing on the volume is touched.
+- Why: the project's output folder on the volume keeps every earlier run's files. The structure run of 27 Nov ran no
+  agent, no polish, no gate, yet its results took 154 MB of real06's agent round images of 30 Oct and the pack hit
+  the runner's size cap.
+- How: the round images are written by ``shutil.copyfile`` and the renderers (a new modified time), so an older file
+  is an earlier run's.
+
 ``copy_lock(path)``: the job's copy lock (``full.sh`` exports it as
 ``WENART_COPY_LOCK``; the same ``flock`` the background loop takes), so the
 orchestrator's own copy before the GPU tests never interleaves with the loop.
@@ -323,6 +336,12 @@ IMAGE_AREAS = ("renders", "polish", "gate", "check", "realism", "final", "agent"
 VARIANTS_DIR = "variants"          # = wenart.run.stages.VARIANTS_DIR (Milestone 10)
 LOG_TAIL_LINES = 400
 STAMP_OVERLAP_S = 2
+# 27 Nov 2026 (module docstring): rule source folder -> the stages whose ``reused`` keeps its older files
+RUN_PRODUCT_SOURCES = {"orchestrator/images": ("agent",), "orchestrator/compare": ("agent",),
+                       "agent/previews": ("agent_previews",), "final/agent": ("agent",),
+                       "polish": ("polish",), "polish/sweep": ("polish",), "polish/smoke": ("polish",),
+                       "gate": ("gate",), "detect": ("detect",), "export": ("export",)}
+RUN_START_MARGIN_S = 600           # clock skew between the stage records and the volume's modified times
 PREVIEW_PATTERNS = ("*_preview.jpg", "*_alt_preview.jpg", "*_gate.jpg", "*_check.jpg", "*_plan.jpg", "contact_*.jpg")
 
 
@@ -503,9 +522,10 @@ def copy_project(ref: ProjectRef, since: Optional[float] = None) -> int:
     if not out_dir.is_dir():
         return 0
     run_id = this_run_id(out_dir)            # fix round part 3: the base project's run decides for its alternatives
-    count = _copy_tree(ref, out_dir, "", since, run_id)
+    window = run_window(out_dir)             # 27 Nov 2026: the run-product folders carry only this run's files
+    count = _copy_tree(ref, out_dir, "", since, run_id, window)
     for vid in variant_folders(out_dir):
-        count += _copy_tree(ref, out_dir / VARIANTS_DIR / vid, f"{VARIANTS_DIR}/{vid}", since, run_id)
+        count += _copy_tree(ref, out_dir / VARIANTS_DIR / vid, f"{VARIANTS_DIR}/{vid}", since, run_id, window)
     count += write_attributions(ref)
     return count
 
@@ -532,6 +552,40 @@ def this_run_id(project_out: Path) -> Optional[str]:
     from wenart.report import final as F
 
     return F.split_runs(F.load_stage_records(Path(project_out)))[2]
+
+
+def _epoch(stamp) -> Optional[float]:
+    from datetime import datetime, timezone
+
+    try:
+        when = datetime.fromisoformat(str(stamp).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return (when if when.tzinfo else when.replace(tzinfo=timezone.utc)).timestamp()
+
+
+def run_window(project_out: Path) -> tuple[Optional[float], frozenset]:
+    """``(this run's start as epoch seconds, the stages this run reused)`` of a project output (module docstring, 27
+    Nov 2026): the earliest ``started_utc`` of this run's stage records (``split_runs``); ``(None, ...)`` for a hand
+    run without run ids or without dated records (every file then counts as this run's)."""
+    from wenart.report import final as F
+
+    this, _earlier, run_id = F.split_runs(F.load_stage_records(Path(project_out)))
+    if not run_id:
+        return None, frozenset()
+    starts = [t for t in (_epoch(r.get("started_utc")) for r in this if r.get("started_utc")) if t is not None]
+    reused = frozenset(str(r["stage"]) for r in this if r.get("status") == "reused")
+    return (min(starts) if starts else None), reused
+
+
+def earlier_run_file(src: str, path: Path, window: tuple[Optional[float], frozenset]) -> bool:
+    """Whether ``path`` in the run-product folder ``src`` is an earlier run's file (written before this run's start,
+    less the margin, and no stage that owns the folder was reused in this run); pure but for the file's time."""
+    stages = RUN_PRODUCT_SOURCES.get(src)
+    start, reused = window
+    if stages is None or start is None or reused.intersection(stages):
+        return False
+    return path.stat().st_mtime < start - RUN_START_MARGIN_S
 
 
 def final_view_names(out_dir: Path, run_id: Optional[str]) -> set:
@@ -585,7 +639,8 @@ def unchanged_copy(path: Path, target: Path) -> bool:
     return tt.st_size == st.st_size and tt.st_mtime_ns == st.st_mtime_ns
 
 
-def _copy_tree(ref: ProjectRef, out_dir: Path, prefix: str, since: Optional[float], run_id: Optional[str]) -> int:
+def _copy_tree(ref: ProjectRef, out_dir: Path, prefix: str, since: Optional[float], run_id: Optional[str],
+               window: tuple[Optional[float], frozenset] = (None, frozenset())) -> int:
     """The rules over one output folder: the project's (``prefix`` "") or an alternative's (``variants/<id>``).
     Fix round after P3, part 2: the view files of ``final/`` follow this run's final manifest (``final_view_names``)
     and an earlier run's view files in the results' ``final`` folder move to its ``earlier_run/``. Part 3: this run
@@ -600,9 +655,12 @@ def _copy_tree(ref: ProjectRef, out_dir: Path, prefix: str, since: Optional[floa
         for folder, sub in _sources(out_dir, rule):
             sub = "/".join(p for p in (prefix, sub) if p)
             dst_dir = ref.results_area(rule.area) / sub if sub else ref.results_area(rule.area)
-            taken = 0
+            taken = earlier = 0
             for path in sorted(folder.iterdir()):
                 if not path.is_file() or path.is_symlink():
+                    continue
+                if earlier_run_file(rule.src, path, window):
+                    earlier += 1                     # 27 Nov 2026: an earlier run's file stays on the volume only
                     continue
                 how = wanted(rule, path)
                 if how is not None and rule.kind == "crops":
@@ -637,6 +695,9 @@ def _copy_tree(ref: ProjectRef, out_dir: Path, prefix: str, since: Optional[floa
                     target.write_text(json.dumps(private_record(data), indent=1, ensure_ascii=False) + "\n",
                                       encoding="utf-8")
                 count += 1
+            if earlier and not ref.private:
+                print(f"copy: {earlier} file(s) of an earlier run in {prefix + '/' if prefix else ''}{rule.src}/ "
+                      f"left out (written before this run started)", file=sys.stderr)
         if final_rule:
             # The view files the results took before (earlier in this job, before this run's report) that this run's
             # manifest does not name leave the results' final folder: moved to its earlier_run/, never deleted.
