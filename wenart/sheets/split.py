@@ -673,7 +673,10 @@ def _split_by_frames(groups: list[list[int]], ents: list[Ent], frame_boxes: list
             c = ents[i].centre
             parts.setdefault(next((n for n, fb in enumerate(leaves) if in_box(c, fb)), None), []).append(i)
         big = {k: list(p) for k, p in parts.items() if k is not None and len(p) >= TITLE_PART_MIN}
-        if len(big) < 2:
+        free = len(parts.get(None) or [])
+        if len(big) < 2 or free > max(len(p) for p in big.values()):
+            # 27 Nov 2026 (audit fix round 4b): the entities in no inner frame outnumber every framed part: a drawing
+            # whose frame holds inset frames (titled details beside a plan) stays one drawing, never cut in two
             out.append(g)
             continue
         boxes = {k: leaves[k] for k in big}

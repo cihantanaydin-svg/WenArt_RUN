@@ -23,9 +23,11 @@ from typing import Optional
 
 from wenart import building as B
 
-# 27 Nov 2026 (audit fix round 4, R06): the titles of a habitable attic's plan, on the ASCII-folded upper-case text
-ATTIC_PLAN_RE_TEXT = (r"(?<![A-Z])C\s*\.\s*A\s*\.\s*P\b\.?|\bCATI\s+ARASI\s+PIYES(?:I|LERI)\b"
-                      r"|\bDUBLEKS\s+UST\s+KAT|\bUST\s+DUBLEKS\b")
+# 27 Nov 2026 (audit fix round 4, R06): the titles of a habitable attic's plan, on the ASCII-folded upper-case text.
+# 27 Nov 2026 (audit fix round 4b, defect 1): 'DUBLEKS ÜST KAT' is no attic word: a duplex's upper floor is a storey
+# (a ground-floor duplex's upper floor is the 1st floor, normal flats above it); its order comes from its number or
+# from the free place between the titled storeys
+ATTIC_PLAN_RE_TEXT = r"(?<![A-Z])C\s*\.\s*A\s*\.\s*P\b\.?|\bCATI\s+ARASI\s+PIYES(?:I|LERI)\b"
 ATTIC_PLAN_RE = re.compile(ATTIC_PLAN_RE_TEXT)
 # Level words (§3.1 item 3): (order or "top", kind, label, pattern, language).
 LEVEL_WORDS: list[tuple[object, str, str, str, str]] = [
@@ -37,9 +39,8 @@ LEVEL_WORDS: list[tuple[object, str, str, str, str]] = [
     # 24 Nov 2026: 'ÇATI ARASI KATI' / 'ÇATI ARASI PLANI' title the roof storey; 'ÇATI ARASI' alone is a room or space
     # label (real12's sections label the roof space so), never a level title (``SECTION_TOP_RE`` reads it on sections)
     ("top", "attic", "Çatı Katı", r"\bCATI KATI?\b|\bCATI ARASI\s*(?:KATI?|PLANI)\b", "tr"),
-    # 27 Nov 2026 (audit fix round 4, R06): a habitable attic's plan is titled 'Ç.A.P.' (çatı arası piyesi), 'ÇATI ARASI
-    # PİYESİ (PLANI)' or 'DUBLEKS ÜST KAT' (a duplex's upper floor under the roof): a level above the top storey. The bare
-    # 'ÇATI ARASI' (a roof space) stays no level
+    # 27 Nov 2026 (audit fix round 4, R06): a habitable attic's plan is titled 'Ç.A.P.' (çatı arası piyesi) or 'ÇATI
+    # ARASI PİYESİ (PLANI)': a level above the top storey. The bare 'ÇATI ARASI' (a roof space) stays no level
     ("top", "attic", "Çatı Arası Piyesi", ATTIC_PLAN_RE_TEXT, "tr"),
     ("top", "attic", "Attic", r"\bATTIC\b|\bLOFT\b", "en"),
     ("top", "attic", "Dachgeschoss", r"\bDACHGESCHOSS\b", "de"),
@@ -133,13 +134,23 @@ def level_of(text: str) -> Optional[LevelWord]:
         m = pattern.search(folded)
         if m:
             return LevelWord(order=1, kind="floor", label=label, word=m.group(0), language=lang, typical=True)
+    nth = _nth_floor(folded)
     for order, kind, label, pattern, lang in _LEVEL_RE:
         if kind == "roof_terrace":
             continue
         m = pattern.search(folded)
         if m:
+            if order == "top" and nth is not None:
+                # 27 Nov 2026 (audit fix round 4b, defect 1): a title that numbers its floor ('3. KAT (ÇATI ARASI
+                # PİYESİ)') is that floor; the attic word gives only its kind (an attic goes to the top only unnumbered)
+                return LevelWord(order=nth.order, kind=kind, label=nth.label, word=nth.word, language=nth.language)
             return LevelWord(order=None if order == "top" else int(order), kind=kind, label=label, word=m.group(0),
                              language=lang)
+    return nth
+
+
+def _nth_floor(folded: str) -> Optional[LevelWord]:
+    """The floor a title numbers (``n. KAT``, ``n-th FLOOR``, ``n. OG``, Roman numerals), or None (pure)."""
     for pattern, lang, label in _NTH_RE:
         m = pattern.search(folded)
         if m:

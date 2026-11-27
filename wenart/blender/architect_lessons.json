@@ -5072,6 +5072,146 @@
    "request": "27 Nov 2026 (audit fix round 3b, with UL423): a door whose own size tag gives another height than the one the reading assumed is built at the tag's height (the assumed height kept as drawn_height, logged); a height the documents give otherwise stays. H2 says why a drawn basin stays under its window as it is: the documents give the window's heights, or its assumed sill cannot rise because the window is too short.",
    "lesson": "27 Nov 2026 (audit fix round 3b, with UL423): a door whose own size tag gives another height than the one the reading assumed is built at the tag's height (the assumed height kept as drawn_height, logged); a height the documents give otherwise stays. H2 says why a drawn basin stays under its window as it is: the documents give the window's heights, or its assumed sill cannot rise because the window is too short.",
    "question": null
+  },
+  {
+   "id": "UL480",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 4b, defect 1; a ground-floor duplex's upper floor read as an attic above the top storey): a duplex's upper floor ('DUBLEKS ÜST KAT') is a storey, never an attic: its order comes from its floor number or from the one free place between the titled storeys; a title that numbers its floor ('3. KAT (ÇATI ARASI PİYESİ)') is that floor, the attic word gives only its kind; only an unnumbered attic title goes above the top storey.",
+   "lesson": "27 Nov 2026 (audit fix round 4b, defect 1; a ground-floor duplex's upper floor read as an attic above the top storey): a duplex's upper floor ('DUBLEKS ÜST KAT') is a storey, never an attic: its order comes from its floor number or from the one free place between the titled storeys; a title that numbers its floor ('3. KAT (ÇATI ARASI PİYESİ)') is that floor, the attic word gives only its kind; only an unnumbered attic title goes above the top storey.",
+   "question": null
+  },
+  {
+   "id": "UL481",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 4b, defect 2; real09's section was read mirrored because the cut mark's direction was measured against the line through its two letters): a section cut mark points from its side that lies on the cut line to the corner opposite it (a flag, an equilateral or a wide triangle), else from an arrowhead's clearly shortest side to its apex when that points across the line; where the letter is written never matters, and an arrow along the cut line says nothing. A letter inside a grid bubble of any closed shape (circle, square, hexagon) is a grid label, never a cut mark.",
+   "lesson": "27 Nov 2026 (audit fix round 4b, defect 2; real09's section was read mirrored because the cut mark's direction was measured against the line through its two letters): a section cut mark points from its side that lies on the cut line to the corner opposite it (a flag, an equilateral or a wide triangle), else from an arrowhead's clearly shortest side to its apex when that points across the line; where the letter is written never matters, and an arrow along the cut line says nothing. A letter inside a grid bubble of any closed shape (circle, square, hexagon) is a grid label, never a cut mark.",
+   "question": null
+  },
+  {
+   "id": "UL482",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 4b, defect 3 and item 4; four gutter falls '%1 EĞİM' outvoted two roof pitches '%35 EĞİM'): only a roof pitch votes for the roof's slope: 10-150 per cent, never a slope written with or beside a drain or ramp word (DERE, OLUK, BÜZ, RAMPA, GİDER ...), and when the roof plan's eaves loop is read only the slope texts inside it; the other slopes are listed in the note. One pitch per roof part is not built yet: the whole roof takes the main pitch (multi-part roofs are a later round).",
+   "lesson": "27 Nov 2026 (audit fix round 4b, defect 3 and item 4; four gutter falls '%1 EĞİM' outvoted two roof pitches '%35 EĞİM'): only a roof pitch votes for the roof's slope: 10-150 per cent, never a slope written with or beside a drain or ramp word (DERE, OLUK, BÜZ, RAMPA, GİDER ...), and when the roof plan's eaves loop is read only the slope texts inside it; the other slopes are listed in the note. One pitch per roof part is not built yet: the whole roof takes the main pitch (multi-part roofs are a later round).",
+   "question": null
+  },
+  {
+   "id": "UL483",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 4b, defect 4; one 5.60 m top storey that no mark confirmed made every level's drawn heights assumed, and absolute marks could never confirm it): a house storey over 5 m that no level mark confirms refuses only itself and the storeys above it (the storeys below keep their drawn heights) and is listed as a conflict; the marks are read in the datum's own frame (relative marks with a relative datum, absolute marks with an absolute one); slab bands that give no storeys at all still make every floor assumed.",
+   "lesson": "27 Nov 2026 (audit fix round 4b, defect 4; one 5.60 m top storey that no mark confirmed made every level's drawn heights assumed, and absolute marks could never confirm it): a house storey over 5 m that no level mark confirms refuses only itself and the storeys above it (the storeys below keep their drawn heights) and is listed as a conflict; the marks are read in the datum's own frame (relative marks with a relative datum, absolute marks with an absolute one); slab bands that give no storeys at all still make every floor assumed.",
+   "question": null
+  },
+  {
+   "id": "UL484",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 4b, defect 5; with the ground floor's mark not printed on the section, the first floor became building z 0): when the plans' floor marks printed on a section set the storeys, building z 0 is the ground floor's own floor mark (from its plan when the section does not print it); with no ground floor mark anywhere the printed marks set no storey.",
+   "lesson": "27 Nov 2026 (audit fix round 4b, defect 5; with the ground floor's mark not printed on the section, the first floor became building z 0): when the plans' floor marks printed on a section set the storeys, building z 0 is the ground floor's own floor mark (from its plan when the section does not print it); with no ground floor mark anywhere the printed marks set no storey.",
+   "question": null
+  },
+  {
+   "id": "UL485",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 4b, defect 6; real13's flat roof read as a gambrel from stair flights and a lift's arched top once its frame lines were no longer slab bands): a section with no slab band reads no roof profile; a section with outer walls and nothing sloped read over them is a flat roof.",
+   "lesson": "27 Nov 2026 (audit fix round 4b, defect 6; real13's flat roof read as a gambrel from stair flights and a lift's arched top once its frame lines were no longer slab bands): a section with no slab band reads no roof profile; a section with outer walls and nothing sloped read over them is a flat roof.",
+   "question": null
+  },
+  {
+   "id": "UL486",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 4b, defects 7-9): the eaves raise for a full top storey's doors and windows checks every opening at its own wall face (both head corners, the outer face) against the roof plane over it, under the ridge actually built (a turned ridge turns the gable ends too; a wall set back under the roof needs no raise; a window on a gable end is checked at the slope over its corners). Only drawn opening heights move a drawn ridge (then a conflict is listed); an opening whose head is a default never does: the drawn ridge is kept, the opening clipped to the roof and the conflict listed. An opening that cannot be checked is logged.",
+   "lesson": "27 Nov 2026 (audit fix round 4b, defects 7-9): the eaves raise for a full top storey's doors and windows checks every opening at its own wall face (both head corners, the outer face) against the roof plane over it, under the ridge actually built (a turned ridge turns the gable ends too; a wall set back under the roof needs no raise; a window on a gable end is checked at the slope over its corners). Only drawn opening heights move a drawn ridge (then a conflict is listed); an opening whose head is a default never does: the drawn ridge is kept, the opening clipped to the roof and the conflict listed. An opening that cannot be checked is logged.",
+   "question": null
+  },
+  {
+   "id": "UL487",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 4b, defects 10-12): a stair formula needs a formula's context: a written H that N x R gives, a written going in the going range, or brackets with N x R a storey's rise and N not R's own number; never beside a size, material or element word (SERAMİK, ŞAFT, KOLON, DİKME, KÜPEŞTE, PARÇA, a column label): '20x20 SERAMİK', '15X15' and '2x0.15' are sizes. Each formula belongs to the stair whose whole chain of numbers it stands nearest, one formula per chain. A formula that climbs the storey below its level and not the one above is the flight down: it sets no climbing range for the storey above.",
+   "lesson": "27 Nov 2026 (audit fix round 4b, defects 10-12): a stair formula needs a formula's context: a written H that N x R gives, a written going in the going range, or brackets with N x R a storey's rise and N not R's own number; never beside a size, material or element word (SERAMİK, ŞAFT, KOLON, DİKME, KÜPEŞTE, PARÇA, a column label): '20x20 SERAMİK', '15X15' and '2x0.15' are sizes. Each formula belongs to the stair whose whole chain of numbers it stands nearest, one formula per chain. A formula that climbs the storey below its level and not the one above is the flight down: it sets no climbing range for the storey above.",
+   "question": null
+  },
+  {
+   "id": "UL488",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 4b, defect 13 and item 3; real17 had five 'goings differ' findings from reader noise on stairs written '/27', and its private duplex stairs were called steep): a written going wins over the measured tread spacing (no goings finding; without one, only flights of three or more tread lines are compared); the steep-riser finding is the regulation's (PAİY 31: 0.18 m with a lift, 0.16 m without; one source, regulations.riser_limit) and only for a common stair of a residential building; a top-level stair that climbs a full storey may be a stair up to the roof, as the finding says. A stair whose centre stands in a room of one dwelling (no room of the core or of the shared halls) is that dwelling's own, never the common stair, even a wall away from the floor hall (real17's duplex stairs in the flats' salons).",
+   "lesson": "27 Nov 2026 (audit fix round 4b, defect 13 and item 3; real17 had five 'goings differ' findings from reader noise on stairs written '/27', and its private duplex stairs were called steep): a written going wins over the measured tread spacing (no goings finding; without one, only flights of three or more tread lines are compared); the steep-riser finding is the regulation's (PAİY 31: 0.18 m with a lift, 0.16 m without; one source, regulations.riser_limit) and only for a common stair of a residential building; a top-level stair that climbs a full storey may be a stair up to the roof, as the finding says. A stair whose centre stands in a room of one dwelling (no room of the core or of the shared halls) is that dwelling's own, never the common stair, even a wall away from the floor hall (real17's duplex stairs in the flats' salons).",
+   "question": null
+  },
+  {
+   "id": "UL489",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 4b, defect 14; a drawn tree in an O-shaped house's courtyard was dropped as 'under the building'): a drawn site tree is never dropped: one inside the building's cover is kept as drawn and listed for review; the parts of the cover open to the sky (the roof's openings, open-air rooms and courtyards no room of a floor above covers, the ground level's outdoor spaces) are no cover; only inferred trees in the cover are dropped.",
+   "lesson": "27 Nov 2026 (audit fix round 4b, defect 14; a drawn tree in an O-shaped house's courtyard was dropped as 'under the building'): a drawn site tree is never dropped: one inside the building's cover is kept as drawn and listed for review; the parts of the cover open to the sky (the roof's openings, open-air rooms and courtyards no room of a floor above covers, the ground level's outdoor spaces) are no cover; only inferred trees in the cover are dropped.",
+   "question": null
+  },
+  {
+   "id": "UL490",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 4b, concerns): a roof plan's marks are read in the building's frame: with no datum the ground floor plan's own floor mark is building z 0 (±0.00 only when it prints none, assumed); the main ridge is the highest mark inside the eaves loop that stands on no lower roof, in no small closed outline and beside no stair house, lift, chimney or tank word; a roof plan mark that replaces the section's ridge or eaves by more than 0.10 m is a listed conflict (real07: the plan's +8.65 against a 9.10 vent top); a ridge read from a section that is not as wide as the building keeps its share of the section's width (real17).",
+   "lesson": "27 Nov 2026 (audit fix round 4b, concerns): a roof plan's marks are read in the building's frame: with no datum the ground floor plan's own floor mark is building z 0 (±0.00 only when it prints none, assumed); the main ridge is the highest mark inside the eaves loop that stands on no lower roof, in no small closed outline and beside no stair house, lift, chimney or tank word; a roof plan mark that replaces the section's ridge or eaves by more than 0.10 m is a listed conflict (real07: the plan's +8.65 against a 9.10 vent top); a ridge read from a section that is not as wide as the building keeps its share of the section's width (real17).",
+   "question": null
+  },
+  {
+   "id": "UL491",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 4b, concerns): a drawing whose frame holds inset frames (titled details beside a plan) stays one drawing when the entities in no inner frame outnumber every framed part; no error is swallowed silently: a plan whose floor mark cannot be read and an opening the roof check cannot read are logged.",
+   "lesson": "27 Nov 2026 (audit fix round 4b, concerns): a drawing whose frame holds inset frames (titled details beside a plan) stays one drawing when the entities in no inner frame outnumber every framed part; no error is swallowed silently: a plan whose floor mark cannot be read and an opening the roof check cannot read are logged.",
+   "question": null
+  },
+  {
+   "id": "UL492",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 4b, item 6; the gates did not see a mirrored section or a flat roof read as a gambrel): the reading regression set prints 'struct:' lines for every project: each level's floor and ceiling height and source, the section's cut axis and flip, the roof as read and as built (eaves, ridge, pitch, ridge direction, raise) and each stair's risers and riser height; they are additive (old logs still compare), a baseline without them is not compared on them, one written after an accepted update compares them as notes.",
+   "lesson": "27 Nov 2026 (audit fix round 4b, item 6; the gates did not see a mirrored section or a flat roof read as a gambrel): the reading regression set prints 'struct:' lines for every project: each level's floor and ceiling height and source, the section's cut axis and flip, the roof as read and as built (eaves, ridge, pitch, ridge direction, raise) and each stair's risers and riser height; they are additive (old logs still compare), a baseline without them is not compared on them, one written after an accepted update compares them as notes.",
+   "question": null
+  },
+  {
+   "id": "UL493",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 4b, the eaves default of round 4 measured): with no eaves, knee wall or ridge drawn, a full top storey's eaves stand on its ceiling and slab (floor + ceiling + 0.20 m) and only a level the drawings name an attic takes the 1.0 m knee wall. Measured on every pitched-roof project before and after round 4: only real18 uses the default (the others draw their eaves or have an attic); its section shows the roof standing on the top slab, and the old knee wall clipped all 19 openings of its full top storey: the default is kept.",
+   "lesson": "27 Nov 2026 (audit fix round 4b, the eaves default of round 4 measured): with no eaves, knee wall or ridge drawn, a full top storey's eaves stand on its ceiling and slab (floor + ceiling + 0.20 m) and only a level the drawings name an attic takes the 1.0 m knee wall. Measured on every pitched-roof project before and after round 4: only real18 uses the default (the others draw their eaves or have an attic); its section shows the roof standing on the top slab, and the old knee wall clipped all 19 openings of its full top storey: the default is kept.",
+   "question": null
   }
  ]
 }

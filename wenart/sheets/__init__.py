@@ -27,7 +27,7 @@ import json
 import statistics
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 from wenart.sheets.model import Region, round_box
 
@@ -372,7 +372,7 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
         hw += named_lines
     if section_geom is not None and section_geom.mpu and not any(ln.startswith("heights from") for ln in named_lines):
         hw += _marks_first(heights_json, base_levels, section_geom, read_plans, levels_json, values,
-                           sections[0], warnings)
+                           sections[0], warnings, conflict)
     heights_json.pop("_mark_frame", None)
     heights_json.pop("_bands", None)
     hw += HT.high_ground(heights_json, base_levels)
@@ -513,14 +513,17 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
 
 
 def _marks_first(heights_json: dict, base_levels: list, section_geom, read_plans: list, levels_json: list,
-                 values: dict, section_region, warnings: list) -> list[str]:
+                 values: dict, section_region, warnings: list, conflict: Optional[Callable] = None) -> list[str]:
     """27 Nov 2026 (audit fix round 4, R06; a section region holding two sections and two elevations gave a 7.82 m
     ground floor from its slab bands while it printed ±0.00, +0.50, +3.20, +3.50 ... and the plans' floor marks were
     +0.50 and +3.50): a section's level marks come before its slab bands. When the bands give no storeys, do not match
     the plans, or give a house storey over ``heights.HOUSE_STOREY_MAX_M`` that no mark confirms
     (``heights.marks_first_reasons``), the plans' own floor marks that the section prints set the storeys (rule
-    ``section_plan_marks``) and the section's marks a slab under the next floor their ceilings. A house storey over the
-    limit that no mark can replace is refused (the floors take the assumed heights). Returns the lines (logged)."""
+    ``section_plan_marks``) and the section's marks a slab under the next floor their ceilings. 27 Nov 2026 (audit fix
+    round 4b): the frame's z 0 is the ground floor's own floor mark (from its plan when the section does not print it;
+    no ground floor mark: the printed marks set nothing, defect 5); a house storey over the limit that no mark can
+    replace refuses only itself and the storeys above it (``heights.refuse_storeys``; a conflict is listed, defect 4);
+    bands that give no storeys at all are left to the caller (every floor assumed). Returns the lines (logged)."""
     from wenart.sheets import heights as HT
     from wenart.sheets import levels as LV
 
@@ -538,10 +541,23 @@ def _marks_first(heights_json: dict, base_levels: list, section_geom, read_plans
             continue
         try:
             marks[lv["order"]] = LV.floor_mark(r)
-        except Exception:  # noqa: BLE001 - a plan without readable marks gives none
+        except Exception as exc:  # noqa: BLE001 - a plan without readable marks gives none (logged, round 4b)
             marks[lv["order"]] = None
+            warnings.append(f"section {section_region.id}: the floor mark of plan {r.id} ({lv.get('id')}) could not "
+                            f"be read ({type(exc).__name__}: {exc}): its storey takes no plan floor mark")
     el = HT.plan_marks_on_section(section_geom, marks)
     lead = f"section {section_region.id}: its level marks come before its slab bands ({'; '.join(why)})"
+    base_from_plan = False
+    if el and 0 not in el:
+        if marks.get(0) is not None:
+            el = dict(el)
+            el[0] = float(marks[0])
+            base_from_plan = True
+        else:
+            warnings.append(f"{lead}: the ground floor's own floor mark is known neither on the section nor on its "
+                            f"plan: the printed marks ({', '.join(f'{v:+.2f}' for v in sorted(el.values()))}) have no "
+                            f"z 0 and set no storey")
+            el = {}
     if el:
         slab = float(values.get("slab_thickness", 0.20))
         heights_json["levels"], heights_json["slabs"] = [], []
@@ -549,17 +565,34 @@ def _marks_first(heights_json: dict, base_levels: list, section_geom, read_plans
                            "not printed on the section")
         lines = HT.apply_storey_marks(heights_json, base_levels, el, slab, section_region.file, section_region.id,
                                       rule=HT.PLAN_MARKS_RULE, source="the plans' floor marks the section prints")
+        if base_from_plan:
+            gid = next((lv["id"] for lv in base_levels if lv.get("order") == 0), None)
+            g = next((e for e in heights_json.get("levels") or [] if e.get("level_id") == gid), None)
+            if g is not None and isinstance(g.get("floor_z"), dict):
+                g["floor_z"]["note"] = "its plan's own floor mark (not printed on the section): building z 0"
+            lines = [ln.replace(f"{gid}: floor {float(marks[0]):+.2f} m (section mark)",
+                                f"{gid}: floor {float(marks[0]):+.2f} m (its plan's own floor mark, not printed on "
+                                f"the section)") for ln in lines]
         lines += HT.ceilings_from_marks(heights_json, base_levels, section_geom, el, section_region.file,
                                         section_region.id)
         out = [lead + ": " + "; ".join(lines)]
-    elif any("no level mark at the floor above" in w for w in why):
-        heights_json["levels"], heights_json["slabs"] = [], []
-        HT._assumed_levels(heights_json, base_levels, float(values.get("ceiling_height", 2.70)),
-                           float(values.get("slab_thickness", 0.20)), "a house storey over "
-                           f"{HT.HOUSE_STOREY_MAX_M:.1f} m that no level mark confirms")
-        out = [lead + ": no plan floor mark is printed on it; the floors take the assumed heights (refused)"]
+    elif HT.implausible(heights_json, base_levels) is None and HT.tall_storeys(heights_json, base_levels,
+                                                                              section_geom):
+        tall = HT.tall_storeys(heights_json, base_levels, section_geom)
+        reason = (f"a house storey over {HT.HOUSE_STOREY_MAX_M:.1f} m that no level mark confirms")
+        done = HT.refuse_storeys(heights_json, base_levels, [lid for lid, _f in tall],
+                                 float(values.get("ceiling_height", 2.70)), float(values.get("slab_thickness", 0.20)),
+                                 reason)
+        desc = (f"section {section_region.id}: the slab bands give " + ", ".join(f"{lid} {ftf:.2f} m floor to floor"
+                                                                                for lid, ftf in tall)
+                + f" (over {HT.HOUSE_STOREY_MAX_M:.1f} m) and no level mark, in the datum's frame, stands at the floor "
+                  f"above; no plan floor mark is printed on it")
+        res = (f"refused: {', '.join(done)} take the assumed heights (the storeys below keep the drawn ones)")
+        if conflict is not None:
+            conflict("level_mark_mismatch", [section_region.id], desc, res)
+        out = [f"{lead}: no plan floor mark is printed on it; {res}"]
     else:
-        out = []
+        out = []                                      # no storeys at all: the caller assumes every floor
     warnings.extend(out)
     return out
 

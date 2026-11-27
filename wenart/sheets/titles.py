@@ -274,7 +274,7 @@ def pick_title(texts, geometry_box, region_height: Optional[float] = None, fallb
 # 27 Nov 2026 (audit fix round 4, R07 a): one slope text pattern for every reader, the number before or after the word
 # ('EĞİM %33', 'EĞİM:33%', 'EĞİM%33', '%30 EĞİM', '%33 EGIM', '30% SLOPE'); only a number next to a slope word (a
 # dimension text holding '%' is no slope)
-_SLOPE_WORD = r"(?:EGIM|SLOPE|PENTE|NEIGUNG|GEFALLE)"
+_SLOPE_WORD = r"(?:EGIMI?|SLOPE|PENTE|NEIGUNG|GEFALLE)"   # round 4b: also "CATI EGIMI %30"
 _PCT = r"(\d{1,3}(?:[.,]\d+)?)"
 SLOPE_PCT_RE = re.compile(r"\b" + _SLOPE_WORD + r"\b\s*[:=]?\s*%\s*" + _PCT
                           + r"|\b" + _SLOPE_WORD + r"\b\s*[:=]?\s*" + _PCT + r"\s*%"
