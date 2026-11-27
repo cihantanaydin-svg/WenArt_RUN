@@ -5299,8 +5299,8 @@
    "area": "other",
    "status": "open",
    "checks": [],
-   "request": "27 Nov 2026 (audit fix round 5b): an upper balcony or terrace reaching more than 2.0 m past the walls under it needs drawn walls or columns there; an outline no line draws is not built when the drawn roof covers its part over the floor below (the plan above draws a roof there), else it keeps only its part over the floor below and within 2.0 m of its walls; a drawn outline is kept and listed. Test case real15 (the 204 m2 'TERAS' of the first floor).",
-   "lesson": "27 Nov 2026 (audit fix round 5b): an upper balcony or terrace reaching more than 2.0 m past the walls under it needs drawn walls or columns there; an outline no line draws is not built when the drawn roof covers its part over the floor below (the plan above draws a roof there), else it keeps only its part over the floor below and within 2.0 m of its walls; a drawn outline is kept and listed. Test case real15 (the 204 m2 'TERAS' of the first floor).",
+   "request": "27 Nov 2026 (audit fix round 5b): an upper balcony or terrace reaching more than 2.0 m past the walls under it needs drawn walls or columns there; an outline no line draws is not built when the drawn roof covers its part over the floor below (the plan above draws a roof there), else it keeps only its part over the floor below and within 2.0 m of its walls; a drawn outline, or an inferred one whose area the drawing writes beside its label, is kept and listed. Test case real15 (the 204 m2 'TERAS' of the first floor).",
+   "lesson": "27 Nov 2026 (audit fix round 5b): an upper balcony or terrace reaching more than 2.0 m past the walls under it needs drawn walls or columns there; an outline no line draws is not built when the drawn roof covers its part over the floor below (the plan above draws a roof there), else it keeps only its part over the floor below and within 2.0 m of its walls; a drawn outline, or an inferred one whose area the drawing writes beside its label, is kept and listed. Test case real15 (the 204 m2 'TERAS' of the first floor).",
    "question": null
   }
  ]

@@ -396,6 +396,18 @@ def test_an_undrawn_upper_terrace_keeps_its_part_over_the_floor_below_and_within
     assert rec2[0]["action"] == "kept" and len(b2["site"]["outdoor_spaces"][0]["polygon"]) == 4
 
 
+def test_an_undrawn_upper_balcony_sized_by_its_written_area_is_kept_and_listed():
+    from wenart.levels import upper_support as US
+    b = _upper(_rect(-3, 6, 3, 10), "rectangle against the facade: no drawn outline closes around the label", roof=False)
+    b["site"]["outdoor_spaces"][0]["evidence"].insert(0, {"method": "vector", "text": "A:24.00m²"})
+    rec = US.check(b)
+    assert rec[0]["action"] == "kept" and len(b["site"]["outdoor_spaces"][0]["polygon"]) == 4
+    # the inference's own note with the computed area is no written area
+    b2 = _upper(_rect(-3, 6, 3, 10), "rectangle in the inner corner: no drawn outline closes around the label (24.00 "
+                                     "m², inferred)", roof=False)
+    assert US.check(b2)[0]["action"] == "clipped"
+
+
 # --------------------------------------------------------------------------------------------------------------------
 # R23: a roof-terrace level takes its slab and parapets from its own drawn edge ring
 # --------------------------------------------------------------------------------------------------------------------

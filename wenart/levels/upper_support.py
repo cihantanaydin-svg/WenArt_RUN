@@ -9,7 +9,8 @@ checked against the drawings:
   the drawn roof (the roof's outline, the roof plan's other roofs) covers most of its part over the floor below (the
   plan above draws a roof there, no terrace); else it keeps only its part over the floor below and within
   ``CANTILEVER_M`` of its walls (a terrace on the lower roof, a cantilever), and nothing when no such part is left;
-- a drawn outline is kept as drawn and listed (a cantilever that needs columns the drawings do not show).
+- a drawn outline, or an inferred one whose area the drawing writes beside its label, is kept and listed (a
+  cantilever that needs columns the drawings do not show).
 
 Every decision is a warning and a record (``level_inference.upper_support``).
 
@@ -21,6 +22,7 @@ How: pure geometry (shapely) on the building JSON; no AI.
 """
 from __future__ import annotations
 
+import re
 from typing import Optional
 
 from shapely.geometry import LineString, Point, Polygon
@@ -43,13 +45,29 @@ def _poly(points) -> Optional[Polygon]:
     return p if not p.is_empty and p.area > 0 else None
 
 
+AREA_TEXT_RE = re.compile(r"(\d+(?:[.,]\d+)?)\s*m\s*(?:2|²)", re.I)
+AREA_MATCH_SHARE = 0.05      # a written area this close to the outline's area gives the outline's size
+
+
 def drawn(space: dict) -> bool:
-    """False when the space's outline was inferred with no drawn line around its label (pure)."""
-    for e in space.get("evidence") or []:
-        text = str((e or {}).get("text") or (e or {}).get("reason") or "").lower()
-        if any(w in text for w in UNDRAWN_WORDS):
-            return False
-    return True
+    """False when the space's outline was inferred with no drawn line around its label (pure). An inferred outline whose
+    area the drawing writes beside its label ('A:12.30m²', within ``AREA_MATCH_SHARE``) is sized by the drawing: it
+    counts as drawn (kept, listed)."""
+    texts = [str((e or {}).get("text") or (e or {}).get("reason") or "") for e in space.get("evidence") or []]
+    if not any(w in t.lower() for t in texts for w in UNDRAWN_WORDS):
+        return True
+    poly = _poly(space.get("polygon"))
+    for t in texts:
+        if any(w in t.lower() for w in UNDRAWN_WORDS):
+            continue                                   # the inference's own note, not a text of the drawing
+        for m in AREA_TEXT_RE.finditer(t):
+            try:
+                v = float(m.group(1).replace(",", "."))
+            except ValueError:
+                continue
+            if poly is not None and v > 0 and abs(poly.area - v) <= AREA_MATCH_SHARE * v:
+                return True
+    return False
 
 
 def _supports(b: dict, below_id: str, part) -> list:
