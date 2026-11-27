@@ -48,3 +48,14 @@ def test_a_structure_run_drops_the_agent_records_and_the_bare_build_explains_mov
     assert found == {"f1": "info", "f2": "major", "f3": "major"}    # the sofa is left out by design; the toilet and
     full = {f["target"]: f["severity"] for f in CV.audit(stages, None)["findings"] if f["check"] == "C1"}
     assert full == {"f1": "major", "f2": "major", "f3": "major"}    # the stair are fixed: still lost if not built
+
+
+def test_a_shower_room_reads_as_a_bathroom_by_its_shower():
+    from wenart.blender import model_review as M
+    assert M.shower_room({"label": "Duş"}) and M.shower_room({"label": "DUŞ/WC"}) and M.shower_room({"label": "Shower"})
+    assert not M.shower_room({"label": "Banyo"}) and not M.shower_room({"label": "Duşakabin"})
+    built = {"rooms": [{"id": "r1", "room_type": "bathroom", "label": "Duş"},
+                       {"id": "r2", "room_type": "bathroom", "label": "Banyo"}],
+             "furniture": [{"id": "f1", "type": "shower", "room_id": "r1"}, {"id": "f2", "type": "shower", "room_id": "r2"}]}
+    found, _n = M.rooms_make_sense(built, None)
+    assert {(v["target"], v["severity"]) for v in found if v["check"] == "M7"} == {("r2", "critical"), ("r2", "major")}

@@ -235,6 +235,18 @@ ANCHORS = {"kitchen": ("kitchen_counter", "sink_kitchen", "stove", "cooktop"),
            "living": ("sofa", "sofa_corner", "armchair"),
            "bathroom": ("toilet",)}
 BATH_BASIN = ("washbasin", "vanity", "bathroom_vanity")
+# 27 Nov 2026 (check pod 2smyy0ktv63y40: M7 called real17's 'Duş' rooms, each with its drawn shower, "not a bathroom"
+# for want of a toilet): a room its label names a shower room reads as one by its shower or bath
+SHOWER_ROOM_WORDS = ("dus", "shower", "dush")
+SHOWER_ROOM_ANCHORS = ("shower", "bathtub", "shower_tray")
+
+
+def shower_room(room: dict) -> bool:
+    """Whether the room's label names a shower room ('Duş', 'DUŞ 2', 'Shower'; pure)."""
+    import re
+    from wenart.textfold import fold_ascii
+    words = re.split(r"[^a-z0-9]+", fold_ascii(str(room.get("label") or room.get("name") or "")))
+    return any(w in SHOWER_ROOM_WORDS for w in words)
 CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12", "M13", "M14", "M15", "M16", "M17", "M18",
           "M19", "M20", "M21", "M22", "M23", "M24",   # 29 Oct 2026: M19 fixtures in use, M20 doors as products, M21 rooms for their use, M22 backs on walls, M23 the professional bar, M24 chimneys
           "M25")                                      # 29 Oct 2026 (UL112): the light switches and power sockets
@@ -631,12 +643,14 @@ def rooms_make_sense(built: dict, manifest: Optional[dict]) -> tuple[list[dict],
         want = ANCHORS.get(t)
         if want is None:
             continue
+        if t == "bathroom" and shower_room(r):
+            want = SHOWER_ROOM_ANCHORS
         n += 1
         if not types & set(want):
             out.append(_v("M7", "critical" if t in ("kitchen", "bathroom") else "major", r["id"],
                           f"{r['id']} ({t}) has no {' / '.join(want)} in the model: the room does not read as a {t}",
                           r["id"], missing=list(want)))
-        if t == "bathroom" and not types & set(BATH_BASIN):
+        if t == "bathroom" and not shower_room(r) and not types & set(BATH_BASIN):
             out.append(_v("M7", "major", r["id"], f"{r['id']} (bathroom) has no washbasin in the model", r["id"],
                           missing=list(BATH_BASIN)))
         tables = [pid for pid, ft in have if ft == "table_dining"]
