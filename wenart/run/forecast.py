@@ -157,7 +157,7 @@ def measure(building: dict, brief: Optional[dict] = None) -> dict:
     AIA.model_counts(prep)
     check_s = time.time() - t1
     record = base["architect"]
-    user = {r["key"] for r in record.get("applied") or [] if r.get("by", "user") == "user"}
+    user = {r["key"] for r in record.get("applied") or [] if r.get("by", "user") == "user" and not r.get("stale")}
     asked, copies = AIA.typical_questions(building, AIA.open_questions(record, user))
     return {"prepare_s": round(prepare_s, 1), "check_s": round(check_s, 1),
             "questions": min(len(asked), AIA.MAX_QUESTIONS), "copies": sum(len(v) for v in copies.values()),

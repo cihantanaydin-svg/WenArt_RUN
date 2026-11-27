@@ -1392,7 +1392,11 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
     by itself the next round does not count) is refused (when several came in one round, they are tried in halves,
     the copies of a typical floor's point with it: ``typical_units``, ``refused_units``) and the next choice is tried
     instead (``out["architect_refused_defaults"]``: key -> the choice and the points it opened)."""
-    out = prepare_once(building_all, variant, brief, style_family)
+    building_all, out = replay_gate(building_all, variant, brief, style_family)
+    if out is None:
+        out = prepare_once(building_all, variant, brief, style_family)
+    if building_all.get("architect_replay") is not None:
+        out["architect_replay"] = building_all["architect_replay"]
     if not out.get("whole") or out.get("architect") is None:
         return out
     from wenart.blender import architect as AR
@@ -1440,12 +1444,126 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
         out = got
     out["architect_defaults"] = defaults
     out["architect_refused_defaults"] = refused
+    if building_all.get("architect_replay") is not None:
+        out["architect_replay"] = building_all["architect_replay"]
     return out
+
+
+# --------------------------------------------------------------------------
+# 27 Nov 2026 (audit rule R02, lesson UL396): the replay gate. An answer that is not the architect's own default of this
+# run (the AI's, Argus', the user's, from earlier readings too) is carried out only when this run's review raises its
+# question for the element it resolves to (and its signature matches: architect_actions.replay_check); every other one
+# is recorded stale, not carried out, and its point (if open) waits for the AI architect
+# --------------------------------------------------------------------------
+
+REPLAY_ROUNDS = 3               # rounds that admit answers whose question an earlier admitted answer raised (a chain)
+RAISED_KEEP = 8                 # buildings whose answer-free review is kept in this process
+_RAISED: dict = {}
+
+
+def replay_candidates(building_all: dict, brief: dict | None) -> dict:
+    """The answers the gate checks (pure): every answer of the building, the AI, Argus and the user (``answers_of``)
+    that is not the architect's own default."""
+    from wenart.blender import architect_actions as AA
+
+    given = brief_args(building_all, brief)["architect_answers"]["value"]
+    every = AA.answers_of(dict(building_all, architect_defaults={}), given)
+    return {k: v for k, v in every.items() if AA.replayed(v)}
+
+
+def raised_key(building_all: dict, brief: dict | None, variant: str, style_family: Optional[str]) -> str:
+    """The key of a building's answer-free review (its content without any answer, the brief without its answers)."""
+    drop = SEED_DROP_KEYS + ("architect_answers",)
+    h = hashlib.sha256(json.dumps({k: v for k, v in building_all.items() if k not in drop}, sort_keys=True,
+                                  default=str).encode("utf-8"))
+    rest = {k: v for k, v in brief.items() if k != "architect_answers"} if isinstance(brief, dict) else brief
+    h.update(json.dumps(rest, sort_keys=True, default=str).encode("utf-8"))
+    h.update(f"{variant}|{style_family}".encode("utf-8"))
+    return h.hexdigest()
+
+
+def raised_review(building_all: dict, variant: str, brief: dict | None, style_family: Optional[str]) -> dict:
+    """``{"open": keys, "rules": question ids}`` of the review with no answer and no default carried out (the points it
+    raises: ``architect.raised_keys``; every replayed answer withheld; kept per building in this process: the AI
+    architect's checks plan the same building many times)."""
+    from wenart.blender import architect as AR
+
+    key = raised_key(building_all, brief, variant, style_family)
+    if key not in _RAISED:
+        trial = dict(building_all, architect_defaults={}, architect_refused_defaults={},
+                     architect_replay={"withhold": True, "admitted": {}, "stale": {}})
+        got = prepare_once(trial, variant, brief, style_family)
+        rec = got.get("architect") or {}
+        if len(_RAISED) >= RAISED_KEEP:
+            _RAISED.pop(next(iter(_RAISED)))
+        _RAISED[key] = {"open": sorted(AR.raised_keys(rec)),
+                        "rules": sorted({q["id"] for q in rec.get("questions") or []})}
+    return _RAISED[key]
+
+
+def not_raised_text(key: str, target: str) -> str:
+    rule = key.partition(":")[0]
+    return (f"the question {rule} is not raised for {target} in this reading (what it answered is no longer found "
+            f"there)")
+
+
+def replay_gate(building_all: dict, variant: str = "base", brief: dict | None = None,
+                style_family: Optional[str] = None) -> tuple[dict, Optional[dict]]:
+    """``(building, plan)``: ``building_all`` with its replay gate (``architect_replay``: ``{"admitted": {key:
+    element}, "stale": {key: why}}``, read by ``architect_actions.apply_answers``) and the plan made with it (None when
+    there is nothing to gate: no replayed answer, not a whole building, or a gate given already).
+
+    An answer is admitted when it resolves to an element (``replay_check``: by id, or by place with a matching
+    signature), and its question is raised for that element by the review with no answer carried out
+    (``raised_review``) or, for a chain, by a round with the answers admitted so far (at most ``REPLAY_ROUNDS``); an
+    answer of a rule that asks no question (the AI's own decisions ``AI.<action>``) needs only the first. The others are
+    stale. The architect's defaults of the answered elements are left out (the answer wins)."""
+    from wenart import views as V
+    from wenart.blender import architect as AR
+    from wenart.blender import architect_actions as AA
+
+    if building_all.get("architect_replay") is not None or not is_whole_building(building_all):
+        return building_all, None
+    cands = replay_candidates(building_all, brief)
+    if not cands:
+        return building_all, None
+    plan0 = AA.Plan(V.variant_building(building_all, variant))
+    checks = {k: AA.replay_check(plan0, k, v) for k, v in cands.items()}
+    stale = {k: c["stale"] for k, c in checks.items() if c["target"] is not None and c["stale"]}
+    pending = {k: c["target"] for k, c in checks.items() if c["target"] is not None and not c["stale"]}
+    r0 = raised_review(building_all, variant, brief, style_family)
+    raised, rules = set(r0["open"]), set(r0["rules"])
+
+    def asked(k: str, t: str) -> bool:
+        rule = k.partition(":")[0]
+        return rule not in rules or f"{rule}:{t}" in raised
+
+    admitted = {k: t for k, t in pending.items() if asked(k, t)}
+    seeded = dict(building_all.get("architect_defaults") or {})
+    # the elements the answers resolve to: an admitted answer wins over their default, a stale one leaves their point
+    # to the AI architect (an old id that now names another element keeps its own default)
+    answered = {f"{k.partition(':')[0]}:{c['target']}" for k, c in checks.items() if c["target"] is not None}
+    out, gate, base = None, None, building_all
+    for _round in range(REPLAY_ROUNDS + 1):
+        gate = {"admitted": dict(admitted),
+                "stale": dict(stale, **{k: not_raised_text(k, t) for k, t in pending.items() if k not in admitted})}
+        answered |= set(admitted)
+        base = dict(building_all, architect_defaults={k: v for k, v in seeded.items() if k not in answered},
+                    architect_replay=gate)
+        out = prepare_once(base, variant, brief, style_family)
+        if not out.get("whole") or out.get("architect") is None or _round == REPLAY_ROUNDS:
+            break
+        raised = AR.raised_keys(out["architect"])
+        new = {k: t for k, t in pending.items() if k not in admitted and f"{k.partition(':')[0]}:{t}" in raised}
+        if not new:
+            break
+        admitted.update(new)
+    return base, out
 
 
 SEED_FILE = "architect_seed.json"   # beside the building: its default searches, by content (2 Nov 2026)
 SEED_KEEP = 6
-SEED_DROP_KEYS = ("agent_overrides", "architect_defaults", "architect_refused_defaults")
+SEED_DROP_KEYS = ("agent_overrides", "architect_defaults", "architect_refused_defaults", "architect_replay")
 
 
 def seed_key(building_all: dict, brief: Optional[dict] = None, variant: str = "base") -> str:
@@ -1766,6 +1884,10 @@ def prepare_once(building_all: dict, variant: str = "base", brief: dict | None =
         return R.opening_head_limit(roof, over, wall, o)
     out["architect_answers"] = AA.answers_of(vb, out["brief"]["architect_answers"]["value"])
     out["architect_applied"] = AA.apply_answers(vb, out["architect_answers"], head_limit=head_limit)
+    # 27 Nov 2026 (R02): a stale or withheld answer answers nothing in this reading (its key's point is asked again)
+    idle = {r["key"] for r in out["architect_applied"] if r.get("stale") or r.get("withheld")}
+    if idle:
+        out["architect_answers"] = {k: v for k, v in out["architect_answers"].items() if k not in idle}
     # 27 Oct 2026: an answer that read a stair the other way (``flip_stair``) cut its floor opening again: the slabs are
     # planned again with it (their new notes only; the first plan's are listed already)
     if (building_all.get("slabs") or len(vb.get("levels") or []) > 1) and any(

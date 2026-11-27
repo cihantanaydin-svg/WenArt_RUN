@@ -1194,6 +1194,18 @@ def cut_links(before: dict, after: dict) -> list[dict]:
         return []
     graph_a = _graph_of(after, la)
     cut = [{"link": lid, "rooms": [a, b]} for lid, a, b in gone if b not in _reach(graph_a, [a])]
+    # 27 Nov 2026 (audit rule R17 b; real15: the drawn door between the living room and the kitchen was the north
+    # unit's only link on its floor, and its loss passed because a way round through another storey remained): the
+    # reach is compared within each floor too (the room graph without the stairs' links)
+    flights = {sid for sid, _a, _b in stair_links(before)} | {sid for sid, _a, _b in stair_links(after)}
+    level_of = {r["id"]: r.get("level_id") for r in _rooms_at(before)[0]}
+    same_floor = [(lid, a, b) for lid, a, b in gone if b in _reach(graph_a, [a]) and level_of.get(a) is not None
+                  and level_of.get(a) == level_of.get(b)]
+    if same_floor:
+        flat_b = _graph_of(before, {k: v for k, v in lb.items() if v[0] not in flights})
+        flat_a = _graph_of(after, {k: v for k, v in la.items() if v[0] not in flights})
+        cut += [{"link": lid, "rooms": [a, b], "floor": level_of[a]} for lid, a, b in same_floor
+                if b in _reach(flat_b, [a]) and b not in _reach(flat_a, [a])]
     if cut:
         was, now = circulation(before, sb, _graph_of(before, lb)), circulation(after, sa, graph_a)
         lost = sorted(was["reached"] - now["reached"])
@@ -1204,7 +1216,8 @@ def cut_links(before: dict, after: dict) -> list[dict]:
 
 def cut_text(cuts: Sequence[dict]) -> str:
     """The reason an answer that cut a way off is undone (``cut_links``)."""
-    ways = "; ".join(f"{c['link']} was the only way between {c['rooms'][0]} and {c['rooms'][1]}" for c in cuts)
+    ways = "; ".join(f"{c['link']} was the only way between {c['rooms'][0]} and {c['rooms'][1]}"
+                     + (f" on their floor {c['floor']}" if c.get("floor") else "") for c in cuts)
     lost = (cuts[0].get("lost") or []) if cuts else []
     return ways + (f" ({len(lost)} room(s) would no longer be reached from the entrance: {', '.join(lost)})"
                    if lost else "")
@@ -1534,6 +1547,12 @@ def outer_gaps(building: dict, prep: dict) -> list[dict]:
         (cx, cy), (ox, oy) = r["centre"], r["outward"]
         probe = (cx + ox * (r["half_t"] + LANDING_PROBE_M), cy + oy * (r["half_t"] + LANDING_PROBE_M))
         bottom = float(r["bottom"])
+        # 27 Nov 2026 (R02 / R17 dry run, real11: twelve tagged 2.40 m balcony doors carried an assumed 0.90 m sill, so
+        # E1 found nothing to step onto and made them windows): a door's assumed sill is no drawn one: it stands on
+        # its threshold
+        if o.get("type") == "door" and "sill_height" in (o.get("assumed") or ()) \
+                and isinstance(o.get("threshold_z"), (int, float)):
+            bottom = min(bottom, float(o["threshold_z"]))
         lands = None
         # 26 Nov 2026 (audit rules R10 / R19): the one landing test (``site.landing_at``): an open-air room that is no
         # void (a light well or an air shaft is nothing to step onto: a door or a gap onto it reads as a window), an
@@ -1598,12 +1617,19 @@ def review_outside_door_landings(building: dict, prep: Optional[dict] = None) ->
         what = "a bare gap with no door or glass" if gap else "a door"
         over = f"{g['drop']:.2f} m over the ground outside" + (" on an upper floor" if g["upper"] else "")
         default = gap or g["upper"]
-        q["answers"].append({"element": oid, "found": f"{oid} is {what} {over}, with nothing outside to step on",
+        # 27 Nov 2026 (audit rule R17 a): a drawn door (its swing arc, door block, leaves or door tag) is never made a
+        # window: a French window with a guard, or kept
+        drawn = None if gap else AA.drawn_door_evidence(o)
+        opts = ([AA.option("french_window")] if drawn else [AA.option("door_to_window"), AA.option("french_window")]) \
+            + [AA.option("keep")]
+        q["answers"].append({"element": oid, "found": f"{oid} is {what} {over}, with nothing outside to step on"
+                             + (f" ({drawn})" if drawn else ""),
                              "change": None, "open": True,
-                             "ask": f"Is {oid} a window (a drawing or reading error), or a French window with a "
-                                    f"guard?",
-                             "options": [AA.option("door_to_window"), AA.option("french_window"), AA.option("keep")],
-                             "where": g["where"], **({"default": "door_to_window"} if default else {})})
+                             "ask": (f"Is {oid} a French window with a guard (a drawn door stays a door), or kept?"
+                                     if drawn else f"Is {oid} a window (a drawing or reading error), or a French window "
+                                                   f"with a guard?"),
+                             "options": opts, "where": g["where"],
+                             **({"default": opts[0]["choice"]} if default else {})})
         q["status"] = "open"
     return e1, o2
 
@@ -1759,7 +1785,43 @@ def review(building: dict, prep: dict) -> dict:
         questions.append(AW.review_walk(building, prep))
         # 28 Oct 2026: the grading and the outdoor floors (G2, G3), after A2 / B2 added their steps and paths
         questions += RULES.grading_rules(prep)
-    return summary(close_answered(questions, answers, applied), applied)
+    questions = close_answered(questions, answers, applied)
+    # 27 Nov 2026 (audit rule R02, lesson UL396): a stale answer's point stays open for the AI architect, and every open
+    # point carries its element's signature for the answers given to it
+    mark_stale(questions, applied)
+    AA.stamp_signatures(building, questions)
+    return summary(questions, applied)
+
+
+def stale_text(old: dict) -> str:
+    """One stale answer in words: its choice, author and date."""
+    return (f"{old.get('choice') or old.get('option')} by {_who(old)}" + (f" of {old['date']}" if old.get("date") else ""))
+
+
+def mark_stale(questions: list[dict], applied: Sequence[dict]) -> None:
+    """27 Nov 2026 (audit rule R02, lesson UL396: "AI decides: when a new reading moved or changed the element a stored
+    answer named, the answer is not replayed by place; the AI architect decides again, the change is logged and shown in
+    the report, the user is not asked again"): the open point of a stale answer's element (the one it resolves to) is
+    marked for the AI architect (``for_ai``, ``stale_answers``): no default settles it, the AI decides again
+    (``architect_ai``), and the report lists it with the stale answer instead of asking the user (in place)."""
+    stale = [r for r in applied if r.get("stale")]
+    if not stale:
+        return
+    points = {(q["id"], str(a["element"])): a for q in questions for a in q["answers"] if a.get("open")}
+    for r in stale:
+        old = dict(r.get("old") or {}, key=r["key"])
+        # the element it resolves to (an old id that now names another element keeps that element's own point)
+        for el in [str(r.get("element"))]:
+            a = points.get((r["rule"], el))
+            if a is None:
+                continue
+            a["for_ai"] = True
+            if not any(x.get("id") == old.get("id") for x in a.get("stale_answers") or []):
+                a.setdefault("stale_answers", []).append(old)
+            a.pop("default", None)
+            a.pop("fallback", None)
+            a["note"] = (f"an earlier answer ({stale_text(old)}, key {old['key']}) is stale, not applied: {old.get('why')}; "
+                         f"the AI architect decides again")
 
 
 # --------------------------------------------------------------------------
@@ -1811,8 +1873,8 @@ def defaults_of(review_rec: dict, answers: dict, tried: Optional[dict] = None) -
     for q in review_rec.get("questions") or []:
         for a in q.get("answers") or []:
             key = f"{q['id']}:{a['element']}"
-            if not a.get("open"):
-                continue
+            if not a.get("open") or a.get("for_ai"):
+                continue                                  # 27 Nov 2026 (R02): a stale answer's point is the AI's
             prev = answers.get(key)
             if prev is not None and prev.get("by") != "architect":
                 continue                                  # the AI's or the user's answer stands
@@ -1824,8 +1886,16 @@ def defaults_of(review_rec: dict, answers: dict, tried: Optional[dict] = None) -
             out[key] = {"option": opt["id"], "params": dict(opt.get("params") or {}), "by": "architect",
                         "choice": opt["choice"], "answer": "the safe default" if not done else
                         f"the next safe fix ({', '.join(sorted(done))} could not be done)",
-                        "reason": a.get("found"), "where": a.get("where")}
+                        "reason": a.get("found"), "where": a.get("where"),
+                        **({"signature": a["signature"]} if a.get("signature") else {})}
     return out
+
+
+def raised_keys(review_rec: dict) -> set:
+    """27 Nov 2026 (R02): the keys of the points a review raises: open, or decided by code with choices an answer may
+    take instead (a stair's winders, a door's kind), or changed by code; a check that simply passed is not raised."""
+    return {f"{q['id']}:{a['element']}" for q in review_rec.get("questions") or [] for a in q.get("answers") or []
+            if a.get("open") or a.get("options") or a.get("change")}
 
 
 def open_keys(review_rec: dict, severity: Optional[str] = None, undecided: bool = False) -> set:
@@ -1840,8 +1910,12 @@ def close_answered(questions: list[dict], answers: dict, applied: Sequence[dict]
     """An open point that has an answer is not asked again: it shows the answer and what it changed. An answer that
     could not be carried out leaves the point open with the reason; an answer whose change settled the check shows
     on the (now passing) element."""
-    done = {r["key"]: r for r in applied}
-    by_el = {(r["rule"], r["element"]): r for r in applied}
+    # 27 Nov 2026 (R02): a stale or withheld answer answers nothing in this reading (``mark_stale`` notes its point)
+    live = [r for r in applied if not r.get("stale") and not r.get("withheld")]
+    idle = {r["key"] for r in applied if r.get("stale") or r.get("withheld")}
+    answers = {k: v for k, v in answers.items() if k not in idle}
+    done = {r["key"]: r for r in live}
+    by_el = {(r["rule"], r["element"]): r for r in live}
     for q in questions:
         for a in q["answers"]:
             key = f"{q['id']}:{a['element']}"
@@ -1927,6 +2001,7 @@ def summary(questions: list[dict], applied: Optional[Sequence[dict]] = None) -> 
            "open": total["open"], "answered": total["answered"], "rules": len(questions)}
     if applied is not None:
         out["applied"] = list(applied)
+        out["stale"] = sum(1 for r in applied if r.get("stale"))         # 27 Nov 2026 (R02)
     return out
 
 
@@ -1954,6 +2029,77 @@ MD_OPEN_MAX = 150               # the report lists this many open points (all of
 MD_CHANGES_MAX = 200
 
 
+def replaced_ids(rec: dict) -> set:
+    """The ids of the stale answers an answer replaces (``replaces``: one summary or a list; R02)."""
+    rep = rec.get("replaces")
+    reps = rep if isinstance(rep, list) else [rep] if isinstance(rep, dict) else []
+    return {str(x.get("id")) for x in reps if isinstance(x, dict) and x.get("id")}
+
+
+def stale_rows(review_rec: dict) -> list[dict]:
+    """Every stale answer of a review with its new decision (pure; R02, UL396): ``{"key", "by", "old", "date", "why",
+    "element", "new"}``; ``new`` is the answer that replaces it (``replaces``) with what it changed, "open: the AI
+    architect decides again" while its point waits for the AI, or "not raised" when its question is not asked of any
+    element of this reading."""
+    applied = review_rec.get("applied") or []
+    waiting = {}
+    for q in review_rec.get("questions") or []:
+        for a in q.get("answers") or []:
+            for old in a.get("stale_answers") or []:
+                waiting.setdefault(str(old.get("id")), f"{q['id']}:{a['element']}")
+    out = []
+    for r in applied:
+        if not r.get("stale"):
+            continue
+        old = r.get("old") or {}
+        new = next((x for x in applied if x.get("ok") and str(old.get("id")) in replaced_ids(x)), None)
+        if new is not None:
+            choice = f"{new['option']} by {_who(new)} ({new['key']})" + (f": {new['change']}" if new.get("change") else "")
+        elif str(old.get("id")) in waiting:
+            choice = f"open: the AI architect decides again ({waiting[str(old.get('id'))]})"
+        elif str(r.get("rule") or "").startswith("AI."):
+            choice = "an own decision of the AI architect: its look at this reading decides again"
+        else:
+            choice = "not raised in this reading: nothing to decide"
+        out.append({"key": r["key"], "by": _who(r), "old": old.get("choice") or r.get("option"), "date": old.get("date"),
+                    "why": old.get("why") or r.get("change"), "element": r.get("element"), "new": choice,
+                    "id": str(old.get("id"))})
+    # the stale answers a new answer replaced (they left the AI's answers; the new one names them in ``replaces``)
+    listed = {row["id"] for row in out}
+    for x in applied:
+        if not x.get("ok") or not x.get("replaces"):
+            continue
+        reps = x["replaces"] if isinstance(x["replaces"], list) else [x["replaces"]]
+        for old in reps:
+            if not isinstance(old, dict) or str(old.get("id")) in listed:
+                continue
+            listed.add(str(old.get("id")))
+            out.append({"key": old.get("key"), "by": _who(old), "old": old.get("choice") or old.get("option"),
+                        "date": old.get("date"), "why": old.get("why"), "element": x.get("element"),
+                        "new": f"{x['option']} by {_who(x)} ({x['key']})" + (f": {x['change']}" if x.get("change")
+                                                                              else ""), "id": str(old.get("id"))})
+    return out
+
+
+def stale_md(review_rec: dict) -> list[str]:
+    """The report's section of the stale answers, old and new choice side by side (R02, UL396)."""
+    rows = stale_rows(review_rec)
+    if not rows:
+        return []
+    lines = ["## Stale answers (not carried out)", "",
+             f"{len(rows)} answer(s) of an earlier reading no longer fit this reading: their element moved or changed, or "
+             "their question is not raised for it. They are not replayed by place; where the question is still open the "
+             "AI architect decides again, and you are not asked again (lesson UL396).", "",
+             "| answer | by | date | old choice | why it is stale | element now | new decision |",
+             "|---|---|---|---|---|---|---|"]
+    for r in rows:
+        why = str(r["why"] or "").replace("|", "/")
+        lines.append(f"| `{r['key']}` | {r['by']} | {r['date'] or '-'} | {r['old']} | {why[:240]} | "
+                     f"{r['element'] or '-'} | {str(r['new']).replace('|', '/')[:240]} |")
+    lines.append("")
+    return lines
+
+
 def report_md(review_rec: dict, project: str = "") -> str:
     """The review as markdown, for any size of building: the totals, a table of every rule (elements asked, fine,
     changed, answered, open), the open questions for you (the first ``MD_OPEN_MAX``, major first, with their answer
@@ -1969,7 +2115,9 @@ def report_md(review_rec: dict, project: str = "") -> str:
         lines.append(f"| {q['id']} | {q['topic']} | {c.get('asked', len(q['answers']))} | {c.get('ok', 0)} | "
                      f"{c.get('changed', 0)} | {c.get('answered', 0)} | {c.get('open', 0)} |")
     lines.append("")
-    concerns = open_points(review_rec)
+    # 27 Nov 2026 (R02, UL396): a stale answer's point is the AI architect's to decide again, never asked of the user
+    concerns = [(q, a) for q, a in open_points(review_rec) if not a.get("for_ai")]
+    lines += stale_md(review_rec)
     if concerns:
         lines += ["## The architect's questions for you", ""]
         for k, (q, a) in enumerate(concerns[:MD_OPEN_MAX], 1):
@@ -1992,7 +2140,8 @@ def report_md(review_rec: dict, project: str = "") -> str:
         if len(changed) > MD_CHANGES_MAX:
             lines.append(f"- ... and {len(changed) - MD_CHANGES_MAX} more in architect.json")
         lines.append("")
-    failed = [r for r in review_rec.get("applied") or [] if not r.get("ok") and not r.get("skipped")]
+    failed = [r for r in review_rec.get("applied") or [] if not r.get("ok") and not r.get("skipped")
+              and not r.get("stale") and not r.get("withheld")]
     if failed:
         lines += ["## Answers that could not be carried out", ""]
         lines += [f"- `{r['key']}` ({r['option']}, by {_who(r)}): {r.get('change')}" for r in failed]

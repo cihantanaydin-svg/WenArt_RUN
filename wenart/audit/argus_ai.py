@@ -985,8 +985,9 @@ def act(project_out, building: dict, brief: Optional[dict], decisions: list[dict
         if key in accepted:
             e.update(verdict="refused", why="decided already")
             continue
-        cand = {key: dict(AIA._answer(ans["opt"], d.get("reason") or "", model_name, ans["where"]), own=True,
-                          by="argus")}
+        # 27 Nov 2026 (R02): with its element's signature (a later reading carries it out only on the same element)
+        cand = {key: dict(AIA._answer(ans["opt"], d.get("reason") or "", model_name, ans["where"],
+                                      {"signature": ans.get("signature")}), own=True, by="argus")}
         ok, why = AIA._verdicts(building, brief, accepted, cand, base)[key]
         if ok and d.get("finding"):
             prep = AIA.prep_of(building, brief, dict(accepted, **cand))

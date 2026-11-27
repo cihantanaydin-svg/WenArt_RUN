@@ -795,6 +795,10 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
     # 12 Nov 2026 (the architect's audit, second series): shafts, stairs over nothing, balcony doors, exterior flags
     from wenart.ingest import sense_rules as SR
     b["level_inference"]["sense_rules"] = SR.apply(build, texts_by_level, drawn_by_level)
+    # 27 Nov 2026 (audit rule R17 e): a door's own size tag is evidence of its size (the build keeps a tagged size)
+    tagged = CR.own_door_tags(b, texts_by_level)
+    if tagged:
+        b["level_inference"]["own_door_tags"] = tagged
     _entrance_summary(b)
 
 

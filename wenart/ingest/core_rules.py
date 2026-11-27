@@ -1124,6 +1124,59 @@ def _tag_of(o: dict, texts: list) -> Optional[tuple]:
     return best
 
 
+OWN_TAG_REACH_M = 0.9           # a door size tag this far beyond a door's half width is that door's own tag ...
+OWN_TAG_SAME_W_M = 0.10         # ... when it gives the door's width within this
+
+
+def own_door_tags(b: dict, texts_by_level: Optional[dict]) -> list[dict]:
+    """27 Nov 2026 (audit rule R17 e; real06: the veranda door d_L0_004, tagged 'K1-80/210' beside its swing, was built
+    2.30 m high as "a taller entrance door": no step bound its own tag, the 'K1-' form is read by no size tag rule): every
+    door records the door size tag written beside it ('K1-80/210', 'K:90/210', '80/210', at least
+    ``twins.DOOR_SIZE_TAG_MIN_H_CM`` high) whose width is the door's (within ``OWN_TAG_SAME_W_M``; the nearest door
+    first, one tag a door): ``door_tags`` and an evidence entry (rule ``own_door_tag``). Evidence only (in place): the
+    door's place, size and assumed fields stay; the build's door sizes keep a tagged door's size
+    (``door_states.plan_sizes``). Returns ``[{"opening", "level_id", "tag"}]``."""
+    from wenart.ingest.twins import DOOR_SIZE_TAG_MIN_H_CM, DOOR_SIZE_TAG_RE
+
+    out: list[dict] = []
+    for lid, texts in sorted((texts_by_level or {}).items()):
+        tags = []
+        for t in texts or []:
+            m = DOOR_SIZE_TAG_RE.match(B.fold_ascii(str(t.get("text") or "")))
+            if m and int(m.group(2)) >= DOOR_SIZE_TAG_MIN_H_CM:
+                tags.append((t, int(m.group(1)) / 100.0))
+        if not tags:
+            continue
+        doors = [o for o in b.get("openings") or [] if o.get("level_id") == lid and o.get("type") == "door"
+                 and not o.get("virtual") and o.get("center") and not o.get("door_tags")
+                 and not any(isinstance(e, dict) and str(e.get("rule") or "").startswith(("size_tag", "own_door_tag"))
+                             for e in o.get("evidence") or [])]
+        pairs = []
+        for ti, (t, tw) in enumerate(tags):
+            for oi, o in enumerate(doors):
+                w = float(o.get("width") or 0.0)
+                d = math.dist((float(t["x"]), float(t["y"])), (float(o["center"][0]), float(o["center"][1])))
+                if abs(w - tw) <= OWN_TAG_SAME_W_M + 1e-9 and d <= w / 2.0 + OWN_TAG_REACH_M:
+                    pairs.append((d, ti, oi))
+        used_t, used_o = set(), set()
+        for d, ti, oi in sorted(pairs):
+            if ti in used_t or oi in used_o:
+                continue
+            used_t.add(ti)
+            used_o.add(oi)
+            t, o = tags[ti][0], doors[oi]
+            text = str(t.get("text") or "").strip()
+            o["door_tags"] = [text]
+            ev = o.setdefault("evidence", [])
+            if isinstance(ev, list):
+                src = next((e for e in ev if isinstance(e, dict) and e.get("file")), {})
+                ev.append({"file": src.get("file") or "", "page": src.get("page"), "method": "vector",
+                           "confidence": 0.9, "rule": "own_door_tag", "entity": t.get("entity"), "tag": text,
+                           "note": f"its own door size tag '{text}' {d:.2f} m from its centre"})
+            out.append({"opening": o["id"], "level_id": lid, "tag": text})
+    return out
+
+
 def _mirror_axis(b: dict, lid: str):
     """The level's mirror axis from its walls (``generic.facade.mirror_axis``), or None (pure)."""
     from types import SimpleNamespace
