@@ -153,7 +153,41 @@ def structure(out_dir: Path, b: dict) -> dict:
                                                   "source": str(plan.get("riser_source") or "")[:40]}
     except Exception as exc:  # noqa: BLE001 - listed in the struct line, never silent
         out["stairs"] = {"error": f"{type(exc).__name__}: {exc}"[:160]}
+    out.update(structure_5b(b))
     return out
+
+
+def structure_5b(b: dict) -> dict:
+    """27 Nov 2026 (audit fix round 5b): the structure numbers its rules change, for the struct lines: the slab openings
+    per slab (stair voids, clipped ones, voids, stairs that do not stack, the drawn terrace ring), the door steps, the
+    copied storeys' checks against the section and the upper outdoor spaces past the walls under them (pure)."""
+    slabs = {}
+    for s in b.get("slabs") or []:
+        if not isinstance(s, dict) or s.get("variants"):
+            continue
+        ops = [o for o in s.get("openings") or [] if isinstance(o, dict)]
+
+        def area(o):
+            pts = o.get("polygon") or []
+            return 0.5 * abs(sum(pts[i][0] * pts[(i + 1) % len(pts)][1] - pts[(i + 1) % len(pts)][0] * pts[i][1]
+                                 for i in range(len(pts)))) if len(pts) >= 3 else 0.0
+        slabs[s.get("id")] = {"stair_voids": sum(1 for o in ops if o.get("kind") == "stair_void"),
+                              "voids": sum(1 for o in ops if o.get("kind") == "void"),
+                              "void_m2": _r(sum(area(o) for o in ops), 1),
+                              "clipped": sorted(str(o.get("furniture_id")) for o in ops if o.get("clipped_rooms")),
+                              "not_stacked": sorted(str(x.get("stair")) for x in s.get("stairs_not_stacked") or []),
+                              "outline": s.get("outline_source")}
+    li = b.get("level_inference") or {}
+    steps = []
+    for st in li.get("inner_steps") or []:
+        steps.append({"opening": st.get("opening_id"), "rise": _r(st.get("rise")), "risers": st.get("risers"),
+                      "placed": st.get("placed"), "kind": st.get("kind")})
+    tc = li.get("typical_checks") or {}
+    typical = {"dropped": sorted(f"{d.get('level_id')}:{d.get('room')}" for d in tc.get("dropped") or []),
+               "stairs": sorted(f"{s_.get('level_id')}:{s_.get('stair')}" for s_ in tc.get("stairs") or []),
+               "notes": len(tc.get("notes") or [])} if tc else None
+    upper = sorted(f"{r.get('space')}:{r.get('action')}" for r in li.get("upper_support") or [])
+    return {"slabs": slabs, "door_steps": steps, "typical_checks": typical, "upper_support": upper}
 
 
 def _ridge_dir(d: dict) -> Optional[str]:
@@ -215,6 +249,25 @@ def structure_lines(st: Optional[dict]) -> list[str]:
         for sid, s_ in sorted(stairs.items(), key=lambda kv: str(kv[0])):
             out.append(f"stair {sid} ({s_.get('level')}): {s_.get('risers')} risers x {f(s_.get('riser'), '{:.3f}')} m "
                        f"({s_.get('source')})")
+    # 27 Nov 2026 (audit fix round 5b): slab openings, door steps, copied storeys, upper outdoor spaces (only when the
+    # structure holds them, so a baseline written before keeps its lines)
+    for sid, s_ in sorted((st.get("slabs") or {}).items(), key=lambda kv: str(kv[0])):
+        if not (s_.get("stair_voids") or s_.get("voids") or s_.get("not_stacked") or s_.get("outline")):
+            continue
+        out.append(f"slab {sid}: {s_.get('stair_voids')} stair void(s), {s_.get('voids')} void(s), "
+                   f"{f(s_.get('void_m2'), '{:.1f}')} m2 open"
+                   + (f"; clipped {','.join(s_['clipped'])}" if s_.get("clipped") else "")
+                   + (f"; not stacked {','.join(s_['not_stacked'])}" if s_.get("not_stacked") else "")
+                   + (f"; outline {s_['outline']}" if s_.get("outline") else ""))
+    for d in st.get("door_steps") or []:
+        out.append(f"door step {d.get('opening')}: rise {f(d.get('rise'), '{:.2f}')} m, {d.get('risers')} risers, "
+                   f"{d.get('kind') or '-'} in {d.get('placed') or 'nothing (not built)'}")
+    tc = st.get("typical_checks")
+    if tc:
+        out.append(f"copied storeys vs section: rooms dropped {','.join(tc.get('dropped') or []) or '-'}; stairs not "
+                   f"built {','.join(tc.get('stairs') or []) or '-'}; {tc.get('notes')} note(s)")
+    if st.get("upper_support"):
+        out.append(f"upper outdoor spaces past the walls below: {', '.join(st['upper_support'])}")
     return out
 
 

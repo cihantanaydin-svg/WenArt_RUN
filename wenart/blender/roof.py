@@ -774,6 +774,34 @@ def planes_from_faces(planes: Sequence[Plane], faces: Sequence[Sequence], source
 
 
 FULL_STOREY_SLAB_M = 0.20        # 27 Nov 2026 (R07 e): a full storey's eaves stand on its ceiling and this slab
+# 27 Nov 2026 (audit fix round 5b, R07 g, the main session's default): a written pitch against the pitch the drawn eaves
+# and ridge give: within PITCH_AGREE_DEG they agree; else the drawn heights win (vector geometry > text) unless the pitch
+# they give is under the plausible minimum of the roof's covering (a tiled pitched roof under 10 degrees), then the
+# written pitch wins with the drawn ridge; the conflict is listed either way
+PITCH_AGREE_DEG = 2.0
+EAVES_CEILING_TOL_M = 0.30       # eaves this far under a full storey's ceiling still stand on it (the eaves edge drops)
+PITCH_MIN_DEG = {"tiled": 10.0, "metal": 3.0, "membrane": 1.0}
+METAL_COVER_WORDS = ("metal", "sheet", "steel", "zinc", "copper", "aluminium", "sandwich", "trapez", "panel", "sac")
+MEMBRANE_COVER_WORDS = ("membrane", "bitum", "epdm", "pvc", "felt", "membran")
+
+
+def covering_kind(roof: dict) -> str:
+    """'tiled' (the default of a pitched roof), 'metal' or 'membrane' from the roof's drawn covering (pure)."""
+    text = str(roof.get("covering") or "").lower()
+    if any(w in text for w in MEMBRANE_COVER_WORDS):
+        return "membrane"
+    if any(w in text for w in METAL_COVER_WORDS):
+        return "metal"
+    return "tiled"
+
+
+def written_pitch(roof: dict) -> Optional[float]:
+    """The first pitch when it comes from a slope text (evidence rule ``roof_slope_text``), else None (pure)."""
+    for p in roof.get("pitches_deg") or []:
+        if isinstance(p, dict) and any((e or {}).get("rule") == "roof_slope_text" for e in p.get("evidence") or []):
+            return _value(p)
+        return None
+    return None
 ATTIC_TITLE_RE = r"\bCATI\s+KAT|\bCATI\s+ARASI|(?<![A-Z])C\s*\.\s*A\s*\.\s*P\b|\bATTIC\b|\bLOFT\b|\bDACHGESCHOSS\b|\bCOMBLES\b"
 ROOF_WINDOW_WORDS = ("roof_window", "skylight", "dormer")
 
@@ -969,6 +997,47 @@ def _derive(roof: dict, building: dict, pitch: Optional[float] = None, turn: boo
     # the ridge of a stepped hip roof rises over its widest part: half the shorter side of its largest square fit
     rise_half = max(min(q[1] - q[0], q[3] - q[2]) / 2.0 for q in rects) if stepped else half_across
 
+    # 27 Nov 2026 (audit fix round 5b, R07 g): a written pitch against the drawn eaves and ridge (module constants)
+    eaves_from_pitch = False
+    ridge_wrong = False
+    p_w = written_pitch(roof)
+    if p_w is not None and pitch is None and rtype in ("gable", "hip") and eaves is not None and ridge is not None \
+            and not _is_assumed(roof.get("eaves_height")) and not _is_assumed(roof.get("ridge_height")) \
+            and rise_half > 0 and ridge > eaves:
+        p_d = math.degrees(math.atan2(ridge - eaves, rise_half))
+        if abs(p_d - p_w) > PITCH_AGREE_DEG:
+            kind = covering_kind(roof)
+            low = PITCH_MIN_DEG.get(kind, 10.0)
+            low_eaves = ridge - rise_half * math.tan(math.radians(p_w))
+            storey_top = (floor_z + float(level.get("ceiling_height") or 2.70)) \
+                if level is not None and not attic_level(level) else None
+            if p_d < low and storey_top is not None and low_eaves < storey_top - EAVES_CEILING_TOL_M <= eaves:
+                # one reading is wrong: the drawn eaves stand on the full top storey's ceiling and slab, so the eaves
+                # the written pitch and the ridge give (under that ceiling) cannot be: the ridge mark is the wrong
+                # reading (a mark of another roof part, a chimney or a vent top); the written pitch and the drawn eaves
+                # stay, the ridge follows them
+                pitches = [p_w] + list(pitches[1:])
+                ridge_wrong = True
+                text = (f"conflict: the written pitch {p_w:.1f} degrees against the drawn eaves {eaves:.3f} m and ridge "
+                        f"{ridge:.3f} m, which give {p_d:.1f} degrees over this roof (under the {low:.0f} degrees a "
+                        f"{kind} {rtype} roof needs); with the drawn ridge the written pitch would put the eaves at "
+                        f"{low_eaves:.3f} m, under the full storey {level['id']}'s ceiling ({storey_top:.3f} "
+                        f"m), which the drawn eaves confirm: the ridge mark is the wrong reading (another roof part, a "
+                        f"chimney or a vent top); the written pitch and the drawn eaves are kept (R07 g)")
+            elif p_d < low:
+                eaves = low_eaves
+                eaves_from_pitch = True
+                text = (f"conflict: the written pitch {p_w:.1f} degrees against the drawn eaves and ridge heights, "
+                        f"which give {p_d:.1f} degrees over this roof (under the {low:.0f} degrees a {kind} {rtype} "
+                        f"roof needs): the written pitch wins with the drawn ridge {ridge:.3f} m; the eaves come to "
+                        f"{eaves:.3f} m (R07 g)")
+            else:
+                pitches = [p_d] + list(pitches[1:])
+                text = (f"conflict: the written pitch {p_w:.1f} degrees against the drawn eaves and ridge heights, "
+                        f"which give {p_d:.1f} degrees: the drawn heights win (vector geometry over text; R07 g)")
+            warnings.append(text)
+            assumed.append({"field": "conflict", "value": "pitch", "reason": text})
+
     def first_pitch() -> float:
         if pitch is not None and fit == "pitch":
             notes.append(f"pitch {pitch:.2f} degrees: the roof follows the drawn section's heights")
@@ -1027,8 +1096,8 @@ def _derive(roof: dict, building: dict, pitch: Optional[float] = None, turn: boo
                                       f"({level['id'] if level else 'top level'} is no attic): its floor "
                                       f"{floor_z:.2f} + ceiling {ceiling:.2f} + slab {FULL_STOREY_SLAB_M:.2f} m"})
     if rtype != "flat" and level is not None and not attic_level(level) \
-            and not any(_value(roof.get(k)) is not None and not _is_assumed(roof.get(k))
-                        for k in ("eaves_height", "knee_wall")):
+            and (eaves_from_pitch or not any(_value(roof.get(k)) is not None and not _is_assumed(roof.get(k))
+                                             for k in ("eaves_height", "knee_wall"))):
         # 27 Nov 2026 (audit fix round 4b): every opening at its own wall face under the roof actually built (the turned
         # ridge, ``r``, defect 7; a wall set back from the eaves, defect 8); only drawn opening heights move a drawn
         # ridge height, an opening whose head is a default never does (defect 9: it is clipped, the conflict listed)
@@ -1258,6 +1327,10 @@ def _derive(roof: dict, building: dict, pitch: Optional[float] = None, turn: boo
                     "pitch": p2 if fit == "upper_pitch" else p1 if fit == "pitch" else None,
                     "why_fixed": None if fit else
                     "the mansard / gambrel tiers are the section's own slopes and heights"}}
+    if eaves_from_pitch or ridge_wrong:
+        # 27 Nov 2026 (round 5b, R07 g): the written pitch won over the drawn heights: the section does not solve it back
+        out["_ctx"].update(fit=None, why_fixed="the written pitch wins over the drawn eaves and ridge heights, whose "
+                                               "pitch no roof of this covering has (R07 g)")
     if parts:
         out["parts"], out["faces"] = parts, faces
     return out

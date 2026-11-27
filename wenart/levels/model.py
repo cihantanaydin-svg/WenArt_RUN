@@ -2154,6 +2154,11 @@ def infer_levels(building: dict, brief: Optional[dict] = None) -> dict:
     _room_floors(b, marks, params, conflicts, warnings)
     outlines = outlines_of(b)
     record["inner_steps"] = _thresholds(b, params, outlines)
+    # 27 Nov 2026 (audit fix round 5b): the steps (or a garage's ramp) of every such door, planned in the lower room
+    from wenart.levels import door_steps as DS
+    placed = DS.place(b, record["inner_steps"], params)
+    for u in placed["unbuilt"]:
+        warnings.append(f"inner step not built: {u['reason']}")
     if not is_whole(b):
         return b
     if not isinstance(b.get("site"), dict):                 # a whole building always stands on a site

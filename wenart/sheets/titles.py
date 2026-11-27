@@ -282,10 +282,50 @@ SLOPE_PCT_RE = re.compile(r"\b" + _SLOPE_WORD + r"\b\s*[:=]?\s*%\s*" + _PCT
                           + r"|(?<![\d.,])" + _PCT + r"\s*%\s*" + _SLOPE_WORD + r"\b")
 
 
-def slope_pct(text: str) -> Optional[float]:
-    """The slope in per cent a slope text gives (``SLOPE_PCT_RE`` on the folded text), or None (pure)."""
-    m = SLOPE_PCT_RE.search(fold(text or ""))
-    if not m:
+def slope_pct(text: str, roof: bool = False) -> Optional[float]:
+    """The slope in per cent a slope text gives (``slope_reading``), or None (pure). ``roof``: the text stands on a roof
+    plan, where a bare angle ('30°') is a slope too."""
+    rd = slope_reading(text, roof)
+    return None if rd is None else rd["pct"]
+
+
+# 27 Nov 2026 (audit fix round 5b, R07 f: 'EĞİM 30' and 'EĞİM 30°' were not read): a slope in degrees ('EĞİM 30°',
+# '30 DERECE', on a roof plan a bare '30°') and a slope word with a bare number ('EĞİM 30', 'EĞİM:30'); a bare number is
+# per cent when a roof's per cent is plausible (``SLOPE_PCT_PLAUSIBLE``), degrees only when only a roof's angle is
+# (``SLOPE_DEG_PLAUSIBLE``); a length unit after it is no slope
+_DEG = r"(\d{1,2}(?:[.,]\d+)?)\s*(?:DEG\b|DERECE\b)"
+SLOPE_DEG_RE = re.compile(r"\b" + _SLOPE_WORD + r"\b\s*[:=]?\s*" + _DEG + r"|" + _DEG + r"\s*" + _SLOPE_WORD + r"\b")
+SLOPE_BARE_DEG_RE = re.compile(r"^\s*" + _DEG + r"\s*$")
+SLOPE_BARE_RE = re.compile(r"\b" + _SLOPE_WORD + r"\b\s*[:=]?\s*(\d{1,3}(?:[.,]\d+)?)(?![\d.,%])(?!\s*(?:CM|MM|M)\b)")
+SLOPE_PCT_PLAUSIBLE = (10.0, 150.0)
+SLOPE_DEG_PLAUSIBLE = (5.0, 60.0)
+
+
+def slope_reading(text: str, roof: bool = False) -> Optional[dict]:
+    """``{"pct", "deg", "unit": "percent" | "degrees", "form"}`` of a slope text, or None (pure): ``SLOPE_PCT_RE`` (a
+    '%' sign), then degrees (a degree sign or 'DERECE' next to a slope word; on a roof plan, ``roof``, a bare angle),
+    then a slope word with a bare number (per cent when plausible as a roof's per cent, degrees when only plausible as
+    a roof's angle)."""
+    import math as _m
+    raw = (text or "").replace("°", " DEG ").replace("º", " DEG ").replace("˚", " DEG ")
+    folded = fold(raw)
+    m = SLOPE_PCT_RE.search(folded)
+    if m:
+        v = float(next(g for g in m.groups() if g).replace(",", "."))
+        return {"pct": v, "deg": _m.degrees(_m.atan(v / 100.0)), "unit": "percent", "form": "percent sign"}
+    m = SLOPE_DEG_RE.search(folded) or (SLOPE_BARE_DEG_RE.search(folded) if roof else None)
+    if m:
+        d = float(next(g for g in m.groups() if g).replace(",", "."))
+        if 0.0 < d < 80.0:
+            return {"pct": round(_m.tan(_m.radians(d)) * 100.0, 3), "deg": d, "unit": "degrees",
+                    "form": "degree sign"}
         return None
-    v = next(g for g in m.groups() if g)
-    return float(v.replace(",", "."))
+    m = SLOPE_BARE_RE.search(folded)
+    if m:
+        v = float(m.group(1).replace(",", "."))
+        if SLOPE_PCT_PLAUSIBLE[0] <= v <= SLOPE_PCT_PLAUSIBLE[1]:
+            return {"pct": v, "deg": _m.degrees(_m.atan(v / 100.0)), "unit": "percent", "form": "bare number"}
+        if SLOPE_DEG_PLAUSIBLE[0] <= v <= SLOPE_DEG_PLAUSIBLE[1]:
+            return {"pct": round(_m.tan(_m.radians(v)) * 100.0, 3), "deg": v, "unit": "degrees",
+                    "form": "bare number (only plausible as degrees)"}
+    return None

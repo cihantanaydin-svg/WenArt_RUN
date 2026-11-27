@@ -718,7 +718,7 @@ def roof_from_roof_plan(roof_plans: list) -> Optional[dict]:
     for r in roof_plans:
         slopes, left = [], []
         for t in r.texts:
-            v = T.slope_pct(t.text)
+            v = T.slope_pct(t.text, roof=True)   # round 5b (R07 f): degrees and bare numbers too
             if v is None:
                 continue
             if not ROOF_SLOPE_PCT[0] <= v <= ROOF_SLOPE_PCT[1]:

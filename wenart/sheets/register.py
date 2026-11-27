@@ -51,7 +51,7 @@ from typing import Callable, Optional
 import numpy as np
 import shapely
 from shapely import affinity
-from shapely.geometry import LineString, MultiPolygon, Polygon
+from shapely.geometry import LineString, MultiPolygon, Point, Polygon
 from shapely.ops import unary_union
 
 from wenart.ingest.generic import layer_names as LN
@@ -210,6 +210,7 @@ def cut_line(plans: list, section) -> Optional[dict]:
 CUT_MARK_REACH_M = 1.0           # 27 Nov 2026 (R06): a section mark's arrow or triangle lies this close to its letter ...
 CUT_MARK_SIDE_M = (0.05, 1.0)    # ... its sides this long
 CUT_MARK_ALIGN = 0.03            # the two letters of a cut lie on one line across the plan (this share of their distance)
+CUT_MARK_JOG = 0.25              # 27 Nov 2026 (round 5b, R22): a jogged cut's two letters lie at most this share apart
 CUT_MARK_BEYOND_M = 1.0          # ... each at most this far inside the building outline's box on its side
 CUT_MARK_RE = re.compile(r"^[A-Z0-9]{1,2}$")
 
@@ -339,32 +340,68 @@ def cut_marks(region, letter: Optional[str] = None) -> Optional[dict]:
         if tris:
             cands.setdefault(word, []).append((t, tris))
     best = None
-    for word, items in cands.items():
-        for i in range(len(items)):
-            for j in range(i + 1, len(items)):
-                (ta, tra), (tb, trb) = items[i], items[j]
-                pa, pb = ta.point, tb.point
-                d = math.dist(pa, pb)
-                if d <= 0:
-                    continue
-                dx, dy = abs(pb[0] - pa[0]), abs(pb[1] - pa[1])
-                if min(dx, dy) > CUT_MARK_ALIGN * d:
-                    continue
-                axis = 0 if dx >= dy else 1
-                lo, hi = sorted((pa[axis], pb[axis]))
-                if lo > bx[axis] + beyond or hi < bx[axis + 2] - beyond:
-                    continue                          # not on both sides of the building
-                u = ((pb[0] - pa[0]) / d, (pb[1] - pa[1]) / d)
-                dirs = [_arrow_dir(tri, pa, u) for tri, _i in tra + trb]
-                dirs = [v for v in dirs if v is not None]
-                view = dirs[0] if dirs and all(abs(v[0] - dirs[0][0]) + abs(v[1] - dirs[0][1]) < 1e-6
-                                               for v in dirs) else None
-                rec = {"a": pa, "b": pb, "letter": word, "view": view,
-                       "entities": sorted({ta.id, tb.id} | {i for _t, i in tra + trb})}
-                key = (view is not None, d)
-                if best is None or key > best[0]:
-                    best = (key, rec)
+    for jog in (False, True):
+        # 27 Nov 2026 (audit fix round 5b, R22: real10's 'A' marks stand 2.4 m apart across the cut, a jogged cut line,
+        # and the section's direction stayed unknown): a pair offset across the cut by up to CUT_MARK_JOG of its distance
+        # is a jogged cut when no straight pair exists and every triangle of both marks points the same way across it
+        for word, items in cands.items():
+            for i in range(len(items)):
+                for j in range(i + 1, len(items)):
+                    (ta, tra), (tb, trb) = items[i], items[j]
+                    pa, pb = ta.point, tb.point
+                    d = math.dist(pa, pb)
+                    if d <= 0:
+                        continue
+                    dx, dy = abs(pb[0] - pa[0]), abs(pb[1] - pa[1])
+                    if min(dx, dy) > (CUT_MARK_JOG if jog else CUT_MARK_ALIGN) * d:
+                        continue
+                    if jog and min(dx, dy) <= CUT_MARK_ALIGN * d:
+                        continue                      # a straight pair: found in the first pass
+                    axis = 0 if dx >= dy else 1
+                    lo, hi = sorted((pa[axis], pb[axis]))
+                    if (lo > bx[axis] + beyond or hi < bx[axis + 2] - beyond) and not _outside_both(poly, pa, pb, axis):
+                        continue                          # not on both sides of the building
+                    if jog:
+                        sgn = 1.0 if pb[axis] >= pa[axis] else -1.0
+                        u = (sgn, 0.0) if axis == 0 else (0.0, sgn)
+                    else:
+                        u = ((pb[0] - pa[0]) / d, (pb[1] - pa[1]) / d)
+                    raw = [_arrow_dir(tri, pa, u) for tri, _i in tra + trb]
+                    dirs = [v for v in raw if v is not None]
+                    view = dirs[0] if dirs and all(abs(v[0] - dirs[0][0]) + abs(v[1] - dirs[0][1]) < 1e-6
+                                                   for v in dirs) else None
+                    if jog and (view is None or len(dirs) < 2 or not any(_arrow_dir(tri, pa, u) for tri, _i in tra)
+                                or not any(_arrow_dir(tri, pa, u) for tri, _i in trb)):
+                        continue                      # a jogged cut needs both marks pointing the same way
+                    rec = {"a": pa, "b": pb, "letter": word, "view": view,
+                           "entities": sorted({ta.id, tb.id} | {i for _t, i in tra + trb})}
+                    if jog:
+                        rec["jogged"] = True
+                    key = (view is not None, d)
+                    if best is None or key > best[0]:
+                        best = (key, rec)
+        if best is not None:
+            break
     return best[1] if best else None
+
+
+CUT_MARK_SPAN_SHARE = 0.8        # 27 Nov 2026 (round 5b): ... or apart along the cut by this share of the outline's extent
+
+
+def _outside_both(poly, pa, pb, axis: int) -> bool:
+    """27 Nov 2026 (audit fix round 5b, R22: real10's bottom 'A' stands at its facade line, 2 m inside the outline's box
+    that a pointed bay, steps and balconies widen): two letters stand on both sides of the building also when they lie on
+    opposite sides of the outline's centre along the cut, at least ``CUT_MARK_SPAN_SHARE`` of the outline's extent apart
+    (pure; the caller asks for their triangles too)."""
+    try:
+        c = poly.centroid
+        b = poly.bounds
+        ext = b[axis + 2] - b[axis]
+        ca = (c.x, c.y)[axis]
+        da, db = pa[axis] - ca, pb[axis] - ca
+        return ext > 0 and da * db < 0 and abs(pb[axis] - pa[axis]) >= CUT_MARK_SPAN_SHARE * ext
+    except Exception:  # noqa: BLE001 - a broken outline gives no cut (the box rule decides)
+        return False
 
 
 def _cut_from_marks(plans: list, letter: Optional[str]) -> Optional[dict]:
@@ -393,8 +430,17 @@ def _cut_from_marks(plans: list, letter: Optional[str]) -> Optional[dict]:
             left = (-bvy, bvx)
             flipped = bool((left[0] if axis == "x" else left[1]) > 0)
             view = [round(bvx, 4) + 0.0, round(bvy, 4) + 0.0]
-        return {"axis": axis, "at": round(at, 4) + 0.0, "flipped": flipped, "view": view, "region": r.id,
-                "entities": m["entities"], "letter": m["letter"], "method": "cut_marks"}
+        rec = {"axis": axis, "at": round(at, 4) + 0.0, "flipped": flipped, "view": view, "region": r.id,
+               "entities": m["entities"], "letter": m["letter"], "method": "cut_marks"}
+        if m.get("jogged"):
+            # 27 Nov 2026 (round 5b): 'at' is the middle of the two marks; each half of the cut runs at its own mark
+            rec["jogged"] = True
+            ends = []
+            for q in (a, b):
+                qx, qy = tf[0] * q[0] + tf[1] * q[1] + tf[2], tf[3] * q[0] + tf[4] * q[1] + tf[5]
+                ends.append([round(qx if axis == "x" else qy, 4) + 0.0, round(qy if axis == "x" else qx, 4) + 0.0])
+            rec["ends"] = sorted(ends)            # [[along the axis, across it (the cut's place there)], ...]
+        return rec
     return None
 
 

@@ -359,7 +359,8 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
     if cut is not None and cut.get("method") == "cut_marks":
         warnings.append(f"section {sections[0].id}: its cut marks '{cut['letter']}' found by their geometry on "
                         f"{cut['region']} (no line on a cut-line layer): the cut runs along {cut['axis']} at "
-                        f"{cut['at']:.2f} m" + ("" if cut["flipped"] is not None else
+                        f"{cut['at']:.2f} m" + (" (a jogged cut: the middle of its two marks)" if cut.get("jogged") else "")
+                        + ("" if cut["flipped"] is not None else
                                                 "; the triangles do not say which way it looks (flipped unknown)"))
     heights_json, hw = HT.heights(section_geom, base_levels, ref_extent, values,
                                   sections[0].file if sections else None, conflict, cut)
@@ -373,6 +374,14 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
     if section_geom is not None and section_geom.mpu and not any(ln.startswith("heights from") for ln in named_lines):
         hw += _marks_first(heights_json, base_levels, section_geom, read_plans, levels_json, values,
                            sections[0], warnings, conflict)
+    # 27 Nov 2026 (audit fix round 5b, R22): what the section draws per storey, for the storeys no plan draws
+    from wenart.sheets import section_evidence as SEV
+    try:
+        heights_json["section_evidence"] = SEV.read(section_geom, heights_json, cut)
+    except Exception as exc:  # noqa: BLE001 - logged: the copied storeys are then not checked against the section
+        heights_json["section_evidence"] = None
+        warnings.append(f"section evidence not read ({type(exc).__name__}: {exc}): the copied storeys are not checked "
+                        f"against the section")
     heights_json.pop("_mark_frame", None)
     heights_json.pop("_bands", None)
     hw += HT.high_ground(heights_json, base_levels)
@@ -384,6 +393,10 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
                            float(values.get("slab_thickness", 0.20)), f"the section's heights are no storeys ({bad})")
         hw.append(f"the section's heights are no storeys ({bad}): the floors take the assumed heights")
         warnings.append(f"the section's heights are no storeys ({bad}): the floors take the assumed heights")
+        line = HT.reject_roof(heights_json, f"the section's heights are no storeys ({bad})")   # round 5b, R07 e
+        if line:
+            hw.append(line)
+            warnings.append(line)
     # 13 Nov 2026 (coordinator, real13: "a building's entrance never disappears"; its plans print each storey's floor in
     # the title, 'ZEMİN (+2.50 KOTU)', '1.(+5.20 KOTU)' ... '3.BODRUM (-5.50 KOTU)', and the ground floor's own floor mark
     # agrees, while the section's storey marks were no storeys and their datum +3.70 stood 1.20 m off every plan): when
@@ -421,6 +434,8 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
                            float(values.get("slab_thickness", 0.20)), "the section's storey marks disagree with the "
                                                                       "plans' titles")
         floors_assumed = True
+        # 27 Nov 2026 (round 5b, R07 e): the section's roof stays: its z 0 is the ground floor's band in both frames
+        # (only the printed value of that floor disagrees), so its roof heights are not in a rejected frame
     if floors_assumed and 0 in title_el and len(title_el) >= 2 and not odd:
         old_datum = heights_json.get("datum")
         heights_json["datum"] = None
@@ -455,6 +470,19 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
                                                   else "not marked") + " (section level marks)")
     if multi:
         warnings.extend(hw)
+    # 27 Nov 2026 (audit fix round 5b, R23): the rings a roof-terrace plan's lines close (the building stage picks its
+    # drawn edge: ``terrace_ring.choose``)
+    from wenart.sheets import terrace_ring as TRG
+    for lv in levels_json:
+        if not lv.get("roof_terrace"):
+            continue
+        rr = next((p for p in read_plans if p.id == lv.get("base_region")), None)
+        if rr is None:
+            continue
+        try:
+            lv["edge_rings"] = TRG.rings(rr)
+        except Exception as exc:  # noqa: BLE001 - logged: the terrace then takes the floor below's outline
+            warnings.append(f"roof terrace {lv.get('id')}: its drawn rings not read ({type(exc).__name__}: {exc})")
     top_plan = None
     if levels_json:
         top_level = max(levels_json, key=lambda lv: lv["order"])
