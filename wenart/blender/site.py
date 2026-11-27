@@ -2798,7 +2798,7 @@ def open_to_sky(building: dict) -> list[list]:
     room of a level above covers (``SKY_COVER_SHARE``), and the outdoor spaces of the ground level or below."""
     from shapely.geometry import Polygon as _P
     from wenart.blender import outdoor as OD
-    from wenart import building as BB
+    fold = str.maketrans("ÇĞİÖŞÜçğıöşü", "CGIOSUcgiosu")     # Blender's Python: no wenart.building here
 
     out = []
     roof = building.get("roof") if isinstance(building.get("roof"), dict) else {}
@@ -2816,7 +2816,7 @@ def open_to_sky(building: dict) -> list[list]:
         except (TypeError, ValueError):
             return None
     for r in rooms:
-        words = BB.fold_ascii(f"{r.get('room_type') or ''} {r.get('label') or ''} {r.get('name') or ''}").lower()
+        words = (f"{r.get('room_type') or ''} {r.get('label') or ''} {r.get('name') or ''}").translate(fold).lower()
         if not (OD.is_open_air(r, sky) or COURTYARD_RE.search(words)):
             continue
         k = orders.get(r.get("level_id"))

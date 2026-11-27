@@ -5159,8 +5159,8 @@
    "area": "other",
    "status": "open",
    "checks": [],
-   "request": "27 Nov 2026 (audit fix round 4b, defect 13 and item 3; real17 had five 'goings differ' findings from reader noise on stairs written '/27', and its private duplex stairs were called steep): a written going wins over the measured tread spacing (no goings finding; without one, only flights of three or more tread lines are compared); the steep-riser finding is the regulation's (PAİY 31: 0.18 m with a lift, 0.16 m without; one source, regulations.riser_limit) and only for a common stair of a residential building; a top-level stair that climbs a full storey may be a stair up to the roof, as the finding says.",
-   "lesson": "27 Nov 2026 (audit fix round 4b, defect 13 and item 3; real17 had five 'goings differ' findings from reader noise on stairs written '/27', and its private duplex stairs were called steep): a written going wins over the measured tread spacing (no goings finding; without one, only flights of three or more tread lines are compared); the steep-riser finding is the regulation's (PAİY 31: 0.18 m with a lift, 0.16 m without; one source, regulations.riser_limit) and only for a common stair of a residential building; a top-level stair that climbs a full storey may be a stair up to the roof, as the finding says.",
+   "request": "27 Nov 2026 (audit fix round 4b, defect 13 and item 3; real17 had five 'goings differ' findings from reader noise on stairs written '/27', and its private duplex stairs were called steep): a written going wins over the measured tread spacing (no goings finding; without one, only flights of three or more tread lines are compared); the steep-riser finding is the regulation's (PAİY 31: 0.18 m with a lift, 0.16 m without; one source, regulations.riser_limit) and only for a common stair of a residential building; a top-level stair that climbs a full storey may be a stair up to the roof, as the finding says. A stair whose centre stands in a room of one dwelling (no room of the core or of the shared halls) is that dwelling's own, never the common stair, even a wall away from the floor hall (real17's duplex stairs in the flats' salons).",
+   "lesson": "27 Nov 2026 (audit fix round 4b, defect 13 and item 3; real17 had five 'goings differ' findings from reader noise on stairs written '/27', and its private duplex stairs were called steep): a written going wins over the measured tread spacing (no goings finding; without one, only flights of three or more tread lines are compared); the steep-riser finding is the regulation's (PAİY 31: 0.18 m with a lift, 0.16 m without; one source, regulations.riser_limit) and only for a common stair of a residential building; a top-level stair that climbs a full storey may be a stair up to the roof, as the finding says. A stair whose centre stands in a room of one dwelling (no room of the core or of the shared halls) is that dwelling's own, never the common stair, even a wall away from the floor hall (real17's duplex stairs in the flats' salons).",
    "question": null
   },
   {
@@ -5201,6 +5201,16 @@
    "checks": [],
    "request": "27 Nov 2026 (audit fix round 4b, item 6; the gates did not see a mirrored section or a flat roof read as a gambrel): the reading regression set prints 'struct:' lines for every project: each level's floor and ceiling height and source, the section's cut axis and flip, the roof as read and as built (eaves, ridge, pitch, ridge direction, raise) and each stair's risers and riser height; they are additive (old logs still compare), a baseline without them is not compared on them, one written after an accepted update compares them as notes.",
    "lesson": "27 Nov 2026 (audit fix round 4b, item 6; the gates did not see a mirrored section or a flat roof read as a gambrel): the reading regression set prints 'struct:' lines for every project: each level's floor and ceiling height and source, the section's cut axis and flip, the roof as read and as built (eaves, ridge, pitch, ridge direction, raise) and each stair's risers and riser height; they are additive (old logs still compare), a baseline without them is not compared on them, one written after an accepted update compares them as notes.",
+   "question": null
+  },
+  {
+   "id": "UL493",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 4b, the eaves default of round 4 measured): with no eaves, knee wall or ridge drawn, a full top storey's eaves stand on its ceiling and slab (floor + ceiling + 0.20 m) and only a level the drawings name an attic takes the 1.0 m knee wall. Measured on every pitched-roof project before and after round 4: only real18 uses the default (the others draw their eaves or have an attic); its section shows the roof standing on the top slab, and the old knee wall clipped all 19 openings of its full top storey: the default is kept.",
+   "lesson": "27 Nov 2026 (audit fix round 4b, the eaves default of round 4 measured): with no eaves, knee wall or ridge drawn, a full top storey's eaves stand on its ceiling and slab (floor + ceiling + 0.20 m) and only a level the drawings name an attic takes the 1.0 m knee wall. Measured on every pitched-roof project before and after round 4: only real18 uses the default (the others draw their eaves or have an attic); its section shows the roof standing on the top slab, and the old knee wall clipped all 19 openings of its full top storey: the default is kept.",
    "question": null
   }
  ]

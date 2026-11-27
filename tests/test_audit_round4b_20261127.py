@@ -595,3 +595,17 @@ def test_d2_an_arrow_along_the_cut_line_says_nothing_and_a_flag_down_looks_down(
     from wenart.sheets import register as RG
     assert RG._arrow_dir([(0, 0), (0.4, 0.04), (0.4, -0.04)], (0, 0), (1.0, 0.0)) is None
     assert RG._arrow_dir([(0, 0), (0.4, 0), (0, -0.35)], (0, 3.0), (1.0, 0.0)) == (0.0, -1.0)
+
+
+def test_d13_a_stair_in_a_dwellings_room_is_its_own_never_the_common_stair():
+    from wenart.reading_check import regulations as REG
+    ctx = REG.Context.__new__(REG.Context)
+    hall = {"id": "hall", "polygon": [[0, 0], [3, 0], [3, 6], [0, 6]]}
+    salon = {"id": "salon", "polygon": [[3.25, 0], [9, 0], [9, 6], [3.25, 6]]}
+    ctx.layouts = {"L3": {"rooms": {"hall": hall, "salon": salon}, "shared": {"hall"}, "common": {"hall"}}}
+
+    def stair(cx):
+        return {"id": "f", "type": "stair", "level_id": "L3",
+                "footprint": {"center": [cx, 3.0], "size": [1.0, 2.6], "rotation_deg": 0.0}}
+    assert ctx.common_stair("L3", stair(1.5)) is True                    # in the floor hall
+    assert ctx.common_stair("L3", stair(3.9)) is False                   # in the salon, a wall from the hall

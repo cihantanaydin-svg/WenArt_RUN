@@ -329,6 +329,13 @@ class Context:
         fp = _footprint(piece)
         if fp is None or not lay.get("shared"):
             return False
+        # 27 Nov 2026 (audit fix round 4b: real17's duplex stairs stand in each flat's salon, a wall away from the floor
+        # hall, and were judged as the common stair): a stair whose centre stands in a room of one dwelling (no room of
+        # the core or the shared halls) is that dwelling's own
+        c = fp.centroid
+        host = [rid for rid, r in lay["rooms"].items() if SN._poly(r["polygon"]).contains(c)]
+        if host and not any(rid in lay.get("common", ()) for rid in host):
+            return False
         return any(SN._poly(lay["rooms"][rid]["polygon"]).distance(fp) <= STAIR_PIECE_REACH_M + SN.EPS
                    for rid in lay["shared"] if rid in lay["rooms"])
 
