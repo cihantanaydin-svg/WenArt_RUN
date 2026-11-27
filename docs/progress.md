@@ -5200,3 +5200,61 @@ Gates (all on this round's code; readings with no AI answers):
   last edits touched again afterwards: 308 passed.
 - **Pod:** none run. R04's railings, R13's linked duplicates and R14's carve need the next pod render (real17, real10,
   real06).
+
+### Audit fix round 2 (26 Nov 2026)
+
+The reading rules of the audit's second batch (R27, R03, R01, R05), CPU only, no pod; lessons UL404-UL407. Every rule
+is general; the projects are only the test cases. Tests: `tests/test_audit_round2_20261126.py` (22: synthetic cases,
+a fresh CPU reading of real06, and the stored readings of runs 20261126-110510-full / 20261126-114512-full when
+`runs/` or `WENART_RUNS` holds them); 7 older tests in 6 files updated where a rule changed what they pinned. "Effect"
+compares fresh readings, base commit f43b1559 against this round.
+
+| rule | root cause found | fix | tests | effect per project |
+|---|---|---|---|---|
+| R27 twin merge ranking (UL404; the user's answer of 26 Nov, C0100, UL395) | `twin_walls._drawn` let only a drawn swing outrank the kept wall's unclassified gap when one wall read twice merges, so real06's two-leaf sliding door (six leaf lines on KAPI) was merged into the 2.90 m gap (the 29 Oct exclusion after C0065) | `twin_walls.typed_door`: a drawn swing, sliding (pocket, folding) leaves on a door layer or in a door block (`openings._opening` now writes the leaves' `layer` and `door_layer`), or a door size tag outranks the gap; the door keeps its width, the rest of the gap is wall (the piers); leaf lines on no door layer and inferred doors still give way | 4 + 1 updated | real06 L0: the 2.90 m hole o_L0_001 -> the 1.95 m sliding door d_L0_002 at (2.275, 9.20); C0100 holds (real06 70.0 -> 100.0), C0065 holds (the copy stays merged), real07's C0047 holds; no other project changed |
+| R03 gap stroke roles (UL405) | the window rule never looked at a stroke's layer, so dotted lintels on IZDOT were glass; any two arcs half their hinge distance apart made `_framed_double` a double door (a sink's 0.08 / 0.10 m bowl arcs); `_perp_leaves` took wall-layer box sides as an open leaf; `_inside_wall` needed the whole width covered (a column covered 98 %); the ranker counted another door's arc and tag; `foreign_cuts` cut columns | (a) `overhead_line`: a line on an overhead layer (IZ, IZDOT, IZDÜŞÜM, KİRİŞ, BEAM, HIDDEN ...; never a window, glass, sill or door stroke) is no window frame or glass line and no content of a gap of a wall run; a gap holding only such lines is a doorless passage (verdict lintel); they still say "no window"; (b) a swing is a leaf: 0.35 m, 0.30 m per half, a framed double's radii at least half the gap less a frame and at most 15 % over half the gap; arcs in fixture or furniture blocks (EVYE, LAVABO, KLO ...) or on sanitary and finish layers never count, door blocks always do; (c) in a gap under 0.6 m, wall, plaster, structure and hatch strokes never form a leaf; (d) a gap of 0.25 m or more covered along 80 % of its width by column pieces (both sides 0.8 m at most, either axis) with no passable part left is closed; `unbind_votes`: arcs another door holds and a tag nearer another door cast no door vote in the ranker's record; (e) `shell.column_piece`: a column (a short structure-layer piece, or a piece under 1 m thicker than the opening's wall) never gets a foreign cut | 8 + 3 updated | real06: L0 win_L0_001 (hall to salon) -> a doorless opening, L1 win_L1_001 (bedroom to dressing room) -> an open passage with a lintel, L1 d_L1_009 onto the stair void gone; real15: d_L0_005 from the sink's arcs gone (with it a 0.13 m2 sliver room, L0 rooms 18 -> 17); real17: o_L1/L2/L3_003 through the column closed; real03: o_L0..L12_006 (a 0.58 m gap of the lining in front of the shear-wall core) closed; real07: L1 d_L1_006 (a 0.45 m "open leaf" at a 0.33 m block) closed; real10: L-2's 0.27 m door d_L-2_003 swing -> sliding (its arc is no leaf); real13: the 0.32 m "doors" d_L0..L3_010, L4's 0.52 m d_L4_001 and 0.47 m o_L4_002 at column blocks closed; real16: two 0.71 m unclassified openings o_L0_009 / o_L0_012 between columns closed; bench: no change |
+| R01 height frame (UL406) | `_plan_frame` returned 0 when the ground floor's room marks agreed, expecting `_level_elevations` to move the ground floor, which skips a section's elevation; `_room_floors` took the median of disagreeing marks; `read.classify` read marks in a terrace as the ground; nothing stopped a ground over the floor | (a) `_set_frame_once`: when no section datum gives the frame and the ground floor's elevation is not assumed, the value most of its marked rooms share less its model elevation is the one frame of every plan mark (`level_inference.frame`; a run again re-reads it from the marks); (b) a shared offset of half or more of a storey's marked rooms (within `room_offset_max`) is its frame, not a step per room (`level_frames`); (c) disagreeing marks are never averaged: a mark over a shaft's footprint (this storey or the one under it) is the shaft head's, listed; else the mark at the level floor, else the one at a door neighbour's floor, else the level floor, listed; (d) a mark inside a raised outdoor space's outline (terrace, balcony, loggia, deck, veranda; or by the label of one without an outline) is its floor where it would have become ground (a mark under an entrance canopy, in a courtyard or a patio stays the ground's); (e) `_ground_gate`: ground marks that all stand more than 0.05 m over the plinth top, the ground floor's outside thresholds and its garage floors are refused; the ground comes from the section, else the plans' ±0.00 (`frame_zero`; also the default when nothing about the ground is drawn and a frame was applied), else D3a | 6 + 2 updated | real15: frame +0.50; every marked room at its storey's floor but the garage (-0.25); inner steps 22 -> 1 (the garage door); the three TERAS marks are terrace floors; ground +0.50 (marks) -> -0.50 (the plans' ±0.00), the entrance 0.35 m of steps, the garage a 1:8 drive; real10: L7 lift machine room +0.60 -> 0 (d_L7_001 at 21.00, '+24.70' listed as the shaft head), inner steps 4 -> 3; real13: L-2's two marked rooms -0.50 -> 0 (the storey's frame); no level elevation of any project changed |
+| R05 door validity (UL407) | nothing checked a door against its wall's span, its two sides, its passage or the slab under it; M1 and M9 only reported | `ingest/door_validity.py`, after the reading's merges and again in `build.prepare_once`: a door a size tag or a rule placed whose centre is past its wall's end takes its mirror twin's place on a wall (`facade.mirror_axis`, the reading only), else it is not built (`openings_not_built`, `needs_review`); a door read from its own drawn swing keeps its place; one room on both sides and a parallel wall glued to its face (up to 0.10 m) across its passage are listed; the build cuts a door through such a glued wall (`foreign_cuts`); a door whose side opens over a floor void (probes 0.3 and 0.6 m out) is not built | 4 + 1 updated | real10: d_L0..L6_028 (0.58 m past its wall, in the salon) -> its twin's place on the kitchen/salon wall (15.44, 6.39), d_L-1_023 not built, 8 doors listed as blocked by a glued wall (the escape stair's d_L0..L6_003, o_L-1_004); real07: d_L0_008 (a frame read 0.60 m past its wall) not built; listed with one room on both sides: real17 d_L0_005, d_L1_018, d_L2_018, real15 d_L0_008, real03 d_L0..L12_028, real11 5 doors; the build: real06's 25 Oct fixture door d_L1_004 (from the stair void to the outside) not built |
+
+Not done as the plan said, with the reason: R27 takes the width from the typed door (1.95 m), not from the dimension
+chain (no dimension reading reaches the merge; the record's 2.0 m door holds by its place). R03 (a): a broken linetype
+alone is not enough (real10 draws its corner windows' glass dotted on layer 0, ACAD_ISO07W100: read as overhead, its
+salon facade became a 4.4 m hole and the right flat's salon and chamfer door were lost, C0043 fell), an end gap keeps
+its lines and leaves may be drawn on an overhead layer (real11 draws such windows and its shelter door's open leaf on
+its projection layer IZDUSUM: its outer ring needed two more inferred walls and the door was lost); (b) the framed
+double keeps leaves as short as half the gap less a frame (the plan's "within 15 % of half the gap" would drop real10's
+0.93 m entrance leaves in a 2.40 m gap); (c) applies under 0.6 m only (real18 draws a 0.80 m door's open leaf on a wall
+layer); (d) closes on columns only (real10's thick recess returns cover 98 % of a window and are no columns) and only
+gaps that could be openings (a crack closed so owned a neighbour's door leaf); `cover_share` is not changed (the covered
+gap is closed before the ranker). R01 (c) reads a sub-area from shaft footprints, not from nested outlines (the levels
+model has no strokes), and lists the shaft head instead of building a platform; (d) leaves the upper storeys' marks as
+they were. R05: one room on both sides is listed, the slit is not closed and the rooms are not split again; a glued
+wall is cut by the door in the build, not dropped by its drawn support (no support measure at that step); walls over a
+slab void and M1 / M9 as blocking checks are not done. A robustness fix found by the bench: `topology.close_slits` takes
+an erosion GEOS cannot compare as an artefact (swiss-b2485 raised a TopologyException with a first version of R03;
+swiss-b2440, which failed to read on the base, now reads).
+
+Gates (all on this round's code; readings with no AI answers):
+
+- **Score:** `score --gate` holds against 381016c0 (never --update): real06 70.0 -> 100.0 (C0100 now holds, C0065
+  still holds); real07, real09, real10, real15, real17 100 as before; synthetic overall (gated) 97.5 -> 97.5, every
+  synthetic row the same; overall 97.2 -> 97.9.
+- **Regress** (real08 left out, as in every round; base f43b1559 read the same day): the 15 synthetic projects and real01, 02,
+  04, 09, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21 print exactly the base's lines (real12, 17, 19, 21 the same REGRESSED
+  lines against their old baselines). The five that change are the element changes of the table, in projects that were
+  REGRESSED against their old baselines already: real03 L0 openings 21 -> 20; real06 L0 windows 8 -> 7, L1 windows
+  11 -> 10, L0 doors 5 -> 6 and L1 doors 8 -> 7 (now a line: 7 against the baseline's 10, the undrawn d_L1_009 gone);
+  real07 L0 doors 11 -> 10, L1 doors 8 -> 7 (a note); real10 L-1 doors 27 -> 26; real15 L0 rooms 18 -> 17 (the sliver),
+  doors 18 -> 17. No level, height, slab or entrance line and no status changed.
+- **Bench** (base `/home/user/bench_data/bench_audit1.*`, whose first 47 projects read again on f43b1559 gave the same
+  totals): mean 76.22 -> 76.34, scale read 79.99 -> 80.08; F1 levels 0.887 -> 0.889, rooms 0.772 -> 0.778, walls 0.747 ->
+  0.751, doors 0.815 -> 0.818, windows 0.773 -> 0.777, stairs 0.759 -> 0.759. Every project the same but swiss-b2440,
+  which failed to read on the base and now reads (89.46): the whole rise is that project.
+- **Tests:** `pytest -m "not gpu"`: 9881 passed, 15 failed, 279 skipped, 28 xfailed (99 min). 12 fail the same way on
+  the base commit (the list of round 1); `test_every_correction_record_is_placed_or_says_why...` fails on the base too
+  (C0100's place fields, fixed on the branch at f272bcad); `test_doors_in_gaps_leaves_the_input_doors_evidence_alone` and
+  `test_a_gap_open_by_its_width_stays_open` failed only because `openings.py` was edited during the run: they pass on
+  the final code, as do the 35 files of the edited modules run again afterwards (930 passed, 1 known failure; after the
+  last edits of `levels/model.py` and `levels/read.py` their level and round-2 files: all passed).
+- **Pod:** none run. R03 (e) (no foreign cut through a column), R05's build checks and R01's terrain need the next pod
+  render (real15, real10, real06, real17).

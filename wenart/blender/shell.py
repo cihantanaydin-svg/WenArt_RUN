@@ -143,6 +143,7 @@ colour stays the walls' (0.85, 0.84, 0.80 for ``plaster_white``) and the paint's
 from __future__ import annotations
 
 import math
+from typing import Optional
 
 from wenart import geometry as G
 from wenart.blender import details as D
@@ -363,6 +364,32 @@ def opening_centre_on_wall(opening: dict, wall: dict) -> tuple[float, float, flo
     return cx, cy, math.hypot(px - cx, py - cy)
 
 
+GLUED_DOOR_GAP_M = 0.10         # R05: a parallel wall this close to a door's face stands in its passage
+COLUMN_PIECE_MAX_M = 1.0        # R03 e: a wall piece shorter than this (``twin_walls.MIN_COPY_M``) ...
+COLUMN_THICKER_M = 0.01         # ... and thicker than an opening's wall by more than this is a column or a pier
+
+
+def column_piece(wall: dict, host: Optional[dict] = None) -> bool:
+    """26 Nov 2026 (R03 e): whether ``wall`` is a column (or a pier) that no other wall's door or window cuts (pure): a
+    piece shorter than ``COLUMN_PIECE_MAX_M`` drawn on a structure layer (its evidence's layer: KOLON, COLUMN,
+    BETONARME ...), or thicker than the opening's wall ``host`` by more than ``COLUMN_THICKER_M`` (a short, thicker
+    block in a wall is never a copy of it: ``twin_walls``)."""
+    from wenart.ingest.generic import layer_names as LN
+
+    try:
+        length = math.dist([float(v) for v in wall["start"][:2]], [float(v) for v in wall["end"][:2]])
+    except (KeyError, TypeError, ValueError):
+        return False
+    if length >= COLUMN_PIECE_MAX_M:
+        return False
+    ev = wall.get("evidence") or []
+    if any(isinstance(e, dict) and LN.name_role(e.get("layer")) == "structure" for e in (ev if isinstance(ev, list)
+                                                                                       else [ev])):
+        return True
+    return host is not None and float(wall.get("thickness") or 0.0) > float(host.get("thickness") or 0.0) + \
+        COLUMN_THICKER_M
+
+
 def foreign_cuts(wall: dict, walls_by_id: dict, openings: list[dict], tol_deg: float = 3.0,
                  min_overlap_m: float = 0.05) -> list[tuple[dict, tuple[float, float], float]]:
     """Openings of OTHER walls that this wall overlaps (pure; pod P5, 11 Oct 2026): real03's facade line
@@ -373,7 +400,11 @@ def foreign_cuts(wall: dict, walls_by_id: dict, openings: list[dict], tol_deg: f
     wall's footprint along the wall by at least ``min_overlap_m``. Only windows and doors cut through (pod P8, 11 Oct
     2026): a plain ``opening`` is a gap in its own line, e.g. real03's 0.25 m gap ``o_L0_001`` in the facade line
     ``w_L0_001`` where the column ``w_L0_003`` stands; cut through the column it opened a full-height slit to the
-    outside. Where another layer is solid the wall is closed."""
+    outside. Where another layer is solid the wall is closed.
+
+    26 Nov 2026 (R03 e; real17 L1-L3: a door read in a kitchen partition was cut through the 0.3 m column standing in
+    it, into the bathroom): a column never gets a foreign cut (``column_piece``: a structure layer's piece, or a piece
+    shorter than ``COLUMN_PIECE_MAX_M`` and thicker than the opening's wall, never a copy of it)."""
     out = []
     wx0, wy0 = float(wall["start"][0]), float(wall["start"][1])
     wx1, wy1 = float(wall["end"][0]), float(wall["end"][1])
@@ -385,6 +416,8 @@ def foreign_cuts(wall: dict, walls_by_id: dict, openings: list[dict], tol_deg: f
     for o in openings:
         host = walls_by_id.get(o.get("wall_id"))
         if host is None or host["id"] == wall["id"] or is_virtual(o) or o.get("type") not in ("window", "door"):
+            continue
+        if column_piece(wall, host):
             continue
         hx0, hy0 = float(host["start"][0]), float(host["start"][1])
         hx1, hy1 = float(host["end"][0]), float(host["end"][1])
@@ -398,7 +431,10 @@ def foreign_cuts(wall: dict, walls_by_id: dict, openings: list[dict], tol_deg: f
         cx, cy, _ = opening_centre_on_wall(o, host)
         ht = float(host["thickness"])
         d = (wx0 - cx) * n[0] + (wy0 - cy) * n[1]       # this wall's centre line, across the host's
-        if abs(d) >= (ht + wt) / 2.0 - 1e-6:
+        # 26 Nov 2026 (audit rule R05, real10: a 7 cm wall 4 cm behind the escape stair's 1.40 m door walled it up): a
+        # door is cut through a parallel wall glued to its face too (a gap up to ``GLUED_DOOR_GAP_M``), its passage
+        glued = o.get("type") == "door" and abs(d) - (ht + wt) / 2.0 <= GLUED_DOOR_GAP_M
+        if abs(d) >= (ht + wt) / 2.0 - 1e-6 and not glued:
             continue                                    # side by side, not overlapping in depth
         half = float(o["width"]) / 2.0
         a = ((cx - wx0) * wu[0] + (cy - wy0) * wu[1])   # the opening centre along this wall

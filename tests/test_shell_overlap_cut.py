@@ -87,7 +87,11 @@ def test_a_plain_gap_in_a_cladding_line_cuts_no_other_wall():
     # the window of the structural wall still passes the cladding in front of it
     assert [o["id"] for o, _c, _d in shell.foreign_cuts(w87, walls, ops)] == ["win_L0_012"]
     door = dict(window("d_1", "w_L0_001", [7.1785, 0.0751], 0.9), type="door", height=2.1, sill_height=0.0)
-    assert [o["id"] for o, _c, _d in shell.foreign_cuts(w3, walls, [door])] == ["d_1"]
+    # 26 Nov 2026 (R03 e, real17's door cut through a column): a door never cuts a column (a 0.70 m piece thicker
+    # than its wall); a door of the cladding still cuts the long structural wall behind it
+    assert shell.foreign_cuts(w3, walls, [door]) == []
+    door2 = dict(window("d_2", "w_L0_087", [3.2039, 6.0], 0.9), type="door", height=2.1, sill_height=0.0)
+    assert [o["id"] for o, _c, _d in shell.foreign_cuts(w88, walls, [door2])] == ["d_2"]
 
 
 def test_a_cut_inside_an_earlier_cut_of_the_wall_is_covered():

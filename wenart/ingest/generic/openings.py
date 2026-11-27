@@ -120,6 +120,7 @@ from __future__ import annotations
 import dataclasses
 import functools
 import math
+import re
 import statistics
 from dataclasses import dataclass, field
 from typing import Optional
@@ -585,11 +586,15 @@ def _framed_double(g: Gap, arcs: list) -> Optional[list]:
     """real10 (1 Nov 2026): a double door hinged a frame or a jamb block in from both gap ends (the building
     entrance: two 0.93 m leaves hinged 0.27 m in from the jambs of a 2.40 m gap): two arcs hinged within ``HINGE_M`` +
     ``DOOR_FRAME_M`` of each end, with radii half the distance between their hinges (+- ``RADIUS_TOL``) and a door's
-    sweep. ``[(item, arc, end)] x 2`` or None."""
+    sweep. ``[(item, arc, end)] x 2`` or None. 26 Nov 2026 (R03 b; real15: a sink's 0.08 and 0.10 m bowl and tap arcs,
+    0.2 m apart, in a 0.60 m gap): each radius is a leaf too: at least ``LEAF_HALF_MIN_M``, at least half the gap less a
+    frame (``HINGE_M`` + ``DOOR_FRAME_M``) and at most ``FRAMED_HALF_TOL`` over half the gap."""
     reach = HINGE_M + DOOR_FRAME_M
+    lo_r = max(LEAF_HALF_MIN_M, g.width / 2.0 - reach)
+    hi_r = (1.0 + FRAMED_HALF_TOL) * g.width / 2.0
     near = []
     for it, arc in arcs:
-        if not SWEEP_DEG[0] <= arc["sweep"] <= SWEEP_DEG[1]:
+        if not SWEEP_DEG[0] <= arc["sweep"] <= SWEEP_DEG[1] or not lo_r <= arc["radius"] <= hi_r:
             continue
         end = _near_gap_end(g, arc["center"], reach)
         if end is not None:
@@ -604,6 +609,16 @@ def _framed_double(g: Gap, arcs: list) -> Optional[list]:
             if half > 0 and all(abs(x["radius"] - half) <= RADIUS_TOL * half for x in (aa, ab)):
                 return [(ia, aa, ea), (ib, ab, eb)]
     return None
+
+
+def _solid_zone(items: list, g: "Gap", keep: set) -> list:
+    """``items`` without the overhead lines (``overhead_line``; R03 a), those whose ``id`` is in ``keep`` (the arcs,
+    judged as swings) always kept. Only in a gap of a wall run: an end gap's lines decide whether a free wall end runs
+    on to the wall it meets (real11 draws such windows on its projection layer IZDUSUM; read as overhead, the outer
+    ring of L0-L6 needed two more inferred walls), so they stay as drawn."""
+    if g.kind == "end":
+        return list(items)
+    return [it for it in items if id(it) in keep or not overhead_line(it.st)]
 
 
 def _near_gap_end(g: Gap, p, reach: float = HINGE_M) -> Optional[float]:
@@ -748,19 +763,22 @@ def gap_features(g: Gap, index: StrokeIndex, owned_global: set, log) -> dict:
     width = g.width
     zone = [it for it in index.query(g.rect(grow_face=ZONE_M)) if it.st.id not in owned_global]
     arcs = _arcs_in(zone)
+    # 26 Nov 2026 (R03, as the cascade sees them): a fixture's or a furniture block's arcs cast no swing vote, and the
+    # lines on an overhead layer are no window lines or content
+    solid = {id(it) for it in _solid_zone(zone, g, set())}
     swing = 0
     best_ratio = 0.0
     for it, arc in arcs:
         end = _near_gap_end(g, arc["center"])
         if end is None and width - DOOR_FRAME_M <= arc["radius"] < width:
             end = _near_gap_end(g, arc["center"], HINGE_M + (width - arc["radius"]))
-        if end is not None and SWEEP_DEG[0] <= arc["sweep"] <= SWEEP_DEG[1]:
+        if end is not None and SWEEP_DEG[0] <= arc["sweep"] <= SWEEP_DEG[1] and swing_arc_ok(it.st):
             swing += 1
         if width > 0:
             r = arc["radius"] / width
             if best_ratio == 0.0 or abs(r - 1.0) < abs(best_ratio - 1.0):
                 best_ratio = r
-    door_like = sum(1 for _it, arc in arcs if _door_like(g, arc))
+    door_like = sum(1 for it, arc in arcs if _door_like(g, arc) and swing_arc_ok(it.st))
     band = g.rect(grow_face=BAND_SLACK_M)
     offsets: set = set()
     framed: set = set()
@@ -770,7 +788,7 @@ def gap_features(g: Gap, index: StrokeIndex, owned_global: set, log) -> dict:
     content_len = 0.0
     content = 0
     for it in zone:
-        if not _inside_rect_part(it, band):
+        if not _inside_rect_part(it, band) or id(it) not in solid:
             continue
         in_band = all(abs(g.across(q)) <= g.t / 2.0 + BAND_SLACK_M for q in it.pts)
         inner = all(g.a - OWN_MARGIN_M <= g.along(q) <= g.b + OWN_MARGIN_M for q in it.pts)
@@ -869,6 +887,50 @@ def gap_rule(g: Gap, features: dict, raster: bool = False) -> tuple[str, float]:
     return rule, DEC.rule_confidence(rule)
 
 
+def unbind_votes(gaps: list, index: "StrokeIndex", log) -> list[str]:
+    """26 Nov 2026 (R03 d; real17 L1-L3: a gap in the kitchen partition, covered by a column, was typed a door by the
+    ranker on the swing arc and the '80/210' tag of the bathroom door beside it): the swing arcs that another gap's door
+    already holds (its ``found["arcs"]``) and a size tag that stands nearer another door than this gap cast no door vote
+    in the decision record of an empty or unclassified gap: its features ``arcs_swing`` and ``arcs_door_like`` (when
+    every such arc is bound) and its tag features (read again without that tag) change, and the record keeps
+    ``votes_bound`` (never silent). Mutates the records; returns one note per gap changed."""
+    from wenart.ingest.generic import decisions as DEC
+
+    doors = [d for d in gaps if d.cls == "door" and d.kind != "end"]
+    if not doors:
+        return []
+    bound = {it.st.id: d for d in doors for it in (d.found.get("arcs") or [])}
+    texts = log.texts_aligned()
+    notes = []
+    for g in gaps:
+        rec = g.decision
+        if rec is None or g.kind == "end" or g.cls not in ("empty", "unclassified"):
+            continue
+        f = rec.get("features") or {}
+        why = []
+        if f.get("arcs_swing") or f.get("arcs_door_like"):
+            votes = [it for it, arc in _arcs_in(index.query(g.rect(grow_face=ZONE_M)))
+                     if swing_arc_ok(it.st) and _door_like(g, arc)]
+            if votes and all(it.st.id in bound and bound[it.st.id] is not g for it in votes):
+                f["arcs_swing"], f["arcs_door_like"] = 0, 0
+                why.append(f"the swing arc(s) {', '.join(sorted({it.st.id for it in votes})[:3])} belong to "
+                           f"another door")
+        if f.get("tag_door_like"):
+            centre = g.point((g.a + g.b) / 2.0)
+            tags = [t for t in texts if t.size_tag is not None and math.dist(t.at, centre) < DEC.TAG_REACH_M]
+            tag = min(tags, key=lambda t: math.dist(t.at, centre), default=None)
+            if tag is not None and any(math.dist(tag.at, d.point((d.a + d.b) / 2.0)) < math.dist(tag.at, centre)
+                                       for d in doors):
+                normal = (0.0, 1.0) if g.axis == "h" else (1.0, 0.0)
+                rest = [t for t in texts if t is not tag]
+                f.update({k: DEC._num(v) for k, v in DEC.text_features(rest, centre, normal, g.width).items()})
+                why.append(f"the size tag '{tag.text}' stands nearer another door")
+        if why:
+            rec["votes_bound"] = "; ".join(why) + ": no door vote here"
+            notes.append(f"gap {g.width:.2f} m: {rec['votes_bound']}")
+    return notes
+
+
 def _apply_ranker(g: Gap, rec: dict) -> None:
     """Step 4 (5 Nov 2026): let the ranker decide the gap's kind where the rule is weak (``ranker.RULE_TRUST``) and its
     own margin clear (``ranker.MARGIN_MIN``), under the hard constraints that stay rules: a gap with a swing arc is a
@@ -935,7 +997,12 @@ def _classify_gap_rules(g: Gap, index: StrokeIndex, owned_global: set) -> None:
     width = g.width
     zone = index.query(g.rect(grow_face=ZONE_M))
     zone = [it for it in zone if it.st.id not in owned_global]
-    arcs = _arcs_in(zone)
+    # 26 Nov 2026 (R03 b): an arc of a fixture's or a furniture block, or on a sanitary or finish layer, is no swing
+    arcs = [(it, arc) for it, arc in _arcs_in(zone) if swing_arc_ok(it.st)]
+    # 26 Nov 2026 (R03 a): a line on an overhead layer (IZ, KİRİŞ, BEAM ...) is no line of a window's frame or glass
+    # and no content of the gap (a lintel drawn over a passage); it may still draw a leaf (real11's shelter door, drawn
+    # open on its projection layer IZDUSUM)
+    solid = {id(it) for it in _solid_zone(zone, g, set())}
     # Door: one arc hinged at a gap end with r = g, or two arcs of g/2 hinged at both ends.
     singles, halves = [], []
     for it, arc in arcs:
@@ -946,9 +1013,10 @@ def _classify_gap_rules(g: Gap, index: StrokeIndex, owned_global: set) -> None:
             end = _near_gap_end(g, arc["center"], HINGE_M + (width - arc["radius"]))
         if end is None or not SWEEP_DEG[0] <= arc["sweep"] <= SWEEP_DEG[1]:
             continue
-        if abs(arc["radius"] - width) <= RADIUS_TOL * width or width - DOOR_FRAME_M <= arc["radius"] <= width:
+        if arc["radius"] >= LEAF_SINGLE_MIN_M and (abs(arc["radius"] - width) <= RADIUS_TOL * width
+                                                   or width - DOOR_FRAME_M <= arc["radius"] <= width):
             singles.append((it, arc, end))
-        elif abs(arc["radius"] - width / 2.0) <= RADIUS_TOL * width / 2.0:
+        elif arc["radius"] >= LEAF_HALF_MIN_M and abs(arc["radius"] - width / 2.0) <= RADIUS_TOL * width / 2.0:
             halves.append((it, arc, end))
     door = None
     if singles:
@@ -1020,6 +1088,7 @@ def _classify_gap_rules(g: Gap, index: StrokeIndex, owned_global: set) -> None:
     band = g.rect(grow_face=BAND_SLACK_M)
     band_items = [it for it in zone if _inside_rect_part(it, band)]
     parallel = []
+    overhead_offs: set = set()       # R03 a: the overhead lines along the gap (they say 'no window', never 'window')
     framed: set = set()
     glass: set = set()
     faces: dict[int, list] = {}
@@ -1027,6 +1096,7 @@ def _classify_gap_rules(g: Gap, index: StrokeIndex, owned_global: set) -> None:
         # A shape standing out of the wall band (a fixture, a wardrobe, a counter drawn against the wall) has no line
         # of a window (fix round after P6b).
         in_band = all(abs(g.across(q)) <= g.t / 2.0 + BAND_SLACK_M for q in it.pts)
+        over = id(it) not in solid
         for p, q in zip(it.pts, it.pts[1:] + ([it.pts[0]] if it.st.closed and len(it.pts) > 2 else [])):
             # 4 Nov 2026 (real17 L-1): in a slanted wall read as steps the window block follows the wall's own angle
             if not (_parallel(p, q, g.axis) or (g.slant and _parallel(p, q, g.axis, g.slant))):
@@ -1036,7 +1106,9 @@ def _classify_gap_rules(g: Gap, index: StrokeIndex, owned_global: set) -> None:
                 continue
             lo, hi = sorted((g.along(p), g.along(q)))
             cover = min(hi, g.b) - max(lo, g.a)
-            if cover >= WINDOW_COVER * width:
+            if cover >= WINDOW_COVER * width and over:
+                overhead_offs.add(round(off, 3))
+            elif cover >= WINDOW_COVER * width:
                 parallel.append((it, round(off, 3)))
                 if in_band and _confined(lo, hi, g.a, g.b):
                     framed.add(round(off, 3))
@@ -1052,10 +1124,12 @@ def _classify_gap_rules(g: Gap, index: StrokeIndex, owned_global: set) -> None:
             g.cls = "window"
             g.found = {"lines": list({id(it): it for it, _ in parallel}.values()), "glass": sorted(glass)}
             return
-    if len({off for _, off in parallel}) >= 2:
-        no_glass = (f"{len({off for _, off in parallel})} lines along the gap, {len(framed)} of them ending at its "
-                    f"jambs and {len(glass)} glass between the faces (>= {WINDOW_LINES_MIN} and >= {GLASS_MIN_LINES} "
-                    f"needed): the others run on past the gap (outlines, an axis, a beam above), so no window")
+    if len({off for _, off in parallel} | overhead_offs) >= 2:
+        n_over = len(overhead_offs - {off for _, off in parallel})
+        no_glass = (f"{len({off for _, off in parallel} | overhead_offs)} lines along the gap, {len(framed)} of them "
+                    f"ending at its jambs and {len(glass)} glass between the faces (>= {WINDOW_LINES_MIN} and >= "
+                    f"{GLASS_MIN_LINES} needed): the others run on past the gap (outlines, an axis, a beam above)"
+                    + (f" or are overhead or hidden lines ({n_over})" if n_over else "") + ", so no window")
         walled = _wall_faces(g, faces)
         if walled and not any(min(g.b, max(g.along(q) for q in it.pts)) - max(g.a, min(g.along(q) for q in it.pts))
                               > OWN_MARGIN_M for it, _ in arcs):
@@ -1110,6 +1184,7 @@ def _classify_gap_rules(g: Gap, index: StrokeIndex, owned_global: set) -> None:
     inner = (inner[0] + shrink, inner[1], inner[2] - shrink, inner[3]) if g.axis == "h" else \
         (inner[0], inner[1] + shrink, inner[2], inner[3] - shrink)
     content = [it for it in index.query(inner) if it.st.id not in owned_global and it.geom.length > 0.005]
+    content = _solid_zone(content, g, {id(it) for it, _arc in _arcs_in(content)})     # R03 a: a lintel is no content
     swings = [it for it, arc in arcs if _door_like(g, arc)]
     face = _one_face_across(g, index) if not swings else None
     if face is not None and all(it.st.id == face.st.id for it in content):
@@ -1782,8 +1857,12 @@ def _record_furniture_leaf(g: Gap, zone: list, how: str) -> None:
 def _perp_leaves(g: Gap, zone: list, furniture: bool = False) -> list[tuple[list, list]]:
     """Thin shapes standing across the gap's wall: closed outlines, and groups of >= 2 straight lines across the wall
     with the same ends (within ``LEAF_END_M``), <= ``LEAF_WIDTH_M`` apart. ``[(strokes, points)]``. 23 Nov 2026
-    (UL371): never a furniture block's lines (``_leaf_zone``; ``furniture``: theirs too, for the record)."""
-    zone = zone if furniture else _leaf_zone(zone)
+    (UL371): never a furniture block's lines (``_leaf_zone``; ``furniture``: theirs too, for the record). 26 Nov 2026
+    (R03 c; real06 L1: the sides of two shaft boxes on the wall layer read as a 0.50 m door opened at 90 degrees): in
+    a gap narrower than ``LEAF_WALL_GAP_M`` never a stroke of a wall, plaster, structure or hatch layer outside a door
+    block (``leaf_stroke_ok``; real18 draws a 0.80 m door's open leaf on such a layer)."""
+    zone = [it for it in (zone if furniture else _leaf_zone(zone)) if g.width >= LEAF_WALL_GAP_M
+            or leaf_stroke_ok(it.st)]
     out = [([it], it.pts) for it in zone if len(it.pts) >= 4 and it.st.arc is None
            and (it.st.closed or math.dist(it.pts[0], it.pts[-1]) <= 0.001)]
     lines = []
@@ -2250,9 +2329,9 @@ def gaps_and_openings_frame(walls: list[WallItem], strokes_m: list[Stroke], file
                 if cover is not None:
                     g.cls = "closed"
                     g.found = {"inside": [w.k for w in cover],
-                               "note": f"a {g.width:.3f} m gap inside wall material ({len(cover)} other piece(s) on "
-                                       f"this axis cover its {g.t:.2f} m band along its whole width): closed, no "
-                                       f"opening"}
+                               "note": f"a {g.width:.3f} m gap inside wall material ({len(cover)} other piece(s) "
+                                       f"cover its {g.t:.2f} m band along {INSIDE_WALL_SHARE:.0%} or more of its "
+                                       f"width): closed, no opening"}
                     _own(g, index, trial)
                 elif g.width < GAP_MIN_M:
                     g.cls = "closed"
@@ -2439,6 +2518,7 @@ def gaps_and_openings_frame(walls: list[WallItem], strokes_m: list[Stroke], file
         from wenart.ingest.generic import facade as FC
         decisions.fill_gap_context(gaps, exterior, theta, FC.mirror_axis(out_walls, FC.MIRROR_SHARE))
         if decisions.ranker:
+            unbind_votes(gaps, index, decisions)          # 26 Nov 2026 (R03 d): another opening's arc or tag
             for g in gaps:
                 if g.decision is not None and g.kind != "end" and g.cls in ("empty", "unclassified"):
                     _apply_ranker(g, g.decision)
@@ -2988,20 +3068,51 @@ def _pier_parts(g: Gap, index: StrokeIndex, owned: set, cross_pieces: list = ())
     return found
 
 
+COLUMN_PIECE_M = 0.8           # R03 d: a piece this short on both sides is a column, whatever axis it was read on
+
+
 def _inside_wall(g: Gap, pieces: list[Piece], run: list[Piece]) -> Optional[list[Piece]]:
     """Fix round after P6b: the pieces on the gap's axis, outside its run, whose bands cover the gap's band (within
     ``RUN_OFFSET_M``) and that together cover its whole width (within 2 x ``GAP_IGNORE_M``), or None. Such a gap
-    lies in wall material (real03's shear-wall core: the 0.62 m core pieces over the gaps of the thinner runs)."""
+    lies in wall material (real03's shear-wall core: the 0.62 m core pieces over the gaps of the thinner runs).
+    26 Nov 2026 (R03 d; real17 L1-L3: a 0.3 m column covered 98 % of a 0.65 m gap in the kitchen partition, a cross
+    wall's face the rest, and the gap became a door through the column into the bathroom): ``INSIDE_WALL_SHARE`` of
+    its width is enough when column pieces (both sides at most ``COLUMN_PIECE_M``, on either axis) cover it and no part
+    left open is a passage (``GAP_MIN_M``)."""
     lo, hi = g.c - g.t / 2.0, g.c + g.t / 2.0
     own = {id(q) for q in run}
-    cover = [w for w in pieces if w.axis == g.axis and id(w) not in own and w.b > g.a and w.a < g.b
-             and w.c - w.t / 2.0 <= lo + RUN_OFFSET_M and w.c + w.t / 2.0 >= hi - RUN_OFFSET_M]
-    total, reach = 0.0, g.a
-    for s0, s1 in sorted((max(w.a, g.a), min(w.b, g.b)) for w in cover):
-        if s1 > reach:
-            total += s1 - max(s0, reach)
-            reach = s1
-    return cover if cover and total >= g.width - 2.0 * GAP_IGNORE_M else None
+    cover, spans, columns = [], [], []
+    for w in pieces:
+        column = max(w.b - w.a, w.t) <= COLUMN_PIECE_M
+        if id(w) in own or (w.axis != g.axis and not column):
+            continue
+        x0, y0, x1, y1 = w.rect()
+        (s0, s1), (c0, c1) = ((x0, x1), (y0, y1)) if g.axis == "h" else ((y0, y1), (x0, x1))
+        if s1 > g.a and s0 < g.b and c0 <= lo + RUN_OFFSET_M and c1 >= hi - RUN_OFFSET_M:
+            cover.append(w)
+            spans.append((max(s0, g.a), min(s1, g.b)))
+            if column:
+                columns.append(spans[-1])
+
+    def covered(sp: list) -> tuple[float, float]:
+        total, reach, rest = 0.0, g.a, 0.0
+        for s0, s1 in sorted(sp):
+            rest = max(rest, s0 - reach)
+            if s1 > reach:
+                total += s1 - max(s0, reach)
+                reach = s1
+        return total, max(rest, g.b - reach)
+    if not cover:
+        return None
+    if covered(spans)[0] >= g.width - 2.0 * GAP_IGNORE_M - 1e-9:
+        return cover
+    # R03 d: columns alone may close it at INSIDE_WALL_SHARE (real10's facade recess: thick return pieces read across
+    # a window cover 98 % of it; they are no columns and the window stays an opening); only a gap that could be an
+    # opening (``GAP_MIN_M``): a crack closed so would own the strokes in its band (real11's shelter door lost its leaf)
+    if g.width < GAP_MIN_M:
+        return None
+    total, rest = covered(columns)
+    return cover if total >= INSIDE_WALL_SHARE * g.width - 1e-9 and rest < GAP_MIN_M else None
 
 
 def _glazing(g: Gap, lo: float, hi: float) -> list:
@@ -3501,9 +3612,17 @@ def _opening(g: Gap, ctx: _Ctx, exterior) -> OpeningItem:
                           f"sliding door ({g.found['by_text']})")
         else:
             ev["note"] = f"{len(ids)} leaf/leaves drawn parallel to the wall without a swing arc: a sliding door"
+        # 26 Nov 2026 (R27, UL395, the user's C0100 on real06: "sliding door"): the leaves' layer and whether they are
+        # drawn on a door layer or in a door block, so a later merge of two readings of one opening can rank this typed
+        # door above an unclassified gap (``twin_walls.typed_door``)
+        sts = [it.st for it in g.found["leaves"]]
+        layers = [st.layer for st in sts if st.layer]
+        if layers:
+            ev["layer"] = max(set(layers), key=lambda n: (layers.count(n), n))
+        ev["door_layer"] = any(_on_door_layer(st) for st in sts)
         item = OpeningItem(kind="door", width=width, center=_r(center), rotation_deg=round(axis_deg % 360.0, 3),
                            box=box, entity=ids[0], evidence=ev, height=DOOR_HEIGHT_M, assumed=["height"])
-        _door_operation(item, [it.st for it in g.found["leaves"]], False, sliding=True)
+        _door_operation(item, sts, False, sliding=True)
         return item
     if g.cls == "door" and g.found.get("by_ranker"):
         # 5 Nov 2026 (Milestone 14 R3 step 4): a gap the ranker typed as a door (no swing drawn): an unverified door
@@ -4217,6 +4336,85 @@ def _on_door_layer(st: Stroke) -> bool:
     if LN.layer_role(st.layer) == "door":
         return True
     return any(any(w in n.translate(_FOLD).upper() for w in DOOR_WORDS) for n in (st.block or "").split("/") if n)
+
+
+# 26 Nov 2026 (R03, audit of real06, real15 and real17): the gap classifier checks what each stroke is.
+# (b) a swing arc is a leaf: real15's kitchen-sink block 'EVYE 5' (bowl and tap arcs of 0.08 and 0.10 m, 0.2 m apart)
+# read as a 0.60 m double door into the bathroom
+LEAF_SINGLE_MIN_M = 0.35       # a single leaf's swing is at least this ...
+LEAF_HALF_MIN_M = 0.30         # ... each half of a double door's at least this ...
+FRAMED_HALF_TOL = 0.15         # ... and a framed double's radii at most this share over half the gap (each leaf at
+#                                least half the gap less a frame, ``HINGE_M`` + ``DOOR_FRAME_M``: real10's entrance)
+# a block whose name names a fixture or a piece of furniture draws no room door, whatever its layer (real03's anonymous
+# door blocks on the furniture layer TEFRIS stay doors): its arcs are bowls, taps, seats and cabinet doors; whole name
+# words, a number may follow ('LAVABO2'); a block named for a door always stays a door
+FIXTURE_WORDS = ("EVYE", "EVIYE", "LAVABO", "KLO", "KLOZET", "KUVET", "DUS", "DUSAKABIN", "BIDE", "BIDET", "PISUAR",
+                 "WC", "SINK", "BASIN", "TOILET", "BATH", "BATHTUB", "SHOWER", "URINAL", "OCAK", "HOB", "FIRIN",
+                 "OVEN")
+# (c) real06 L1: the sides of two shaft boxes on the wall layer DUVAR read as a door drawn open at 90 degrees
+LEAF_NOT_ROLES = ("wall", "plaster", "structure", "hatch")   # strokes of these layers never form a leaf ...
+LEAF_WALL_GAP_M = 0.6          # ... of a gap narrower than this (a box's side, a shaft's: no door that narrow)
+# (a) real06 L0/L1: two dotted lines (IZDOT, linetype DOT3: the head of the opening, drawn above the cut) read as a
+# window's frame and glass; such a line never makes a window, a gap holding only such lines is a passage with a lintel
+OVERHEAD_WORDS = ("IZ", "IZDOT", "IZDUSUM", "IZDUSUMU", "IZDUSUMLER", "KIRIS", "KIRISLER", "LENTO", "GIZLI",
+                  "HIDDEN", "OVERHEAD", "OVHD", "ABOVE", "BEAM", "BEAMS", "LINTEL", "LINTELS", "SOFFIT", "PROJECTION",
+                  "DASHED", "DOTTED", "DOT", "KESIK", "NOKTALI")
+# (d) real17 L1-L3: a 0.3 m column covered 98 % of a 0.65 m gap in the kitchen partition (a cross wall the rest)
+INSIDE_WALL_SHARE = 0.8        # a gap whose band other wall material covers along this share of its width is closed
+
+
+def _name_words(name: str) -> list[str]:
+    return [w for w in re.split(r"[^A-Z0-9]+", B.fold_ascii(str(name or "")).upper()) if w]
+
+
+def _word_in(words, vocab) -> Optional[str]:
+    for w in words:
+        for k in vocab:
+            if w == k or (w.startswith(k) and w[len(k):].isdigit()):
+                return w
+    return None
+
+
+def fixture_block(st: Stroke) -> Optional[str]:
+    """The name in a stroke's block chain that names a fixture (``FIXTURE_WORDS``) or a piece of furniture
+    (``furniture_line``), when none of the chain names a door; else None (pure; R03 b)."""
+    names = [n for n in (st.block or "").split("/") if n]
+    if not names or any(any(w in n.translate(_FOLD).upper() for w in DOOR_WORDS) for n in names):
+        return None
+    hit = next((n for n in names if _word_in(_name_words(n), FIXTURE_WORDS)), None)
+    return hit or furniture_line(st)
+
+
+def swing_arc_ok(st: Stroke) -> bool:
+    """An arc that may be a door's swing: not on a sanitary or finish layer (``swing_layer_ok``) and not inside a
+    fixture's or a piece of furniture's block (``fixture_block``) (pure; R03 b)."""
+    return swing_layer_ok(st) and fixture_block(st) is None
+
+
+def overhead_layer(name: Optional[str]) -> bool:
+    """A layer that draws what lies above or below the cut (a beam, a lintel, a projection: IZDOT, KİRİŞ, HIDDEN) by
+    its name's words (``OVERHEAD_WORDS``, whole words) (pure; R03 a)."""
+    return bool(name) and any(w in OVERHEAD_WORDS for w in _name_words(name))
+
+
+def overhead_line(st: Stroke) -> bool:
+    """A stroke drawn on an overhead layer (``overhead_layer``: what lies above or below the cut). A stroke of a
+    window, glass, sill or door layer or block is never one (a high window drawn above the cut is still a window). A
+    broken linetype alone is not enough: real10 draws its corner windows' glass dotted on layer 0 (ACAD_ISO07W100), and
+    read as overhead they turned the salon's facade into a 4.4 m hole (pure; R03 a)."""
+    from wenart.ingest.generic import layer_names as LN
+
+    if (LN.layer_roles(st.layer) & WINDOW_SYMBOL_ROLES) or _window_block(st) or _on_door_layer(st):
+        return False
+    return overhead_layer(st.layer)
+
+
+def leaf_stroke_ok(st: Stroke) -> bool:
+    """A stroke that may draw a door's leaf: none of a wall, plaster, structure or hatch layer (``LEAF_NOT_ROLES``)
+    unless it lies in a door block (pure; R03 c)."""
+    from wenart.ingest.generic import layer_names as LN
+
+    return _on_door_layer(st) or LN.layer_role(st.layer) not in LEAF_NOT_ROLES
 
 
 def _leaf_along(p, q, axis: str) -> bool:

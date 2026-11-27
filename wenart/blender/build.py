@@ -260,7 +260,10 @@ FINGERPRINT_CODE = ("wenart/blender/*.py", "wenart/style/*.py", "wenart/geometry
                     # 30 Oct 2026 (UL131, UL140): the soft seats' fabric slots read the material-name rules
                     "wenart/assets/material_names.py",
                     # 4 Nov 2026 (UL305, UL316): the shell's and the looks' common areas (shared hall, fire stair)
-                    "wenart/common_areas.py")
+                    "wenart/common_areas.py",
+                    # 26 Nov 2026 (audit rules R03 e, R05): the door checks before the build, a column's layer role
+                    "wenart/ingest/__init__.py", "wenart/ingest/door_validity.py", "wenart/ingest/generic/__init__.py",
+                    "wenart/ingest/generic/layer_names.py")
 # Asset-manifest keys that change on every fetch without changing the asset.
 FINGERPRINT_VOLATILE_KEYS = ("fetched_utc",)
 STYLE_ASSET_SLOTS = ("floor", "walls", "ceiling", "wet_floor", "wet_walls", "trim", "door", "window_frame",
@@ -1612,6 +1615,12 @@ def prepare_once(building_all: dict, variant: str = "base", brief: dict | None =
            "brief": brief_args(building_all, brief), "terraces": [], "clips": [], "site_options": None,
            "overrides_applied": None, "stair_access": None, "chimneys": None, "dormers": None,
            "typical_copies": {}}
+    # 26 Nov 2026 (audit rule R05): every door checked again before it is built (wenart/ingest/door_validity.py): inside
+    # its wall (else re-seated at its mirror twin's place or not built), between two spaces, its passage free
+    from wenart.ingest import door_validity as DV
+    vb["needs_review"] = list(vb.get("needs_review") or [])
+    vb["openings_not_built"] = list(vb.get("openings_not_built") or [])
+    out["door_checks"] = DV.check(vb, "build", lambda m: out["warnings"].append(m))
     # 2 Nov 2026 (real10): a typical floor's copies furnished as the typical floor (furnish_typical_copies), before
     # anything is planned on the pieces (the clash resolver and the architect see the copies as they will be built)
     if whole:
@@ -1673,6 +1682,9 @@ def prepare_once(building_all: dict, variant: str = "base", brief: dict | None =
         out["slabs"] = shell.slab_plan(vb, vb["levels"], float(slab_t), bool(slab_assumed))
         out["warnings"] += out["slabs"]["warnings"]
         out["assumed"] += out["slabs"]["assumed"]
+        # 26 Nov 2026 (audit rule R05, real06's d_L1_009): a door opening onto a floor void is not built
+        out["door_checks"]["over_void"] = DV.voids_check(vb, out["slabs"], "build",
+                                                         lambda m: out["warnings"].append(m))
     roof_in = vb.get("roof") if isinstance(vb.get("roof"), dict) else R.flat_roof(vb)
     if not isinstance(vb.get("roof"), dict):
         out["warnings"].append("roof: null (no roof evidence): a flat roof over the top level, assumed")

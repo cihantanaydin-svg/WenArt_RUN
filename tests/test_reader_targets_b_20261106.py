@@ -905,8 +905,9 @@ def test_a_drawn_door_read_on_a_wall_copy_outranks_the_gap_read_over_it():
     inferred = b([])
     TWW.merge_twin_walls(inferred)
     assert [o["id"] for o in inferred["openings"]] == ["o_2"]
-    # real06 (user, 29 Oct 2026: "is there a door behind it?"): a 'sliding door' of leaf lines without a swing is no
-    # drawn door; the gap stays
+    # real06 (user, 29 Oct 2026: "is there a door behind it?"): a 'sliding door' of leaf lines without a swing on no
+    # door layer is no typed door; the gap stays. 26 Nov 2026 (R27, the user's C0100: "sliding door"): leaves drawn on a
+    # door layer are (tests/test_audit_round2_20261126.py)
     leaves = b([{"method": "vector", "note": "6 leaf/leaves drawn parallel to the wall without a swing arc"}], "sliding")
     TWW.merge_twin_walls(leaves)
     assert [o["id"] for o in leaves["openings"]] == ["o_2"]

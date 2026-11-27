@@ -10,7 +10,9 @@ thicker than the kept wall: a short, thicker block in a wall is a column or a pi
 reason (``corrected_by_ai`` by code, CLAUDE.md: "a duplicated wall" is a clear error); its openings move onto the kept
 wall, projected on its centre line, unless an opening of the kept wall already covers at least ``SAME_OPENING_SHARE``
 of them (one opening read twice: it goes to ``building["openings_merged"]``; 12 Nov 2026: a door on the copy outranks a
-plain gap of the kept wall when it is drawn (``_drawn``), the gap is merged into it); every other ``wall_id`` that names it names the kept wall.
+plain gap of the kept wall when it is drawn (``_drawn``), the gap is merged into it; 26 Nov 2026, R27: when it is typed
+(``typed_door``: a swing, sliding leaves on a door layer, a door block, a size tag), keeping its width); every other
+``wall_id`` that names it names the kept wall.
 
 Why: real06's 2.9 m gap between the kitchen and the living room was read on both walls; the architect then made one
 copy a serving hatch over the counter and the other a 1.95 m double door "of the room no door reached": a wooden double
@@ -45,6 +47,34 @@ def _drawn(o: dict) -> bool:
     return o.get("operation") in ("swing", "double") and \
         any(isinstance(e, dict) and e.get("method") in ("vector", "raster") for e in ev) and \
         not any(isinstance(e, dict) and e.get("method") == "inferred" for e in ev)
+
+
+NO_SWING_OPERATIONS = ("sliding", "pocket", "folding")
+TAG_RULES = ("size_tag", "size_tag_jamb", "size_tag_leaf_door")
+BLOCK_NAME_NOTE = "door by its block name"
+
+
+def typed_door(o: dict) -> Optional[str]:
+    """26 Nov 2026 (R27, UL395; the user's C0100 on real06, "sliding door", which settles C0065's question): why a door
+    is a typed opening that outranks an unclassified gap read over it when two readings of one opening merge, or None
+    (pure): its drawn swing (``_drawn``); sliding (pocket, folding) leaves drawn on a door layer or in a door block
+    (``openings._opening``: evidence ``door_layer``, or a door block by its name), read from vector or raster
+    geometry and none inferred; or a door size tag (evidence rule ``size_tag*``). Leaf lines on no door layer (a frame's
+    or a counter's lines can read so) are not enough: the gap stays."""
+    if _drawn(o):
+        return "its drawn swing"
+    ev = o.get("evidence") or []
+    ev = [e for e in (ev if isinstance(ev, list) else [ev]) if isinstance(e, dict)]
+    if any(e.get("rule") in TAG_RULES for e in ev):
+        return "its door size tag"
+    if o.get("operation") in NO_SWING_OPERATIONS and any(e.get("method") in ("vector", "raster") for e in ev) \
+            and not any(e.get("method") == "inferred" for e in ev):
+        if any(e.get("door_layer") for e in ev):
+            layer = next((e.get("layer") for e in ev if e.get("layer")), None)
+            return f"its {o['operation']} leaves drawn on the door layer" + (f" '{layer}'" if layer else "")
+        if any(str(e.get("note") or "").startswith(BLOCK_NAME_NOTE) for e in ev):
+            return "its door block"
+    return None
 
 
 def _axis(w: dict) -> Optional[tuple]:
@@ -371,16 +401,23 @@ def merge_twin_walls(b: dict, warn: Callable[[str], None] = lambda _m: None) -> 
                 if cover >= SAME_OPENING_SHARE * max(min(2 * half, 2 * hp), 1e-6):
                     same = p
                     break
-            if same is not None and o.get("type") == "door" and same.get("type") == "opening" \
-                    and not same.get("virtual") and _drawn(o):
+            why = typed_door(o) if same is not None and o.get("type") == "door" and same.get("type") == "opening" \
+                and not same.get("virtual") else None
+            if why:
                 # 12 Nov 2026 (real07 C0047, the user's correction: the Kat Kal. door read on the copy, a 1.56 m gap read
                 # over it on the kept wall; the door was merged into the gap and lost): a drawn door outranks a gap
-                # read over it, the gap is merged into the door
+                # read over it, the gap is merged into the door. 26 Nov 2026 (R27, UL395, the user's C0100 on real06:
+                # "sliding door"): any typed door does (``typed_door``: a swing, sliding leaves on a door layer, a door
+                # block, a size tag); it keeps its own width, the rest of the gap is the wall's (the drawn piers)
                 b["openings"] = [x for x in b["openings"] if x is not same]
                 ops = [x for x in ops if x is not same]
                 b.setdefault("openings_merged", []).append(dict(copy.deepcopy(same), merged_into=o["id"], corrected_by_ai={
-                    "by": "code", "rule": RULE, "reason": f"{same['id']} of {keep_here} is the door {o['id']} on {dup_id} "
-                                                           f"read twice, the door drawn ({reason})"}))
+                    "by": "code", "rule": RULE, "reason": f"{same['id']} ({float(same.get('width') or 0):.2f} m) of "
+                                                           f"{keep_here} is the door {o['id']} "
+                                                           f"({float(o.get('width') or 0):.2f} m) on {dup_id} read "
+                                                           f"twice; the door is typed by {why}, the gap is not, so the "
+                                                           f"door stays with its width and the rest of the gap is "
+                                                           f"wall ({reason})"}))
                 merged.append(f"{same['id']} -> {o['id']}")
                 same = None
             if same is not None:

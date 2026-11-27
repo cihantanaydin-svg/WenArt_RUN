@@ -147,8 +147,9 @@ def test_the_ai_looks_at_each_floor_and_decides(tmp_path):
         if level == "L0":
             return {"answers": [], "decisions": [
                 {"action": "door_to_window", "element": "d_L0_004", "value": "", "reason": "a small door"}]}  # an entrance
-        return {"answers": [{"key": "E1:d_L1_001", "choice": "french_window", "reason": "a French balcony facade"},
-                            {"key": "E1:d_L1_004", "choice": "confirm", "reason": "nothing outside"}],
+        # 26 Nov 2026 (audit rule R05): d_L1_004 opens from the stair void to the outside: the build's door check does
+        # not build it, so E1 asks nothing about it any more
+        return {"answers": [{"key": "E1:d_L1_001", "choice": "french_window", "reason": "a French balcony facade"}],
                 "decisions": [{"action": "remove_piece", "element": "f_L1_012", "value": "", "reason": "the bed is too big"},
                               {"action": "retype_room", "element": "r_L1_soyunma_odasi", "value": "closet",
                                "reason": "a walk-in closet off the bedroom"},
@@ -158,7 +159,7 @@ def test_the_ai_looks_at_each_floor_and_decides(tmp_path):
     assert seen["L1"] == (True, True, True) and seen["L0"][0] is False      # the image of the floor when there is one
     by = {e["key"]: e for e in rec["entries"]}
     assert by["E1:d_L1_001"]["verdict"] == "accepted"                       # the AI's choice wins over the default
-    assert by["E1:d_L1_004"]["verdict"] == "confirmed"
+    assert "E1:d_L1_004" not in by
     assert by["AI.remove_piece:f_L1_012"]["verdict"] == "refused" and "drawn" in by["AI.remove_piece:f_L1_012"]["why"]
     assert by["AI.door_to_window:d_L0_004"]["verdict"] == "refused" and "entrance" in by["AI.door_to_window:d_L0_004"]["why"]
     assert by["AI.retype_room:r_L1_soyunma_odasi"]["verdict"] == "accepted"

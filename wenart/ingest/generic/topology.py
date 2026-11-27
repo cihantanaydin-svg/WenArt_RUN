@@ -31,6 +31,7 @@ from __future__ import annotations
 import math
 from typing import Optional
 
+from shapely.errors import GEOSException
 from shapely.geometry import LineString, Point, Polygon
 from shapely.ops import unary_union
 
@@ -134,7 +135,13 @@ def close_slits(u):
     # room'): GEOS's mitred erosion of the grown union can fill one of its holes whole, a closed room or shaft. An
     # erosion never reaches past what was grown; when it does, the round erosion closes the slits instead, so the
     # closing never opens a space nor fills one (``CLOSE_ARTEFACT_M2``)
-    if closed.difference(grown).area > CLOSE_ARTEFACT_M2:
+    # 26 Nov 2026 (audit round 2, bench swiss-b2485: the mitred erosion came out invalid and the difference raised
+    # GEOS's TopologyException, the level was not read): an erosion GEOS cannot compare is taken as an artefact too
+    try:
+        artefact = closed.difference(grown).area > CLOSE_ARTEFACT_M2
+    except GEOSException:
+        artefact = True
+    if artefact:
         closed = grown.buffer(-SLIT_CLOSE_M, join_style=1)
     # ... and its dilation can fill a hole too (real13 L3: the buffer of one valid 25 m2 part with 12 holes covered the
     # shaft): no closing reaches a hole's core (its points farther than SLIT_CLOSE_M from its edge); a core the result

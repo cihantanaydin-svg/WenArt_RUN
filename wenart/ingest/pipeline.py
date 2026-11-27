@@ -3384,6 +3384,9 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
     WPC.merge_collinear(building, build.warn)
     TW.one_door_per_gap(building, build.warn)   # 19 Nov 2026 (review A3, M5): an arc-only door in a drawn door's gap
     TW.stair_side_walls(building, build.warn)   # 13 Nov 2026 (review BLD-05): no wall face inside a stair's flight
+    from wenart.ingest import door_validity as DV  # 26 Nov 2026 (audit rule R05): every door inside its wall, between
+    from wenart.ingest.generic import facade as FCD  # two spaces, its passage free (the build checks them again)
+    DV.check(building, "reading", build.warn, mirror_axis=lambda ws: FCD.mirror_axis(ws, FCD.MIRROR_SHARE))
     LV.apply_levels(build, works)
     RD.read_furniture(build, works)
     _infer_types(build)
