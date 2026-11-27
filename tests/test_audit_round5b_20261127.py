@@ -413,6 +413,13 @@ def test_an_undrawn_upper_terrace_keeps_its_part_over_the_floor_below_and_within
     assert rec2[0]["action"] == "kept" and len(b2["site"]["outdoor_spaces"][0]["polygon"]) == 4
 
 
+def test_an_upper_canopy_is_no_floor_to_check():
+    from wenart.levels import upper_support as US
+    b = _upper(_rect(-4, 6, 10, 10), "rectangle in the inner corner: no drawn outline closes around the label")
+    b["site"]["outdoor_spaces"][0].update(kind="porch", label="GİRİŞ SAÇAK")
+    assert US.check(b) == [] and len(b["site"]["outdoor_spaces"]) == 1
+
+
 def test_an_undrawn_upper_balcony_sized_by_its_written_area_is_kept_and_listed():
     from wenart.levels import upper_support as US
     b = _upper(_rect(-3, 6, 3, 10), "rectangle against the facade: no drawn outline closes around the label", roof=False)

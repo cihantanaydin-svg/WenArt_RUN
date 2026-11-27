@@ -1,7 +1,8 @@
 """An upper floor that reaches past the walls under it must stand on something (27 Nov 2026, audit fix round 5b).
 
 What: ``check(b)`` runs at the end of the reading (``apply(build)`` from ``wenart.ingest.pipeline.run_project``). An
-outdoor space of an upper level (a balcony, a terrace: ``site.outdoor_spaces``) that reaches more than
+outdoor floor of an upper level (a balcony, a terrace, a deck: ``site.outdoor_spaces``; never a canopy, porch roof or
+pergola) that reaches more than
 ``CANTILEVER_M`` past the outline of the level under it needs drawn walls or columns under that part; without them it is
 checked against the drawings:
 
@@ -34,6 +35,7 @@ STACK_SANITY_M = 6.0         # a space this far past the walls below: the levels
 ROOF_COVER_SHARE = 0.5       # the drawn roof covers this share of the part over the floor below: no terrace there
 MIN_KEEP_M2 = 1.0            # a part over the floor below smaller than this keeps no terrace
 SUPPORT_TYPES = ("column", "pillar", "pier", "post")
+WALKABLE_KINDS = ("balcony", "terrace", "deck")   # the upper floors people stand on (a canopy or porch roof is none)
 UNDRAWN_WORDS = ("no drawn outline", "rectangle in the inner corner")
 
 
@@ -115,6 +117,8 @@ def check(b: dict) -> list:
     roofs = _roof_polys(b)
     out, gone = [], set()
     for sp in site["outdoor_spaces"]:
+        if str(sp.get("kind") or "") not in WALKABLE_KINDS:
+            continue                                   # a canopy, a porch roof or a pergola is no floor to stand on
         lid = sp.get("level_id")
         below = below_of.get(lid)
         poly = _poly(sp.get("polygon"))
