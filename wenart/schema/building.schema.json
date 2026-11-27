@@ -421,7 +421,7 @@
         "id": {"type": "string"},
         "floor_offset_m": {"type": "number", "description": "Milestone 12 (§3.2): the room's finished floor above its level's elevation (0 when not marked), with floor_evidence and inferred"},
         "floor_evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}},
-        "floor_source": {"enum": ["level", "mark", "agent"], "description": "Milestone 12: where floor_offset_m came from"},
+        "floor_source": {"enum": ["level", "mark", "agent", "level_frame"], "description": "Milestone 12: where floor_offset_m came from; level_frame (27 Nov 2026, audit H7): the level's frame (level_inference.level_frames) overruled its marks (floor_overruled)"},
         "program": {"type": "object", "description": "Milestone 12 (§4.3): the room's program (wenart.furniture.program.room_program), track G"},
         "zones": {"type": "array", "items": {"type": "object", "required": ["zone_id", "kind"], "properties": {"zone_id": {"type": "string"}, "kind": {"enum": ["kitchen", "dining", "living", "work", "sleeping"]}, "polygon": {"type": "array", "items": {"$ref": "#/$defs/point"}}, "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}}}, "description": "Milestone 12 (§4.1, track R): functional zones of an open plan (a kitchen zone in a living room); the room-type rules apply per zone (track G)"},
         "level_id": {"type": "string"},

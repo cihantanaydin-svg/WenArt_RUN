@@ -3110,8 +3110,15 @@ def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, unit
                       note=f"read {float(o.width):.2f} m wide from its leaf lines; the tag gives {new_w:.2f} m, the "
                            f"door left at the middle of its leaves (the rest is wall)")
             assumed = assumed + ["position"]
+        # 27 Nov 2026 (audit O2: real10's salon door d_L0_028, read from its swing ARC:14F743 and re-sized by its
+        # '110/230', lost its drawn evidence here, so the door check took it for a door the tag placed and moved it into
+        # a solid wall): a drawn door keeps its own symbol's evidence after the tag's
+        extra = list(o.extra_evidence or [])
+        if o.kind == "door" and isinstance(o.evidence, dict) and o.evidence.get("method") in ("vector", "raster") \
+                and not o.evidence.get("rule") and o.evidence.get("entity"):
+            extra = [dict(o.evidence)] + extra
         out[j] = dataclasses.replace(o, kind="door", width=round(new_w, 3), height=height, evidence=ev, center=centre,
-                                     type_raw=f"door size tag {t.text.strip()}", assumed=assumed)
+                                     type_raw=f"door size tag {t.text.strip()}", assumed=assumed, extra_evidence=extra)
         done.append(f"{t.text.strip()} ({o.kind} {float(o.width):.2f} m -> door {new_w:.2f} m)")
     if clashes:
         ex.notes.append(f"{where}: door size tags on a spot that already took a tag: " + "; ".join(clashes[:8]))

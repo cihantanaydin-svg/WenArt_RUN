@@ -1,7 +1,7 @@
 {
  "_note": "What the user asked and corrected while this project was built, each turned into a general lesson the architect applies to every project (wenart/blender/architect_lessons.py; user request of 25 Oct 2026: 'the architect should ask the questions and corrections I was asking all along the build; use AI to understand what I was asking and keep developing with the future requests'). checks: the architect rules that check it on every build (architect.ORDER ids) or 'build' (the build does it by itself); status: rule (a rule checks it), built (code does it), open (no automatic check yet: the AI architect looks for it on every run and it is the next rule to write), process (how we work). Add a new request with: python -m wenart.agent.lessons add \"<the request>\"",
  "version": 1,
- "updated": "2026-11-26",
+ "updated": "2026-11-27",
  "lessons": [
   {
    "id": "UL01",
@@ -4647,6 +4647,96 @@
    "checks": [],
    "request": "26 Nov 2026 (audit rule R05, real10, real17, real06: a door frame standing in the salon 0.58 m past the end of its wall, a flat door with the same hall on both sides through a 5 cm slit, an escape stair door walled up by a 7 cm wall 4 cm behind it, a bathroom door opening onto the stair void): every door is checked after the reading and again before the build. A door a size tag or a rule placed has its centre within its wall's span, else it takes its mirror twin's place on a wall, else it is not built and listed (a frame never stands in free space; a door read from its own drawn swing keeps its place); a door with one room on both sides is listed; a wall glued to a door's face (up to 0.10 m) across its passage is cut by the door; a door whose side opens over a floor void is not built, with the reason.",
    "lesson": "26 Nov 2026 (audit rule R05, real10, real17, real06: a door frame standing in the salon 0.58 m past the end of its wall, a flat door with the same hall on both sides through a 5 cm slit, an escape stair door walled up by a 7 cm wall 4 cm behind it, a bathroom door opening onto the stair void): every door is checked after the reading and again before the build. A door a size tag or a rule placed has its centre within its wall's span, else it takes its mirror twin's place on a wall, else it is not built and listed (a frame never stands in free space; a door read from its own drawn swing keeps its place); a door with one room on both sides is listed; a wall glued to a door's face (up to 0.10 m) across its passage is cut by the door; a door whose side opens over a floor void is not built, with the reason.",
+   "question": null
+  },
+  {
+   "id": "UL408",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 2b, review O1: the round's column rule imported layer_names -> building -> jsonschema inside Blender, and the import guard read 'from X import Y as Z' as one name): code the Blender build runs imports nothing that needs jsonschema, yaml, ezdxf, cv2, scipy, PIL or torch, also inside functions; text helpers come from wenart.textfold. The guard test reads every import with ast (aliases, relative and function-level imports) and runs the column rule in a Python without jsonschema.",
+   "lesson": "27 Nov 2026 (audit fix round 2b, review O1: the round's column rule imported layer_names -> building -> jsonschema inside Blender, and the import guard read 'from X import Y as Z' as one name): code the Blender build runs imports nothing that needs jsonschema, yaml, ezdxf, cv2, scipy, PIL or torch, also inside functions; text helpers come from wenart.textfold. The guard test reads every import with ast (aliases, relative and function-level imports) and runs the column rule in a Python without jsonschema.",
+   "question": null
+  },
+  {
+   "id": "UL409",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 2b, review O2/G1/O3, real10 d_L0..L6_028: a drawn salon door re-sized by its 110/230 tag lost its swing's evidence and was moved onto a 0.80 m door's mirror place in a solid wall): a size tag that re-sizes a drawn door keeps the door's own evidence after the tag's, and a drawn door keeps its place (listed when it stands past its wall's end in no bay). A tag- or rule-placed door past its wall's end that fills the bay up to the next wall on the line keeps its place and its wall is extended over it (labelled); a mirror twin move needs the strict mirror axis, a twin of the same width, a parallel wall that holds the whole door and a new swing side; anything else is listed, never moved.",
+   "lesson": "27 Nov 2026 (audit fix round 2b, review O2/G1/O3, real10 d_L0..L6_028: a drawn salon door re-sized by its 110/230 tag lost its swing's evidence and was moved onto a 0.80 m door's mirror place in a solid wall): a size tag that re-sizes a drawn door keeps the door's own evidence after the tag's, and a drawn door keeps its place (listed when it stands past its wall's end in no bay). A tag- or rule-placed door past its wall's end that fills the bay up to the next wall on the line keeps its place and its wall is extended over it (labelled); a mirror twin move needs the strict mirror axis, a twin of the same width, a parallel wall that holds the whole door and a new swing side; anything else is listed, never moved.",
+   "question": null
+  },
+  {
+   "id": "UL410",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 2b, review O4: real14's fire-stair door at the top of its flight, real18's bathroom doors and real19's hall doors were not built because the stair openings of the levels below fell in front of them): a door is checked against the slab openings under its storey at three points across its width; a probe over the level below's stair within 0.5 m of the floor is the stair's head (floor); an opening under a room of the storey whose own plan draws no stair there does not drop the door (the drawn room wins, noted); only a side over a drop across the whole width is not built, most of it is listed and built.",
+   "lesson": "27 Nov 2026 (audit fix round 2b, review O4: real14's fire-stair door at the top of its flight, real18's bathroom doors and real19's hall doors were not built because the stair openings of the levels below fell in front of them): a door is checked against the slab openings under its storey at three points across its width; a probe over the level below's stair within 0.5 m of the floor is the stair's head (floor); an opening under a room of the storey whose own plan draws no stair there does not drop the door (the drawn room wins, noted); only a side over a drop across the whole width is not built, most of it is listed and built.",
+   "question": null
+  },
+  {
+   "id": "UL411",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 2b, review O5, real11: 14 doors listed as 'cut through' a glued wall the build refused to cut, a column): one rule (door_validity.column_piece) decides both the build's cut and the door check's finding; a column or pier glued behind a door is said to be not cut and to be reviewed.",
+   "lesson": "27 Nov 2026 (audit fix round 2b, review O5, real11: 14 doors listed as 'cut through' a glued wall the build refused to cut, a column): one rule (door_validity.column_piece) decides both the build's cut and the door check's finding; a column or pier glued behind a door is said to be not cut and to be reviewed.",
+   "question": null
+  },
+  {
+   "id": "UL412",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 2b, review H1/H2/G4, real13 L-2: its title '2.BODRUM (-3.00 KOTU)' and two '-3.50' room marks; the round's frame flattened them): a height frame (one for the building from the ground floor, or one per storey) is never taken when the storey's elevation is its own printed storey mark (a title or a section's storey marks), never when a marked room reads the storey's floor, and only from rooms that hold a main room (living, dining, bedroom, kitchen, hall) and half or more of the storey's floor area; a storey that marks only its sunken garage or store, or a split level, keeps its steps. Every frame taken is a level_mark_mismatch conflict naming the storey's title and the marks; its rooms say floor_source level_frame with the overruled marks.",
+   "lesson": "27 Nov 2026 (audit fix round 2b, review H1/H2/G4, real13 L-2: its title '2.BODRUM (-3.00 KOTU)' and two '-3.50' room marks; the round's frame flattened them): a height frame (one for the building from the ground floor, or one per storey) is never taken when the storey's elevation is its own printed storey mark (a title or a section's storey marks), never when a marked room reads the storey's floor, and only from rooms that hold a main room (living, dining, bedroom, kitchen, hall) and half or more of the storey's floor area; a storey that marks only its sunken garage or store, or a split level, keeps its steps. Every frame taken is a level_mark_mismatch conflict naming the storey's title and the marks; its rooms say floor_source level_frame with the overruled marks.",
+   "question": null
+  },
+  {
+   "id": "UL413",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 2b, review H3: a garage sunk under a sloping garden refused all the drawn ground marks): the ground gate never takes a garage floor, a garage door or a door with a drawn ramp as its limit (they have their own way down); the drawn ground marks are refused only when the terrain they make buries a limiting door (or, with no such door, when all stand over the plinth top); the default ground the gate leaves is held to the same limit.",
+   "lesson": "27 Nov 2026 (audit fix round 2b, review H3: a garage sunk under a sloping garden refused all the drawn ground marks): the ground gate never takes a garage floor, a garage door or a door with a drawn ramp as its limit (they have their own way down); the drawn ground marks are refused only when the terrain they make buries a limiting door (or, with no such door, when all stand over the plinth top); the default ground the gate leaves is held to the same limit.",
+   "question": null
+  },
+  {
+   "id": "UL414",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 2b, review H4/H9: an agent's level edit ran the levels model again, which took the assumed ground floor's plan frame for the section frame and lowered the ground): running the levels model again changes nothing; every height frame is recorded with its rule (plan_frame or set_frame_once) and a run again keeps the first run's record; only the section frame's ±0.00 may become the ground. A ground from that ±0.00 says why: 'ground_gate' when marks were refused, 'plan_frame_zero' when no ground was drawn.",
+   "lesson": "27 Nov 2026 (audit fix round 2b, review H4/H9: an agent's level edit ran the levels model again, which took the assumed ground floor's plan frame for the section frame and lowered the ground): running the levels model again changes nothing; every height frame is recorded with its rule (plan_frame or set_frame_once) and a run again keeps the first run's record; only the section frame's ±0.00 may become the ground. A ground from that ±0.00 says why: 'ground_gate' when marks were refused, 'plan_frame_zero' when no ground was drawn.",
+   "question": null
+  },
+  {
+   "id": "UL415",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 2b, review H5/H7: every mark in a terrace outline became its floor, so a garden terrace's spot heights, the only ground evidence, were lost): a mark in a raised outdoor space (terrace, balcony, loggia, deck, veranda) is the space's floor when it stands at its storey's floor, above it or a step under it; a mark clearly under the floor is the ground there and the space's floor too. Every role change is a warning and the marks a space takes its floor from are marked used.",
+   "lesson": "27 Nov 2026 (audit fix round 2b, review H5/H7: every mark in a terrace outline became its floor, so a garden terrace's spot heights, the only ground evidence, were lost): a mark in a raised outdoor space (terrace, balcony, loggia, deck, veranda) is the space's floor when it stands at its storey's floor, above it or a step under it; a mark clearly under the floor is the ground there and the space's floor too. Every role change is a warning and the marks a space takes its floor from are marked used.",
+   "question": null
+  },
+  {
+   "id": "UL416",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 2b, review H8: a sunken living room with two -0.30 marks and a ±0.00 mark at its entry was built flat): when a room's marks disagree, the value two or more of them read, more than any other value, is its floor; the mark at the storey's floor decides only a tie (a shaft head's mark is left out first).",
+   "lesson": "27 Nov 2026 (audit fix round 2b, review H8: a sunken living room with two -0.30 marks and a ±0.00 mark at its entry was built flat): when a room's marks disagree, the value two or more of them read, more than any other value, is its floor; the mark at the storey's floor decides only a tie (a shaft head's mark is left out first).",
    "question": null
   }
  ]

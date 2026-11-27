@@ -30,3 +30,12 @@ def fold_ascii(text: str) -> str:
     folded = unicodedata.normalize("NFKD", folded)
     folded = "".join(ch for ch in folded if not unicodedata.combining(ch))
     return folded.lower()
+
+
+def slugify(text: str) -> str:
+    """ASCII slug for IDs: ``Yatak Odası`` -> ``yatak_odasi``. Empty input -> ``room`` (27 Nov 2026, audit O1: here, so
+    ``wenart.levels.outdoor``, which the architect's actions call inside Blender, needs no jsonschema;
+    ``wenart.building.slugify`` is this function)."""
+    folded = fold_ascii(text)
+    slug = re.sub(r"[^a-z0-9]+", "_", folded).strip("_")
+    return slug or "room"

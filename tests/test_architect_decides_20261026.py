@@ -148,8 +148,10 @@ def test_the_ai_looks_at_each_floor_and_decides(tmp_path):
             return {"answers": [], "decisions": [
                 {"action": "door_to_window", "element": "d_L0_004", "value": "", "reason": "a small door"}]}  # an entrance
         # 26 Nov 2026 (audit rule R05): d_L1_004 opens from the stair void to the outside: the build's door check does
-        # not build it, so E1 asks nothing about it any more
-        return {"answers": [{"key": "E1:d_L1_001", "choice": "french_window", "reason": "a French balcony facade"}],
+        # not build it, so E1 asks nothing about it any more. 27 Nov 2026 (audit O6): the AI's 'confirm' of a default
+        # decision still built (E1:d_L1_005, a door made a window) is a verdict 'confirmed'
+        return {"answers": [{"key": "E1:d_L1_001", "choice": "french_window", "reason": "a French balcony facade"},
+                            {"key": "E1:d_L1_005", "choice": "confirm", "reason": "the window is right"}],
                 "decisions": [{"action": "remove_piece", "element": "f_L1_012", "value": "", "reason": "the bed is too big"},
                               {"action": "retype_room", "element": "r_L1_soyunma_odasi", "value": "closet",
                                "reason": "a walk-in closet off the bedroom"},
@@ -160,6 +162,7 @@ def test_the_ai_looks_at_each_floor_and_decides(tmp_path):
     by = {e["key"]: e for e in rec["entries"]}
     assert by["E1:d_L1_001"]["verdict"] == "accepted"                       # the AI's choice wins over the default
     assert "E1:d_L1_004" not in by
+    assert by["E1:d_L1_005"]["verdict"] == "confirmed" and by["E1:d_L1_005"]["why"] == "the default decision stands"
     assert by["AI.remove_piece:f_L1_012"]["verdict"] == "refused" and "drawn" in by["AI.remove_piece:f_L1_012"]["why"]
     assert by["AI.door_to_window:d_L0_004"]["verdict"] == "refused" and "entrance" in by["AI.door_to_window:d_L0_004"]["why"]
     assert by["AI.retype_room:r_L1_soyunma_odasi"]["verdict"] == "accepted"

@@ -71,6 +71,11 @@ def level_fields(level: dict, record, sheets: dict, warn) -> None:
     if level["elevation_source"] == "section" and any(isinstance(e, dict) and e.get("rule") == "plan_title_marks"
                                                        for e in floor.get("evidence") or []):
         level["elevation_source"] = "level_mark"   # 19 Nov 2026 (review A3, A3FC-5): the plan's title prints it
+    rules = [e.get("rule") for e in floor.get("evidence") or [] if isinstance(e, dict) and e.get("rule")]
+    if rules and level["elevation_source"] != "assumed_default":
+        # 27 Nov 2026 (audit H1/H2): which drawing gave the elevation (a section's slab bands, the storey marks a section
+        # names, a plan's title mark): a printed storey mark is already the plans' height frame (``levels.model``)
+        level["elevation_rule"] = rules[0]
     if any(isinstance(e, dict) and e.get("rule") == "dwg_block_marks" for e in floor.get("evidence") or []):
         # 20 Nov 2026 (R03-01): the storey pitch of the drawing's unused section blocks (``storeys.dwg_rung``): the
         # schema's source stays 'section', the inference is stated beside it

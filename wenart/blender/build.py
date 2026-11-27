@@ -1574,6 +1574,38 @@ def refused_units(names: list, opens, opened_by_all: Optional[set] = None) -> di
     return out
 
 
+def _stair_heads(vb: dict, slabs: dict):
+    """27 Nov 2026 (audit O4): ``stair_z(level_id, point)`` for ``door_validity.voids_check``: the top of the stairs of
+    the level below ``level_id`` that pass its slab (``shell.plan_stairs`` with ``slab_void``, ``stair_rails.surface_z``)
+    at a plan point, measured from ``level_id``'s floor (negative under it); None where no stair stands (pure)."""
+    from wenart.blender import shell
+    from wenart.blender import stair_rails as SR
+
+    levels = {lv["id"]: lv for lv in vb.get("levels") or []}
+    plans: dict = {}
+    for lid, row in ((slabs or {}).get("by_level") or {}).items():
+        below = levels.get(((row or {}).get("under") or {}).get("below_level_id"))
+        if below is None:
+            continue
+        try:
+            plans[lid] = [it["plan"] for it in shell.plan_stairs(vb, below, slab_void=True) if it.get("plan")]
+        except Exception:  # noqa: BLE001 - a stair that cannot be planned gives no head; the check stays strict there
+            plans[lid] = []
+
+    def stair_z(lid, p):
+        best = None
+        for pl in plans.get(lid) or []:
+            try:
+                z = SR.surface_z(pl, p)
+            except (KeyError, TypeError, ValueError, ZeroDivisionError):
+                z = None
+            if z is not None:
+                v = float(z) - float(pl.get("rise_m") or 0.0)
+                best = v if best is None else max(best, v)
+        return best
+    return stair_z
+
+
 def prepare_once(building_all: dict, variant: str = "base", brief: dict | None = None,
                  style_family: Optional[str] = None) -> dict:
     """What the build decides before Blender (pure; Milestone 10): the variant's building
@@ -1682,9 +1714,12 @@ def prepare_once(building_all: dict, variant: str = "base", brief: dict | None =
         out["slabs"] = shell.slab_plan(vb, vb["levels"], float(slab_t), bool(slab_assumed))
         out["warnings"] += out["slabs"]["warnings"]
         out["assumed"] += out["slabs"]["assumed"]
-        # 26 Nov 2026 (audit rule R05, real06's d_L1_009): a door opening onto a floor void is not built
+        # 26 Nov 2026 (audit rule R05, real06's d_L1_009): a door opening onto a floor void is not built. 27 Nov 2026
+        # (audit O4: real14's fire-stair door at the top of its flight, real18's bathroom doors and real19's hall doors
+        # were dropped by stair openings the levels below put under their rooms): the stairs' heads are floor
         out["door_checks"]["over_void"] = DV.voids_check(vb, out["slabs"], "build",
-                                                         lambda m: out["warnings"].append(m))
+                                                         lambda m: out["warnings"].append(m),
+                                                         stair_z=_stair_heads(vb, out["slabs"]))
     roof_in = vb.get("roof") if isinstance(vb.get("roof"), dict) else R.flat_roof(vb)
     if not isinstance(vb.get("roof"), dict):
         out["warnings"].append("roof: null (no roof evidence): a flat roof over the top level, assumed")

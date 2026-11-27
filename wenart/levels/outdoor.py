@@ -54,7 +54,9 @@ import math
 import re
 from typing import Optional, Sequence
 
-from wenart import building as B
+# 27 Nov 2026 (audit O1): the text helpers from ``wenart.textfold``, not ``wenart.building`` (jsonschema): the architect's
+# actions (``act_cover_space``) call this module inside Blender's own Python
+from wenart import textfold as B
 from wenart import geometry as G
 from wenart.levels.columns import join_stacked_posts
 
@@ -1058,8 +1060,10 @@ def outdoor_spaces(building: dict, levels: Sequence[dict], outlines: dict, marks
         area = round(sp.area, 3)
         on = space_doors(poly, level_id, doors)
         # the floor: a level mark inside, else the doors' thresholds, else the level's floor
+        # 27 Nov 2026 (audit H5): a ground mark the reader found in the space (``outdoor_area``) is its floor too
         inside = [m for m in marks if m.get("level_id") in (None, level_id) and m.get("point") is not None
-                  and m.get("z") is not None and m.get("kind") in ("threshold", "floor", "entrance")
+                  and m.get("z") is not None and (m.get("kind") in ("threshold", "floor", "entrance") or (
+                      m.get("outdoor_area") and m.get("kind") in ("ground_natural", "ground_finished", "slope_top")))
                   and sp.distance(Point(m["point"])) <= SPACE["mark_reach"]]
         if inside:
             z = sum(float(m["z"]) for m in inside) / len(inside)
@@ -1102,6 +1106,11 @@ def outdoor_spaces(building: dict, levels: Sequence[dict], outlines: dict, marks
         drawn = (a.get("outline_inferred") or {}).get("steps") if method == "strokes" else None
         if drawn and not elevated:
             rec["steps"] = dict(drawn, source="drawn")
+        for m in inside:
+            # 27 Nov 2026 (audit H7): the marks a space takes its floor from are marked used (the report sees them)
+            used = m.setdefault("used_for", [])
+            if f"outdoor_floor:{sid}" not in used:
+                used.append(f"outdoor_floor:{sid}")
         out.append(rec)
         a["space"] = {"built": True, "id": sid}
     if not out:

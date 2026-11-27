@@ -19,7 +19,9 @@ from __future__ import annotations
 import re
 from typing import Optional
 
-from wenart import building as B
+# 27 Nov 2026 (audit O1): ``wenart.textfold``, not ``wenart.building`` (which imports jsonschema): ``shell.column_piece``
+# reads layer roles inside Blender's own Python
+from wenart.textfold import fold_ascii
 
 ROLES: dict[str, tuple[str, ...]] = {
     "wall": ("DUVAR", "DUVARLAR", "WALL", "WALLS", "A-WALL", "MUR", "MURS", "MAUER", "MAUERWERK", "WAND", "WANDE",
@@ -67,7 +69,7 @@ _WORD_RE = re.compile(r"[A-Z]+(?:-[A-Z]+)?")
 
 
 def _words(name: str) -> set[str]:
-    folded = B.fold_ascii(str(name)).upper().replace("_", " ").replace(".", " ")
+    folded = fold_ascii(str(name)).upper().replace("_", " ").replace(".", " ")
     return set(_WORD_RE.findall(folded)) | set(w for part in _WORD_RE.findall(folded) for w in part.split("-"))
 
 
@@ -121,7 +123,7 @@ _GEOMETRY: dict[str, dict[str, str]] = {}       # file -> {folded layer name: ro
 
 
 def _key(name: str) -> str:
-    return B.fold_ascii(str(name)).upper().strip()
+    return fold_ascii(str(name)).upper().strip()
 
 
 def set_geometry_roles(file: str, roles: Optional[dict]) -> None:
