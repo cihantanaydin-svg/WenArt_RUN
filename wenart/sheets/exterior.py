@@ -638,31 +638,99 @@ def roof_from_plan(top, warnings: list, section=None) -> Optional[dict]:
     return out
 
 
-SLOPE_PCT_RE = re.compile(r"\b(?:EGIM|SLOPE|PENTE|NEIGUNG|GEFALLE)\b\s*:?\s*%\s*(\d+(?:[.,]\d+)?)"
-                          r"|\b(?:EGIM|SLOPE|PENTE|NEIGUNG|GEFALLE)\b\s*:?\s*(\d+(?:[.,]\d+)?)\s*%")
+# 27 Nov 2026 (audit fix round 4, R07 a): the one shared slope pattern (``titles.SLOPE_PCT_RE``: the number before or
+# after the word)
+SLOPE_PCT_RE = T.SLOPE_PCT_RE
+SAME_SLOPE_PCT = 1.0               # slope texts within this (per cent) give one slope
 
 
 def roof_from_roof_plan(roof_plans: list) -> Optional[dict]:
-    """A hip roof from a roof plan whose slope texts (>= 2, ``EĞİM%33``) all give one slope and whose hip lines
-    (>= 2) run from the corners: ``{"type": "hip", "pitch_deg", "slope_pct", "evidence", "note"}``, or None."""
+    """A hip roof from a roof plan with slope texts (>= 2, ``EĞİM%33``, ``%30 EĞİM``) and hip lines (>= 2) that
+    run from the corners: ``{"type": "hip", "pitch_deg", "slope_pct", "slopes", "evidence", "note"}``, or None.
+    27 Nov 2026 (audit fix round 4, R07 b; a plan with '%30' over one block and '%33' over another gave up): slopes
+    that differ are one pitch per roof part, by position: ``slopes`` lists each slope with the points of its texts
+    (the region's metres from its geometry box corner); the main pitch is the slope most texts give (ties: the
+    steeper)."""
     for r in roof_plans:
         slopes = []
         for t in r.texts:
-            m = SLOPE_PCT_RE.search(T.fold(t.text))
-            if m:
-                slopes.append((float((m.group(1) or m.group(2)).replace(",", ".")), t))
-        if len(slopes) < 2 or (r.features or {}).get("hip_lines", 0) < 2:
+            v = T.slope_pct(t.text)
+            if v is not None and 0 < v < 200:
+                slopes.append((v, t))
+        if len(slopes) < 2:
             continue
-        values = sorted(v for v, _ in slopes)
-        if values[-1] - values[0] > 1.0 or values[0] <= 0:
+        if "hip_lines" not in (r.features or {}):
+            # 27 Nov 2026 (audit fix round 4, R07 a): a roof plan its title classed has no hip count yet
+            from wenart.sheets import classify as CL
+            r.features = dict(r.features or {}, hip_lines=CL.hip_line_count(r))
+        if r.features.get("hip_lines", 0) < 2:
             continue
-        pct = values[len(values) // 2]
+        groups: list = []
+        for v, t in sorted(slopes, key=lambda x: x[0]):
+            if groups and v - groups[-1][0][0] <= SAME_SLOPE_PCT:
+                groups[-1].append((v, t))
+            else:
+                groups.append([(v, t)])
+        main = max(groups, key=lambda g: (len(g), g[0][0]))
+        vals = sorted(v for v, _ in main)
+        pct = vals[len(vals) // 2]
         pitch = math.degrees(math.atan(pct / 100.0))
-        return {"type": "hip", "pitch_deg": pitch, "slope_pct": pct,
-                "evidence": [_ev(r, t.id, "roof_slope_text", text=t.text) for _, t in slopes[:3]],
-                "note": f"{len(slopes)} slope texts on {r.id} all give {pct:g} % ({pitch:.1f} degrees), "
-                        f"{r.features.get('hip_lines')} hip lines: a hip roof"}
+        mpu = r.metres_per_unit or 0.0
+        x0, y0 = r.geometry_box[0], r.geometry_box[1]
+        parts = []
+        for g in groups:
+            gp = sorted(v for v, _ in g)[len(g) // 2]
+            parts.append({"slope_pct": gp, "pitch_deg": round(math.degrees(math.atan(gp / 100.0)), 2),
+                          "points": [[round((t.point[0] - x0) * mpu, 3), round((t.point[1] - y0) * mpu, 3)]
+                                     for _v, t in g], "texts": [t.text for _v, t in g]})
+        note = (f"{len(slopes)} slope texts on {r.id} give {pct:g} % ({pitch:.1f} degrees), "
+                f"{r.features.get('hip_lines')} hip lines: a hip roof")
+        if len(groups) > 1:
+            note = (f"{len(slopes)} slope texts on {r.id} give {len(groups)} slopes ("
+                    + ", ".join(f"{q['slope_pct']:g} % x {len(q['texts'])}" for q in parts)
+                    + f"): one pitch per roof part by position; the main roof takes {pct:g} % ({pitch:.1f} degrees, "
+                      f"the slope most texts give); {r.features.get('hip_lines')} hip lines: a hip roof")
+        return {"type": "hip", "pitch_deg": pitch, "slope_pct": pct, "slopes": parts,
+                "evidence": [_ev(r, t.id, "roof_slope_text", text=t.text) for _, t in main[:3]],
+                "note": note}
     return None
+
+
+RIDGE_MARK_INSIDE_M = 0.5          # 27 Nov 2026 (R07 c): a roof plan's mark this far inside its eaves loop is a ridge's
+ROOF_MARK_OVER_FLOOR_M = 1.8       # ... and a main roof's mark stands at least this far over the top storey's floor
+
+
+def roof_plan_marks(region, plan_outline: Optional[dict], datum_rel: Optional[float]) -> Optional[dict]:
+    """27 Nov 2026 (audit fix round 4, R07 c): the level marks a roof plan prints are the heights of the roof part they
+    sit in: inside the main eaves loop farther than ``RIDGE_MARK_INSIDE_M`` from it a ridge's (the highest is the main
+    ridge), on the loop its eaves'. Read in the building's height frame (the R01 frame: the printed value less the
+    relative mark at building z 0, ``datum_rel``). Returns ``{"ridge": {...} | None, "eaves": {...} | None, "marks":
+    [...]}`` (each with ``value`` the printed mark, ``z``, ``text``, ``entity``), or None without marks, a loop or a
+    frame (pure)."""
+    from shapely.geometry import Point
+    if region is None or not plan_outline or not plan_outline.get("points") or datum_rel is None:
+        return None
+    mpu = region.metres_per_unit
+    if not mpu:
+        return None
+    x0, y0 = region.geometry_box[0], region.geometry_box[1]
+    loop = Polygon(plan_outline["points"])
+    if not loop.is_valid or loop.area <= 0:
+        return None
+    marks = []
+    for t, rec in UC.mark_records(region.texts):
+        if not rec.get("relative") or not re.search(r"[+±\-]\s*\d", str(t.text)):
+            continue                                  # a signed relative mark only (a bare number may be a dimension)
+        q = Point((t.point[0] - x0) * mpu, (t.point[1] - y0) * mpu)
+        marks.append({"value": round(float(rec["value"]), 3), "z": round(float(rec["value"]) - float(datum_rel), 3),
+                      "text": t.text, "entity": t.id, "inside": bool(loop.contains(q)),
+                      "edge_m": round(loop.exterior.distance(q), 3)})
+    if not marks:
+        return None
+    ridge = max((m for m in marks if m["inside"] and m["edge_m"] > RIDGE_MARK_INSIDE_M), key=lambda m: m["value"],
+                default=None)
+    eaves = min((m for m in marks if m["edge_m"] <= RIDGE_MARK_INSIDE_M), key=lambda m: m["value"], default=None)
+    return {"ridge": ridge, "eaves": eaves, "marks": marks}
 
 
 # 27 Oct 2026 (real06; user: "In the plan roof is covering this balcony also and there is a small roof on top of the
@@ -1365,14 +1433,23 @@ def north_of(region) -> Optional[dict]:
     return None
 
 
-def ridge_lines(roof: dict, heights: dict, reference_outline) -> list:
+def ridge_lines(roof: dict, heights: dict, reference_outline, building_outline=None) -> list:
     """A gable read from the section: the ridge runs across the cut, at the profile's top (s along the cut axis from
-    the outline's min side, building metres), over the roof outline (else the reference outline)."""
+    the outline's min side, building metres), over the roof outline (else the reference outline). 27 Nov 2026 (audit
+    fix round 4, R06): ``building_outline`` (the reference plan's building outline without a drawn sheet frame, in
+    building metres) gives the min side and the ridge's length when the registered outline holds a frame."""
     axis = heights.get("cut_axis")
     prof = (heights.get("roof") or {}).get("profile") or []
     if axis is None or len(prof) < 3:
         return []
     s_ridge = max(prof, key=lambda p: p[1])[0]
+    if building_outline is not None and not roof.get("outline"):
+        b = building_outline.bounds
+        if axis == "x":
+            x = round(b[0] + s_ridge, 4) + 0.0
+            return [[[x, round(b[1], 4) + 0.0], [x, round(b[3], 4) + 0.0]]]
+        y = round(b[1] + s_ridge, 4) + 0.0
+        return [[[round(b[0], 4) + 0.0, y], [round(b[2], 4) + 0.0, y]]]
     if roof.get("outline"):
         xs = [p[0] for p in roof["outline"]]
         ys = [p[1] for p in roof["outline"]]
@@ -1388,7 +1465,7 @@ def ridge_lines(roof: dict, heights: dict, reference_outline) -> list:
 
 def exterior(top_plan, section, elevations: list, sites: list, reference_outline, conflict: Callable,
              warnings: list, reference=None, heights: Optional[dict] = None, plans: Optional[list] = None,
-             outlines: Optional[dict] = None, roof_plans: Optional[list] = None) -> dict:
+             outlines: Optional[dict] = None, roof_plans: Optional[list] = None, building_outline=None) -> dict:
     """The ``exterior`` block. ``reference``: the reference plan region (site plans register onto it);
     ``heights``: the ``heights`` block (datum, ground, cut axis, roof profile); ``plans`` / ``outlines``: the read
     plans and their outlines in building metres (11 Oct 2026: every copy of the building on a site plan,
@@ -1440,7 +1517,7 @@ def exterior(top_plan, section, elevations: list, sites: list, reference_outline
             roof["assumed"] = [a for a in roof.get("assumed") or [] if not a.startswith("hip/gable")]
             roof["also_seen_in"] = ["elevation"]
             roof["evidence"] = roof["evidence"] + [_ev(r, e, "gable_end") for r, e in ends[:1]]
-        roof["ridge_lines"] = ridge_lines(roof, heights, reference_outline)
+        roof["ridge_lines"] = ridge_lines(roof, heights, reference_outline, building_outline)
         if not roof["ridge_lines"]:
             roof.setdefault("assumed", []).append("ridge direction (the section's cut direction is unknown)")
         if roof["ridge_lines"]:
@@ -1467,6 +1544,36 @@ def exterior(top_plan, section, elevations: list, sites: list, reference_outline
             roof["plan_outline_note"] = "; ".join(reasons)
             warnings.append(f"roof: the outline of the roof plan is not read: {'; '.join(reasons)}")
         po = roof.get("plan_outline") or {}
+        # 27 Nov 2026 (audit fix round 4, R07 c): the roof plan's level marks are the main roof's ridge (and eaves)
+        # heights in the building's height frame
+        po_region = next((r for r in ordered if r.id == po.get("region_id")), None)
+        datum = heights.get("datum")
+        datum_rel = datum.get("relative") if isinstance(datum, dict) and datum.get("relative") is not None else None
+        if datum_rel is None and isinstance(datum, dict) and datum.get("value") is not None:
+            datum_rel = None                          # an absolute datum: the relative marks have no frame
+        elif datum_rel is None and datum is None and any((e.get("floor_z") or {}).get("method") == "vector"
+                                                          for e in heights.get("levels") or []):
+            datum_rel = 0.0                           # the section's floors stand at the relative marks' zero
+        rm = roof_plan_marks(po_region, po, datum_rel) if po else None
+        top_floor = max((float((e.get("floor_z") or {}).get("value") or 0.0) for e in heights.get("levels") or []),
+                        default=0.0)
+        for key in ("ridge", "eaves"):
+            # a mark under the top storey's ceiling (a terrace's, a lower roof's floor) is no height of the main roof
+            if rm is not None and rm.get(key) is not None and rm[key]["z"] < top_floor + ROOF_MARK_OVER_FLOOR_M:
+                rm[key] = None
+        if rm is not None and (rm.get("ridge") or rm.get("eaves")):
+            roof["plan_marks"] = rm
+            for key, field in (("ridge", "ridge_height"), ("eaves", "eaves_height")):
+                m = rm.get(key)
+                if m is None:
+                    continue
+                roof[field] = {"value": m["z"], "method": "vector", "confidence": 0.9,
+                               "evidence": [_ev(po_region, m["entity"], "roof_plan_mark", text=m["text"])],
+                               "note": f"the roof plan's level mark {m['text']} ({key} of the main roof) less the "
+                                       f"relative mark {float(datum_rel):+.2f} at building z 0"}
+            warnings.append("roof: the roof plan's marks give the main roof "
+                            + ", ".join(f"{k} {rm[k]['text']} (z {rm[k]['z']:.2f})" for k in ("ridge", "eaves")
+                                        if rm.get(k)) + f" ({len(rm['marks'])} marks read)")
         # 24 Nov 2026 (real07: once its section's drawing frame was left out, the section gave a profile, read as a
         # gambrel, and the roof plan's hip roof was lost; review of f706c8a1: valleys of a T or U cross gable and a
         # mansard's hips are no hip roof): a section tells the slopes across one cut, never hip from gable; the roof

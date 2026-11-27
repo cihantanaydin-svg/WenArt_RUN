@@ -180,11 +180,27 @@ def _axis_rectangle(st) -> Optional[Box]:
     """Box of a closed stroke whose 4 corners form an axis-aligned rectangle (a frame or title box candidate)."""
     if not st.closed or st.fill is not None or len(st.pts) != 4:
         return None
-    xs = sorted({round(p[0], 6) for p in st.pts})
-    ys = sorted({round(p[1], 6) for p in st.pts})
+    # 27 Nov 2026 (audit fix round 4, R06: a sheet frame whose corner read 794418.086461 and 794418.08646 was no
+    # rectangle, so the drawings of two frames joined): corners within ``RECT_SNAP_REL`` of the rectangle's size are one
+    span = max(max(p[0] for p in st.pts) - min(p[0] for p in st.pts), max(p[1] for p in st.pts) - min(p[1] for p in st.pts))
+    tol = max(RECT_SNAP_REL * span, 1e-6)
+    xs = _snap_values([p[0] for p in st.pts], tol)
+    ys = _snap_values([p[1] for p in st.pts], tol)
     if len(xs) != 2 or len(ys) != 2:
         return None
     return (xs[0], ys[0], xs[1], ys[1])
+
+
+RECT_SNAP_REL = 1e-6           # rectangle corners this close (share of its size) are one coordinate
+
+
+def _snap_values(vals: list, tol: float) -> list:
+    """The distinct values of ``vals`` with values within ``tol`` of the previous one joined (their first), sorted."""
+    out: list = []
+    for v in sorted(vals):
+        if not out or v - out[-1] > tol:
+            out.append(round(v, 6))
+    return out
 
 
 def entities_from_page(page, file_rel: str) -> tuple[list[Ent], list[Txt]]:

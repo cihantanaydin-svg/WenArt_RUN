@@ -2764,8 +2764,48 @@ def _grid_points(poly: Sequence, step: float) -> list[tuple[float, float]]:
     return sorted(set(out))
 
 
+def building_cover(building: dict, outline: Sequence, outlines: Optional[dict] = None) -> list[list]:
+    """27 Nov 2026 (audit fix round 4; a first floor's terrace hung over the open ground and two inferred trees stood
+    up through it and through the roof): what the building covers from above, as polygons (pure): the ground outline,
+    every level's own outline, the roof's outline and every outdoor space (balcony, terrace) of a level above the
+    lowest level at or above the ground. A site tree never stands inside any of them."""
+    out = []
+    for poly in [outline] + list((outlines or {}).values()) + [((building.get("roof") or {}).get("outline") or [])]:
+        if isinstance(poly, (list, tuple)) and len(poly) >= 3:
+            out.append(geom2d.ccw([(float(p[0]), float(p[1])) for p in poly]))
+    orders = {lv.get("id"): lv.get("order") for lv in building.get("levels") or [] if isinstance(lv, dict)}
+    above = sorted(o for o in orders.values() if isinstance(o, (int, float)) and o >= 0)
+    ground = above[0] if above else 0
+    for s in (building.get("site") or {}).get("outdoor_spaces") or []:
+        if not isinstance(s, dict) or len(s.get("polygon") or []) < 3:
+            continue
+        o = orders.get(s.get("level_id"))
+        if isinstance(o, (int, float)) and o > ground:
+            out.append(geom2d.ccw([(float(p[0]), float(p[1])) for p in s["polygon"]]))
+    return out
+
+
+def trees_clear_of_cover(trees: Sequence[dict], cover: Sequence) -> tuple[list[dict], list[dict]]:
+    """27 Nov 2026 (audit fix round 4): ``(kept, dropped)`` of the site's trees: a tree whose trunk stands inside the
+    building's cover (``building_cover``: its footprint, a roof's outline, an upper terrace) is dropped, with the
+    reason (pure; a drawn tree there is a reading error, an inferred one a placement error)."""
+    kept, dropped = [], []
+    for t in trees:
+        c = t.get("center") if isinstance(t, dict) else None
+        hit = None
+        if c and len(c) >= 2:
+            hit = next((k for k, poly in enumerate(cover) if G.point_in_polygon((float(c[0]), float(c[1])), poly)), None)
+        if hit is None:
+            kept.append(t)
+            continue
+        dropped.append(dict(t, dropped_reason=f"tree {t.get('id')} at ({float(c[0]):.2f}, {float(c[1]):.2f}) stands "
+                                              f"inside the building's cover (its footprint, a roof's outline or an "
+                                              f"upper terrace): no site tree stands under the building (dropped)"))
+    return kept, dropped
+
+
 def place_trees(plot: Sequence, outline: Sequence, paths: Sequence[dict], windows: Sequence[dict], main: dict,
-                count: int, stats: Optional[dict] = None) -> list[dict]:
+                count: int, stats: Optional[dict] = None, cover: Sequence = ()) -> list[dict]:
     """Up to ``count`` inferred trees (pure; docs/milestone11.md §1.1 E11). The ``strict`` pass: candidates every
     ``tree_step`` along the plot edges ``tree_inset`` inside; a candidate is kept ``tree_from_building`` clear of the
     building, ``tree_from_path`` of every path, out of the band in front of every outside window (``tree_window_reach``
@@ -2817,7 +2857,9 @@ def place_trees(plot: Sequence, outline: Sequence, paths: Sequence[dict], window
     def failed(p, rr: float, light_m: float, side_m: float, view_m: float, ways: Sequence) -> list[str]:
         """The filters of ``TREE_FILTERS`` that remove a crown of radius ``rr`` at ``p`` with these window zones."""
         out = []
-        if G.point_in_polygon(p, outline) or geom2d.distance_to_polygon_edges(p, outline) < INFERRED["tree_from_building"]:
+        if G.point_in_polygon(p, outline) or geom2d.distance_to_polygon_edges(p, outline) < INFERRED["tree_from_building"] \
+                or any(G.point_in_polygon(p, q) or geom2d.distance_to_polygon_edges(p, q) < rr for q in cover):
+            # 27 Nov 2026 (audit fix round 4): the crown also stays clear of the whole cover (upper terraces, the roof)
             out.append("building")
         if any(G.point_in_polygon(p, q) or geom2d.distance_to_polygon_edges(p, q) < INFERRED["tree_from_path"]
                for q in ways):
@@ -3101,7 +3143,8 @@ def inferred_site(building: dict, levels: Sequence[dict], terrain: dict, outline
         windows = outer_openings(building, levels, outline, outlines, kinds=("window",))
         stats: dict = {}
         out["trees"] = place_trees(out["plot"], outline, out["paths"], windows, out["main"],
-                                   int(options.get("trees", 3)), stats=stats)
+                                   int(options.get("trees", 3)), stats=stats,
+                                   cover=building_cover(building, outline, outlines))
         if stats.get("count"):                    # fix round after P4b: never a silent 0 (trees_record)
             entry, warning = trees_record(stats)
             out["assumed"].append(entry)
@@ -7283,6 +7326,14 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
         for t in inferred["trees"]:
             trees.append(t)
             assumed.append({"field": f"tree:{t['id']}", "value": t["center"], "reason": t["reason"]})
+    if trees:
+        # 27 Nov 2026 (audit fix round 4): no site tree stands inside the building's cover (its footprint, a roof's
+        # outline, an upper terrace), drawn or inferred; each dropped tree is listed
+        trees, gone = trees_clear_of_cover(trees, building_cover(building, outline, outlines))
+        for t in gone:
+            not_built.append({"id": t.get("id"), "kind": "tree", "reason": t["dropped_reason"]})
+            assumed.append({"field": f"tree:{t.get('id')}", "value": None, "reason": t["dropped_reason"]})
+            warnings.append(t["dropped_reason"])
     if mode == "full":
         if hedges:                                   # fix round after P3: every hull on its planting side
             hedges, fit_assumed = fit_hedges(hedges, pfs, [geom2d.ccw(outline)] + copy_holes)

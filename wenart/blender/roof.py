@@ -773,6 +773,62 @@ def planes_from_faces(planes: Sequence[Plane], faces: Sequence[Sequence], source
     return out
 
 
+FULL_STOREY_SLAB_M = 0.20        # 27 Nov 2026 (R07 e): a full storey's eaves stand on its ceiling and this slab
+ATTIC_TITLE_RE = r"\bCATI\s+KAT|\bCATI\s+ARASI|(?<![A-Z])C\s*\.\s*A\s*\.\s*P\b|\bATTIC\b|\bLOFT\b|\bDACHGESCHOSS\b|\bCOMBLES\b"
+ROOF_WINDOW_WORDS = ("roof_window", "skylight", "dormer")
+
+
+def attic_level(level: Optional[dict]) -> bool:
+    """27 Nov 2026 (audit fix round 4, R07 e): a level the drawings name an attic (its kind, its title or label: ÇATI
+    KATI, ÇATI ARASI, Ç.A.P., attic) or whose openings are roof windows (pure)."""
+    import re as _re
+
+    if not isinstance(level, dict):
+        return False
+    if level.get("kind") == "attic":
+        return True
+    texts = [str(level.get("label") or "")] + [str(e.get("text") or "") for e in level.get("evidence") or []
+                                               if isinstance(e, dict)]
+    fold = str.maketrans("ÇĞİÖŞÜçğıöşü", "CGIOSUcgiosu")     # Blender's Python: no wenart.building here
+    return any(_re.search(ATTIC_TITLE_RE, t.translate(fold).upper()) for t in texts)
+
+
+OPENING_EAVES_GAP_M = 0.05       # an opening's head stays this far under the roof underside (OPENING_ROOF_GAP)
+EAVES_WALL_DEG = 15.0            # a wall within this of the ridge direction runs under an eaves (a gable roof)
+
+
+def opening_eaves(building: dict, level: dict, overhang: float, tan_pitch: float,
+                  ridge_dir: Optional[Sequence[float]]) -> tuple[Optional[float], str]:
+    """27 Nov 2026 (audit fix round 4, R07 f): the lowest eaves height (the eaves edge ``overhang`` outside the wall
+    face, the slope at ``tan_pitch``, the roof's assumed thickness) under which every door and window of ``level`` in
+    a wall under an eaves keeps its head ``OPENING_EAVES_GAP_M`` under the roof underside, and the opening that sets it;
+    ``ridge_dir`` None (a hip roof): every wall runs under an eaves (pure)."""
+    from wenart.blender import shell
+    walls = {w["id"]: w for w in building.get("walls") or [] if w.get("level_id") == level.get("id")}
+    cos_p = 1.0 / math.sqrt(1.0 + tan_pitch * tan_pitch)
+    under_drop = DEFAULTS["thickness"] / max(cos_p, 1e-6) - overhang * tan_pitch
+    best, who = None, ""
+    for o in building.get("openings") or []:
+        if o.get("level_id") != level.get("id") or o.get("type") not in ("door", "window") or o.get("virtual") \
+                or str(o.get("kind") or "") in ROOF_WINDOW_WORDS:
+            continue
+        w = walls.get(o.get("wall_id"))
+        if w is None or not w.get("start") or not w.get("end") or w.get("exterior") is not True:
+            continue
+        if ridge_dir is not None:
+            ux, uy = _unit(w)
+            if abs(ux * ridge_dir[0] + uy * ridge_dir[1]) < math.cos(math.radians(EAVES_WALL_DEG)):
+                continue
+        try:
+            _bottom, top, _a = shell.opening_vertical(o, level, False)
+        except (KeyError, TypeError, ValueError):
+            continue
+        need = float(top) + OPENING_EAVES_GAP_M + under_drop
+        if best is None or need > best:
+            best, who = need, f"{o.get('type')} {o.get('id')}"
+    return best, who
+
+
 def derive(roof: dict, building: dict) -> dict:
     """The derivation behind ``planes_for``: ``{"planes": [...], "equations": [(a, b, c)], "outline",
     "eaves_z", "ridge_z", "pitches", "assumed": [{"field", "value", "reason"}], "warnings", "notes",
@@ -903,12 +959,37 @@ def _derive(roof: dict, building: dict, pitch: Optional[float] = None, turn: boo
         elif ridge is not None and rtype in ("gable", "hip"):
             eaves = ridge - rise_half * t1
             notes.append(f"eaves {eaves:.3f} m from the ridge height and the pitch")
-        else:
+        elif attic_level(level):
             knee_a = DEFAULTS["knee_wall"]
             eaves = floor_z + knee_a - overhang * t1
             assumed.append({"field": "eaves_height", "value": round(eaves, 4),
                             "reason": f"no eaves height, knee wall or ridge height drawn: an assumed knee wall of "
-                                      f"{knee_a} m at the outer wall face"})
+                                      f"{knee_a} m at the outer wall face (the drawings name {level['id']} an attic)"})
+        else:
+            # 27 Nov 2026 (audit fix round 4, R07 e; a full first floor got the attic's 1.0 m knee wall, its windows
+            # clipped to 0.40 m and its doors run into the roof): the eaves of a full storey stand on its ceiling and
+            # slab; the knee-wall default is only for a level the drawings name an attic
+            ceiling = float(level.get("ceiling_height") or 2.70) if level else 2.70
+            eaves = floor_z + ceiling + FULL_STOREY_SLAB_M
+            assumed.append({"field": "eaves_height", "value": round(eaves, 4),
+                            "reason": f"no eaves height, knee wall or ridge height drawn: the eaves of a full storey "
+                                      f"({level['id'] if level else 'top level'} is no attic): its floor "
+                                      f"{floor_z:.2f} + ceiling {ceiling:.2f} + slab {FULL_STOREY_SLAB_M:.2f} m"})
+    if rtype != "flat" and level is not None and not attic_level(level) \
+            and not any(_value(roof.get(k)) is not None and not _is_assumed(roof.get(k))
+                        for k in ("eaves_height", "knee_wall")):
+        need, who = opening_eaves(building, level, overhang, t1, axis0[0] if rtype != "hip" else None)
+        if need is not None and need > eaves + 1e-3:
+            raised = math.ceil((need - eaves) / SLOPE_RAISE_STEP_M - 1e-9) * SLOPE_RAISE_STEP_M
+            warnings.append(f"the roof would clip {who} of the top storey {level['id']} (a full storey): the eaves "
+                            f"rise {raised:.2f} m from {eaves:.3f} m (R07 f; the drawn openings are kept)")
+            assumed.append({"field": "eaves_raise", "value": round(raised, 3),
+                            "reason": f"refused a roof that clips {who} of the full storey {level['id']}: the eaves "
+                                      f"rise from {eaves:.3f} to {eaves + raised:.3f} m (logged, R07 f)"})
+            eaves += raised
+            if ridge is not None:
+                notes.append(f"the drawn ridge height {ridge:.3f} m is not kept: the eaves rose for the top storey's "
+                             f"openings")
 
     eqs: list[Plane] = []
     tiers: list[str] = []

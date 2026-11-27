@@ -42,6 +42,8 @@ WIDTH_DEFAULT_M = 0.9
 INSIDE_SHARE = 0.5              # a stair piece holding this share of the numbers already reads the stair
 FLOOR_REACH = 0.75              # 13 Nov 2026: the tread lines this many goings around an end number (``_riser_lines``)
 NO_TREAD_ROLES = frozenset({"furniture", "sanitary", "finish", "text", "dimension", "axis", "hatch", "site", "section"})
+FIRST_STEP_M = 1.0              # 27 Nov 2026 (R24): the first number may stand this far from the next, on the landing
+FORMULA_REACH_M = 2.5           # ... and a stair formula this close to a chain's first number caps it at its risers
 STAIR_BOX_M = 0.60              # 13 Nov 2026: wall or plaster lines this close to the numbers can be the stair's
 #                                 when they do not run along the steps (``ALONG_COS``)
 
@@ -83,13 +85,30 @@ def chains(texts: list) -> list[list[tuple[int, tuple[float, float], object]]]:
     starts = list(by_value.get(1, []))
     starts += [k for k in by_value.get(2, []) if not any(math.dist(nums[k][1], nums[j][1]) <= STEP_M[1]
                                                           for j in by_value.get(1, []))]
+    # 27 Nov 2026 (audit fix round 4, R24; a stair numbered 1-19 lost its 1, 0.71 m from the 2 on the landing, and the
+    # stair beside it took its 18 and 19 across the hall): the stair formula written nearest a chain's first number
+    # caps the chain at its riser count, and the first number may stand up to FIRST_STEP_M from the next
+    from wenart.ingest.generic import stair_formula as SF
+    forms = []
+    for t in texts or []:
+        f = SF.parse(str(getattr(t, "text", "") or ""))
+        if f is not None:
+            forms.append((f["risers"], ((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0)))
+
+    def cap_of(start: int) -> Optional[int]:
+        p0 = nums[start][1]
+        near = [(math.dist(p0, q), n) for n, q in forms if math.dist(p0, q) <= FORMULA_REACH_M]
+        return min(near)[1] if near else None
 
     def build(start: int, banned: set) -> list[int]:
         """The chain from ``start``, never through a number of ``banned`` (another stair's)."""
         chain = [start]
         held = set(banned) | {start} | ({k for k in range(len(nums)) if dims[k]} if not dims[start] else set())
+        cap = cap_of(start)
         while True:
             v, p, _t = nums[chain[-1]]
+            if cap is not None and v >= cap:
+                break                                     # the stair formula's riser count is reached
             nxt = None
 
             def leads(k: int, value: int) -> bool:
@@ -158,6 +177,14 @@ def chains(texts: list) -> list[list[tuple[int, tuple[float, float], object]]]:
                                 for j in by_value.get(v + 2, []) if j not in held and j != k)]
                 if near and (not far or min(near)[0] * TURN_NEAR_RATIO < min(far)[0]):
                     nxt = min(near)[1]
+            if nxt is None and len(chain) == 1:
+                # the first number on the landing: the next one up to FIRST_STEP_M away, the chain leading on from it
+                land = [(math.dist(p, nums[k][1]), k) for k in by_value.get(v + 1, [])
+                        if k not in held and STEP_M[1] < math.dist(p, nums[k][1]) <= FIRST_STEP_M
+                        and any(STEP_M[0] <= math.dist(nums[k][1], nums[j][1]) <= TURN_JUMP_M and leads(j, v + 2)
+                                for j in by_value.get(v + 2, []) if j not in held and j != k)]
+                if land:
+                    nxt = min(land)[1]
             if nxt is None:
                 break
             chain.append(nxt)
