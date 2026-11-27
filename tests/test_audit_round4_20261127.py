@@ -53,10 +53,15 @@ def _plan_lines(prefix: str, x0: float, y0: float, n: int = 30) -> list[Ent]:
 def test_r06_habitable_attic_titles_are_levels_and_the_bare_roof_space_is_not():
     from wenart.sheets import levels as LV
     from wenart.sheets import titles as T
-    for title in ("Ç.A.P. PLANI", "ÇATI ARASI PİYESİ PLANI", "DUBLEKS ÜST KAT PLANI"):
+    for title in ("Ç.A.P. PLANI", "ÇATI ARASI PİYESİ PLANI"):
         assert T.class_of(title)[0] == "floor_plan", title
         lw = LV.level_of(title)
         assert lw is not None and lw.kind == "attic" and lw.order is None, title
+    # round 4b (defect 1): a duplex's upper floor is a storey, never an attic (its order: its number or the free place)
+    assert T.class_of("DUBLEKS ÜST KAT PLANI")[0] == "floor_plan"
+    assert LV.level_of("DUBLEKS ÜST KAT PLANI") is None
+    assert (LV.level_of("1. KAT (DUBLEKS ÜST KAT) PLANI").order, LV.level_of("1. KAT (DUBLEKS ÜST KAT) PLANI").kind) \
+        == (1, "floor")
     assert LV.level_of("(ÇATI ARASI PİYESİ)").kind == "attic"
     # the bare roof space of a section and a duplex floor titled by its elevation stay as they were
     assert LV.level_of("ÇATI ARASI") is None
@@ -286,8 +291,13 @@ def test_r24_the_formula_sets_the_riser_when_the_stair_draws_its_risers_and_find
     SF.attach([q], [SimpleNamespace(text="(15X20Rh=300/27)", box=(0.4, 0.9, 0.8, 1.0), evidence=[{}])], notes)
     found = SF.formula_findings(q.details["stair"])
     assert q.details["stair"]["riser_m"] is None
-    assert any("0.200 m" in f for f in found) and any("goings differ" in f for f in found)
+    # round 4b (defect 13, item 3): the written going '/27' wins over the measured spacing; the steep riser is the
+    # regulation's finding on common stairs (levels.model._stair_formulas), not this module's
+    assert not any("goings differ" in f for f in found) and not any("0.200 m" in f for f in found)
     assert any("draws 16 risers" in f for f in found)
+    w = _stair_piece([8, 8], [0.27, 0.34])
+    SF.attach([w], [SimpleNamespace(text="(16x18.75Rh=300)", box=(0.4, 0.9, 0.8, 1.0), evidence=[{}])], notes)
+    assert any("goings differ" in f for f in SF.formula_findings(w.details["stair"]))
 
 
 def test_r24_the_storey_check_and_a_full_storey_from_the_top_level():
@@ -358,7 +368,8 @@ def test_r07_a_roof_plan_gives_one_pitch_per_part_and_its_marks_the_ridge_in_the
                    [("+7.45", 10, 6), ("+0.50", 25, 6)])
     hip = EX.roof_from_roof_plan([r])
     assert hip is not None and abs(hip["pitch_deg"] - 16.7) < 0.05 and hip["slope_pct"] == 30.0
-    assert sorted(p["slope_pct"] for p in hip["slopes"]) == [30.0, 33.0]
+    # round 4b (item 4): one pitch per roof part is not built: no 'slopes' list, the other slope named in the note
+    assert "slopes" not in hip and "33 % x 1" in hip["note"] and "not built yet" in hip["note"]
     # real06's 'EĞİM%33' is still read
     assert EX.roof_from_roof_plan([_roof_plan([("EĞİM%33", 3, 6), ("EĞİM%33", 17, 6)], [])])["slope_pct"] == 33.0
     loop = {"points": [[0, 0], [20, 0], [20, 12], [0, 12]]}
@@ -386,7 +397,9 @@ def test_r07_a_full_storey_takes_eaves_on_its_ceiling_and_only_an_attic_the_knee
     assert abs(d["eaves_z"] - (3.0 + 2.7 + RF.FULL_STOREY_SLAB_M)) < 1e-6
     assert any(a["field"] == "eaves_height" and "full storey" in a["reason"] for a in d["assumed"])
     att = RF._derive(roof, _house("attic", "Çatı Katı"))
-    assert att["eaves_z"] < 4.0                                            # 3.0 + the 1.0 m knee wall - overhang
+    # round 4b (weak test): exactly the knee wall at the outer face less the overhang's rise at the default pitch
+    knee = 3.0 + RF.DEFAULTS["knee_wall"] - RF.DEFAULTS["overhang"] * math.tan(math.radians(RF.DEFAULTS["pitch_deg"]))
+    assert abs(att["eaves_z"] - knee) < 1e-6
     assert RF.attic_level({"id": "L4", "kind": "floor", "label": "Ç.A.P."})
 
 
@@ -421,10 +434,14 @@ def test_site_trees_never_stand_in_the_buildings_cover():
                                              "polygon": [(10, 0), (14, 0), (14, 4), (10, 4)]}]}}
     cover = S.building_cover(building, outline, {"L1": outline})
     assert len(cover) == 4                                                  # outline, L1, roof, the L1 terrace
-    trees = [{"id": "t1", "kind": "tree", "center": [-3.0, 2.0]}, {"id": "t2", "kind": "tree", "center": [12.0, 2.0]},
-             {"id": "t3", "kind": "tree", "center": [10.2, 8.2]}, {"id": "t4", "kind": "tree", "center": [-9.0, 9.0]}]
+    # round 4b (defect 14): inferred trees in the cover are dropped; a drawn tree there is kept and listed for review
+    trees = [{"id": "t1", "kind": "tree", "center": [-3.0, 2.0], "inferred": True},
+             {"id": "t2", "kind": "tree", "center": [12.0, 2.0], "inferred": True},
+             {"id": "t3", "kind": "tree", "center": [10.2, 8.2], "inferred": True},
+             {"id": "t4", "kind": "tree", "center": [-9.0, 9.0], "inferred": True},
+             {"id": "t5", "kind": "tree", "center": [5.0, 4.0]}]
     kept, dropped = S.trees_clear_of_cover(trees, cover)
-    assert [t["id"] for t in kept] == ["t2", "t4"]
+    assert [t["id"] for t in kept] == ["t2", "t4", "t5"] and "review" in kept[-1]
     assert [t["id"] for t in dropped] == ["t1", "t3"] and "dropped" in dropped[0]["dropped_reason"]
 
 

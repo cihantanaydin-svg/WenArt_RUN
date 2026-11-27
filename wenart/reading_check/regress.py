@@ -10,6 +10,14 @@ with its baseline:
 - within ``AREA_TOL``: the room area per level;
 - the check's critical findings never more, its stacking offsets never larger by ``STACK_TOL_M``.
 
+27 Nov 2026 (audit fix round 4b: a section read mirrored and a flat roof read as a gambrel passed the set unseen): every
+project also prints ``struct:`` lines (``structure`` / ``structure_lines``): each level's floor and ceiling height and
+their source, the section's cut axis and flip, the roof as read (type, pitch, ridge and eaves heights) and as the build
+derives it (eaves, ridge, pitch, ridge direction), and each stair's riser count and riser height as the build plans
+them. They are additive: the lines above them are unchanged, so two logs compare line by line (``regcmp``); a baseline
+written before them has no ``structure`` and is not compared on it; one written after (``--update``) is, as notes
+("struct changed"), never as a regression.
+
 A difference is printed per project and number; the command exits 1 when any project regressed. ``--update`` writes
 the new numbers as the baseline (after a change the user accepted: the set keeps improving, one project at a time);
 the user's acceptance fields of the old baseline (``ACCEPT_FIELDS``: ``accepted_by_user``, ``accepted_on``,
@@ -78,7 +86,145 @@ def numbers(out_dir: Path) -> dict:
             "levels": [lv["id"] for lv in b.get("levels") or []],
             "levels_left_out": sorted(str(lo.get("label")) for lo in b.get("levels_left_out") or []),
             "low_confidence": low,
-            "per_level": per, "check": {"verdict": res["verdict"], "counts": res["counts"], "stacking": stack}}
+            "per_level": per, "check": {"verdict": res["verdict"], "counts": res["counts"], "stacking": stack},
+            "structure": structure(out_dir, b)}
+
+
+def _r(v, nd: int = 2):
+    """A number rounded for the struct lines, or None."""
+    return round(float(v), nd) + 0.0 if isinstance(v, (int, float)) and not isinstance(v, bool) else None
+
+
+def _val(entry):
+    """``(value, method)`` of a building JSON value (a dict with value / method, or a bare number)."""
+    if isinstance(entry, dict):
+        return entry.get("value"), entry.get("method")
+    return entry, None
+
+
+def structure(out_dir: Path, b: dict) -> dict:
+    """27 Nov 2026 (audit fix round 4b): the structure numbers of a reading (the module docstring): ``levels`` (floor,
+    ceiling and their sources), ``section`` (cut axis, flip), ``roof`` (read and derived) and ``stairs`` (risers as the
+    build plans them). A part that cannot be computed says why (``error``), never silently."""
+    out: dict = {"levels": {}, "section": None, "roof": None, "stairs": {}}
+    for lv in b.get("levels") or []:
+        out["levels"][lv["id"]] = {"floor": _r(lv.get("elevation")), "floor_source": lv.get("elevation_source"),
+                                   "ceiling": _r(lv.get("ceiling_height")),
+                                   "ceiling_source": lv.get("ceiling_height_source")}
+    try:
+        sh = json.loads((Path(out_dir) / "sheets.json").read_text(encoding="utf-8"))
+        h = sh.get("heights") or {}
+        out["section"] = {"regions": list(h.get("section_regions") or []), "cut_axis": h.get("cut_axis"),
+                          "cut_at": _r(h.get("cut_at")), "flipped": h.get("flipped")}
+    except (OSError, ValueError) as exc:
+        out["section"] = {"error": f"{type(exc).__name__}: {exc}"[:160]}
+    roof = b.get("roof") if isinstance(b.get("roof"), dict) else None
+    if roof:
+        ridge, rm = _val(roof.get("ridge_height"))
+        eaves, em = _val(roof.get("eaves_height"))
+        pitches = [_r(_val(p)[0], 1) for p in roof.get("pitches_deg") or []]
+        rec = {"type": roof.get("type"), "type_source": roof.get("type_source"), "pitches": pitches,
+               "ridge": _r(ridge), "ridge_method": rm, "eaves": _r(eaves), "eaves_method": em,
+               "ridge_lines": len(roof.get("ridge_lines") or [])}
+        try:
+            from wenart.blender import roof as RF
+            d = RF.derive(roof, b)
+            rec["built"] = {"eaves": _r(d.get("eaves_z")), "ridge": _r(d.get("ridge_z")),
+                            "pitch": _r((d.get("pitches") or [None])[0], 1), "ridge_dir": _ridge_dir(d),
+                            "raise": _r(next((a["value"] for a in d.get("assumed") or []
+                                              if a.get("field") == "eaves_raise"), None))}
+        except Exception as exc:  # noqa: BLE001 - listed in the struct line, never silent
+            rec["built"] = {"error": f"{type(exc).__name__}: {exc}"[:160]}
+        out["roof"] = rec
+    try:
+        from wenart.blender import shell
+        for lv in b.get("levels") or []:
+            for item in shell.plan_stairs(b, lv):
+                plan, piece = item.get("plan"), item.get("piece") or {}
+                if piece.get("type") != "stair":
+                    continue
+                if plan is None:
+                    why = "arrives from below" if item.get("arrival") else str(item.get("reason") or "not built")
+                    out["stairs"][piece.get("id")] = {"level": lv["id"], "risers": None, "riser": None,
+                                                      "source": why[:40]}
+                    continue
+                out["stairs"][piece.get("id")] = {"level": lv["id"], "risers": plan.get("risers"),
+                                                  "riser": _r(plan.get("riser_m"), 3),
+                                                  "source": str(plan.get("riser_source") or "")[:40]}
+    except Exception as exc:  # noqa: BLE001 - listed in the struct line, never silent
+        out["stairs"] = {"error": f"{type(exc).__name__}: {exc}"[:160]}
+    return out
+
+
+def _ridge_dir(d: dict) -> Optional[str]:
+    """The direction of the derived roof's highest edge (pure): 'x', 'y', an angle in degrees, 'point' (a pyramid) or
+    None (a flat roof or no planes)."""
+    import math
+    top = d.get("ridge_z")
+    if not isinstance(top, (int, float)) or d.get("eaves_z") == top:
+        return None
+    pts = {(round(q[0], 2), round(q[1], 2)) for pl in d.get("planes") or [] for q in pl.get("points") or []
+           if len(q) >= 3 and abs(float(q[2]) - float(top)) <= 0.01}
+    if len(pts) < 2:
+        return "point" if pts else None
+    a, c = max(((p, q) for p in pts for q in pts), key=lambda pq: math.dist(*pq))
+    if math.dist(a, c) < 0.05:
+        return "point"
+    ang = math.degrees(math.atan2(c[1] - a[1], c[0] - a[0])) % 180.0
+    if min(ang, 180.0 - ang) <= 1.0:
+        return "x"
+    if abs(ang - 90.0) <= 1.0:
+        return "y"
+    return f"{ang:.0f} deg"
+
+
+def structure_lines(st: Optional[dict]) -> list[str]:
+    """The ``struct:`` lines of ``structure`` (pure; stable formatting, one fact per line)."""
+    if not isinstance(st, dict):
+        return []
+    f = (lambda v, fmt="{:+.2f}": "-" if v is None else fmt.format(v))
+    out = []
+    for lid, lv in (st.get("levels") or {}).items():
+        out.append(f"{lid} floor {f(lv.get('floor'))} ({lv.get('floor_source')}) ceiling "
+                   f"{f(lv.get('ceiling'), '{:.2f}')} ({lv.get('ceiling_source')})")
+    sec = st.get("section") or {}
+    if "error" in sec:
+        out.append(f"section: {sec['error']}")
+    else:
+        out.append(f"section {','.join(sec.get('regions') or []) or '-'}: cut axis {sec.get('cut_axis')} at "
+                   f"{f(sec.get('cut_at'), '{:.2f}')} flipped {sec.get('flipped')}")
+    roof = st.get("roof")
+    if roof:
+        out.append(f"roof read: {roof.get('type')} ({roof.get('type_source')}) pitch "
+                   f"{','.join(f(p, '{:.1f}') for p in roof.get('pitches') or []) or '-'} ridge "
+                   f"{f(roof.get('ridge'))} ({roof.get('ridge_method')}) eaves {f(roof.get('eaves'))} "
+                   f"({roof.get('eaves_method')}) ridge lines {roof.get('ridge_lines')}")
+        built = roof.get("built") or {}
+        if "error" in built:
+            out.append(f"roof built: {built['error']}")
+        else:
+            out.append(f"roof built: eaves {f(built.get('eaves'))} ridge {f(built.get('ridge'))} pitch "
+                       f"{f(built.get('pitch'), '{:.1f}')} ridge dir {built.get('ridge_dir')} raise "
+                       f"{f(built.get('raise'), '{:.2f}')}")
+    else:
+        out.append("roof: none")
+    stairs = st.get("stairs") or {}
+    if "error" in stairs:
+        out.append(f"stairs: {stairs['error']}")
+    else:
+        for sid, s_ in sorted(stairs.items(), key=lambda kv: str(kv[0])):
+            out.append(f"stair {sid} ({s_.get('level')}): {s_.get('risers')} risers x {f(s_.get('riser'), '{:.3f}')} m "
+                       f"({s_.get('source')})")
+    return out
+
+
+def structure_changes(base: dict, new: dict) -> list[str]:
+    """The struct lines that changed against a baseline that has them (pure; notes, never regressions)."""
+    if not isinstance(base.get("structure"), dict):
+        return []
+    old, cur = structure_lines(base["structure"]), structure_lines(new.get("structure"))
+    return [f"struct changed: {a} -> {c}" for a, c in zip(old, cur) if a != c] + \
+        [f"struct gone: {a}" for a in old[len(cur):]] + [f"struct new: {c}" for c in cur[len(old):]]
 
 
 def notes(base: dict, new: dict) -> list[str]:
@@ -212,6 +358,8 @@ def main(args) -> int:
             print(f"{p}: ok ({new['check']['verdict']}, {len(new['levels'])} levels"
                   + (f", {len(new.get('low_confidence') or {})} low confidence" if new.get("low_confidence") else "")
                   + ")")
-        for n in notes(base, new):
+        for n in notes(base, new) + structure_changes(base, new):
             print(f"  note: {n}")
+        for line in structure_lines(new.get("structure")):
+            print(f"  struct: {line}")
     return 1 if failed else 0

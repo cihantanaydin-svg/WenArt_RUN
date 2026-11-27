@@ -154,6 +154,7 @@ path starts at the foot of its flight (``space_paths``); an upper floor's door o
 from __future__ import annotations
 
 import math
+import re
 from typing import Optional, Sequence
 
 from wenart import geometry as G
@@ -2785,23 +2786,98 @@ def building_cover(building: dict, outline: Sequence, outlines: Optional[dict] =
     return out
 
 
-def trees_clear_of_cover(trees: Sequence[dict], cover: Sequence) -> tuple[list[dict], list[dict]]:
-    """27 Nov 2026 (audit fix round 4): ``(kept, dropped)`` of the site's trees: a tree whose trunk stands inside the
-    building's cover (``building_cover``: its footprint, a roof's outline, an upper terrace) is dropped, with the
-    reason (pure; a drawn tree there is a reading error, an inferred one a placement error)."""
+COURTYARD_RE = re.compile(r"(?<![a-z])(?:avlu|courtyard|ic\s*bahce|atrium|innenhof|patio|cour\s+interieure)")
+SKY_COVER_SHARE = 0.2           # a room of a level above covering this share of an open room roofs it over
+
+
+def open_to_sky(building: dict) -> list[list]:
+    """27 Nov 2026 (audit fix round 4b, defect 14: a drawn tree in an O-shaped house's courtyard was dropped as 'under
+    the building', the cover being the levels' outer outlines): the parts of the building's cover open to the sky, as
+    polygons (pure): the roof's openings (light wells, cut terraces, courtyards) and every open-air room
+    (``outdoor.is_open_air``: a patio, terrace, light well ..., or a room named a courtyard, ``COURTYARD_RE``) that no
+    room of a level above covers (``SKY_COVER_SHARE``), and the outdoor spaces of the ground level or below."""
+    from shapely.geometry import Polygon as _P
+    from wenart.blender import outdoor as OD
+    from wenart import building as BB
+
+    out = []
+    roof = building.get("roof") if isinstance(building.get("roof"), dict) else {}
+    for o in roof.get("openings") or []:
+        if isinstance(o, dict) and len(o.get("polygon") or []) >= 3:
+            out.append(geom2d.ccw([(float(q[0]), float(q[1])) for q in o["polygon"]]))
+    orders = {lv.get("id"): lv.get("order") for lv in building.get("levels") or [] if isinstance(lv, dict)}
+    sky = OD.sky_room_ids(building)
+    rooms = [r for r in building.get("rooms") or [] if isinstance(r, dict) and len(r.get("polygon") or []) >= 3]
+
+    def shp(poly):
+        try:
+            g = _P([(float(q[0]), float(q[1])) for q in poly])
+            return g if g.is_valid and g.area > 0 else g.buffer(0)
+        except (TypeError, ValueError):
+            return None
+    for r in rooms:
+        words = BB.fold_ascii(f"{r.get('room_type') or ''} {r.get('label') or ''} {r.get('name') or ''}").lower()
+        if not (OD.is_open_air(r, sky) or COURTYARD_RE.search(words)):
+            continue
+        k = orders.get(r.get("level_id"))
+        g = shp(r["polygon"])
+        if g is None or g.is_empty or not isinstance(k, (int, float)):
+            continue
+        covered = False
+        for q in rooms:
+            kq = orders.get(q.get("level_id"))
+            if q is r or not isinstance(kq, (int, float)) or kq <= k or OD.is_open_air(q, sky):
+                continue
+            gq = shp(q["polygon"])
+            if gq is not None and not gq.is_empty and g.intersection(gq).area >= SKY_COVER_SHARE * g.area:
+                covered = True
+                break
+        if not covered:
+            out.append(geom2d.ccw([(float(q[0]), float(q[1])) for q in r["polygon"]]))
+    above = sorted(o for o in orders.values() if isinstance(o, (int, float)) and o >= 0)
+    ground = above[0] if above else 0
+    for sp in (building.get("site") or {}).get("outdoor_spaces") or []:
+        if not isinstance(sp, dict) or len(sp.get("polygon") or []) < 3:
+            continue
+        o = orders.get(sp.get("level_id"))
+        if not isinstance(o, (int, float)) or o <= ground:
+            out.append(geom2d.ccw([(float(q[0]), float(q[1])) for q in sp["polygon"]]))
+    return out
+
+
+def trees_clear_of_cover(trees: Sequence[dict], cover: Sequence, open_sky: Sequence = ()) -> tuple[list[dict], list[dict]]:
+    """27 Nov 2026 (audit fix round 4): ``(kept, dropped)`` of the site's trees: an inferred tree whose trunk stands
+    inside the building's cover (``building_cover``: its footprint, a roof's outline, an upper terrace) is dropped,
+    with the reason (pure; a placement error). 27 Nov 2026 (audit fix round 4b, defect 14): a point open to the sky
+    (``open_to_sky``: a courtyard, a light well, a cut terrace) is not covered; a DRAWN tree is never dropped: one in
+    the cover is kept as drawn with ``review`` (the reason; the drawing and the building disagree, listed)."""
     kept, dropped = [], []
     for t in trees:
         c = t.get("center") if isinstance(t, dict) else None
         hit = None
         if c and len(c) >= 2:
-            hit = next((k for k, poly in enumerate(cover) if G.point_in_polygon((float(c[0]), float(c[1])), poly)), None)
+            pt = (float(c[0]), float(c[1]))
+            hit = next((k for k, poly in enumerate(cover) if G.point_in_polygon(pt, poly)), None)
+            if hit is not None and any(G.point_in_polygon(pt, h) for h in open_sky or ()):
+                hit = None
         if hit is None:
             kept.append(t)
             continue
-        dropped.append(dict(t, dropped_reason=f"tree {t.get('id')} at ({float(c[0]):.2f}, {float(c[1]):.2f}) stands "
-                                              f"inside the building's cover (its footprint, a roof's outline or an "
-                                              f"upper terrace): no site tree stands under the building (dropped)"))
+        where = (f"tree {t.get('id')} at ({float(c[0]):.2f}, {float(c[1]):.2f}) stands inside the building's cover (its "
+                 f"footprint, a roof's outline or an upper terrace)")
+        if tree_drawn(t):
+            kept.append(dict(t, review=f"{where}: a drawn tree, kept as drawn and listed for review (the drawing and "
+                                       f"the building disagree: a courtyard or an open room not read, or a misread "
+                                       f"symbol)"))
+            continue
+        dropped.append(dict(t, dropped_reason=f"{where}: no inferred site tree stands under the building (dropped)"))
     return kept, dropped
+
+
+def tree_drawn(t: dict) -> bool:
+    """A site tree read from the drawings (not one the site inferred; pure)."""
+    return not (t.get("inferred") is True or str(t.get("source") or "") in ("inferred", "assumed")
+                or t.get("placement") is not None)
 
 
 def place_trees(plot: Sequence, outline: Sequence, paths: Sequence[dict], windows: Sequence[dict], main: dict,
@@ -7329,11 +7405,15 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
     if trees:
         # 27 Nov 2026 (audit fix round 4): no site tree stands inside the building's cover (its footprint, a roof's
         # outline, an upper terrace), drawn or inferred; each dropped tree is listed
-        trees, gone = trees_clear_of_cover(trees, building_cover(building, outline, outlines))
+        trees, gone = trees_clear_of_cover(trees, building_cover(building, outline, outlines),
+                                           open_to_sky(building))
         for t in gone:
             not_built.append({"id": t.get("id"), "kind": "tree", "reason": t["dropped_reason"]})
             assumed.append({"field": f"tree:{t.get('id')}", "value": None, "reason": t["dropped_reason"]})
             warnings.append(t["dropped_reason"])
+        for t in trees:
+            if t.get("review"):
+                warnings.append(t["review"])
     if mode == "full":
         if hedges:                                   # fix round after P3: every hull on its planting side
             hedges, fit_assumed = fit_hedges(hedges, pfs, [geom2d.ccw(outline)] + copy_holes)

@@ -258,21 +258,28 @@ def read_section(region, mpu: Optional[float]) -> SectionGeometry:
         else:
             i += 1
 
-    # Roof: the upper envelope of the long sloped lines above the top band.
-    top = g.bands[-1][1] if g.bands else box[1]
-    roof_min = _metres(ROOF_MIN_M, mpu, 0.05, width)
-    roof = [ln for ln in slope if ln.length >= roof_min and min(ln.a[1], ln.b[1]) >= top - 1e-6]
-    g.roof_lines = len(roof)
-    if roof:
-        g.profile, g.profile_ids, outer = _envelope(roof, _metres(PROFILE_TOL_M, mpu, 0.001, width))
-        g.underside = [ln for ln in roof if ln.key not in outer]
-
     # Level marks (Milestone 12: every form of wenart.levels.marks; the record keeps relative / absolute apart).
     segs = UC.segments(region.strokes())
     for t, rec in UC.mark_records(region.texts):
         mp = UC.mark_point(t, segs)
         if mp is not None:
             g.marks.append((t, rec["value"], (mp[0], mp[1]), mp[2], rec))
+
+    # Roof: the upper envelope of the long sloped lines above the top band.
+    # 27 Nov 2026 (audit fix round 4b, defect 6: real13's section, its frame left out, had no slab bands, and every
+    # sloped line of the region, stair flights, a lift's arched top and a terrace plan, became a 24-point 'gambrel'
+    # profile of a flat roof): with no slab band a roof line stands above the highest storey mark the section prints
+    # (``top_storey_mark_y``: a value printed in two columns, both sides of the cut); with none, every sloped line
+    # counts, as before. Outer walls with nothing read over them give a flat roof (``exterior.roof_from_section``)
+    top = g.bands[-1][1] if g.bands else top_storey_mark_y(g.marks)
+    if top is None:
+        top = box[1]
+    roof_min = _metres(ROOF_MIN_M, mpu, 0.05, width)
+    roof = [ln for ln in slope if ln.length >= roof_min and min(ln.a[1], ln.b[1]) >= top - 1e-6]
+    g.roof_lines = len(roof)
+    if roof:
+        g.profile, g.profile_ids, outer = _envelope(roof, _metres(PROFILE_TOL_M, mpu, 0.001, width))
+        g.underside = [ln for ln in roof if ln.key not in outer]
 
     # Ground lines: horizontal lines outside the walls that reach within 1 m of them; a level mark's own line (a line
     # that starts at the mark's apex and runs to the wall) is no ground line; a mark standing on a ground line is.
@@ -310,6 +317,27 @@ def read_section(region, mpu: Optional[float]) -> SectionGeometry:
         elif lx1 > x1 + 1e-6 and x1 - overhang <= lx0 < x1 and _on_face(lx0, ln.a[1]):
             g.ground.append(("right", ln.a[1], ln.id))
     return g
+
+
+STOREY_MARK_COLUMNS = 2               # 27 Nov 2026 (round 4b): a storey mark is printed in this many columns or more
+
+
+def top_storey_mark_y(marks: list) -> Optional[float]:
+    """27 Nov 2026 (audit fix round 4b, defect 6): the drawing y of the highest level mark a section prints in at least
+    ``STOREY_MARK_COLUMNS`` columns (its x positions more than three text heights apart: the storey marks on both sides
+    of the cut, not a ridge or chimney mark printed once), or None (pure)."""
+    by: dict = {}
+    for t, value, (x, y), *_rest in marks:
+        by.setdefault(round(float(value), 2), []).append((x, y, max(float(getattr(t, "height", 0.0) or 0.0), 1e-9)))
+    best = None
+    for v, pts in by.items():
+        cols: list = []
+        for x, _y, h in sorted(pts):
+            if not cols or x - cols[-1] > 3.0 * h:
+                cols.append(x)
+        if len(cols) >= STOREY_MARK_COLUMNS and (best is None or v > best[0]):
+            best = (v, max(y for _x, y, _h in pts))
+    return best[1] if best else None
 
 
 def _envelope(lines: list[Line], tol: float) -> tuple[list[tuple[float, float]], list[str], set]:
@@ -581,6 +609,7 @@ def heights(section: Optional[SectionGeometry], levels: list[dict], reference_ex
 
     # Cut axis.
     width_m = section.width * s
+    out["section_width_m"] = round(width_m, 3) + 0.0      # 27 Nov 2026 (round 4b): for the ridge's place (exterior)
     if reference_extent is not None:
         # One (width, height) or several: the outline's box and the extent most of the outline reaches.
         extents = [reference_extent] if isinstance(reference_extent[0], (int, float)) else list(reference_extent)
@@ -1044,33 +1073,100 @@ PLAN_MARK_TOL_M = 0.02                 # a plan's floor mark printed on the sect
 CEILING_SLAB_M = (0.12, 0.50)          # a section mark this far under the next storey's floor is the ceiling under it
 
 
+def marks_in_datum_frame(out: dict, section) -> list[float]:
+    """27 Nov 2026 (audit fix round 4b, defect 4): the building z of every level mark of ``section`` in the datum's own
+    frame (pure): with a relative datum (``datum.relative``) the relative marks less it, with an absolute datum (no
+    ``relative``) the absolute marks less its value; [] without a datum (the marks have no z 0)."""
+    datum = out.get("datum") if isinstance(out.get("datum"), dict) else None
+    if datum is None or section is None:
+        return []
+    recs = [m[4] for m in (getattr(section, "marks", None) or []) if len(m) > 4 and isinstance(m[4], dict)]
+    if datum.get("relative") is not None:
+        return [float(r["value"]) - float(datum["relative"]) for r in recs if r.get("relative")]
+    if datum.get("value") is None:
+        return []
+    out_z = []
+    for r in recs:
+        if r.get("relative"):
+            continue
+        v = r.get("absolute") if r.get("absolute") is not None else r.get("value")
+        if isinstance(v, (int, float)):
+            out_z.append(float(v) - float(datum["value"]))
+    return out_z
+
+
+def tall_storeys(out: dict, levels: list[dict], section) -> list[tuple[str, float]]:
+    """27 Nov 2026 (audit fix round 4b, defect 4): ``[(level id, floor to floor)]`` of the storeys whose drawn (vector)
+    floor-to-floor step is over ``HOUSE_STOREY_MAX_M`` in a building of at most ``HOUSE_STOREYS_MAX`` storeys at and
+    above the ground while no level mark of the section, read in the datum's own frame (``marks_in_datum_frame``),
+    stands at the floor above (pure)."""
+    above = sum(1 for lv in levels if (lv.get("order") or 0) >= 0)
+    if above > HOUSE_STOREYS_MAX:
+        return []
+    zs = marks_in_datum_frame(out, section)
+    found = []
+    for e in out.get("levels") or []:
+        ftf = e.get("floor_to_floor") or {}
+        fz = e.get("floor_z") or {}
+        if ftf.get("method") != "vector" or ftf.get("value") is None or float(ftf["value"]) <= HOUSE_STOREY_MAX_M:
+            continue
+        upper = float(fz.get("value") or 0.0) + float(ftf["value"])
+        if not any(abs(z - upper) <= MARK_TOL_M for z in zs):
+            found.append((e["level_id"], float(ftf["value"])))
+    return found
+
+
 def marks_first_reasons(out: dict, levels: list[dict], section, bands_mismatch: bool) -> list[str]:
     """27 Nov 2026 (audit fix round 4, R06): why a section's slab bands must not set the storeys before its level
     marks (pure): the heights are no storeys (``implausible``), its bands do not match the plans' levels, or a
     floor-to-floor step of the bands is over ``HOUSE_STOREY_MAX_M`` in a building of at most ``HOUSE_STOREYS_MAX``
-    storeys at and above the ground while no level mark of the section stands at the upper floor."""
+    storeys at and above the ground while no level mark of the section stands at the upper floor (``tall_storeys``;
+    27 Nov 2026, round 4b: the marks read in the datum's own frame, relative or absolute)."""
     why = []
     bad = implausible(out, levels)
     if bad:
         why.append(f"the slab bands give no storeys ({bad})")
     if bands_mismatch:
         why.append("the slab bands do not match the plans' levels")
-    above = sum(1 for lv in levels if (lv.get("order") or 0) >= 0)
-    if above <= HOUSE_STOREYS_MAX:
-        rel = [float(m[4]["value"]) for m in (getattr(section, "marks", None) or [])
-               if len(m) > 4 and m[4].get("relative")] if section is not None else []
-        datum = (out.get("datum") or {}).get("relative")
-        for e in out.get("levels") or []:
-            ftf = e.get("floor_to_floor") or {}
-            fz = e.get("floor_z") or {}
-            if ftf.get("method") != "vector" or ftf.get("value") is None or float(ftf["value"]) <= HOUSE_STOREY_MAX_M:
-                continue
-            upper = float(fz.get("value") or 0.0) + float(ftf["value"])
-            confirmed = datum is not None and any(abs((v - float(datum)) - upper) <= MARK_TOL_M for v in rel)
-            if not confirmed:
-                why.append(f"{e['level_id']} floor to floor {float(ftf['value']):.2f} m (over "
-                           f"{HOUSE_STOREY_MAX_M:.1f} m, no level mark at the floor above)")
+    for lid, ftf in tall_storeys(out, levels, section):
+        why.append(f"{lid} floor to floor {ftf:.2f} m (over {HOUSE_STOREY_MAX_M:.1f} m, no level mark at the floor "
+                   f"above)")
     return why
+
+
+def refuse_storeys(out: dict, levels: list[dict], refused: list[str], ceiling: float, slab: float,
+                   why: str) -> list[str]:
+    """27 Nov 2026 (audit fix round 4b, defect 4: one 5.60 m top storey no mark confirmed made every level's drawn
+    heights assumed): only the storeys that fail and the storeys above them (their floors stand on the refused height)
+    take assumed heights, in place: the lowest refused storey keeps its floor (the storey under it is drawn) and takes
+    the assumed ceiling and floor to floor; every storey above is stacked on it at ``FLOOR_TO_FLOOR_M`` a storey; the
+    storeys below keep their drawn heights. Returns the ids of the storeys made assumed."""
+    order = {lv["id"]: lv.get("order") or 0 for lv in levels}
+    ks = [order[lid] for lid in refused if lid in order]
+    if not ks:
+        return []
+    k0 = min(ks)
+    by_id = {e["level_id"]: e for e in out.get("levels") or []}
+    first = by_id.get(next((lid for lid, o in order.items() if o == k0), None))
+    z0 = float(((first or {}).get("floor_z") or {}).get("value") or k0 * FLOOR_TO_FLOOR_M)
+    done = []
+    for lv in sorted(levels, key=lambda x: x.get("order") or 0):
+        o = lv.get("order") or 0
+        e = by_id.get(lv["id"])
+        if o < k0 or e is None:
+            continue
+        if o > k0:
+            z = round(z0 + (o - k0) * FLOOR_TO_FLOOR_M, 3)
+            e["floor_z"] = assumed(z, f"{why}: stacked on {first['level_id'] if first else 'the storey below'} at "
+                                      f"{FLOOR_TO_FLOOR_M:.2f} m a storey")
+            for sl in out.get("slabs") or []:
+                if (sl.get("between") or [None, None])[-1] == lv["id"]:
+                    sl["z_top"] = assumed(z, f"{why}: the level's floor")
+        e["ceiling_height"] = assumed(ceiling, f"{why}: brief ceiling_height")
+        e["floor_to_floor"] = assumed(FLOOR_TO_FLOOR_M, f"{why}: {FLOOR_TO_FLOOR_M:.2f} m (above the ceiling and slab: "
+                                                        f"an assumed plenum)")
+        done.append(lv["id"])
+    return done
 
 
 def plan_marks_on_section(section, plan_marks: dict) -> dict:

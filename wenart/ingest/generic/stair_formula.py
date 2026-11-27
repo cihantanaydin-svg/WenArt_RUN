@@ -12,6 +12,14 @@ instead of the drawn 19 x 0.1736 m.
 How: pure text parsing, defensively: N 2-40, R 0.10-0.25 m (written in cm when over 1, in m under 1), G 0.18-0.45 m
 (cm when over 1), H in cm when over 20; when H is written N x R must give it within ``SELF_TOL`` (else the text is
 no formula). The caller checks N x R against the storey height (``storey_ok``, ``STOREY_TOL``).
+
+27 Nov 2026 (audit fix round 4b, defect 10: '20x20 SERAMİK', '15X15', 'S1 25x25', 'ŞAFT 20x20', '10x10' and '2x0.15'
+parsed as formulas, and a '15X15' label 1.5 m from a stair's '1' cut its 18-step chain to 15): ``FORMULA_RE`` still
+finds the 'N x R' shape, but ``parse`` takes it for a formula only with a formula's context (``formula_context``): a
+written H that N x R gives ('Rh=330', '= 3.30'), or a written going in the going range ('/27'), or brackets round it
+with N x R a storey's rise (``BRACKET_RISE_M``) and N not R's own number (a square size '(20x20)' is a size); never
+with a size, material or element word (``SIZE_WORD_RE``: SERAMİK, ŞAFT, KOLON, DİKME, KÜPEŞTE, PARÇA, cm, a column
+label 'S1' ...). ``is_formula(text)`` says the same as ``parse(text) is not None`` (the size-tag parsers use it).
 """
 from __future__ import annotations
 
@@ -44,10 +52,34 @@ def _metres(v: Optional[float], cm_over: float) -> Optional[float]:
     return v / 100.0 if v > cm_over else v
 
 
+BRACKET_RISE_M = (2.0, 6.0)      # a bracketed 'N x R' with no H and no going is a formula only for a storey's rise
+# a size, material or element word: the 'N x R' beside it is a size (tiles, shafts, columns, posts, rails, profiles)
+SIZE_WORD_RE = re.compile(r"\b(?:SERAMIK|FAYANS|MERMER|GRANIT|PARKE|KARO|TAS|SAFT|BACA|KOLON|SUTUN|DIKME|KUPESTE|"
+                          r"PARCA(?:SI)?|PROFIL|KUTU|LAMA|BORU|KIRIS|HATIL|PERDE|DOSEME|PANO|AYDINLIK|MENFEZ|IZGARA|"
+                          r"LAMBA|SPOT|ASPIRATOR|TILE|SHAFT|COLUMN|POST|BEAM|PIPE|DUCT)\b"
+                          r"|(?<![A-Z0-9])[SK]\s*\d{1,3}\b")
+
+
+def formula_context(folded: str, m, n: int, r: float, h: Optional[float], g: Optional[float]) -> bool:
+    """Whether an 'N x R' match ``m`` of the folded text ``folded`` stands in a stair formula's context (pure): a written
+    H that N x R gives, a written going in ``GOING_M``, or brackets round it with N x R in ``BRACKET_RISE_M`` and N not
+    R's own number in cm; never beside a size or material word (``SIZE_WORD_RE``)."""
+    rest = (folded[:m.start()] + " " + folded[m.end():])
+    if SIZE_WORD_RE.search(rest):
+        return False
+    if h is not None or g is not None:
+        return True
+    before, after = folded[:m.start()].rstrip(), folded[m.end():].lstrip()
+    bracketed = before.endswith("(") and after.startswith(")")
+    square = abs(n - r * 100.0) < 0.5
+    return bracketed and BRACKET_RISE_M[0] <= n * r <= BRACKET_RISE_M[1] and not square
+
+
 def parse(text: str) -> Optional[dict]:
     """``{"risers", "riser_m", "rise_m", "going_m", "text"}`` of a stair formula text, or None (pure). A text holding
-    no 'x' between two numbers, a riser outside ``RISER_M``, a count outside ``RISERS`` or an H that N x R does not give
-    is no formula. ``rise_m`` is the H written (None when not written)."""
+    no 'x' between two numbers, a riser outside ``RISER_M``, a count outside ``RISERS``, an H that N x R does not give
+    or no formula context (``formula_context``: '20x20 SERAMİK', '15X15', '2x0.15' are sizes) is no formula.
+    ``rise_m`` is the H written (None when not written)."""
     folded = B.fold_ascii(str(text or "")).upper()
     m = FORMULA_RE.search(folded)
     if not m:
@@ -62,8 +94,15 @@ def parse(text: str) -> Optional[dict]:
         g = None
     if h is not None and abs(n * r - h) > SELF_TOL * h:
         return None
+    if not formula_context(folded, m, n, r, h, g):
+        return None
     return {"risers": n, "riser_m": round(r, 4), "rise_m": round(h, 3) if h is not None else None,
             "going_m": round(g, 3) if g is not None else None, "text": str(text).strip()}
+
+
+def is_formula(text: str) -> bool:
+    """True when ``text`` is a stair formula (``parse``; pure)."""
+    return parse(text) is not None
 
 
 def storey_ok(formula: dict, storey_m: Optional[float]) -> Optional[bool]:
@@ -89,8 +128,11 @@ def near(texts: list, points: list, reach: float) -> Optional[tuple[dict, object
 
 
 FORMULA_REACH_M = 1.0            # a formula text stands inside the stair's footprint or this close to it
-COMMON_RISER_MAX_M = 0.18        # R24: a common stair's riser over this is a finding
-GOING_SPREAD_M = 0.05            # ... and flights whose goings differ by more than this
+# 27 Nov 2026 (audit fix round 4b, item 3): a common stair's steep riser is checked against the regulation's limits
+# (``wenart.reading_check.regulations.riser_limit``: 0.18 m with a lift, 0.16 m without), on common stairs only, by
+# ``wenart.levels.model._stair_formulas``; this module holds no riser limit of its own
+GOING_SPREAD_M = 0.05            # flights whose goings differ by more than this (no going written)
+GOING_MIN_LINES = 3              # ... counted on flights of at least this many tread lines (a landing's lines are none)
 
 
 def _footprint(piece):
@@ -115,11 +157,12 @@ def drawn_risers(data: dict) -> int:
 
 
 def goings(data: dict) -> list:
-    """The goings of a stair's straight flights (their tread spacing, page metres; pure)."""
+    """The goings of a stair's straight flights of at least ``GOING_MIN_LINES`` tread lines (their tread spacing, page
+    metres; pure)."""
     out = []
     for f in data.get("flights") or []:
         g = f.get("spacing") if isinstance(f, dict) else None
-        if isinstance(g, (int, float)) and g > 0:
+        if isinstance(g, (int, float)) and g > 0 and int(f.get("lines") or 0) >= GOING_MIN_LINES:
             out.append(float(g))
     return out
 
@@ -128,7 +171,7 @@ def attach(pieces: list, texts: list, notes: list) -> int:
     """Every stair piece that holds or touches a stair formula text (``FORMULA_REACH_M``) takes it, in place:
     ``details["stair"]["formula"]`` (risers, riser, rise, going, text, entity); when the stair's drawn risers are the
     formula's N, its riser height is the formula's R (``riser_m``, ``riser_source`` 'documented: ...'), else the treads
-    are kept and the difference noted. Risers over ``COMMON_RISER_MAX_M`` and flights whose goings differ by more than
+    are kept and the difference noted. Flights whose goings differ by more than
     ``GOING_SPREAD_M`` are noted as findings (``formula_findings``). Returns the stairs that took a formula."""
     from shapely.geometry import Point
     n = 0
@@ -175,15 +218,16 @@ def attach(pieces: list, texts: list, notes: list) -> int:
 
 
 def formula_findings(data: dict) -> list[str]:
-    """R24 findings of a stair reading with its formula (pure): a common stair's riser over ``COMMON_RISER_MAX_M``,
-    flights whose goings differ by more than ``GOING_SPREAD_M``, and drawn risers that are not the formula's count."""
+    """R24 findings of a stair reading with its formula (pure): flights whose goings differ by more than
+    ``GOING_SPREAD_M`` when the formula writes no going, and drawn risers that are not the formula's count.
+    27 Nov 2026 (audit fix round 4b, defect 13: real17's stairs, every one written '/27', had five 'goings differ'
+    findings from the reader's number spacing, 0.241 / 0.404 / 0.304): a written going wins over the measured spacing
+    (no goings finding); the steep-riser finding is the regulation's, on common stairs only
+    (``wenart.levels.model._stair_formulas``)."""
     out = []
     f = data.get("formula") or {}
-    riser = f.get("riser_m") or data.get("riser_m")
-    if isinstance(riser, (int, float)) and riser > COMMON_RISER_MAX_M:
-        out.append(f"risers of {float(riser):.3f} m over {COMMON_RISER_MAX_M:.2f} m (a steep stair)")
     gs = goings(data)
-    if len(gs) >= 2 and max(gs) - min(gs) > GOING_SPREAD_M:
+    if not f.get("going_m") and len(gs) >= 2 and max(gs) - min(gs) > GOING_SPREAD_M:
         out.append(f"the flights' goings differ by {max(gs) - min(gs):.3f} m ({', '.join(f'{g:.3f}' for g in gs)})")
     if f and f.get("drawn_risers") is not None and int(f["drawn_risers"]) != int(f.get("risers") or 0):
         out.append(f"the stair draws {f['drawn_risers']} risers, its formula '{f.get('text')}' {f.get('risers')}")

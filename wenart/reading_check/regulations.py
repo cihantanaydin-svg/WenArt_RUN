@@ -89,6 +89,7 @@ SEVERITY = "minor"            # advisory until measured on the projects (21 Nov 
 TOL_M = 0.05                  # the reading's own error on a width or a narrow side
 TOL_AREA = 0.03               # ... and on an area (a share of the limit)
 TOL_STEP_M = 0.01             # ... on a tread or on 2r + g
+RISER_TOL_M = 0.005           # ... and on a riser (27 Nov 2026: shared with the stair formula check of the reading)
 CIRCLE_TOL_M = 0.01           # the precision of the largest inscribed circle
 HABITABLE = ("living", "bedroom", "kitchen")
 CORE = ("stair", "lift", "shaft", "fire_lobby", "light_well", "technical")
@@ -627,7 +628,7 @@ def stair_steps(ctx: Context) -> list:
     lim_id = "paiy31_steps"
     lim = ctx.limits[lim_id]
     gmin = float(lim["min_tread_m"])
-    rmax = float(lim["max_riser_with_lift_m"] if ctx.lift else lim["max_riser_no_lift_m"])
+    rmax = riser_limit(ctx.limits, ctx.lift)
     lo, hi = (float(x) for x in lim["two_r_plus_g_m"])
     out = []
     for lv, f in _storey_stairs(ctx):
@@ -646,7 +647,7 @@ def stair_steps(ctx: Context) -> list:
         h, n = _ftf(lv), st.get("steps_drawn")
         if h and isinstance(n, int) and n >= 8:
             r_hi, r_lo = h / n, h / (n + 1)
-            if r_lo > rmax + 0.005:
+            if r_lo > rmax + RISER_TOL_M:
                 probs.append(f"riser {r_lo:.3f}-{r_hi:.3f} m (max {rmax:.2f}{'' if ctx.lift else ', no lift'})")
             s_lo, s_hi = 2 * r_lo + g, 2 * r_hi + g
             if s_hi < lo - TOL_STEP_M or s_lo > hi + TOL_STEP_M:
@@ -655,6 +656,26 @@ def stair_steps(ctx: Context) -> list:
             out.append(_finding("stair_steps", lim_id, lim, lv["id"], f"common stair {f['id']}: {'; '.join(probs)}",
                                 c, [f["id"]], tread_m=round(g, 3)))
     return out
+
+
+def riser_limit(limits: dict, lift: bool) -> float:
+    """PAİY 31 (``paiy31_steps``): a common stair's highest riser, 0.18 m in a building with a lift, 0.16 m without
+    (pure; the one source of this limit, 27 Nov 2026)."""
+    lim = limits["paiy31_steps"]
+    return float(lim["max_riser_with_lift_m"] if lift else lim["max_riser_no_lift_m"])
+
+
+def steep_common_riser(ctx: "Context", level_id: str, piece: dict, riser: float) -> Optional[str]:
+    """27 Nov 2026 (audit fix round 4b, item 3): the finding of a common stair (``Context.common_stair``) of a
+    residential building whose riser (its formula's) is over ``riser_limit`` (``RISER_TOL_M`` of slack), else None
+    (pure). A stair inside one dwelling is never judged (``in_unit_stair_steps``)."""
+    if not ctx.residential or not ctx.common_stair(level_id, piece):
+        return None
+    rmax = riser_limit(ctx.limits, ctx.lift)
+    if riser <= rmax + RISER_TOL_M:
+        return None
+    return (f"risers of {riser:.3f} m over {rmax:.2f} m ({cite(ctx.limits['paiy31_steps'])}: a common stair"
+            f"{'' if ctx.lift else ' of a building with no lift'})")
 
 
 # ------------------------------------------------------------------------------------------- 6. lift

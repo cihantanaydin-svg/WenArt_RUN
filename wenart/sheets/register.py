@@ -246,33 +246,60 @@ def _triangles_near(p, segs: list, closed: list, reach: float, side: tuple) -> l
     return out
 
 
+CUT_MARK_BASE_DEG = 20.0         # 27 Nov 2026 (round 4b): a mark's side within this of the cut line is its base ...
+CUT_MARK_BASE_GAP_DEG = 15.0     # ... when the next side lies at least this much more across it (not an arrow along it)
+CUT_MARK_ACROSS_SHARE = 0.5      # an arrowhead says the way only when it points at least this much across the line
+
+
 def _arrow_dir(tri: list, line_p, line_u) -> Optional[tuple]:
-    """The way a triangle points across a cut line through ``line_p`` along ``line_u`` (pure): from its base to the
-    corner opposite its shortest side when that side is clearly the shortest (an arrowhead), else from the line to its
-    centroid; a unit vector across the line, None when it lies on the line."""
-    sides = [(math.dist(tri[(k + 1) % 3], tri[(k + 2) % 3]), k) for k in range(3)]
-    sides.sort()
-    nx, ny = -line_u[1], line_u[0]
-    if sides[0][0] < 0.9 * sides[1][0]:
-        k = sides[0][1]
-        base = ((tri[(k + 1) % 3][0] + tri[(k + 2) % 3][0]) / 2.0, (tri[(k + 1) % 3][1] + tri[(k + 2) % 3][1]) / 2.0)
-        d = (tri[k][0] - base[0]) * nx + (tri[k][1] - base[1]) * ny
+    """The way a triangle points across a cut line along ``line_u`` (pure; ``line_p`` is kept for the callers).
+    27 Nov 2026 (audit fix round 4b, defect 2: the centroid was measured against the line through the two LETTERS, so the
+    same mark read the other way when its letter stood above the triangle; real09's section was read mirrored): the side
+    that lies along the cut line (within ``CUT_MARK_BASE_DEG``, the next side ``CUT_MARK_BASE_GAP_DEG`` more across) is
+    the base and the corner opposite it gives the way (a flag standing on the cut line, an equilateral or a wide
+    triangle, a narrow arrowhead across the line); else an arrowhead points from its clearly shortest side to its apex,
+    when that points across the line (``CUT_MARK_ACROSS_SHARE``; an arrow along the line says nothing). None when the
+    triangle says nothing."""
+    ux, uy = line_u
+    nx, ny = -uy, ux
+    sides = []
+    for k in range(3):
+        a, b = tri[(k + 1) % 3], tri[(k + 2) % 3]
+        n = math.dist(a, b)
+        if n > 1e-12:
+            cos = min(1.0, abs((b[0] - a[0]) * ux + (b[1] - a[1]) * uy) / n)
+            sides.append((math.degrees(math.acos(cos)), n, k))
+    if len(sides) < 3:
+        return None
+    by_angle = sorted(sides)
+    if by_angle[0][0] <= CUT_MARK_BASE_DEG and by_angle[1][0] - by_angle[0][0] >= CUT_MARK_BASE_GAP_DEG:
+        k = by_angle[0][2]
     else:
-        c = (sum(q[0] for q in tri) / 3.0, sum(q[1] for q in tri) / 3.0)
-        d = (c[0] - line_p[0]) * nx + (c[1] - line_p[1]) * ny
-    if abs(d) <= 1e-9:
+        short = sorted(sides, key=lambda x: x[1])
+        if short[0][1] >= 0.9 * short[1][1]:
+            return None
+        k = short[0][2]
+    base = ((tri[(k + 1) % 3][0] + tri[(k + 2) % 3][0]) / 2.0, (tri[(k + 1) % 3][1] + tri[(k + 2) % 3][1]) / 2.0)
+    vx, vy = tri[k][0] - base[0], tri[k][1] - base[1]
+    d = vx * nx + vy * ny
+    if abs(d) <= 1e-9 or abs(d) < CUT_MARK_ACROSS_SHARE * math.hypot(vx, vy):
         return None
     return (nx, ny) if d > 0 else (-nx, -ny)
 
 
 def _in_bubble(p, closed: list, mpu: float) -> bool:
-    """A text inside a closed round stroke of an axis bubble's size (``GRID_BUBBLE_M``): a grid label (pure)."""
+    """A text inside a closed stroke of an axis bubble's size (``GRID_BUBBLE_M``) whose box is about square: a grid
+    label (pure). 27 Nov 2026 (audit fix round 4b): a circle, but also a hexagon or a square (grid bubbles drawn as
+    polygons slipped past the old round-only check); a triangle (a section mark's own) is never a bubble."""
     for st in closed:
-        if len(st.pts) < 8:
+        pts = list(st.pts)
+        if len(pts) >= 2 and math.dist(pts[0], pts[-1]) <= 1e-9:
+            pts = pts[:-1]
+        if len(pts) < 4:
             continue
-        xs, ys = [q[0] for q in st.pts], [q[1] for q in st.pts]
+        xs, ys = [q[0] for q in pts], [q[1] for q in pts]
         w, h = (max(xs) - min(xs)) * mpu, (max(ys) - min(ys)) * mpu
-        if GRID_BUBBLE_M[0] <= w <= GRID_BUBBLE_M[1] and abs(w - h) <= 0.1 * w \
+        if GRID_BUBBLE_M[0] <= w <= GRID_BUBBLE_M[1] and abs(w - h) <= 0.15 * max(w, h) \
                 and min(xs) <= p[0] <= max(xs) and min(ys) <= p[1] <= max(ys):
             return True
     return False

@@ -100,11 +100,13 @@ def chains(texts: list) -> list[list[tuple[int, tuple[float, float], object]]]:
         near = [(math.dist(p0, q), n) for n, q in forms if math.dist(p0, q) <= FORMULA_REACH_M]
         return min(near)[1] if near else None
 
+    caps: dict = {}
+
     def build(start: int, banned: set) -> list[int]:
         """The chain from ``start``, never through a number of ``banned`` (another stair's)."""
         chain = [start]
         held = set(banned) | {start} | ({k for k in range(len(nums)) if dims[k]} if not dims[start] else set())
-        cap = cap_of(start)
+        cap = caps[start] if start in caps else cap_of(start)
         while True:
             v, p, _t = nums[chain[-1]]
             if cap is not None and v >= cap:
@@ -197,22 +199,43 @@ def chains(texts: list) -> list[list[tuple[int, tuple[float, float], object]]]:
     # 6 Nov 2026 (real18 L3: three numbered stairs side by side; one stair's 1-8 jumped 1.6 m to another's 9-15 and that
     # 15-number chain won over the other stair's own regular 1-15): the longest chain first, of equal ones the one with
     # the shortest longest step; the others are built again without the numbers taken
-    out = []
-    used: set = set()
-    while True:
-        found = []
-        for start in starts:
-            if start in used:
+    def select() -> list[list[int]]:
+        picked = []
+        used: set = set()
+        while True:
+            found = []
+            for start in starts:
+                if start in used:
+                    continue
+                chain = build(start, used)
+                if len(chain) >= MIN_STEPS and nums[chain[-1]][0] >= MIN_STEPS:
+                    found.append(chain)
+            if not found:
+                break
+            best = min(found, key=lambda c: (-len(c), round(jump(c), 3), c[0]))
+            used |= set(best)
+            picked.append(best)
+        return picked
+
+    picked = select()
+    if forms and picked:
+        # 27 Nov 2026 (audit fix round 4b, defect 11: a neighbouring stair's formula, written at its foot 0.8 m from the
+        # first stair's '1', cut that stair from 19 risers to 17): each formula belongs to the stair whose whole chain
+        # of numbers it stands nearest (within FORMULA_REACH_M), one formula per chain; the chains are built again
+        # with the formulas so given (a chain no formula belongs to has no cap)
+        pairs = sorted((min(math.dist(q, nums[k][1]) for k in chain), fi, ci)
+                       for fi, (_n, q) in enumerate(forms) for ci, chain in enumerate(picked))
+        given_f, given_c, new_caps = set(), set(), {}
+        for d, fi, ci in pairs:
+            if d > FORMULA_REACH_M or fi in given_f or ci in given_c:
                 continue
-            chain = build(start, used)
-            if len(chain) >= MIN_STEPS and nums[chain[-1]][0] >= MIN_STEPS:
-                found.append(chain)
-        if not found:
-            break
-        best = min(found, key=lambda c: (-len(c), round(jump(c), 3), c[0]))
-        used |= set(best)
-        out.append([nums[k] for k in best])
-    return out
+            given_f.add(fi)
+            given_c.add(ci)
+            new_caps[picked[ci][0]] = forms[fi][0]
+        caps.update({st: new_caps.get(st) for st in starts})
+        if any(caps[c[0]] != cap_of(c[0]) for c in picked):
+            picked = select()
+    return [[nums[k] for k in chain] for chain in picked]
 
 
 def _unit(a, b) -> tuple[float, float]:
