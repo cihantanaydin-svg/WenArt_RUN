@@ -459,6 +459,20 @@ def openings_rules(plan: AA.Plan, sides: list[dict], unreached: Optional[set] = 
                                     "privacy") if wet_side else \
                     AA.option("interior_glazing", "a borrowed-light window on purpose (clear glass)")
                 opts.insert(1, keep_as)
+                # 27 Nov 2026 (audit rule R17 c; real06: a passage drawn with two dotted lintel lines was read as a
+                # window and moved to the facade, an undrawn facade window and a sealed dressing room): a window with
+                # no window evidence (no window layer, block or size tag) is never moved to a facade; it is read again
+                # as the passage the drawing shows
+                if AA.window_evidence(o) is None and a["id"] != b["id"]:
+                    opts = [x for x in opts if x["id"] != "move_window_to_outer_wall"]
+                    passage = AA.option("window_to_passage", f"a reading error: {o['id']} has no window evidence (no "
+                                        f"window layer, block or size tag): a doorless passage")
+                    # a passage only where it can be one: wide enough to walk through and into no wet room (there the
+                    # high borrowed-light window stays the safe default)
+                    walk = not wet_side and float(o.get("width") or 0.0) + 1e-6 >= AA.PASSAGE_MIN_W
+                    opts.insert(0 if walk else 1, passage)
+                    if default == "move_window_to_outer_wall":
+                        default = "window_to_passage" if walk else keep_as["choice"]
                 # 29 Oct 2026 (user on real06: "these windows are not making sense" (two windows beside the door
                 # between a shower room and a dressing room), "This window and dolap is not making sense" (a hall
                 # window onto a wardrobe)): an inner window with a reason against it is closed by default
@@ -492,7 +506,13 @@ def openings_rules(plan: AA.Plan, sides: list[dict], unreached: Optional[set] = 
             # W3: low sills over a drop
             lv = plan.levels[o["level_id"]]
             drop = float(lv["elevation"]) - ground
-            if (a is None or b is None) and not (out_a and out_b) and drop >= LIMITS["sill_drop_m"]:
+            # 27 Nov 2026 (R02 / R17): a window onto an outdoor space, a balcony or a platform at its floor is over no
+            # drop (``architect_actions.landing_outside``, the premise check of french_window)
+            land = AA.landing_outside(plan, o) if (a is None or b is None) and not (out_a and out_b) \
+                and drop >= LIMITS["sill_drop_m"] and sill + 1e-6 < LIMITS["sill_safe_m"] else None
+            if land is not None:
+                _ok(w3, o["id"], f"sill {sill:.2f} m over the {land.get('kind')} {land.get('id')} at its floor: no drop")
+            elif (a is None or b is None) and not (out_a and out_b) and drop >= LIMITS["sill_drop_m"]:
                 if sill + 1e-6 < LIMITS["sill_safe_m"]:
                     # 26 Oct 2026: the low sill gets a real guard by default (a guard across the window,
                     # 1.10 m over the floor); "keep: a guard is fitted" had fitted none
@@ -502,9 +522,13 @@ def openings_rules(plan: AA.Plan, sides: list[dict], unreached: Optional[set] = 
                         # 20 Nov 2026 (pre-pod review R09-3 / BP-04: guards across every window whose sill the
                         # reading only assumed): an assumed or code-set sill is raised by default (the head kept),
                         # a guard by default only for a sill the documents draw low
+                        # 27 Nov 2026 (R02 / R17 dry run, real06 d_L1_010: a 0.45 m 'door' the reading made a window
+                        # at sill 0.00 got a guard by default): a window code made from a door or a gap has a sill code
+                        # set, never one the documents draw
                         assumed_sill = not o.get("sill_height_source") and (
                             "sill_height" in (o.get("assumed") or ()) or bool(o.get("inferred"))
-                            or ("drawn_sill_height" in o and o.get("drawn_sill_height") is None))
+                            or ("drawn_sill_height" in o and o.get("drawn_sill_height") is None)
+                            or str(o.get("drawn_type") or "window") != "window")
                         _open(w3, o["id"], f"{o['id']} on level {o['level_id']} ({drop:.1f} m over the ground) has "
                               f"its sill at {sill:.2f} m" + (" (assumed)" if assumed_sill else ""),
                               f"Does {o['id']} need a higher sill, or is it a French window with a guard?",
@@ -1099,8 +1123,11 @@ def furniture_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
                     worst = (cov, rid, [g["id"] for g, r in rects if any(G.point_in_polygon(p, r) for p in pts)])
             if measured is not None or worst[0] > LIMITS["swing_cover"]:
                 first = worst[2][0] if worst[2] else None
-                opts = ([AA.option("move_piece", f"move {first} clear of the doorway", piece_id=first,
-                                   away_from=o["id"])] if first else [])
+                # 27 Nov 2026 (R17 a): a misread duplicate counter is not built, a drawn counter run yields to a drawn
+                # door (trimmed), before the piece is moved
+                yields = _yield_first(plan, first, o)
+                opts = yields + ([AA.option("move_piece", f"move {first} clear of the doorway", piece_id=first,
+                                            away_from=o["id"])] if first else [])
                 # 26 Oct 2026 (user: "let it take decisions more"): when the piece cannot move, a doorway a drawn
                 # kitchen run fills is a serving window over the counter, and a piece the AI added gives way
                 chain = _blocked_chain(plan, first, o, s, door=True)
@@ -1110,7 +1137,7 @@ def furniture_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
                          f"{', '.join(worst[2][:3])}")
                 _open(f2, o["id"], found, f"Should {', '.join(worst[2][:2])} move away from {o['id']}?",
                       opts, where=where, **({"default": opts[0]["choice"]} if first else {}),
-                      fallback=[c["choice"] for c in chain])
+                      fallback=[c["choice"] for c in opts[1:] if c["id"] != "keep"])
             else:
                 _ok(f2, o["id"], "doorway free (the code critic's F7 approach strip and R3 swing)")
         else:
@@ -1121,8 +1148,11 @@ def furniture_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
                     continue
                 nn = (n[0] * sign, n[1] * sign)
                 box = _box((c[0] + nn[0] * half_t, c[1] + nn[1] * half_t), u, nn, width, LIMITS["window_reach_m"])
+                # 27 Nov 2026 (R17 d): drawn fixed equipment (sanitary ware, a kitchen run) under or before a
+                # window is normal: it is never moved because of the window
                 tall = [(g, r) for g, r, gt in by_room[rid] if _height(g) > sill + 0.1 and gt not in FLOOR_ONLY
-                        and gt not in ("curtain", "plant", "floor_lamp")]
+                        and gt not in ("curtain", "plant", "floor_lamp")
+                        and not (gt in FU.FIXED_TYPES and g.get("source") in (None, "from_documents"))]
                 # along the window: the share of its width a tall piece covers
                 line = [(box[0][0] + (box[1][0] - box[0][0]) * (k + 0.5) / 10 + nn[0] * 0.25,
                          box[0][1] + (box[1][1] - box[0][1]) * (k + 0.5) / 10 + nn[1] * 0.25) for k in range(10)]
@@ -1162,13 +1192,22 @@ def _basin_wall(plan: AA.Plan, h2: dict, f: dict, room: dict, here: list, openin
     o = plan.openings.get(got["window"]) or {}
     head = min(FU.sill_of(o) + float(o.get("height") if o.get("height") is not None else 1.2), plan.top(o)) if o else 0.0
     raise_ok = bool(o) and AA.heights_given(plan.b, o) is None and head - FU.BASIN_SILL_M >= AA.MIN_WINDOW_H - 1e-9
+    # 27 Nov 2026 (audit rule R17 d; real06: the drawn basins f_L0_026 / f_L1_023 were moved 0.50 m for windows whose
+    # sills were level defaults, against the elevations): drawn sanitary ware is never moved because of a window, and
+    # a window whose sill the documents do not give is raised first (basin_sill before clear_basin)
+    if f.get("source") in (None, "from_documents"):
+        near = far = None
+        if not raise_ok:
+            _ok(h2, f["id"], f"the drawn {f.get('type')} stays under {got['window']} (its heights are drawn): a basin "
+                             f"under a window is normal, its mirror hangs beside it")
+            return
     opts = []
-    if near:
-        opts.append(AA.option("clear_basin", f"move {f['id']} {near['moved_m']:.2f} m to a solid stretch of wall",
-                              piece_id=f["id"]))
     if raise_ok:
         opts.append(AA.option("basin_sill", f"{got['window']}: a bathroom window over the basin, its sill at "
                                             f"{FU.BASIN_SILL_M:.2f} m", window_id=got["window"]))
+    if near:
+        opts.append(AA.option("clear_basin", f"move {f['id']} {near['moved_m']:.2f} m to a solid stretch of wall",
+                              piece_id=f["id"]))
     if far:
         opts.append(AA.option("clear_basin", f"move {f['id']} {far['moved_m']:.2f} m to a solid stretch of wall (more "
                                              f"than the {FU.MOVE_MAX_M:.2f} m a drawn fixture may move: your OK)",
@@ -1191,11 +1230,37 @@ def _blocked_chain(plan, piece_id: Optional[str], o: dict, side: dict, door: boo
         return []
     out = []
     t = str(piece.get("type") or "").lower()
-    if door and t in KITCHEN_RUN and side.get("a") and side.get("b") and piece.get("source") == "from_documents":
+    # 27 Nov 2026 (audit rule R17 a; real15 d_L0_006): a drawn door (leaf, swing, door block or door tag) is never made
+    # a hatch: the equipment yields to it (``_yield_first``)
+    drawn = door and o.get("type") == "door" and AA.drawn_door_evidence(o) is not None
+    if door and not drawn and t in KITCHEN_RUN and side.get("a") and side.get("b") \
+            and piece.get("source") == "from_documents":
         out.append(AA.option("pass_through", f"a serving window over {piece_id}: the doorway at counter height",
                              door_id=o["id"]))
     if piece.get("source") not in (None, "from_documents"):
         out.append(AA.option("remove_piece", f"{piece_id} (added by the AI) gives way", piece_id=piece_id))
+    return out
+
+
+def _yield_first(plan, piece_id: Optional[str], o: dict) -> list[dict]:
+    """27 Nov 2026 (audit rule R17 a; real15: the drawn door d_L0_006 became a serving hatch because a 5.75 m counter
+    read from the counter's front line stood in its swing, 0.34 m off the wall, over the drawn stove, sink and fridge):
+    the fixes tried before the piece in a doorway is moved: a drawn counter that is a misread duplicate
+    (``architect_actions.counter_duplicate``: off its wall, or in front of drawn appliances) is not built
+    (``remove_piece``, the reason logged with its evidence); a drawn counter run in front of a drawn door is trimmed at
+    its end by the door (``trim_piece``, never into a drawn appliance). Fixed equipment yields to a drawn door."""
+    piece = next((f for f in plan.b.get("furniture") or [] if f.get("id") == piece_id), None) if piece_id else None
+    if piece is None or piece.get("source") not in (None, "from_documents"):
+        return []
+    t = str(piece.get("type") or "").lower()
+    out = []
+    dup = AA.counter_duplicate(plan, piece)
+    if dup:
+        out.append(AA.option("remove_piece", f"{piece_id} is not built: {dup}", piece_id=piece_id, why=dup))
+    if t in AA.COUNTER_TYPES and o.get("type") == "door" and AA.drawn_door_evidence(o) is not None:
+        out.append(AA.option("trim_piece", f"trim {piece_id} at its end by the drawn door {o['id']}, clear of its swing "
+                                           f"and approach (never into a drawn appliance)", piece_id=piece_id,
+                             door_id=o["id"]))
     return out
 
 
@@ -1281,6 +1346,15 @@ def passages_rule(plan: AA.Plan, sides: list[dict]) -> list[dict]:
         private = [r["id"] for r in (a, b) if DS.needs_privacy(r)]
         unclear = DS.unclear_gap(o)
         between = f"between {a['id']} ({_rtype(a) or '?'}) and {b['id']} ({_rtype(b) or '?'})"
+        # 27 Nov 2026 (audit rule R17 f; real17: an unclassified gap through a column became a 0.65 m door from the
+        # kitchen into a bathroom that its own door d_L1_011 already reached): no privacy door from an unclear gap into
+        # a room another door already reaches
+        served = {rid: AA.other_doors(plan, rid, o["id"]) for rid in private}
+        if private and unclear and all(served.values()):
+            _ok(d6, o["id"], f"an open passage {between}: " + "; ".join(f"{rid} is reached by its door {served[rid][0]}"
+                                                                       for rid in private)
+                + " already (no second door from an unclear gap)")
+            continue
         if private and unclear:
             where = _where("opening", o.get("level_id"), o["center"])
             opts = [AA.option("gap_to_door", f"a door for the privacy of {', '.join(private)} (one solid leaf)",

@@ -4738,6 +4738,134 @@
    "request": "27 Nov 2026 (audit fix round 2b, review H8: a sunken living room with two -0.30 marks and a ±0.00 mark at its entry was built flat): when a room's marks disagree, the value two or more of them read, more than any other value, is its floor; the mark at the storey's floor decides only a tie (a shaft head's mark is left out first).",
    "lesson": "27 Nov 2026 (audit fix round 2b, review H8: a sunken living room with two -0.30 marks and a ±0.00 mark at its entry was built flat): when a room's marks disagree, the value two or more of them read, more than any other value, is its floor; the mark at the storey's floor decides only a tie (a shaft head's mark is left out first).",
    "question": null
+  },
+  {
+   "id": "UL417",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [
+    "E1",
+    "W2"
+   ],
+   "request": "27 Nov 2026 (audit fix round 3, rule R02, with UL396; real06 replayed 112 answers of 25-30 Oct and real10 317 of 2 Nov on readings of 26 Nov, re-targeted by place onto other elements): every architect answer carries the signature of the element it was given for (rule, element type, level, host wall direction and outward normal, the rooms on both sides with their labels, what it lands on, width); a stored answer (the AI's, Argus', the user's) is carried out only while this run's review raises its question for the element it resolves to and the signature matches; a stale answer (re-targeted by place without a signature, another element, or its question not raised) is never carried out: it is logged and shown in the report with the new decision beside it, its point stays open for the AI architect (no default settles it) and the user is not asked again; the AI's new answer names the answers it replaces.",
+   "lesson": "27 Nov 2026 (audit fix round 3, rule R02, with UL396; real06 replayed 112 answers of 25-30 Oct and real10 317 of 2 Nov on readings of 26 Nov, re-targeted by place onto other elements): every architect answer carries the signature of the element it was given for (rule, element type, level, host wall direction and outward normal, the rooms on both sides with their labels, what it lands on, width); a stored answer (the AI's, Argus', the user's) is carried out only while this run's review raises its question for the element it resolves to and the signature matches; a stale answer (re-targeted by place without a signature, another element, or its question not raised) is never carried out: it is logged and shown in the report with the new decision beside it, its point stays open for the AI architect (no default settles it) and the user is not asked again; the AI's new answer names the answers it replaces.",
+   "question": null
+  },
+  {
+   "id": "UL418",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [
+    "E1",
+    "W2",
+    "W3",
+    "L1"
+   ],
+   "request": "27 Nov 2026 (audit fix round 3, rule R02): an answer that is not the user's is carried out only while its premise holds in this reading: door_to_window only when nothing is outside to step onto (no outdoor space, balcony or terrace room or platform at its floor), french_window only over a drop, move_window_to_outer_wall only for a window with window evidence, a retype to storage or another room without daylight only for a room that lacks its daylight.",
+   "lesson": "27 Nov 2026 (audit fix round 3, rule R02): an answer that is not the user's is carried out only while its premise holds in this reading: door_to_window only when nothing is outside to step onto (no outdoor space, balcony or terrace room or platform at its floor), french_window only over a drop, move_window_to_outer_wall only for a window with window evidence, a retype to storage or another room without daylight only for a room that lacks its daylight.",
+   "question": null
+  },
+  {
+   "id": "UL419",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [
+    "C1",
+    "T2"
+   ],
+   "request": "27 Nov 2026 (audit fix round 3, rules R02 and R17): the walk check undoes any answer that takes away the only door or passage onto an outdoor space (os_*), and it compares the reach within each floor too (the room graph without the stairs), so a detour through another storey no longer hides a lost link on one floor.",
+   "lesson": "27 Nov 2026 (audit fix round 3, rules R02 and R17): the walk check undoes any answer that takes away the only door or passage onto an outdoor space (os_*), and it compares the reach within each floor too (the room graph without the stairs), so a detour through another storey no longer hides a lost link on one floor.",
+   "question": null
+  },
+  {
+   "id": "UL420",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [
+    "F2",
+    "E1"
+   ],
+   "request": "27 Nov 2026 (audit fix round 3, rule R17 a; real15: the drawn door between the living room and the kitchen, the north unit's only link, became a serving hatch for a counter read from its front line): a drawn door (its swing arc, door block, leaves on a door layer or door size tag) is never made a window or a hatch: no door_to_window or pass_through for it; fixed equipment yields: a counter in front of drawn appliances or 0.2 m or more off its wall is a misread duplicate and is not built (logged), a drawn counter run is trimmed at its end by the door (never into a drawn appliance), else moved at most 0.5 m.",
+   "lesson": "27 Nov 2026 (audit fix round 3, rule R17 a; real15: the drawn door between the living room and the kitchen, the north unit's only link, became a serving hatch for a counter read from its front line): a drawn door (its swing arc, door block, leaves on a door layer or door size tag) is never made a window or a hatch: no door_to_window or pass_through for it; fixed equipment yields: a counter in front of drawn appliances or 0.2 m or more off its wall is a misread duplicate and is not built (logged), a drawn counter run is trimmed at its end by the door (never into a drawn appliance), else moved at most 0.5 m.",
+   "question": null
+  },
+  {
+   "id": "UL421",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [
+    "W2"
+   ],
+   "request": "27 Nov 2026 (audit fix round 3, rule R17 c; real06: a passage drawn with dotted lintel lines was read as a window and moved to the facade): W2 never moves a window without window evidence (a window size tag, block or layer, frame or sash lines, the frame and glass strokes the reading found) to a facade; such a window between two rooms is read again as the doorless passage the drawing shows (where it is at least 0.6 m wide and leads into no wet room; else the borrowed-light window stays).",
+   "lesson": "27 Nov 2026 (audit fix round 3, rule R17 c; real06: a passage drawn with dotted lintel lines was read as a window and moved to the facade): W2 never moves a window without window evidence (a window size tag, block or layer, frame or sash lines, the frame and glass strokes the reading found) to a facade; such a window between two rooms is read again as the doorless passage the drawing shows (where it is at least 0.6 m wide and leads into no wet room; else the borrowed-light window stays).",
+   "question": null
+  },
+  {
+   "id": "UL422",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [
+    "H2",
+    "F3"
+   ],
+   "request": "27 Nov 2026 (audit fix round 3, rule R17 d; real06: the drawn basins were moved 0.5 m for windows whose sills were level defaults): drawn sanitary ware and kitchen runs are never moved because of a window (H2, F3); a window over a basin whose sill the documents do not give is raised first (basin_sill before clear_basin).",
+   "lesson": "27 Nov 2026 (audit fix round 3, rule R17 d; real06: the drawn basins were moved 0.5 m for windows whose sills were level defaults): drawn sanitary ware and kitchen runs are never moved because of a window (H2, F3); a window over a basin whose sill the documents do not give is raised first (basin_sill before clear_basin).",
+   "question": null
+  },
+  {
+   "id": "UL423",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [
+    "D5"
+   ],
+   "request": "27 Nov 2026 (audit fix round 3, rule R17 e; real06: the veranda door tagged K1-80/210 was built 2.30 m high as a taller entrance door): the reading records a door's own size tag ('K1-80/210', 'K:90/210', '80/210' beside it, of its width) as evidence, and the door sizes by role never change the width or height of a door whose size the documents tag.",
+   "lesson": "27 Nov 2026 (audit fix round 3, rule R17 e; real06: the veranda door tagged K1-80/210 was built 2.30 m high as a taller entrance door): the reading records a door's own size tag ('K1-80/210', 'K:90/210', '80/210' beside it, of its width) as evidence, and the door sizes by role never change the width or height of a door whose size the documents tag.",
+   "question": null
+  },
+  {
+   "id": "UL424",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [
+    "D6"
+   ],
+   "request": "27 Nov 2026 (audit fix round 3, rule R17 f; real17: an unclassified gap became a 0.65 m door from the kitchen into a bathroom its own door already reached): D6 makes no privacy door from an unclear gap into a room another door already reaches.",
+   "lesson": "27 Nov 2026 (audit fix round 3, rule R17 f; real17: an unclassified gap became a 0.65 m door from the kitchen into a bathroom its own door already reached): D6 makes no privacy door from an unclear gap into a room another door already reaches.",
+   "question": null
+  },
+  {
+   "id": "UL425",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [
+    "W3"
+   ],
+   "request": "27 Nov 2026 (audit fix round 3 dry run; real06 d_L1_010, real10's balcony windows): W3 asks for no guard on a window that opens onto an outdoor space, a balcony or a platform at its floor (no drop), and the sill of a window that code made from a door or a gap counts as assumed (raised by default, never a guard).",
+   "lesson": "27 Nov 2026 (audit fix round 3 dry run; real06 d_L1_010, real10's balcony windows): W3 asks for no guard on a window that opens onto an outdoor space, a balcony or a platform at its floor (no drop), and the sill of a window that code made from a door or a gap counts as assumed (raised by default, never a guard).",
+   "question": null
+  },
+  {
+   "id": "UL426",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [
+    "E1",
+    "O2"
+   ],
+   "request": "27 Nov 2026 (audit fix round 3 dry run; real11: twelve tagged 2.40 m balcony doors carried an assumed 0.90 m sill, so E1 found nothing to step onto and its default made them windows, the balconies unreachable): E1 and O2 judge a door's landing at its threshold when its sill is only assumed (no drawn sill), and a balcony or terrace at that floor is its landing.",
+   "lesson": "27 Nov 2026 (audit fix round 3 dry run; real11: twelve tagged 2.40 m balcony doors carried an assumed 0.90 m sill, so E1 found nothing to step onto and its default made them windows, the balconies unreachable): E1 and O2 judge a door's landing at its threshold when its sill is only assumed (no drawn sill), and a balcony or terrace at that floor is its landing.",
+   "question": null
   }
  ]
 }

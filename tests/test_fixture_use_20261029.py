@@ -265,11 +265,17 @@ def test_a_basin_under_a_low_window_has_no_mirror_wall():
         qs = RR.furniture_rules(AA.Plan(b), [])
         return qs, next(a for q in qs if q["id"] == "H2" for a in q["answers"] if a["element"] == basin["id"])
 
-    # a sill the documents give: no safe default, the AI architect and the user decide (a farther move offered)
+    # a sill the documents give: 27 Nov 2026 (audit rule R17 d, lesson UL422): drawn sanitary ware is never moved
+    # because of a window: the drawn basin stays under it, its mirror beside it (no question, no move offered)
+    _qs, h2 = h2_point()
+    assert not h2.get("open") and "stays under win1" in h2["found"]
+    # a basin the AI added may still move (a farther move offered for the user's OK)
+    basin["source"] = "added_by_ai"
     _qs, h2 = h2_point()
     assert h2["open"] and "default" not in h2
     assert {o["id"] for o in h2["options"]} == {"clear_basin", "keep"}
     assert all(o["params"].get("max_move_m", 0) > FU.MOVE_MAX_M for o in h2["options"] if o["id"] == "clear_basin")
+    basin["source"] = "from_documents"
     # real06: a bare gap read as a window at the floor's sill (assumed): the default raises it over the basin
     win["assumed"] = ["sill_height", "height"]
     qs, h2 = h2_point()

@@ -416,6 +416,11 @@ def plan_sizes(building: dict, style) -> list[dict]:
         role = door_role(building, o, wall, rs, entrance)
         if role == "outside":
             continue                                       # the facade's doors keep the drawn sizes
+        # 27 Nov 2026 (audit rule R17 e; real06: the veranda door tagged K1-80/210 was built 2.30 m high as "a taller
+        # entrance door"): a door whose size the documents tag keeps its width and height
+        from wenart.blender import architect_actions as AA
+        if AA.door_tag(o) is not None:
+            continue
         w = float(o.get("width") or 0.0)
         if w <= 0:
             continue

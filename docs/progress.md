@@ -5302,3 +5302,57 @@ Gates (all on this round's final code; readings with no AI answers; "merged" = t
 Build checks on the new readings (`build.prepare_once`): real14 d_L1_006 built (the stair head), d_L7_002, real18 d_L-1_010
 and d_L0_013, real19 d_L1_002 and d_L3_002 built with a note (the opening under a drawn room); real06's 25 Oct fixture
 d_L1_004 not built. No pod run: the next pod build (real17, real10, real06, real15) checks O1 inside Blender.
+
+### Audit fix round 3 (27 Nov 2026)
+
+Two building-stage rules about the architect from the audit plan (R02 critical, R17 major), CPU only, no pod; lessons
+UL417-UL426. The user's answer of 26 Nov (UL396) governs R02: a stored answer whose element a new reading moved or
+changed is not replayed by place; the AI architect decides again, the change is logged and shown, the user is not asked
+again (the user's own answers too). UL397 (drawn bathtubs) is left for a later round. Tests:
+`tests/test_audit_round3_20261127.py` (synthetic cases, the real06 fixture of 25 Oct, fresh CPU readings of real06 and
+real10 with their stored answers).
+
+| rule | root cause | fix | effect |
+|---|---|---|---|
+| R02 stale answers (critical, UL417) | `resolve()` re-targeted an answer whose id moved to the nearest opening within 1 m of its stored place, with no check of wall, width or context, and `apply_answers` carried it out whether or not this run raised its question | every open point and every new answer carries its element's signature (rule, kind, level, host wall direction, outward normal, rooms on both sides with labels, what it lands on, width; a room's type, label and area; a piece's type, room and size); `build.replay_gate` admits a stored answer only when this run's review raises its question for the element it resolves to (the answer-free review, then rounds for chains) and the signature matches; a legacy answer re-targeted by place is stale; a stale answer is never carried out, its point stays open for the AI architect (no default), `architect.md` lists it with the new decision side by side, `architect_ai.md` logs old and new; a new AI answer names what it `replaces` (it also wins over a stale user answer of the same key; the user's file is never changed) | real06: 56 of 112 stored answers stale, the guards on d_L1_002 / d_L1_007 gone; real10: 135 of 317 stale, d_L0_025 stays a door, the L1-L5 'Günlük Oda' storage retypes not carried out |
+| R02 premises (UL418) | only C1 retypes had a premise check | `premise_refusal` for answers that are not the user's: door_to_window only with nothing to step onto outside (outdoor space, balcony room, platform at its floor), french_window only over a drop, move_window only with window evidence, a no-daylight retype only for a room without its daylight, a retype to a type with an anchor piece (bed, sofa, toilet, counter) only for a room whose drawn pieces hold one (or that has none); the AI's own decisions are checked the same way before they are tried | real06: AI.french_window:d_L1_007 refused (balcony os_L1_balkon), AI.pass_through:d_L0_002 refused (a sliding door drawn on the door layer), AI.retype_room:r_L1_soyunma_odasi (bedroom, "its double bed") refused (two drawn wardrobes, no bed); real10 AI.retype_room:r_L1_gunluk_oda refused (5.25 m2 of glass) |
+| R02 / R17 b walk check (UL419) | `walk_cut` guarded rooms only; `cut_links` compared the whole house, so a detour through another storey hid a lost link | losing the only door onto an outdoor space (os_*) is a cut; reach is also compared within each floor (the graph without the stairs) | no new walk cut in any dry run |
+| R17 a drawn doors (UL420) | `_blocked_chain` offered pass_through for any doorway a drawn kitchen piece blocked; E1 offered door_to_window for any door | a drawn door (swing arc, door block, leaves on a door layer, door size tag) gets no pass_through or door_to_window option and such answers are refused; F2 tries first: a counter off its wall or in front of drawn appliances is a misread duplicate and is not built (logged), a drawn counter run is trimmed at its end by the door (`trim_piece`, never into a drawn appliance), then the move; E1 offers a drawn door the guard or keep | real15: the duplicate counter f_L0_109 (0.34 m off its wall over the stove, sink and fridge) not built, the drawn door d_L0_005 (the audit's d_L0_006) stays a door |
+| R17 c W2 (UL421) | W2 moved any window between two rooms to a facade | `move_window_to_outer_wall` needs window evidence (a window tag, block or layer, frame or sash lines, the reading's frame and glass strokes); without it W2 offers `window_to_passage` (default where the window is 0.6 m or wider and leads into no wet room) | - |
+| R17 d H2 / F3 (UL422) | H2 moved a drawn basin before raising an assumed sill; F3 moved drawn fixtures for windows | basin_sill first; a drawn basin is never moved for a window (kept, mirror beside it, when the sill is drawn); F3 skips drawn fixed equipment | - |
+| R17 e D5 (UL423) | the reading bound no 'K1-80/210' tag to its own door, and the role sizes changed any door whose height was assumed | the reading records a door's own size tag as evidence only (`core_rules.own_door_tags`, rule `own_door_tag`: geometry and assumed fields unchanged); `door_states.plan_sizes` keeps a tagged door's width and height | real06: 10 doors carry their tags; d_L0_004 keeps 2.10 m |
+| R17 f D6 (UL424) | D6 made a privacy door from any unclear gap into a bathroom or bedroom | no privacy door into a room another door already reaches (rule and premise) | - |
+| W3 / E1 (UL425, UL426, found in the dry run) | W3 asked for a guard on windows onto a balcony at their floor, and took a sill the reading set on a door it made a window as drawn | no W3 point over a landing at the window's floor; a code-set sill counts as assumed (raised, never a guard); E1 / O2 judge a door with an assumed sill at its threshold (real11's tagged 2.40 m balcony doors carried an assumed 0.90 m sill) | real06 d_L1_010 (the audit's d_L1_011, the shower's high window) raised to 0.90 m, no guard; real10's 14 balcony windows no longer asked; real11's 12 balcony doors no longer made windows |
+
+Gates (on this round's final code; readings with no AI answers; the stored answers of the latest runs, as the pod
+would replay them; "base" = 9cf059db):
+
+| gate | base | this round | holds |
+|---|---|---|---|
+| `score --gate` against 381016c0 (never --update) | overall 97.9, synthetic (gated) 97.5, real06 100 | the same; every row identical | yes |
+| regress set (34 projects, real08 left out as in round 2b: its reading did not finish in 30 min) | round 2b's lines | 34 of 34 projects print exactly round 2b's lines (the reading change adds evidence only) | yes |
+| new tests (`test_audit_round3_20261127.py`) and the architect test files | - | 23 new tests pass (synthetic cases, the real06 fixture, fresh CPU readings of real06 and real10); tests/test_architect*.py 43 pass; `test_fixture_use_20261029.py` updated where it pinned a drawn basin's move for a window (R17 d) | yes |
+| `pytest -m "not gpu"` | 12 known failures | 9934 passed, 12 failed, 273 skipped, 28 xfailed (114 min); the 12 are the known list (lessons checks 2, generality, the import-closure lists of test_blender_look, test_run_agent and test_run_stages (unchanged from the base), real04 sheets 2, streets step, bath/shower, polish words, ingest crops) | yes |
+
+Architect dry run (`build.prepare` on this round's readings with the project's stored answers; walk cuts = rooms that lose
+their only way on their floor or outdoor spaces that lose their only door, against the plan with no answer and no default;
+"drawn doors made windows" = doors with a drawn swing arc, door block, leaves or door tag that end as windows or hatches):
+
+| project | stored answers | base: carried out (changes) | carried out (changes) | stale | refused by a premise | gone | new walk cuts | drawn doors made windows (base -> now) | guards (base -> now) |
+|---|---|---|---|---|---|---|---|---|---|
+| real06 | 112 (AI 25-30 Oct) | 54 (14) | 10 (5) | 56 | 3 | 20 | 0 | 1 -> 0 (d_L0_002 hatch) | 4 -> 0 |
+| real10 | 317 (AI 2 Nov) | 158 (42) | 49 (0, all keep) | 135 | 1 | 131 | 0 | 1 -> 0 (d_L0_025) | 56 -> 42 |
+| real04 | 6 (user 25 Oct) | 4 (2) | 4 (2) | 0 | 0 | 2 | 0 | 0 -> 0 | 0 -> 0 |
+| real15 | 0 | - | - | - | 0 | - | 0 | 0 -> 0 | 0 -> 0 |
+| real17 | 0 | - | - | - | 0 | - | 0 | 0 -> 0 | 0 -> 0 |
+| real11 | 0 | - | - | - | 0 | - | 0 | 12 -> 0 (E1 on tagged balcony doors) | 31 -> 31 |
+| real13 | 0 | - | - | - | 0 | - | 0 | 3 -> 0 (E1: now French windows with a guard) | 0 -> 3 |
+
+The other 13 real projects read (real01-03, 07, 09, 12, 14, 16, 18-21): no stored answers, no walk cut, no drawn door
+made a window, before or after. The plan's expectation holds: real06 d_L1_002 and d_L1_007 (the balcony doors) carry no
+guard and stay doors; the audit's d_L1_011 (now d_L1_010, the shower's 0.45 m window) gets its sill raised to 0.90 m by
+the W3 default and no guard (it was a full-height glazed slot with a guard); real10 d_L0_025 stays a door. Points left
+for the AI architect (stale answers whose question is still open): real06 1 (S3), real10 15 (14 D1, 1 S3).
+
+Not done here: the elevations as the source of window heights (real06 d_L1_010 should sit at about 2.1 m), W6's two
+stair windows (real06 F04), UL397 (drawn bathtubs). No pod run.

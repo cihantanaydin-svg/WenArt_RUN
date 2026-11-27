@@ -54,7 +54,9 @@ LOOK_ACTIONS = {
     "opening": ("door_to_window", "french_window", "raise_sill", "widen_door", "interior_glazing", "high_window",
                 "pass_through", "gap_to_door", "window_to_door", "snap_threshold",
                 # 29 Oct 2026: a bathroom window over a basin (H2)
-                "basin_sill"),
+                "basin_sill",
+                # 27 Nov 2026 (R17 c): a window between two rooms with no window evidence read again as a passage
+                "window_to_passage"),
     "room": ("retype_room", "enlarge_windows"),
     "piece": ("move_piece", "mount_fixture", "remove_piece",
               # 27 Oct 2026: a stair whose assumed reading is cut off from its floor is read the other way
@@ -144,11 +146,15 @@ def open_questions(record: dict, answered: set) -> list[dict]:
             key = f"{q['id']}:{a['element']}"
             # 31 Oct 2026: a reading problem (C1: more than half of the rooms unreached, ``architect.circulation``) is
             # logged for the reading and the user, never closed by a pick
-            if not a.get("open") or key in answered or not a.get("options") or a.get("reading_problem"):
+            # 27 Nov 2026 (R02, UL396): a point whose earlier answer is stale (``for_ai``) is asked again
+            if not a.get("open") or (key in answered and not a.get("for_ai")) or not a.get("options") \
+                    or a.get("reading_problem"):
                 continue
             out.append({"key": key, "rule": q["id"], "topic": q["topic"], "severity": q.get("severity", "minor"),
                         "found": a["found"], "ask": a.get("ask"), "why": q.get("why"), "element": a["element"],
-                        "options": a["options"], "where": a.get("where")})
+                        "options": a["options"], "where": a.get("where"),
+                        **({"signature": a["signature"]} if a.get("signature") else {}),
+                        **({"stale_answers": list(a["stale_answers"])} if a.get("stale_answers") else {})})
     out.sort(key=lambda x: (x["severity"] != "major", x["rule"], str(x["element"])))
     return out
 
@@ -167,11 +173,16 @@ def prompt(batch: list[dict], building: dict, plan: AA.Plan, tried: Optional[dic
                 "facts": facts(building, plan, q["element"])}
         if tried.get(q["key"]):
             item["tried_and_refused"] = [{"choice": c, "why": why} for c, why in tried[q["key"]]]
+        if q.get("stale_answers"):
+            item["earlier_answer_stale"] = stale_facts(q)
         items.append(item)
     head = "Answer each question with one of its choices (or \"ask_user\")"
     if tried:
         head += ("; a question with \"tried_and_refused\" was answered before and code could not carry that out or "
                  "it broke something (the reason is given): choose another of its choices")
+    if any(q.get("stale_answers") for q in batch):
+        head += ("; a question with \"earlier_answer_stale\" had an answer on an earlier reading of the plan that no "
+                 "longer fits this element (the reason is given): decide again from the facts of this reading")
     return head + ":\n" + json.dumps(items, indent=1, ensure_ascii=False)
 
 
@@ -359,9 +370,13 @@ def check_workers() -> int:
     return 1
 
 
-def _par_init(building: dict, brief, accepted: dict, candidates: dict, before: tuple, seeds: dict) -> None:
+def _par_init(building: dict, brief, accepted: dict, candidates: dict, before: tuple, seeds: dict,
+              raised: Optional[dict] = None) -> None:
     _PAR.update(building=building, brief=brief, accepted=accepted, candidates=candidates, before=before)
     _SEEDS.update(seeds)
+    if raised:                                   # 27 Nov 2026 (R02): the answer-free reviews (build.raised_review)
+        from wenart.blender import build as BU
+        BU._RAISED.update(raised)
 
 
 def _par_unit(keys: list) -> dict:
@@ -377,11 +392,14 @@ def _parallel_units(units: list, building: dict, brief, accepted: dict, candidat
     import multiprocessing as mp
     from concurrent.futures import ProcessPoolExecutor
 
+    from wenart.blender import build as BU
+
     seeds = {k: v for k, v in _SEEDS.items() if k == _seed_key(building, brief)}
     out: dict = {}
     with ProcessPoolExecutor(max_workers=min(workers, len(units)), mp_context=mp.get_context("spawn"),
                              initializer=_par_init,
-                             initargs=(building, brief, accepted, candidates, before, seeds)) as ex:
+                             initargs=(building, brief, accepted, candidates, before, seeds,
+                                       dict(BU._RAISED))) as ex:
         for res in ex.map(_par_unit, units):
             out.update(res)
     return out
@@ -421,8 +439,10 @@ def answer_open(project_out, model, *, brief: Optional[dict] = None, building_na
     accepted = dict(_saved_answers(odir))
     base_prep = prep_of(building, brief, accepted)
     base = base_prep["architect"]
-    user_keys = {r["key"] for r in base.get("applied") or [] if r.get("by", "user") == "user"}
-    todo, copies = typical_questions(building, open_questions(base, set(accepted) | user_keys))
+    stale_before = stale_records(base)
+    user_keys = {r["key"] for r in base.get("applied") or [] if r.get("by", "user") == "user" and not r.get("stale")}
+    answered = (set(accepted) | user_keys) - for_ai_keys(base) - {r["key"] for r in stale_before}
+    todo, copies = typical_questions(building, open_questions(base, answered))
     todo = todo[:max_questions]
     plan = AA.Plan(copy.deepcopy(building))
     entries: dict = {}
@@ -450,6 +470,7 @@ def answer_open(project_out, model, *, brief: Optional[dict] = None, building_na
            "ask_user": sum(1 for e in rows if e["verdict"] in ("ask_user", "no_answer")),
            "retried": sum(1 for e in rows if len(e.get("attempts") or []) > 1),
            "open_after": base_prep["architect"].get("open"), "model": model_name, "entries": rows,
+           "stale": stale_log(stale_before, accepted, base_prep["architect"]),
            "seconds": round(time.time() - t0, 1)}
     _save_answers(odir, accepted)
     LG.write_json_atomic(odir / LOG_JSON, rec)
@@ -470,10 +491,91 @@ def _save_answers(odir: Path, accepted: dict) -> None:
                                                "answers": accepted})
 
 
-def _answer(opt: dict, reason: str, model_name: str, where) -> dict:
-    return {"option": opt["id"], "params": dict(opt.get("params") or {}), "choice": opt["choice"], "answer": reason,
-            "reason": reason, "by": "ai", "model": model_name, "where": where,
-            "date": time.strftime("%Y-%m-%d", time.gmtime())}
+def _answer(opt: dict, reason: str, model_name: str, where, q: Optional[dict] = None) -> dict:
+    """An accepted pick as an answer; 27 Nov 2026 (R02): with the signature of its element (``q["signature"]``) and the
+    stale answers of its point it replaces (``replaces``: their summaries, so the report shows old and new)."""
+    out = {"option": opt["id"], "params": dict(opt.get("params") or {}), "choice": opt["choice"], "answer": reason,
+           "reason": reason, "by": "ai", "model": model_name, "where": where,
+           "date": time.strftime("%Y-%m-%d", time.gmtime())}
+    if q and q.get("signature"):
+        out["signature"] = q["signature"]
+    if q and q.get("stale_answers"):
+        out["replaces"] = [dict(x) for x in q["stale_answers"]]
+    return out
+
+
+def stale_facts(q: dict) -> list[dict]:
+    """What the model is told of a point's stale answers (R02): the old choice, by whom, when and why it is stale."""
+    return [{"choice": x.get("choice") or x.get("option"), "by": x.get("by"), "date": x.get("date"),
+             "why_stale": x.get("why")} for x in q.get("stale_answers") or []]
+
+
+def for_ai_keys(record: dict) -> set:
+    """The keys of the open points whose earlier answer is stale (``architect.mark_stale``; R02)."""
+    return {f"{q['id']}:{a['element']}" for q in record.get("questions") or [] for a in q.get("answers") or []
+            if a.get("open") and a.get("for_ai")}
+
+
+def stale_records(record: dict) -> list[dict]:
+    """The stale answers of a review (``applied`` records with ``stale``; R02)."""
+    return [r for r in record.get("applied") or [] if r.get("stale")]
+
+
+def drop_replaced(accepted: dict, answer: dict) -> list[str]:
+    """The stale answers ``answer`` replaces leave ``accepted`` (in place; R02): their summaries stay in its
+    ``replaces``. Returns the keys dropped (a stale user answer stays in the user's file; the new answer wins over it,
+    ``architect_actions.answers_for_build``)."""
+    gone = []
+    for old in answer.get("replaces") or []:
+        k = old.get("key")
+        if k and k in accepted and accepted[k] is not answer \
+                and AA.answer_id(AA.normalise(k, accepted[k])) == old.get("id"):
+            accepted.pop(k)
+            gone.append(k)
+    return gone
+
+
+def stale_log(stale_before: list[dict], accepted: dict, record: dict) -> list[dict]:
+    """The stale answers of the run with their new decision, old and new side by side (R02, UL396): ``{"key", "by",
+    "old", "date", "why", "element", "new", "new_key"}``; ``new`` is the accepted answer that replaces it, else the
+    point still open for the AI (time ran out, every pick refused, ask_user) or not raised in this reading."""
+    waiting = {}
+    for q in record.get("questions") or []:
+        for a in q.get("answers") or []:
+            for old in a.get("stale_answers") or []:
+                waiting.setdefault(str(old.get("id")), f"{q['id']}:{a['element']}")
+    out = []
+    for r in stale_before:
+        old = r.get("old") or {}
+        new_key = next((k for k, v in accepted.items() if str(old.get("id")) in
+                        {str(x.get("id")) for x in v.get("replaces") or [] if isinstance(x, dict)}), None)
+        if new_key is not None:
+            new = accepted[new_key].get("choice") or accepted[new_key].get("option")
+        elif str(old.get("id")) in waiting:
+            new = f"open: not decided yet ({waiting[str(old.get('id'))]})"
+        elif str(r.get("rule") or "").startswith(AI_RULE + "."):
+            new = "an own decision: the look at this reading decides again"
+        else:
+            new = "not raised in this reading"
+        out.append({"key": r["key"], "by": old.get("by") or r.get("by"), "old": old.get("choice") or r.get("option"),
+                    "date": old.get("date"), "why": old.get("why"), "element": r.get("element"), "new": new,
+                    "new_key": new_key})
+    return out
+
+
+def stale_md(rows: list[dict]) -> list[str]:
+    """The log's section of the stale answers, old and new choice side by side (R02, UL396)."""
+    if not rows:
+        return []
+    lines = ["## Stale answers decided again", "",
+             f"{len(rows)} answer(s) of an earlier reading no longer fit their element in this reading (not carried "
+             "out); the AI architect decided again where the question is still open (lesson UL396).", "",
+             "| answer | by | date | old choice | why it is stale | new key | new choice |", "|---|---|---|---|---|---|---|"]
+    for r in rows:
+        lines.append(f"| `{r['key']}` | {r.get('by') or '-'} | {r.get('date') or '-'} | {r.get('old')} | "
+                     f"{str(r.get('why') or '').replace('|', '/')[:240]} | {r.get('new_key') or '-'} | {r.get('new')} |")
+    lines.append("")
+    return lines
 
 
 def typical_questions(building: dict, questions: list[dict]) -> tuple[list[dict], dict]:
@@ -514,7 +616,7 @@ def _copy_candidates(key: str, pick: dict, copies: dict, entries: dict, model_na
         elif opt is None:
             e.update(verdict="refused", why=f"{pick['choice']!r} is not a choice of this copy's question")
         else:
-            out[q["key"]] = _answer(opt, reason, model_name, q.get("where"))
+            out[q["key"]] = _answer(opt, reason, model_name, q.get("where"), q)
     return out
 
 
@@ -557,7 +659,7 @@ def _ask_round(model, pending: list[dict], building: dict, brief, plan, accepted
         elif opt["id"] == "keep" and q["severity"] == "major":
             e.update(verdict="refused", why="a major question is settled only by a change or by the user")
         else:
-            candidates[q["key"]] = _answer(opt, a["reason"], model_name, q.get("where"))
+            candidates[q["key"]] = _answer(opt, a["reason"], model_name, q.get("where"), q)
             candidates.update(_copy_candidates(q["key"], a, copies or {}, entries, model_name))
             continue
         tried.setdefault(q["key"], []).append((a["choice"], e["why"]))
@@ -570,6 +672,7 @@ def _ask_round(model, pending: list[dict], building: dict, brief, plan, accepted
         entries[key]["attempts"][-1].update(verdict=entries[key]["verdict"], why=why)
         if ok:
             accepted[key] = candidates[key]
+            drop_replaced(accepted, candidates[key])          # 27 Nov 2026 (R02)
         else:
             tried.setdefault(key, []).append((candidates[key]["choice"], why))
     return prep_of(building, brief, accepted)
@@ -668,13 +771,16 @@ def floor_facts(built: dict, plan: AA.Plan, level_id: str, limit: int = LOOK_LIN
     return lines[:limit]
 
 
-def raw_review(building: dict, brief: Optional[dict], ai_answers: dict) -> dict:
+def raw_review(building: dict, brief: Optional[dict], ai_answers: dict, gate: Optional[dict] = None) -> dict:
     """The architect's review before its own defaults are carried out (``build.prepare_once``): the questions the
-    defaults answered, with their options. Pure."""
+    defaults answered, with their options. ``gate`` (27 Nov 2026, R02): the replay gate of the plan it compares with
+    (``build.replay_gate``), so a stale answer is not carried out here either. Pure."""
     from wenart.blender import build as BU
 
     trial = copy.deepcopy(building)
     trial["agent_overrides"] = dict(trial.get("agent_overrides") or {}, architect=dict(ai_answers))
+    if gate is not None:
+        trial["architect_replay"] = gate
     return BU.prepare_once(trial, "base", brief)["architect"]
 
 
@@ -839,7 +945,16 @@ def _decision(d: dict, plan: AA.Plan, built: dict, level_id: str) -> tuple[Optio
     key = f"{AI_RULE}.{action}:{element}"
     opt = {"id": action, "choice": action if not value or action != "retype_room" else f"{action}:{value}",
            "params": params}
-    return key, {"opt": opt, "where": _where_of(plan, built, element, level_id)}, ""
+    # 27 Nov 2026 (R02 / R17): the premise checks of the build refuse it here already, and it carries its element's
+    # signature (a later reading carries it out only on the same element)
+    why = AA.premise_refusal(plan, f"{AI_RULE}.{action}", action, element, params, {"by": "ai"})
+    if why:
+        return None, None, why
+    try:
+        sig = AA.element_signature(plan, f"{AI_RULE}.{action}", element, key)
+    except Exception:  # noqa: BLE001 - an element the signature cannot read: the decision goes without one
+        sig = None
+    return key, {"opt": opt, "where": _where_of(plan, built, element, level_id), "signature": sig}, ""
 
 
 def look(project_out, model, *, brief: Optional[dict] = None, building_name: str = FINAL_BUILDING,
@@ -875,12 +990,14 @@ def look(project_out, model, *, brief: Optional[dict] = None, building_name: str
         built = base_prep["building"]
         plan = AA.Plan(copy.deepcopy(built))
         record = base_prep["architect"]
-        user_keys = {r["key"] for r in record.get("applied") or [] if r.get("by", "user") == "user"}
-        answered = set(accepted) | user_keys
+        user_keys = {r["key"] for r in record.get("applied") or [] if r.get("by", "user") == "user"
+                     and not r.get("stale")}
+        # 27 Nov 2026 (R02): the points of stale answers are asked again
+        answered = (set(accepted) | user_keys) - for_ai_keys(record) - {r["key"] for r in stale_records(record)}
         qs = [q for q in open_questions(record, answered) if (q.get("where") or {}).get("level_id") == lv
               or _level_of(plan, built, q["element"]) == lv]
-        decided = [d for d in _decided(raw_review(building, brief, accepted), base_prep.get("architect_defaults")
-                                       or {}, answered)
+        decided = [d for d in _decided(raw_review(building, brief, accepted, base_prep.get("architect_replay")),
+                                       base_prep.get("architect_defaults") or {}, answered)
                    if (d.get("where") or {}).get("level_id") == lv or _level_of(plan, built, d["element"]) == lv]
         # the major questions, then the architect's major decisions, then the minor questions
         items = ([q for q in qs if q["severity"] == "major"] + decided
@@ -929,7 +1046,7 @@ def look(project_out, model, *, brief: Optional[dict] = None, building_name: str
                 if q.get("decided") == a["choice"]:
                     e.update(verdict="confirmed", why="the same as the default decision")
                     continue
-                candidates[a["key"]] = _answer(opt, a["reason"], model_name, q.get("where"))
+                candidates[a["key"]] = _answer(opt, a["reason"], model_name, q.get("where"), q)
             for d in data.get("decisions") or []:
                 key, ans, why_not = _decision(d, plan, built, lv)
                 e = {"level": lv, "kind": "own", "key": key or f"{AI_RULE}.{d.get('action')}:{d.get('element')}",
@@ -944,13 +1061,14 @@ def look(project_out, model, *, brief: Optional[dict] = None, building_name: str
                     e.update(verdict="refused", why="decided already")
                     continue
                 meta[key] = e
-                candidates[key] = dict(_answer(ans["opt"], d.get("reason") or "", model_name, ans["where"]),
-                                       own=True)
+                candidates[key] = dict(_answer(ans["opt"], d.get("reason") or "", model_name, ans["where"],
+                                               {"signature": ans.get("signature")}), own=True)
             if candidates:
                 for key, (ok, why) in _verdicts(building, brief, accepted, candidates, base_prep).items():
                     meta[key].update(verdict="accepted" if ok else "refused", why=why)
                     if ok:
                         accepted[key] = candidates[key]
+                        drop_replaced(accepted, candidates[key])          # 27 Nov 2026 (R02)
                     elif key in by_key:
                         tried.setdefault(key, []).append((candidates[key]["choice"], why))
                     else:
@@ -1003,6 +1121,10 @@ def typical_carry(building: dict, brief: Optional[dict], accepted: dict, base_pr
                 continue
             ans = _renamed(copy.deepcopy(accepted[key]), {}, tag, new_tag)
             ans["reason"] = ans["answer"] = f"as {key} on the typical floor {base}: {accepted[key].get('reason')}"
+            # 27 Nov 2026 (R02): its place and signature name the copy's level (the base floor's element is another one)
+            for part, field in (("where", "level_id"), ("signature", "level")):
+                if isinstance(ans.get(part), dict) and ans[part].get(field) == base:
+                    ans[part][field] = c
             candidates[ck] = ans
             group.append(ck)
             e = {"level": c, "kind": "copy", "key": ck, "choice": ans.get("choice"), "reason": ans["reason"],
@@ -1089,4 +1211,5 @@ def report_md(rec: dict) -> str:
         lines.append(f"| `{e['key']}` | {e['severity']} | {e.get('choice') or ''} | {e['verdict']} | "
                      f"{(e.get('why') or '').replace('|', '/')} | {(e.get('reason') or '').replace('|', '/')} |")
     lines.append("")
+    lines += stale_md(rec.get("stale") or [])
     return "\n".join(lines)

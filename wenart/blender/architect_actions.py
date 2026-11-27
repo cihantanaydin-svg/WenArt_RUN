@@ -157,6 +157,13 @@ ACTIONS = {
     # 6 Nov 2026 (real21): the storey count the reading inferred (wenart/blender/architect_storeys.py, N1)
     "storey_count": "the building has another number of storeys (params: count): recorded; the storeys are read, so "
                     "the next reading builds that many",
+    # 27 Nov 2026 (audit rule R17, real06: a passage drawn with dotted lintel lines was read as a window and moved to
+    # the facade; real15: a drawn door was made a serving hatch for a misread counter): the gap read again, the
+    # equipment yields to a drawn door
+    "window_to_passage": "a reading error: the window between two rooms has no window evidence (no window layer, block "
+                         "or size tag): it is a doorless passage at the floor (its head kept)",
+    "trim_piece": "the drawn counter run yields to the drawn door: trimmed at its end by the door to clear its swing "
+                  "and approach, never into a drawn appliance (params: door_id)",
 }
 # The rules whose answers are carried out first (a door that becomes a window is not widened as a door)
 FIRST_RULES = ("E1", "O2", "D4")
@@ -254,7 +261,21 @@ def answers_for_build(building_path, building: dict, folder=None) -> dict:
             out.update((data.get("answers", data) if isinstance(data, dict) else {}) or {})
         except (OSError, ValueError):
             pass
-    out.update(project_answers(building, folder))
+    return merge_user_answers(out, project_answers(building, folder))
+
+
+def merge_user_answers(ai: dict, user: dict) -> dict:
+    """The AI's answers with the user's over them (pure), except (27 Nov 2026, R02, lesson UL396) where the AI's answer
+    replaces that very user answer (``replaces`` names its ``answer_id``): the user's answer was stale on this reading
+    and the AI architect decided again; the user's file is never changed."""
+    out = dict(ai or {})
+    for k, v in (user or {}).items():
+        mine = out.get(k)
+        reps = (mine or {}).get("replaces") if isinstance(mine, dict) else None
+        reps = reps if isinstance(reps, list) else [reps] if isinstance(reps, dict) else []
+        if isinstance(v, dict) and any(isinstance(x, dict) and x.get("id") == answer_id(normalise(k, v)) for x in reps):
+            continue
+        out[k] = v
     return {str(k): v for k, v in out.items() if not str(k).startswith("_")}
 
 
@@ -1104,15 +1125,16 @@ def act_flip_stair(plan: Plan, key: str, ans: dict, piece_id: str):
     return ok, text
 
 
-def act_remove_piece(plan: Plan, key: str, ans: dict, piece_id: str):
-    """The piece is not built (an answer: it does not belong where it stands; 25 Oct 2026)."""
+def act_remove_piece(plan: Plan, key: str, ans: dict, piece_id: str, why: str = ""):
+    """The piece is not built (an answer: it does not belong where it stands; 25 Oct 2026). ``why`` (27 Nov 2026,
+    R17 a: a misread duplicate counter) is logged with the piece's own evidence."""
     f = _piece(plan, piece_id)
     if f is None:
         return False, f"no piece {piece_id}"
     f["build"] = False
-    f["not_built_reason"] = f"the answer to {key}: not built"
-    _mark(f, "adjusted_by_ai", key, ans, f"the answer to {key}: the piece is not built")
-    return True, f"{piece_id} is not built"
+    f["not_built_reason"] = f"the answer to {key}: not built" + (f" ({why})" if why else "")
+    _mark(f, "adjusted_by_ai", key, ans, f"the answer to {key}: the piece is not built" + (f": {why}" if why else ""))
+    return True, f"{piece_id} is not built" + (f": {why}" if why else "")
 
 
 def act_retype_piece(plan: Plan, key: str, ans: dict, piece_id: str, ftype: str):
@@ -1433,6 +1455,40 @@ def act_window_to_door(plan: Plan, key: str, ans: dict, window_id: str):
         o.clear()
         o.update(before)
         return False, f"{window_id} as a door: {clash[0]['message']}"
+    return True, reason
+
+
+PASSAGE_HEAD_M = 2.10           # a passage read again from a window: its head at least this high (under the ceiling)
+PASSAGE_MIN_W = 0.60            # ... and a window this wide or wider (a narrower one is no way through)
+
+
+def act_window_to_passage(plan: Plan, key: str, ans: dict, window_id: str):
+    """27 Nov 2026 (audit rule R17 c; real06: the 1.00 m passage between the master bedroom and the dressing room, drawn
+    with two dotted lintel lines, was read as a window and W2 moved it to the facade, sealing the dressing room and the
+    shower room): a window between two rooms with no window evidence (``window_evidence``) is the doorless passage the
+    drawing shows: an opening at the floor of its rooms, its head kept (at least ``PASSAGE_HEAD_M`` under the ceiling);
+    the drawn values stay, ``corrected_by_ai``. A window with window evidence stays a window."""
+    o = plan.openings.get(window_id)
+    if o is None or o.get("type") != "window":
+        return False, f"no window {window_id}"
+    sides = window_sides(plan, o)
+    if len(sides) != 2 or any(r is None or Plan.is_outside(r) for r in sides) or sides[0]["id"] == sides[1]["id"]:
+        return False, f"{window_id} is not between two rooms"
+    ev = window_evidence(o)
+    if ev:
+        return False, f"{window_id} is drawn as a window ({ev}): it stays a window"
+    if float(o.get("width") or 0.0) + 1e-6 < PASSAGE_MIN_W:
+        return False, f"{window_id} ({float(o.get('width') or 0.0):.2f} m) is too narrow for a passage"
+    base = float(o.get("sill_height") if o.get("sill_height") is not None else 0.9)
+    head = min(max(base + float(o.get("height") if o.get("height") is not None else 1.2), PASSAGE_HEAD_M), plan.top(o))
+    _keep_drawn(o, "type", "sill_height", "height")
+    floors = [z for z in (room_floor(plan, r) for r in sides) if z is not None]
+    o["type"], o["sill_height"], o["height"] = "opening", 0.0, round(head, 3)
+    o["threshold_z"] = round(max(floors), 4) if floors else None
+    o.pop("interior_glazing", None)
+    reason = (f"{window_id} between {sides[0]['id']} and {sides[1]['id']} has no window evidence (no window layer, "
+              f"block or size tag): a doorless passage at the floor, head {head:.2f} m")
+    _mark(o, "corrected_by_ai", key, ans, reason)
     return True, reason
 
 
@@ -1813,6 +1869,174 @@ def still_blocks(plan: Plan, moved: dict, door_ids: list) -> Optional[str]:
                     f"{m['door']} (the code critic's F7 allows {float(m['area_min_m2']):.2f} m2)")
         return f"the leaf of {m['door']} would still swing into it on both hinge sides (the code critic's R3)"
     return None
+
+
+# --------------------------------------------------------------------------
+# 27 Nov 2026 (audit rule R17 a; real15: the drawn door between the living room and the kitchen, the only link of the
+# north unit and its stair, became a serving hatch because a 5.75 m counter read from the counter's front line and the
+# door's lines stood in its swing, 0.34 m off the wall, over the drawn stove, sink and fridge): fixed equipment yields
+# to a drawn door. A counter in front of drawn appliances or off its wall is a misread duplicate and is not built; a
+# drawn counter run is trimmed at its end by the door, never into a drawn appliance
+# --------------------------------------------------------------------------
+
+COUNTER_TYPES = ("kitchen_counter",)
+APPLIANCE_TYPES = ("sink_kitchen", "stove", "hob", "cooktop", "oven", "fridge", "dishwasher", "washing_machine")
+COUNTER_OFF_WALL_M = 0.20       # a counter whose back stands this far or farther off its wall is not on it
+COUNTER_WALL_REACH_M = 0.80     # its wall: a parallel wall face within this of its back
+APPLIANCE_BEHIND_M = 0.10       # an appliance whose centre stands this much nearer the wall than the counter's: behind it
+APPLIANCE_OVERLAP_M2 = 0.03     # ... overlapping it at least this much
+TRIM_CLEAR_M = 0.05             # a trimmed counter ends this far clear of the door's strips
+TRIM_STEP_M = 0.05              # its new length is a whole number of these
+TRIM_MIN_M = 0.30               # never trimmed shorter than this (a real counter piece)
+
+
+def _piece_axes(f: dict):
+    """``(centre, long axis, short axis, length, depth)`` of a piece's footprint (pure)."""
+    fp = f.get("footprint") or {}
+    c = (float(fp["center"][0]), float(fp["center"][1]))
+    a = math.radians(float(fp.get("rotation_deg") or 0.0))
+    sx, sy = float(fp["size"][0]), float(fp["size"][1])
+    ex, ey = (math.cos(a), math.sin(a)), (-math.sin(a), math.cos(a))
+    return (c, ex, ey, sx, sy) if sx >= sy else (c, ey, ex, sy, sx)
+
+
+def counter_wall(plan: Plan, f: dict) -> Optional[tuple[dict, float, tuple]]:
+    """``(wall, gap, normal to the wall)`` of a counter's wall (pure): the wall of its level parallel to its long
+    axis whose face is nearest its back (within ``COUNTER_WALL_REACH_M``; the back is opposite its ``front_deg`` when
+    it has one), ``gap`` the free distance between its back and that face; None without one."""
+    c, ux, uy, length, depth = _piece_axes(f)
+    front = f.get("front_deg")
+    best = None
+    for w in plan.walls.values():
+        if w.get("level_id") != f.get("level_id"):
+            continue
+        a, u, wl = plan.axis(w)
+        if wl < 0.3 or abs(u[0] * ux[0] + u[1] * ux[1]) < 0.95:
+            continue
+        t = plan.t_of(w, c)
+        if t < -length / 2.0 or t > wl + length / 2.0:
+            continue                                    # the wall does not run along the counter
+        p = plan.at_t(w, t)
+        nx, ny = c[0] - p[0], c[1] - p[1]
+        dist = math.hypot(nx, ny)
+        if dist < 1e-6:
+            continue
+        n = (nx / dist, ny / dist)                      # from the wall towards the counter
+        if front is not None:
+            fr = math.radians(float(front))
+            if math.cos(fr) * n[0] + math.sin(fr) * n[1] < 0.3:
+                continue                                # the counter's front faces this wall: it is not its back
+        gap = dist - float(w.get("thickness") or 0.2) / 2.0 - depth / 2.0
+        if -0.1 <= gap <= COUNTER_WALL_REACH_M and (best is None or gap < best[1]):
+            best = (w, gap, n)
+    return best
+
+
+def counter_duplicate(plan: Plan, f: dict) -> Optional[str]:
+    """Why a drawn counter is a misread duplicate (pure; R17 a), else None: its back stands ``COUNTER_OFF_WALL_M`` or
+    more off its wall, or drawn appliances stand behind it (nearer its wall, overlapping it): the counter's front line
+    and other lines read as a second counter in front of the drawn run."""
+    from shapely.geometry import Polygon
+
+    from wenart.blender import architect_rules as RR
+
+    if str(f.get("type") or "") not in COUNTER_TYPES or f.get("source") not in (None, "from_documents") \
+            or not f.get("footprint") or f.get("build") is False:
+        return None
+    got = counter_wall(plan, f)
+    if got is None:
+        return None
+    w, gap, n = got
+    rect = RR.piece_rect(f)
+    if rect is None:
+        return None
+    mine = Polygon(rect)
+    c = f["footprint"]["center"]
+    behind = []
+    for g in plan.b.get("furniture") or []:
+        if g is f or g.get("room_id") != f.get("room_id") or g.get("build") is False \
+                or str(g.get("type") or "") not in APPLIANCE_TYPES or g.get("source") not in (None, "from_documents"):
+            continue
+        r = RR.piece_rect(g)
+        if r is None:
+            continue
+        gc = g["footprint"]["center"]
+        nearer = (c[0] - gc[0]) * n[0] + (c[1] - gc[1]) * n[1]
+        if nearer >= APPLIANCE_BEHIND_M and mine.intersection(Polygon(r)).area >= APPLIANCE_OVERLAP_M2:
+            behind.append(f"{g['id']} ({g.get('type')})")
+    if gap + 1e-6 >= COUNTER_OFF_WALL_M or behind:
+        return (f"{f['id']} ({f.get('type')}) is a misread duplicate: its back stands {gap:.2f} m off {w['id']}"
+                + (f" with the drawn {', '.join(behind[:4])} behind it" if behind else "")
+                + " (its front line read as a second counter)")
+    return None
+
+
+def act_trim_piece(plan: Plan, key: str, ans: dict, piece_id: str, door_id: Optional[str] = None):
+    """R17 a: the drawn counter run ``piece_id`` yields to the drawn door ``door_id``: trimmed at its end by the door
+    so it leaves the door's strips (``_strip_of``, ``approach_strips``) ``TRIM_CLEAR_M`` clear (cut at its end nearer
+    the door), to a whole number of ``TRIM_STEP_M`` and at least ``TRIM_MIN_M``; refused when the cut would reach a
+    drawn appliance of its run or the code critic would still find it in the doorway (``still_blocks``). The drawn
+    footprint stays (``drawn_footprint``), ``adjusted_by_ai``."""
+    from shapely.geometry import Polygon
+
+    from wenart.blender import architect_rules as RR
+
+    f = _piece(plan, piece_id)
+    o = plan.openings.get(door_id or "")
+    if f is None or not f.get("footprint") or str(f.get("type") or "") not in COUNTER_TYPES:
+        return False, f"no counter {piece_id}"
+    if o is None:
+        return False, f"{piece_id}: no door {door_id} to clear"
+    c, ux, uy, length, depth = _piece_axes(f)
+    zones = _strip_of(plan, o) + approach_strips(plan, o, plan.room.get(f.get("room_id")))
+    mine = Polygon(RR.piece_rect(f))
+    lo, hi = -length / 2.0, length / 2.0
+    hit = False
+    for z in zones:
+        zp = Polygon(z)
+        if not zp.is_valid or zp.intersection(mine).area < 1e-4:
+            continue
+        hit = True
+        ts = [(p[0] - c[0]) * ux[0] + (p[1] - c[1]) * ux[1] for p in z]
+        z0, z1 = min(ts) - TRIM_CLEAR_M, max(ts) + TRIM_CLEAR_M
+        # the run is cut at its end nearer the door, up to past the door's strips (what lies beyond them at that end
+        # goes too: never a loose stub behind the door)
+        if (z0 + z1) / 2.0 <= (lo + hi) / 2.0:
+            lo = max(lo, z1)
+        else:
+            hi = min(hi, z0)
+    if not hit:
+        return True, f"{piece_id} is clear of {door_id}: nothing to trim"
+    for g in plan.b.get("furniture") or []:
+        if g is f or g.get("room_id") != f.get("room_id") or g.get("build") is False \
+                or str(g.get("type") or "") not in APPLIANCE_TYPES or not g.get("footprint"):
+            continue
+        r = RR.piece_rect(g)
+        if r is None or Polygon(r).intersection(mine).area < 1e-4:
+            continue
+        ts = [(p[0] - c[0]) * ux[0] + (p[1] - c[1]) * ux[1] for p in r]
+        if min(ts) < lo - 1e-6 or max(ts) > hi + 1e-6:
+            return False, f"{piece_id}: trimming it clear of {door_id} would cut into the drawn {g.get('type')} {g['id']}"
+    new_len = math.floor((hi - lo) / TRIM_STEP_M + 1e-6) * TRIM_STEP_M
+    if new_len + 1e-6 < TRIM_MIN_M:
+        return False, f"{piece_id}: trimmed clear of {door_id} it would be {new_len:.2f} m long, less than a counter"
+    lo = hi - new_len if lo > -length / 2.0 + 1e-6 else lo
+    hi = lo + new_len
+    mid = (lo + hi) / 2.0
+    trial = copy.deepcopy(f)
+    fp = trial["footprint"]
+    fp["center"] = [round(c[0] + ux[0] * mid, 4), round(c[1] + ux[1] * mid, 4)]
+    sx, sy = float(fp["size"][0]), float(fp["size"][1])
+    fp["size"] = [round(new_len, 4), sy] if sx >= sy else [sx, round(new_len, 4)]
+    blocked = still_blocks(plan, trial, [o["id"]])
+    if blocked:
+        return False, f"{piece_id}: trimmed to {new_len:.2f} m {blocked}"
+    f.setdefault("drawn_footprint", copy.deepcopy(f["footprint"]))
+    f["footprint"] = fp
+    reason = (f"{piece_id} trimmed from {length:.2f} m to {new_len:.2f} m at its end by the drawn door {door_id}, "
+              f"clear of its swing and approach (fixed equipment yields to a drawn door; the drawn appliances kept)")
+    _mark(f, "adjusted_by_ai", key, ans, reason)
+    return True, reason
 
 
 def act_move_piece(plan: Plan, key: str, ans: dict, piece_id: str, away_from=None):
@@ -2405,32 +2629,286 @@ def act_wardrobe_fronts(plan: Plan, key: str, ans: dict, room_id: str, kind: str
 
 
 def resolve(plan: Plan, element: str, where: Optional[dict]) -> Optional[str]:
-    """The element an answer names: its id, when it is still where the answer saw it (``where``, within
-    ``WHERE_TOL_M``); else (ids change between readings of the plan) the room or opening of the same level at or
-    nearest to ``where`` (within 1 m); None when nothing is there."""
+    """The element an answer names (``resolve_how``'s element; None when nothing is there)."""
+    return resolve_how(plan, element, where)[0]
+
+
+PLACE_KINDS = ("room", "window", "door", "opening")
+
+
+def resolve_how(plan: Plan, element: str, where: Optional[dict]) -> tuple[Optional[str], Optional[str]]:
+    """``(element, how)`` of an answer: its id (``how`` "id"), when it is still where the answer saw it (``where``,
+    within ``WHERE_TOL_M``); else (ids change between readings of the plan) the room or opening of the same level at or
+    nearest to ``where`` (within 1 m; ``how`` "place"); ``(None, None)`` when nothing is there. 27 Nov 2026 (audit
+    rule R02): an answer found "by place" is carried out only when its signature says it is the same element
+    (``replay_check``)."""
     here = centre_of(plan, element)
-    if here is None and (not isinstance(where, dict) or where.get("kind") not in ("room", "window", "door")):
-        return element                  # a wall, a piece, a tree, a platform, the plan: by its id
+    if here is None and (not isinstance(where, dict) or where.get("kind") not in PLACE_KINDS):
+        return element, "id"            # a wall, a piece, a tree, a platform, the plan: by its id
     if here is not None:
         if not isinstance(where, dict) or not where.get("centre") or (
                 G.distance(here, where["centre"][:2]) <= WHERE_TOL_M
                 and where.get("level_id") in (None, (plan.room.get(element) or plan.openings.get(element) or {})
                                               .get("level_id"))):
-            return element
+            return element, "id"
     if not isinstance(where, dict) or not where.get("centre"):
-        return None
+        return None, None
     cx, cy = where["centre"][:2]
     lid = where.get("level_id")
     if where.get("kind") == "room":
         r = plan.room_at((cx, cy), lid)
-        return r["id"] if r else None
+        # the room at the place is the named one itself (its outline changed, its centre moved): found by id
+        return (r["id"], "id" if r["id"] == element else "place") if r else (None, None)
     best = None
     for o in plan.openings.values():
         if o.get("level_id") == lid and where.get("kind") in (None, o.get("type")):
             d = G.distance(o["center"], (cx, cy))
             if d <= 1.0 and (best is None or d < best[0]):
                 best = (d, o["id"])
-    return best[1] if best else None
+    return (best[1], "id" if best[1] == element else "place") if best else (None, None)
+
+
+# --------------------------------------------------------------------------
+# 27 Nov 2026 (audit rule R02, lesson UL396; real06: 112 answers of 25-30 Oct and real10: 317 of 2 Nov were replayed
+# on readings of 26 Nov, re-targeted by place onto other elements: AI.french_window:d_L1_011, a '1.98 m outside door',
+# put a guard across the balcony door d_L1_002; E1:d_L0_024's door_to_window made real10's mirror balcony door d_L0_025
+# a window): an answer carries the signature of the element it was given for, and a replayed answer is carried out
+# only when its question is raised again for the element it resolves to and the signature matches. A stale answer is
+# never carried out; it is logged and shown, and the AI architect decides again (the user is not asked again).
+# --------------------------------------------------------------------------
+
+SIG_VERSION = 1
+SIG_WIDTH_TOL_M = 0.10          # an opening's width: the same within this
+SIG_WALL_TOL_DEG = 15.0         # its host wall's direction (mod 180)
+SIG_NORMAL_TOL_DEG = 45.0       # its outward normal (an inside opening has none)
+SIG_AREA_TOL = 0.25             # a room's or an outdoor space's area: the same within this share
+SIG_SIZE_TOL_M = 0.10           # a piece's two sizes
+SIG_LENGTH_TOL_M = 0.30         # a wall's length
+SIG_LANDING_PROBE_M = 0.50      # what an outer opening lands on is looked for this far out of its wall face
+SIG_LANDING_TOL_M = 0.30
+
+
+def _fold(text) -> str:
+    """A label as the signature compares it: ASCII, lower case, single spaces (Turkish dotless i read as i)."""
+    import unicodedata
+
+    s = str(text or "").replace("ı", "i").replace("İ", "I")
+    s = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode("ascii").lower()
+    return " ".join("".join(ch if ch.isalnum() else " " for ch in s).split())
+
+
+def _room_text(room: Optional[dict]) -> str:
+    """One side of an opening in a signature: ``outside``, else ``<drawn type>|<label>`` (an open-air room keeps its
+    type: a balcony room is something to step onto)."""
+    if room is None:
+        return "outside"
+    rtype = str(room.get("drawn_type") or room.get("room_type") or "")
+    return f"{rtype}|{_fold(room.get('label') or room.get('name') or '')}"
+
+
+def element_kind(plan: Plan, element: str) -> Optional[str]:
+    """``room``, ``door`` / ``window`` / ``opening`` (as drawn: ``drawn_type``), ``piece``, ``space``, ``wall`` or
+    None (pure)."""
+    if element in plan.room:
+        return "room"
+    if element in plan.openings:
+        o = plan.openings[element]
+        return str(o.get("drawn_type") or o.get("type") or "opening")
+    if _piece(plan, element) is not None:
+        return "piece"
+    if _space(plan, element) is not None:
+        return "space"
+    if element in plan.walls:
+        return "wall"
+    return None
+
+
+def _deg(v) -> float:
+    return math.degrees(math.atan2(v[1], v[0])) % 360.0
+
+
+def opening_outward(plan: Plan, o: dict) -> Optional[tuple]:
+    """``(normal, inside room, mid point)`` of an opening with the outside (no room, or an open-air room) on exactly
+    one side, the normal pointing out; None for an inside opening or one without its wall (pure)."""
+    w = plan.walls.get(o.get("wall_id"))
+    sides = window_sides(plan, o)
+    if w is None or len(sides) != 2:
+        return None
+    out = [Plan.is_outside(r) for r in sides]
+    if out[0] == out[1]:
+        return None
+    a, u, _ = plan.axis(w)
+    n = (-u[1], u[0]) if out[0] else (u[1], -u[0])
+    t = plan.t_of(w, o["center"])
+    return n, sides[1] if out[0] else sides[0], (a[0] + u[0] * t, a[1] + u[1] * t)
+
+
+def landing_outside(plan: Plan, o: dict) -> Optional[dict]:
+    """What an outer opening steps onto at its floor (``site.landing_at``: an open-air room that is no void, an outdoor
+    space os_*, a platform), probed ``SIG_LANDING_PROBE_M`` out of its wall face; None for nothing (or an inside
+    opening). Pure; never raises."""
+    got = opening_outward(plan, o)
+    if got is None:
+        return None
+    n, room, mid = got
+    w = plan.walls.get(o.get("wall_id")) or {}
+    reach = float(w.get("thickness") or 0.2) / 2.0 + SIG_LANDING_PROBE_M
+    probe = (mid[0] + n[0] * reach, mid[1] + n[1] * reach)
+    floor = room_floor(plan, room)
+    if floor is None:
+        floor = float((plan.levels.get(o.get("level_id")) or {}).get("elevation") or 0.0)
+    try:
+        from wenart.blender import site as S
+        return S.landing_at(plan.b, o.get("level_id"), probe, floor, tol=SIG_LANDING_TOL_M)
+    except Exception:  # noqa: BLE001 - no landing test: nothing is claimed
+        return None
+
+
+def element_signature(plan: Plan, rule: str, element: str, key: Optional[str] = None) -> dict:
+    """What an answer was given for (pure; R02): the rule, the element's kind and level and, by kind, an opening's host
+    wall direction, outward normal, the rooms on both sides (their drawn types and labels), what it lands on and its
+    width; a room's type, label and area; a piece's type, room and sizes; an outdoor space's kind and area; a wall's
+    direction and length. Drawn values (``drawn_type``, ``drawn_width``, ``drawn_wall_id``, ``drawn_center``) are used
+    where an answer changed them, so the signature of an element stays the same while answers are carried out."""
+    sig: dict = {"v": SIG_VERSION, "rule": rule, "key": key or f"{rule}:{element}",
+                 "kind": element_kind(plan, element)}
+    if element in plan.room:
+        r = plan.room[element]
+        sig.update(level=r.get("level_id"), room=_room_text(r), area=round(room_area(r), 2))
+        return sig
+    if element in plan.openings:
+        o = plan.openings[element]
+        at = dict(o, wall_id=o.get("drawn_wall_id") or o.get("wall_id"), center=o.get("drawn_center") or o.get("center"))
+        w = plan.walls.get(at.get("wall_id"))
+        width = o.get("drawn_width") if o.get("drawn_width") is not None else o.get("width")
+        sig.update(level=o.get("level_id"), width=round(float(width or 0.0), 3))
+        if w is not None and at.get("center"):
+            _a, u, _l = plan.axis(w)
+            sig["wall_deg"] = round(_deg(u) % 180.0, 1)
+            sig["sides"] = sorted(_room_text(r) for r in window_sides(plan, at))
+            got = opening_outward(plan, at)
+            sig["out_deg"] = round(_deg(got[0]), 1) if got else None
+            if got:
+                land = landing_outside(plan, at)
+                sig["outside"] = str(land.get("kind")) if land else "air"
+        return sig
+    f = _piece(plan, element)
+    if f is not None:
+        fp = f.get("drawn_footprint") if isinstance(f.get("drawn_footprint"), dict) else (f.get("footprint") or {})
+        size = sorted(round(float(v), 2) for v in (fp.get("size") or [])[:2])
+        sig.update(level=f.get("level_id"), type=str(f.get("drawn_type") or f.get("type") or ""),
+                   room=_room_text(plan.room.get(f.get("room_id"))) if f.get("room_id") in plan.room else None,
+                   size=size)
+        return sig
+    s = _space(plan, element)
+    if s is not None:
+        poly = s.get("polygon") or []
+        sig.update(level=s.get("level_id"), space=str(s.get("kind") or ""),
+                   area=round(abs(G.polygon_area(poly)), 2) if len(poly) >= 3 else None)
+        return sig
+    if element in plan.walls:
+        w = plan.walls[element]
+        _a, u, length = plan.axis(w)
+        sig.update(level=w.get("level_id"), wall_deg=round(_deg(u) % 180.0, 1), length=round(length, 2))
+    return sig
+
+
+def _angle_off(a: float, b: float, period: float) -> float:
+    d = abs(float(a) - float(b)) % period
+    return min(d, period - d)
+
+
+def signature_diff(stored: dict, now: dict) -> list[str]:
+    """What differs between the signature an answer carries and the element's signature now (pure; [] = the same
+    element). Only the fields both have are compared, each within its tolerance (``SIG_*``)."""
+    out = []
+
+    def both(k):
+        return k in stored and k in now
+
+    for k in ("kind", "level", "outside", "space", "type"):
+        if both(k) and stored[k] is not None and now[k] is not None and stored[k] != now[k]:
+            out.append(f"{k} {stored[k]} -> {now[k]}")
+    if both("wall_deg") and _angle_off(stored["wall_deg"], now["wall_deg"], 180.0) > SIG_WALL_TOL_DEG:
+        out.append(f"host wall direction {stored['wall_deg']:.0f} -> {now['wall_deg']:.0f} deg")
+    if both("out_deg"):
+        if (stored["out_deg"] is None) != (now["out_deg"] is None):
+            out.append("an outer opening -> an inside one" if now["out_deg"] is None else
+                       "an inside opening -> an outer one")
+        elif stored["out_deg"] is not None and _angle_off(stored["out_deg"], now["out_deg"], 360.0) > SIG_NORMAL_TOL_DEG:
+            out.append(f"outward normal {stored['out_deg']:.0f} -> {now['out_deg']:.0f} deg")
+    if both("sides") and list(stored["sides"] or []) != list(now["sides"] or []):
+        out.append(f"rooms on its sides {' / '.join(stored['sides'] or [])} -> {' / '.join(now['sides'] or [])}")
+    if both("room") and stored["room"] is not None and now["room"] is not None and stored["room"] != now["room"]:
+        out.append(f"room {stored['room']} -> {now['room']}")
+    if both("width") and abs(float(stored["width"] or 0) - float(now["width"] or 0)) > SIG_WIDTH_TOL_M + 1e-9:
+        out.append(f"width {float(stored['width'] or 0):.2f} -> {float(now['width'] or 0):.2f} m")
+    if both("length") and abs(float(stored["length"] or 0) - float(now["length"] or 0)) > SIG_LENGTH_TOL_M + 1e-9:
+        out.append(f"length {float(stored['length'] or 0):.2f} -> {float(now['length'] or 0):.2f} m")
+    if both("area") and stored["area"] and now["area"] and \
+            abs(float(stored["area"]) - float(now["area"])) > SIG_AREA_TOL * max(float(stored["area"]), 1e-6):
+        out.append(f"area {float(stored['area']):.1f} -> {float(now['area']):.1f} m2")
+    if both("size") and len(stored["size"] or []) == len(now["size"] or []) == 2 and any(
+            abs(float(x) - float(y)) > SIG_SIZE_TOL_M + 1e-9 for x, y in zip(stored["size"], now["size"])):
+        out.append(f"size {stored['size']} -> {now['size']} m")
+    return out
+
+
+def answer_id(ans: dict) -> str:
+    """A short fingerprint of one answer (its choice, parameters, author, date, place and words; pure): a new answer
+    names the stale answer it replaces by it (``replaces``)."""
+    import hashlib
+
+    keep = {k: ans.get(k) for k in ("option", "params", "by", "date", "where", "answer")}
+    return hashlib.sha1(json.dumps(keep, sort_keys=True, default=str).encode("utf-8")).hexdigest()[:12]
+
+
+def stale_summary(key: str, ans: dict, why: str, target: Optional[str] = None) -> dict:
+    """What the report and the AI architect see of a stale answer (pure)."""
+    return {"key": key, "id": answer_id(ans), "by": ans.get("by", "user"), "option": ans.get("option") or "keep",
+            "choice": ans.get("choice") or ans.get("option") or "keep", "params": dict(ans.get("params") or {}),
+            "date": ans.get("date"), "answer": ans.get("answer"), "why": why, "element": target}
+
+
+def replay_check(plan: Plan, key: str, ans: dict) -> dict:
+    """``{"target", "how", "stale"}`` of an answer that is not the architect's own default of this run (pure; R02): the
+    element it resolves to (``resolve_how``) and why it is stale, or None: an answer re-targeted by place without a
+    signature is stale (its element moved: the nearest element there is another one); an answer with a signature is
+    stale when the element it resolves to differs from it (``signature_diff``)."""
+    rule, _sep, element = key.partition(":")
+    where = ans.get("where") if isinstance(ans.get("where"), dict) else None
+    target, how = resolve_how(plan, element, where)
+    out = {"target": target, "how": how, "stale": None}
+    if target is None:
+        return out
+    sig = ans.get("signature") if isinstance(ans.get("signature"), dict) else None
+    if how == "place" and sig is None:
+        c = (where or {}).get("centre") or [0, 0]
+        out["stale"] = (f"{element} is no longer where the answer saw it ({where.get('kind')} at {float(c[0]):.2f}, "
+                        f"{float(c[1]):.2f} on {where.get('level_id')}); {target} there is not shown to be the same "
+                        f"element (the answer carries no signature)")
+        return out
+    if sig is not None:
+        diff = signature_diff(sig, element_signature(plan, rule, target, key))
+        if diff:
+            out["stale"] = f"{target} is not the element the answer was given for: {'; '.join(diff)}"
+    return out
+
+
+def stamp_signatures(building: dict, questions: list) -> None:
+    """Every open point of a review gets the signature of its element (``element_signature``, in place; R02): the AI
+    architect's and the architect's answers copy it, so a later reading can tell whether the answer still fits."""
+    plan = None
+    for q in questions or []:
+        for a in q.get("answers") or []:
+            if not a.get("open") or a.get("signature"):
+                continue
+            if plan is None:
+                plan = Plan(building)
+            try:
+                a["signature"] = element_signature(plan, q["id"], str(a["element"]))
+            except Exception:  # noqa: BLE001 - an element the signature cannot read: the answer goes without one
+                continue
 
 
 # --------------------------------------------------------------------------
@@ -2515,13 +2993,255 @@ def walk_restore(building: dict, snap: dict, plan: Optional[Plan] = None) -> Non
 
 
 def walk_cut(building: dict, snap: dict) -> Optional[str]:
-    """Why the change since ``snap`` is undone: it took away the only way between two rooms (``architect.cut_links``);
-    None when every room still reaches the rooms it reached (or nothing a person walks through changed)."""
+    """Why the change since ``snap`` is undone: it took away the only way between two rooms (``architect.cut_links``,
+    on the whole house and, 27 Nov 2026 (R17), within each floor), or (27 Nov 2026, audit rule R02: real10's mirror
+    balcony os_L0_balkon_mirror_1 lost its only door d_L0_025 to a stale door_to_window answer) the only door or passage
+    onto an outdoor space (``lost_spaces``); None when every room and space still reaches what it reached (or nothing
+    a person walks through changed)."""
     if walk_signature(building) == snap["signature"]:
         return None
     from wenart.blender import architect as AR      # lazy: architect imports this module
-    cuts = AR.cut_links(walk_before(building, snap), building)
-    return AR.cut_text(cuts) if cuts else None
+    before = walk_before(building, snap)
+    cuts = AR.cut_links(before, building)
+    lost = lost_spaces(before, building)
+    if not cuts and not lost:
+        return None
+    return "; ".join(([AR.cut_text(cuts)] if cuts else []) + lost)
+
+
+def space_ways(building: dict) -> dict:
+    """``{outdoor space id: [door or passage ids]}`` (pure; R02): the doors and doorless openings (not virtual) that
+    land on each outdoor space of the site (``landing_outside``) or that the space lists as its doors and are still a
+    door or a passage."""
+    site = building.get("site") if isinstance(building.get("site"), dict) else {}
+    spaces = [s for s in site.get("outdoor_spaces") or [] if isinstance(s, dict) and s.get("id")]
+    if not spaces:
+        return {}
+    plan = Plan(building)
+    ways = {o["id"]: o for o in building.get("openings") or [] if o.get("type") in ("door", "opening")
+            and not o.get("virtual")}
+    out: dict = {s["id"]: sorted(str(d) for d in s.get("doors") or [] if d in ways) for s in spaces}
+    for o in ways.values():
+        land = landing_outside(plan, o)
+        if land is not None and land.get("id") in out and o["id"] not in out[land["id"]]:
+            out[land["id"]] = sorted(out[land["id"]] + [o["id"]])
+    return out
+
+
+def lost_spaces(before: dict, after: dict) -> list[str]:
+    """The outdoor spaces (os_*) that ``after`` left with no door or passage while ``before`` had one (pure; R02)."""
+    was, now = space_ways(before), space_ways(after)
+    return [f"{', '.join(ids)} was the only way onto the outdoor space {sid}" for sid, ids in sorted(was.items())
+            if ids and not now.get(sid)]
+
+
+# --------------------------------------------------------------------------
+# 27 Nov 2026 (audit rules R02 and R17): what the drawing says an opening is, and the premise checks of the answers
+# that change a door, a window or a room
+# --------------------------------------------------------------------------
+
+DOOR_TAG_RE = r"^\s*(?:[KkDd]\s*\d{0,2}\s*[:\-.]?\s*)?(\d{2,3})\s*/\s*(\d{2,3})\s*$"   # 'K1-80/210', 'K:90/210', '80/210'
+DOOR_TAG_MIN_H_CM = 180          # a size tag this high names a door (= core_rules.DOOR_TAG_MIN_H_M)
+NOT_DRAWN_RULES = ("inferred_door", "lift_door", "cut_span_door", "wide_gap", "glazed_facade", "framed_window",
+                   "basement_footprint", "gap_behind_furniture", "door_over_window", "inferred_window", "no_glass")
+WINDOW_RULES = ("framed_window", "glazed_facade", "door_over_window", "sliding_window", "window_block")
+
+
+def _tag_cm(text) -> Optional[tuple[int, int]]:
+    import re
+
+    m = re.match(DOOR_TAG_RE, str(text or ""))
+    return (int(m.group(1)), int(m.group(2))) if m else None
+
+
+def door_tag(o: dict) -> Optional[tuple[float, float, str]]:
+    """``(width, height, text)`` of the door size tag the documents give an opening (pure; R17 e): its ``door_tags``,
+    or an evidence entry of a size tag ('K1-80/210', '90/210') at least ``DOOR_TAG_MIN_H_CM`` high; None without."""
+    texts = [str(t) for t in o.get("door_tags") or []]
+    for e in o.get("evidence") or []:
+        if isinstance(e, dict) and (str(e.get("rule") or "").startswith("size_tag") or e.get("rule") in
+                                    ("door_tag", "own_door_tag")):
+            texts += [str(e.get(k)) for k in ("text", "tag") if e.get(k)]
+    for t in texts:
+        got = _tag_cm(t)
+        if got and got[1] >= DOOR_TAG_MIN_H_CM:
+            return got[0] / 100.0, got[1] / 100.0, t.strip()
+    return None
+
+
+def drawn_door_evidence(o: dict) -> Optional[str]:
+    """What says a door is drawn (pure; R17 a): its swing arc, its door block, its door size tag or its swing read
+    from the drawing; None for a door the reading or a rule only inferred (a gap, a lift's landing door, a facade
+    frame, a door the architect made). A drawn door is never made a window or a hatch."""
+    if str(o.get("drawn_type") or o.get("type") or "") != "door" or o.get("lift_door") or o.get("virtual"):
+        return None
+    from wenart.ingest.generic import layer_names as LN
+
+    for e in o.get("evidence") or []:
+        if not isinstance(e, dict):
+            continue
+        rule = str(e.get("rule") or "")
+        note = str(e.get("note") or "").lower()
+        if rule.startswith("architect") or rule in NOT_DRAWN_RULES or note.startswith("unclassified gap"):
+            continue
+        ents = [x.strip().upper() for x in str(e.get("entity") or "").split(",")]
+        if any(x.startswith("ARC:") for x in ents):
+            return "its drawn swing arc"
+        if any(x.startswith("INSERT:") for x in ents) and str(e.get("method") or "vector") == "vector":
+            return "its door block"
+        for name in str(e.get("block") or e.get("block_name") or "").split("/"):
+            if name and LN.layer_role(name) == "door":
+                return f"its door block '{name}'"
+        if "leaf" in note and (e.get("door_layer") or LN.layer_role(str(e.get("layer") or "")) == "door"):
+            return f"its leaves drawn on the door layer '{e.get('layer') or ''}'".replace(" ''", "")
+    tag = door_tag(o)
+    if tag:
+        return f"its door size tag '{tag[2]}'"
+    if o.get("operation_source") == "block_name":
+        return "its door block"
+    return None                 # a swing side alone is no drawn swing (the reading sets one for a door read from lines)
+
+
+NOT_WINDOW_RULES = ("inferred_window", "no_glass", "gap_behind_furniture", "wide_gap", "inferred")
+STROKES = ("LINE:", "LWPOLYLINE:", "POLYLINE:", "ARC:")
+
+
+def window_evidence(o: dict) -> Optional[str]:
+    """What says a window is drawn as a window (pure; R17 c): a window size tag, a window block or layer, frame or sash
+    lines on a window layer, or the frame and glass strokes the reading's window rule read in its gap; None for a
+    window without any (no evidence, only inferred evidence, a gap of unclassified content) or one code made from a
+    door or a gap (``drawn_type``). W2 never moves a window without it to a facade: it is read again as a passage."""
+    from wenart.ingest.generic import layer_names as LN
+
+    if str(o.get("drawn_type") or "window") != "window":
+        return None
+    raw = str(o.get("type_raw") or "").lower()
+    if "unclassified gap" in raw:
+        return None
+    if not o.get("evidence"):
+        return "a window record without evidence (taken as drawn)"     # a hand-made building: no reading to doubt
+    if "window size tag" in raw or "window frame" in raw or "window block" in raw:
+        return f"its {raw.split(',')[0]}"
+    strokes = None
+    for e in o.get("evidence") or []:
+        if not isinstance(e, dict):
+            continue
+        rule = str(e.get("rule") or "")
+        note = str(e.get("note") or "").lower()
+        if rule.startswith("architect") or rule in NOT_WINDOW_RULES or note.startswith("unclassified gap"):
+            continue
+        if rule == "size_tag":
+            got = _tag_cm(e.get("text") or e.get("tag"))
+            if got is None or got[1] < DOOR_TAG_MIN_H_CM:
+                return f"its window size tag '{e.get('text') or e.get('tag') or ''}'".replace(" ''", "")
+        if rule in WINDOW_RULES:
+            return f"its window frame lines ({rule})"
+        for name in (str(e.get("layer") or ""), *str(e.get("block") or e.get("block_name") or "").split("/")):
+            if name and LN.layer_role(name) == "window":
+                return f"its window layer or block '{name}'"
+        if "window layer" in note or "sash" in note:
+            return "its sash lines on a window layer"
+        entity = str(e.get("entity") or "")
+        ents = [x.strip().upper() for x in entity.split(",")]
+        if str(e.get("method") or "vector") != "vector" or entity.startswith("gap:"):
+            continue
+        if any(x.startswith("INSERT:") for x in ents):
+            return "its window block"
+        if strokes is None and any(x.startswith(STROKES) for x in ents):
+            strokes = "its frame and glass strokes in the wall"
+    return strokes
+
+
+def other_doors(plan: Plan, room_id: str, skip: str) -> list[str]:
+    """The doors (type door, not virtual) other than ``skip`` that join ``room_id`` to a room or the outside (pure)."""
+    out = []
+    for o in plan.openings.values():
+        if o["id"] == skip or o.get("type") != "door" or o.get("virtual"):
+            continue
+        if room_id in [(r or {}).get("id") for r in window_sides(plan, o)]:
+            out.append(o["id"])
+    return sorted(out)
+
+
+NO_DAYLIGHT_TYPES = ("storage", "technical", "shaft", "closet", "store")
+LIVED_IN_TYPES = ("living", "bedroom", "kitchen", "dining", "office", "study")
+
+
+def premise_refusal(plan: Plan, rule: str, opt: str, target: Optional[str], params: dict, ans: dict) -> Optional[str]:
+    """Why an answer that is not the user's is not carried out because what it rests on is not true in this reading
+    (pure; 27 Nov 2026, audit rules R02 and R17, like ``c1_refusal``), else None:
+
+    - ``door_to_window`` / ``pass_through`` on a drawn door (``drawn_door_evidence``): a drawn door is never made a
+      window or a hatch; ``door_to_window`` (E1, O2) on an opening with something outside to step onto (an outdoor
+      space, a balcony or terrace room, a platform at its floor: ``landing_outside``);
+    - ``french_window`` on an opening onto such a landing at its floor: no drop, no guard;
+    - ``move_window_to_outer_wall`` on a window between two rooms with no window evidence (``window_evidence``): never
+      a new facade window the elevations do not show (it is read again as a passage);
+    - ``retype_room`` to a room that needs no daylight (storage, technical ...) of a lived-in room that has its
+      daylight (glass to the outside of ``DAYLIGHT_RATIO`` of its floor), an L1 (daylight) retype of a room that has
+      it, and a retype to a type with an anchor piece (``architect.ANCHORS``: a bed, a sofa, a toilet, a counter) of
+      a room whose drawn pieces hold none;
+    - ``gap_to_door`` into rooms that another door already reaches (R17 f: no privacy door from an unclassified gap)."""
+    if ans.get("by", "user") == "user":
+        return None
+    if opt in ("door_to_window", "pass_through", "french_window"):
+        oid = params.get("door_id") or target
+        o = plan.openings.get(oid)
+        if o is None:
+            return None
+        if opt in ("door_to_window", "pass_through") and o.get("type") == "door":
+            drawn = drawn_door_evidence(o)
+            if drawn:
+                return f"{oid} is a drawn door ({drawn}): a drawn door is never made a window or a hatch"
+        if opt in ("door_to_window", "french_window"):
+            land = landing_outside(plan, o)
+            if land is not None:
+                what = f"the {land.get('kind')} {land.get('id')}"
+                return (f"{oid} opens onto {what} at its floor: something is outside to step onto, so it stays a door "
+                        f"or passage" if opt == "door_to_window" else
+                        f"{oid} opens onto {what} at its floor: no drop, no guard")
+    elif opt == "move_window_to_outer_wall":
+        wid = params.get("window_id") or (target if target in plan.openings else None)
+        o = plan.openings.get(wid)
+        if o is not None and o.get("type") == "window":
+            sides = window_sides(plan, o)
+            if sides and not any(Plan.is_outside(r) for r in sides) and window_evidence(o) is None:
+                return (f"{wid} has no window evidence (no window layer, block or size tag, only lines in a gap): it is "
+                        f"never moved to a facade the drawings do not show (it is read again as a passage)")
+    elif opt == "retype_room":
+        rid = params.get("room_id") or target
+        r = plan.room.get(rid)
+        new = str(params.get("room_type") or "")
+        if r is not None and new != r.get("room_type"):
+            area = room_area(r)
+            have, _wins = outside_glass(plan, rid)
+            lit = area > 0 and have + 1e-6 >= DAYLIGHT_RATIO * area
+            if lit and (rule == "L1" or (new in NO_DAYLIGHT_TYPES and str(r.get("room_type") or "") in LIVED_IN_TYPES)):
+                return (f"{rid} has {have:.2f} m2 of glass to the outside (at least 1/{1 / DAYLIGHT_RATIO:.0f} of its "
+                        f"{area:.1f} m2 floor): the premise of a room without daylight is not true in this reading, "
+                        f"its type stays {r.get('room_type')}")
+            # a room whose drawn pieces say what it is: a retype to a type with an anchor piece (a bed, a sofa, a
+            # toilet, a counter) needs that piece drawn in it (real06: an old decision made the dressing room with its
+            # two drawn wardrobes a bedroom "for its double bed", a bed of another reading)
+            from wenart.blender import architect as AR      # lazy: architect imports this module
+            anchors = AR.ANCHORS.get(new) or ()
+            drawn = [f for f in plan.b.get("furniture") or [] if f.get("room_id") == rid
+                     and f.get("source") in (None, "from_documents") and f.get("build", True) is not False]
+            if anchors and drawn and not any(str(f.get("type") or "") in anchors for f in drawn):
+                return (f"{rid} holds the drawn {', '.join(sorted({str(f.get('type')) for f in drawn})[:4])} and no "
+                        f"{' or '.join(anchors[:2])}: the premise of a {new} is not drawn in this reading")
+    elif opt == "gap_to_door":
+        oid = params.get("door_id") or target
+        o = plan.openings.get(oid)
+        rooms = _two_rooms(plan, o) if o is not None else None
+        if rooms is not None:
+            from wenart.blender import door_spacing as DS
+            private = [x["id"] for x in rooms if DS.needs_privacy(x)]
+            served = {rid: other_doors(plan, rid, oid) for rid in private}
+            if private and all(served.values()):
+                return (f"{oid}: {', '.join(f'{rid} is reached by {served[rid][0]}' for rid in private)} already: no "
+                        f"second (privacy) door from a gap")
+    return None
 
 
 def c1_refusal(building: dict, room_id: str, room_type: str) -> Optional[str]:
@@ -2543,7 +3263,12 @@ def c1_refusal(building: dict, room_id: str, room_type: str) -> Optional[str]:
     return None
 
 
-def apply_answers(building: dict, answers: dict, head_limit=None) -> list[dict]:
+def replayed(ans: dict) -> bool:
+    """An answer the replay gate checks (R02): every answer but the architect's own defaults of this run."""
+    return ans.get("by", "user") != "architect"
+
+
+def apply_answers(building: dict, answers: dict, head_limit=None, replay: Optional[dict] = None) -> list[dict]:
     """Carry ``answers`` (``answers_of``) out on ``building`` (pure; in place), in the order of their keys; windows
     are sized under ``head_limit(opening)`` (the roof over them: ``roof.opening_head_limit``; None: the ceiling).
     Returns ``[{"key", "option", "ok", "change", "by", "element"}]``; an answer whose element is gone or whose
@@ -2552,20 +3277,51 @@ def apply_answers(building: dict, answers: dict, head_limit=None) -> list[dict]:
     31 Oct 2026 (real06 run 20261030-224530-full): an answer that is not the user's never takes away the only way
     between two rooms (a door or passage made a window or a hatch, closed or merged away, a stair left out): code
     checks the room graph after it (``walk_cut``) and undoes it whole, with the reason; C1's retype is carried out
-    only while its point holds (``c1_refusal``)."""
+    only while its point holds (``c1_refusal``).
+
+    27 Nov 2026 (audit rule R02, lesson UL396): an answer that is not the architect's own default of this run
+    (``replayed``) is checked first (``replay_check``): re-targeted by place without a signature, or onto an element its
+    signature does not match, it is stale and not carried out (``stale`` True, ``old`` its summary). ``replay``
+    (``building["architect_replay"]``, set by ``build.prepare``: ``{"admitted": {key: element}, "stale": {key: why},
+    "withhold": bool}``) adds this run's review: an answer is carried out only when it is admitted (its question is
+    raised for its element in this reading); one the gate calls stale is recorded stale; with ``withhold`` the others
+    wait (``withheld``: the gate's first round). An answer that is not the user's is also refused when its premise is
+    not true in this reading (``premise_refusal``, ``premise`` True; R02 and R17)."""
     out = []
     plan = Plan(building, head_limit)
+    replay = building.get("architect_replay") if replay is None else replay
+    replay = replay if isinstance(replay, dict) else None
     for key in sorted(answers, key=lambda k: (k.partition(":")[0] not in FIRST_RULES, k)):
         ans = answers[key]
         rule, _sep, element = key.partition(":")
         opt = ans.get("option") or "keep"
         params = dict(ans.get("params") or {})
         rec = {"key": key, "rule": rule, "option": opt, "by": ans.get("by", "user"), "answer": ans.get("answer")}
-        target = resolve(plan, element, ans.get("where"))
+        if ans.get("replaces"):
+            rec["replaces"] = ans["replaces"]
+        stale = None
+        if replayed(ans):
+            chk = replay_check(plan, key, ans)
+            target, stale = chk["target"], chk["stale"]
+            if target is not None and stale is None and replay is not None:
+                if key in (replay.get("stale") or {}):
+                    stale = replay["stale"][key]
+                elif key not in (replay.get("admitted") or {}) and replay.get("withhold"):
+                    rec.update(element=target, ok=False, withheld=True, change=None)
+                    out.append(rec)
+                    continue
+        else:
+            target = resolve(plan, element, ans.get("where"))
         rec["element"] = target or element
+        why_not = premise_refusal(plan, rule, opt, target, params, ans) if target is not None and not stale else None
         if target is None:
             rec.update(ok=False, skipped=True, change=f"{element} is not in this reading of the plan (nothing at the "
                                                       f"place the answer named)")
+        elif stale:
+            rec.update(ok=False, stale=True, change=f"stale: not applied: {stale}",
+                       old=stale_summary(key, ans, stale, target))
+        elif why_not:
+            rec.update(ok=False, premise=True, change=why_not)
         elif opt == "keep":
             rec.update(ok=True, change=None)
         else:
@@ -2598,7 +3354,12 @@ def apply_answers(building: dict, answers: dict, head_limit=None) -> list[dict]:
                     ok, text = act_stair_run(plan, key, ans, params.get("piece_id") or target,
                                              params.get("count", "auto"))
                 elif opt == "remove_piece":
-                    ok, text = act_remove_piece(plan, key, ans, params.get("piece_id") or target)
+                    ok, text = act_remove_piece(plan, key, ans, params.get("piece_id") or target,
+                                                str(params.get("why") or ""))
+                elif opt == "trim_piece":                   # 27 Nov 2026 (R17 a)
+                    ok, text = act_trim_piece(plan, key, ans, params.get("piece_id") or target, params.get("door_id"))
+                elif opt == "window_to_passage":            # 27 Nov 2026 (R17 c)
+                    ok, text = act_window_to_passage(plan, key, ans, params.get("window_id") or target)
                 elif opt == "retype_piece":
                     ok, text = act_retype_piece(plan, key, ans, params.get("piece_id") or target,
                                                 str(params.get("type") or ""))
