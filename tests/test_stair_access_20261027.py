@@ -305,7 +305,10 @@ def test_a_flip_stair_answer_is_carried_out_before_the_slabs_are_built():
     plain = B.prepare(copy.deepcopy(b), "base", None)
     assert plain["stair_access"]["fixed"] == 1                     # K4: the half landing at the other end
     first = SA.assess(plain["building"], _piece(plain["building"]))["ends"]["arrival_at"]
-    brief = {"architect_answers": {"AI.flip_stair:st0": {"option": "flip_stair", "by": "argus"}}}
+    # 27 Nov 2026 (audit fix round 3b, item 8): a machine answer is replayed only with its element's signature
+    from wenart.blender import architect_actions as AA
+    sig = AA.element_signature(AA.Plan(b), "AI.flip_stair", "st0", "AI.flip_stair:st0")
+    brief = {"architect_answers": {"AI.flip_stair:st0": {"option": "flip_stair", "by": "argus", "signature": sig}}}
     prep = B.prepare(copy.deepcopy(b), "base", brief)
     applied = [r for r in prep["architect_applied"] if r["option"] == "flip_stair"]
     assert applied and applied[0]["ok"]

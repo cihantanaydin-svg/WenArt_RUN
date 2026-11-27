@@ -302,6 +302,11 @@ def test_real06_the_ai_decisions_of_run_180412_are_refused_by_code(real06):
     answers = {f"AI.window_to_door:{i}": ans("window_to_door", c) for i, c in ids.items() if i.startswith("win")}
     answers.update({f"AI.french_window:{i}": ans("french_window", c) for i, c in ids.items()})
     answers["AI.gap_to_door:o_L1_002"] = ans("gap_to_door", ids["o_L1_002"])
+    # 27 Nov 2026 (audit fix round 3b, item 8): a machine answer is replayed only with its element's signature
+    from wenart.blender import architect_actions as AA
+    plan = AA.Plan(real06)
+    for key, a in answers.items():
+        a["signature"] = AA.element_signature(plan, key.partition(":")[0], key.partition(":")[2], key)
     prep = AIA.prep_of(copy.deepcopy(real06), None, answers)
     applied = {r["key"]: r for r in prep["architect"].get("applied") or []}
     for key in answers:

@@ -1787,8 +1787,9 @@ def review(building: dict, prep: dict) -> dict:
         questions += RULES.grading_rules(prep)
     questions = close_answered(questions, answers, applied)
     # 27 Nov 2026 (audit rule R02, lesson UL396): a stale answer's point stays open for the AI architect, and every open
-    # point carries its element's signature for the answers given to it
-    mark_stale(questions, applied)
+    # point carries its element's signature for the answers given to it. Round 3b (item 7): outside the AI architect's
+    # own plans (``prep["architect_ai_session"]``) the point keeps its safe default as the fallback
+    mark_stale(questions, applied, ai_session=bool(prep.get("architect_ai_session")))
     AA.stamp_signatures(building, questions)
     return summary(questions, applied)
 
@@ -1798,30 +1799,88 @@ def stale_text(old: dict) -> str:
     return (f"{old.get('choice') or old.get('option')} by {_who(old)}" + (f" of {old['date']}" if old.get("date") else ""))
 
 
-def mark_stale(questions: list[dict], applied: Sequence[dict]) -> None:
+def mark_stale(questions: list[dict], applied: Sequence[dict], ai_session: bool = False) -> None:
     """27 Nov 2026 (audit rule R02, lesson UL396: "AI decides: when a new reading moved or changed the element a stored
     answer named, the answer is not replayed by place; the AI architect decides again, the change is logged and shown in
     the report, the user is not asked again"): the open point of a stale answer's element (the one it resolves to) is
-    marked for the AI architect (``for_ai``, ``stale_answers``): no default settles it, the AI decides again
-    (``architect_ai``), and the report lists it with the stale answer instead of asking the user (in place)."""
+    marked for the AI architect (``for_ai``, ``stale_answers``): the AI decides again (``architect_ai``), and the report
+    lists it with the stale answer instead of asking the user (in place).
+
+    Audit fix round 3b, item 7 (CLAUDE.md: "the architect carries out the safe default fix of every open point that has
+    one"): the point keeps its safe default as the fallback (``fallback_for_stale``: ``defaults_of`` carries it out,
+    logged as the fallback) for a plan the AI architect does not decide (the build: the AI answered, or did not because
+    it is off, out of time or asked the user); in the AI architect's own plans (``ai_session``) the AI decides first
+    (``fallback_chain`` records what the build falls back to). No fallback where it is the very change a stale answer
+    of this same element decided against (``fallback_withheld``)."""
     stale = [r for r in applied if r.get("stale")]
     if not stale:
         return
     points = {(q["id"], str(a["element"])): a for q in questions for a in q["answers"] if a.get("open")}
+    marked = {}
     for r in stale:
         old = dict(r.get("old") or {}, key=r["key"])
         # the element it resolves to (an old id that now names another element keeps that element's own point)
-        for el in [str(r.get("element"))]:
-            a = points.get((r["rule"], el))
-            if a is None:
-                continue
-            a["for_ai"] = True
-            if not any(x.get("id") == old.get("id") for x in a.get("stale_answers") or []):
-                a.setdefault("stale_answers", []).append(old)
+        a = points.get((r["rule"], str(r.get("element"))))
+        if a is None:
+            continue
+        a["for_ai"] = True
+        if not any(x.get("id") == old.get("id") for x in a.get("stale_answers") or []):
+            a.setdefault("stale_answers", []).append(old)
+        marked[id(a)] = a
+    for a in marked.values():
+        olds = a.get("stale_answers") or []
+        first = olds[0]
+        was = f"an earlier answer ({stale_text(first)}, key {first['key']}) is stale, not applied: {first.get('why')}"
+        if len(olds) > 1:
+            was += f" (and {len(olds) - 1} more)"
+        chain = chain_of(a)
+        why = fallback_withheld(a, olds)
+        if why or not chain:
             a.pop("default", None)
             a.pop("fallback", None)
-            a["note"] = (f"an earlier answer ({stale_text(old)}, key {old['key']}) is stale, not applied: {old.get('why')}; "
-                         f"the AI architect decides again")
+            if why:
+                a["fallback_withheld"] = why
+            a["note"] = was + "; the AI architect decides again" + (f" (no fallback default: {why})" if why else "")
+        elif ai_session:
+            a["fallback_chain"] = chain
+            a.pop("default", None)
+            a.pop("fallback", None)
+            a["note"] = (was + f"; the AI architect decides again (if it does not, the build carries out the safe "
+                               f"default {chain[0]} as the fallback)")
+        else:
+            a["fallback_for_stale"] = True
+            a["note"] = (was + f"; the AI architect did not decide it again: the safe default {chain[0]} is carried "
+                               f"out as the fallback")
+
+
+def choice_text(ans: dict) -> str:
+    """The choice an answer made (``option``'s ``choice`` form: the action and its non-context parameters; pure)."""
+    if ans.get("choice"):
+        return str(ans["choice"])
+    opt = str(ans.get("option") or "keep")
+    extra = [str(v) for k, v in (ans.get("params") or {}).items() if k not in AA.CONTEXT_PARAMS and v is not None]
+    return ":".join([opt] + extra)
+
+
+def fallback_withheld(a: dict, olds: Sequence[dict]) -> Optional[str]:
+    """Why a stale answer's point gets no fallback default (pure; audit fix round 3b, item 7), else None: a stale answer
+    that named this very element (found by its own id where it saw it: ``how`` "id", not another element found at its
+    old place) and chose otherwise than the point's safe default was a decision against that very change for this
+    element; its premise (what that decider saw) is no longer confirmed on this reading, so neither it nor the change
+    it decided against is carried out by default: the point waits for the AI architect (or the user)."""
+    chain = chain_of(a)
+    if not chain:
+        return None
+    for old in olds:
+        if old.get("how") != "id":
+            continue                    # another element at its old place: it says nothing about this element
+        mine = choice_text(old)
+        same = mine == chain[0] or (mine.partition(":")[0] == chain[0].partition(":")[0]
+                                    and (":" not in mine or ":" not in chain[0]))
+        if not same:
+            return (f"{old.get('key')} ({mine} by {_who(old)}) decided against {chain[0]} for this element; its premise "
+                    f"is not confirmed on this reading")
+    return None
 
 
 # --------------------------------------------------------------------------
@@ -1873,8 +1932,11 @@ def defaults_of(review_rec: dict, answers: dict, tried: Optional[dict] = None) -
     for q in review_rec.get("questions") or []:
         for a in q.get("answers") or []:
             key = f"{q['id']}:{a['element']}"
-            if not a.get("open") or a.get("for_ai"):
-                continue                                  # 27 Nov 2026 (R02): a stale answer's point is the AI's
+            # 27 Nov 2026 (R02): a stale answer's point is the AI's; round 3b (item 7): outside the AI architect's own
+            # plans it keeps its safe default as the fallback (``mark_stale``)
+            fallback = bool(a.get("for_ai") and a.get("fallback_for_stale"))
+            if not a.get("open") or (a.get("for_ai") and not fallback):
+                continue
             prev = answers.get(key)
             if prev is not None and prev.get("by") != "architect":
                 continue                                  # the AI's or the user's answer stands
@@ -1883,11 +1945,16 @@ def defaults_of(review_rec: dict, answers: dict, tried: Optional[dict] = None) -
             opt = next((o for o in a.get("options") or [] if o.get("choice") == nxt), None) if nxt else None
             if opt is None:
                 continue
+            words = "the safe default" if not done else f"the next safe fix ({', '.join(sorted(done))} could not be done)"
+            if fallback:
+                words += (" as the fallback (the point of a stale answer the AI architect did not decide again: "
+                          + ", ".join(str(x.get("key")) for x in a.get("stale_answers") or []) + ")")
             out[key] = {"option": opt["id"], "params": dict(opt.get("params") or {}), "by": "architect",
-                        "choice": opt["choice"], "answer": "the safe default" if not done else
-                        f"the next safe fix ({', '.join(sorted(done))} could not be done)",
+                        "choice": opt["choice"], "answer": words,
                         "reason": a.get("found"), "where": a.get("where"),
-                        **({"signature": a["signature"]} if a.get("signature") else {})}
+                        **({"signature": a["signature"]} if a.get("signature") else {}),
+                        **({"fallback": True, "fallback_for": [str(x.get("id")) for x in a.get("stale_answers") or []]}
+                           if fallback else {})}
     return out
 
 
@@ -2046,24 +2113,44 @@ def stale_rows(review_rec: dict) -> list[dict]:
     for q in review_rec.get("questions") or []:
         for a in q.get("answers") or []:
             for old in a.get("stale_answers") or []:
-                waiting.setdefault(str(old.get("id")), f"{q['id']}:{a['element']}")
+                waiting.setdefault(str(old.get("id")), (f"{q['id']}:{a['element']}", a))
     out = []
     for r in applied:
         if not r.get("stale"):
             continue
         old = r.get("old") or {}
-        new = next((x for x in applied if x.get("ok") and str(old.get("id")) in replaced_ids(x)), None)
+        oid = str(old.get("id"))
+        why = old.get("why") or r.get("change")
+        new = next((x for x in applied if x.get("ok") and oid in replaced_ids(x)), None)
+        fell = next((x for x in applied if x.get("fallback") and oid in (x.get("fallback_for") or [])), None)
         if new is not None:
             choice = f"{new['option']} by {_who(new)} ({new['key']})" + (f": {new['change']}" if new.get("change") else "")
-        elif str(old.get("id")) in waiting:
-            choice = f"open: the AI architect decides again ({waiting[str(old.get('id'))]})"
+        elif fell is not None and fell.get("ok"):
+            # round 3b (item 7): the AI architect did not decide the point again: its safe default as the fallback
+            choice = (f"the safe default {fell['option']} as the fallback ({fell['key']}; the AI architect did not "
+                      f"decide it again)" + (f": {fell['change']}" if fell.get("change") else ""))
+        elif oid in waiting:
+            key, a = waiting[oid]
+            choice = f"open: the AI architect decides again ({key})"
+            if a.get("fallback_withheld"):
+                choice += f"; no fallback default: {a['fallback_withheld']}"
+            elif a.get("fallback_chain"):
+                choice += f"; if it does not, the safe default {a['fallback_chain'][0]} is the fallback"
+            elif fell is not None:
+                choice += f"; the fallback {fell['option']} could not be carried out: {fell.get('change')}"
+            if r.get("not_raised"):         # its question opened only in this plan (with its answers and defaults)
+                why = (f"its question {r.get('rule')} was not asked of {r.get('element')} before this plan's answers "
+                       f"and defaults (the answer-free review)")
+        elif r.get("unchecked"):
+            choice = "not checked: its rule did not run in this review (kept for a review where it runs)"
         elif str(r.get("rule") or "").startswith("AI."):
             choice = "an own decision of the AI architect: its look at this reading decides again"
-        else:
+        elif r.get("not_raised"):
             choice = "not raised in this reading: nothing to decide"
+        else:
+            choice = f"nothing to decide: its question is not open for {r.get('element')} in this reading"
         out.append({"key": r["key"], "by": _who(r), "old": old.get("choice") or r.get("option"), "date": old.get("date"),
-                    "why": old.get("why") or r.get("change"), "element": r.get("element"), "new": choice,
-                    "id": str(old.get("id"))})
+                    "why": why, "element": r.get("element"), "new": choice, "id": oid})
     # the stale answers a new answer replaced (they left the AI's answers; the new one names them in ``replaces``)
     listed = {row["id"] for row in out}
     for x in applied:
@@ -2087,9 +2174,12 @@ def stale_md(review_rec: dict) -> list[str]:
     if not rows:
         return []
     lines = ["## Stale answers (not carried out)", "",
-             f"{len(rows)} answer(s) of an earlier reading no longer fit this reading: their element moved or changed, or "
-             "their question is not raised for it. They are not replayed by place; where the question is still open the "
-             "AI architect decides again, and you are not asked again (lesson UL396).", "",
+             f"{len(rows)} answer(s) of an earlier reading no longer fit this reading: their element moved or changed, "
+             "their question is not raised for it, their rule did not run, or a machine answer carries no signature of "
+             "its element. They are not replayed by place or by id alone; where the question is still open the AI "
+             "architect decides again, and when it does not, the point's safe default is carried out as the fallback "
+             "(not where it is the change the stale answer of that same element decided against); you are not asked "
+             "again (lessons UL396, UL440-UL446).", "",
              "| answer | by | date | old choice | why it is stale | element now | new decision |",
              "|---|---|---|---|---|---|---|"]
     for r in rows:

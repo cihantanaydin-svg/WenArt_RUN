@@ -200,6 +200,8 @@ def use_seed_file(project_out) -> None:
     from wenart.blender import build as BU
 
     SEED_PATH = Path(project_out) / BU.SEED_FILE
+    # 27 Nov 2026 (round 3b, item 1): the answer-free default chains of the replay gate, beside the building too
+    BU.RAISED_PATH = Path(project_out) / BU.RAISED_FILE
 
 
 def _seed_key(building: dict, brief: Optional[dict]) -> str:
@@ -221,6 +223,9 @@ def prep_of(building: dict, brief: Optional[dict], ai_answers: dict) -> dict:
     trial = copy.deepcopy(building)
     trial.setdefault("agent_overrides", {})
     trial["agent_overrides"] = dict(trial["agent_overrides"] or {}, architect=dict(ai_answers))
+    # 27 Nov 2026 (round 3b, item 7): the AI architect's own plan: a stale answer's point waits for the AI (the build
+    # falls back to its safe default when the AI does not decide it)
+    trial[BU.AI_SESSION_KEY] = True
     key = _seed_key(building, brief)
     seed = _SEEDS.get(key)
     if seed is None and SEED_PATH is not None:
@@ -779,6 +784,7 @@ def raw_review(building: dict, brief: Optional[dict], ai_answers: dict, gate: Op
 
     trial = copy.deepcopy(building)
     trial["agent_overrides"] = dict(trial.get("agent_overrides") or {}, architect=dict(ai_answers))
+    trial[BU.AI_SESSION_KEY] = True                       # round 3b (item 7): as the AI architect's own plans
     if gate is not None:
         trial["architect_replay"] = gate
     return BU.prepare_once(trial, "base", brief)["architect"]
@@ -797,9 +803,13 @@ def _decided(raw: dict, defaults: dict, answered: set) -> list[dict]:
             d = defaults.get(key)
             if d is None or key in answered or not a.get("open") or not a.get("options"):
                 continue
+            # 27 Nov 2026 (round 3b, item 5): with its element's signature, so an AI answer that overrides the default
+            # carries it (``_answer``) and a later reading replays it only on the same element
+            sig = a.get("signature") or d.get("signature")
             out.append({"key": key, "rule": q["id"], "topic": q["topic"], "severity": "major", "element": a["element"],
                         "found": a.get("found"), "decided": d.get("choice") or d.get("option"),
-                        "options": a["options"], "where": a.get("where") or d.get("where")})
+                        "options": a["options"], "where": a.get("where") or d.get("where"),
+                        **({"signature": sig} if isinstance(sig, dict) else {})})
     return out
 
 
@@ -947,11 +957,15 @@ def _decision(d: dict, plan: AA.Plan, built: dict, level_id: str) -> tuple[Optio
            "params": params}
     # 27 Nov 2026 (R02 / R17): the premise checks of the build refuse it here already, and it carries its element's
     # signature (a later reading carries it out only on the same element)
-    why = AA.premise_refusal(plan, f"{AI_RULE}.{action}", action, element, params, {"by": "ai"})
+    why = AA.premise_refusal(plan, f"{AI_RULE}.{action}", action, element, params,
+                             {"by": "ai", "answer": d.get("reason") or "", "reason": d.get("reason") or ""})
     if why:
         return None, None, why
     try:
         sig = AA.element_signature(plan, f"{AI_RULE}.{action}", element, key)
+        refs = AA.option_refs(plan, f"{AI_RULE}.{action}", element, [params])     # round 3b (item 2)
+        if refs:
+            sig["refs"] = refs
     except Exception:  # noqa: BLE001 - an element the signature cannot read: the decision goes without one
         sig = None
     return key, {"opt": opt, "where": _where_of(plan, built, element, level_id), "signature": sig}, ""
@@ -1125,6 +1139,11 @@ def typical_carry(building: dict, brief: Optional[dict], accepted: dict, base_pr
             for part, field in (("where", "level_id"), ("signature", "level")):
                 if isinstance(ans.get(part), dict) and ans[part].get(field) == base:
                     ans[part][field] = c
+            # round 3b (item 2): the other elements it names, on the copy's level too
+            sig = ans.get("signature")
+            if isinstance(sig, dict) and isinstance(sig.get("refs"), dict):
+                sig["refs"] = {k.replace(tag, new_tag): dict(v, **({"level": c} if v.get("level") == base else {}))
+                               for k, v in sig["refs"].items() if isinstance(v, dict)}
             candidates[ck] = ans
             group.append(ck)
             e = {"level": c, "kind": "copy", "key": ck, "choice": ans.get("choice"), "reason": ans["reason"],
