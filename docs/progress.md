@@ -5356,3 +5356,54 @@ for the AI architect (stale answers whose question is still open): real06 1 (S3)
 
 Not done here: the elevations as the source of window heights (real06 d_L1_010 should sit at about 2.1 m), W6's two
 stair windows (real06 F04), UL397 (drawn bathtubs). No pod run.
+
+### Audit fix round 3b (27 Nov 2026)
+
+An independent review of round 3 (R02 stale answers, R17 drawn evidence) found five defects and eight concerns. Each is
+fixed as a rule for every project, CPU only, no pod; lessons UL440-UL450 (numbered after round 4's ids; renumbered at
+the merge if needed). Tests: `tests/test_audit_round3b_20261127.py` (one test per defect from the reviewer's repros,
+one per added rule); round 3's weak tests now check that their keys are there and go through the replay gate; five
+older tests that fed unsigned machine answers through the build now sign them (the user's decision, item 8);
+`test_fixture_use_20261029.py`'s far basin move now expects R17 d's refusal for a drawn basin (an added basin still
+needs the user's OK).
+
+| item | what was wrong | rule now | test |
+|---|---|---|---|
+| 1 replay gate and seeds (defect 1) | the gate asked the review with no answer and no default; a point that opens only after a default was "not raised" on an unseeded plan (the Blender build on the pod: its brief carries the merged answers, so its seed key differs) and raised on a seeded one: accepted AI answers dropped in the final build | the gate decides from the answer-free default chain (`build.raised_review`: the review with no answer, then after each of its defaults; the union of the points they raise; cached per building, also beside it in `architect_raised.json`); chains of answers are checked with the chain's defaults, never the seed's; an answer whose question only this plan raises is admitted after the default search (`late`), so the report never says "not raised" next to an open point | seeded and unseeded give the same verdict on the reviewer's two points; the build brief with the merged answers keeps the AI's answer |
+| 2 re-targeted answers (defect 2) | the signature was checked on the element found by place, the action ran on the element named in params | an answer found by place acts on its target (every params id equal to its old element is rewritten); every other element it names is found again from the signature it keeps of it (`refs`: kind, level, place, own signature), else stale | the reviewer's swapped doors: the door into b1 closes, the other stays; a gone `away_from`: stale |
+| 3 R17 d on every path (defect 3) | only H2 / F3's options kept drawn basins; `clear_basin` and a legacy `move_piece` still moved them | `premise_refusal` refuses `clear_basin` of a drawn piece and `move_piece` / `clear_front` of drawn fixed equipment away from a window (not the user's answers), logged; the AI's own decision is refused the same way | the reviewer's exp8 / exp9 |
+| 4 each rule's own premise (defect 4) | the daylight premise refused every storage retype of a lit room | the daylight premise only for a no-daylight claim (L1, the AI's own retype of a lived-in room, an answer whose words say so); R4 checks the area is still under the type's minimum, R1 the width, R2 the missing anchor, R5 no type and no name | the reviewer's 4 m2 'bedroom' is retyped by R4 |
+| 5 unsigned overrides (defect 5) | the AI's overrides of the architect's major defaults (`architect_ai._decided`) had no signature | `_decided` carries the point's signature; every new answer is signed | yes |
+| 6 weak tests | four checks passed when their keys were missing, one skipped the gate | presence first, through the gate | round 3's file |
+| 7 a safe default for for_ai points (concern 1) | a stale answer's point lost its default: with the AI off, out of time or asking the user it got nothing | the point keeps its safe default as the fallback (`fallback_for_stale`; logged with the stale answers it stands for; a stale answer of the same key gives way to it); the AI architect's own plans (`architect_ai.prep_of`) keep the point open for the AI first. Exception: no fallback where a stale answer shown to be about this very element (signed, found by its own id) chose otherwise than the default: that answer decided against this very change, and its premise is no longer confirmed; neither is carried out and the point waits, with the reason. An unsigned answer shows nothing about its element, so it never blocks the fallback | yes |
+| 8 unsigned machine answers (concern 2, the user's decision) | legacy AI / Argus answers were replayed by id (real06: a basin decision moved what is now a wardrobe) | a stored answer that is not the user's and carries no signature is stale ("never replayed by its id alone"), its point goes to the AI with the fallback; the stored file is not changed; the user's answers keep their premise-free path | yes |
+| 9 rules that did not run (concern 3) | answers of site rules without a site plan, N1, A1 passed the question check | not carried out unless the user's; logged "not checked: its rule did not run" | yes |
+| 10 the cache key (concern 4) | dropped every agent override | drops only the architect's answers | yes |
+| 11 a gate per prepare (concern 5) | a planned building carried its old gate into a later prepare | `prepare` drops a gate it is given and decides its own; the planned building carries none; a gate that never saw an answer does not carry it out | yes |
+| 12 glass hatch (concern 6) | a window whose glass was a HATCH had no window evidence | a hatch the window rule read in the gap is window evidence | yes |
+| 13 same-key replacement (concern 7) | the AI's replacement of a stale user answer won only in the build | `answers_of` lets it win in the AI architect's own plans too | yes |
+| 14 door tags and H2 (concern 8) | a door kept its assumed height against its own tag; H2 said "its heights are drawn" for an assumed sill | `door_states.tag_heights`: a door whose own size tag gives another height than the assumed one is built at the tag's height (logged); H2 says why the basin stays (the documents give the heights, or the window is too short to raise) | yes |
+
+Gates (this round's final code):
+
+| gate | result | holds |
+|---|---|---|
+| new tests (`test_audit_round3b_20261127.py`, 22) and round 3's file (23), `tests/test_architect*.py`, `test_blender_imports_20261103.py` | all pass (round 3's real06 / real10 replays included) | yes |
+| reading code | not touched (`wenart/ingest`, `levels`, `sheets` unchanged): `score --gate` and the regress set are not needed; the 19 real readings made for the dry run print exactly round 3's regress lines | yes |
+| `pytest -m "not gpu"` | 9965 passed, 12 failed, 273 skipped, 28 xfailed (143 min, with a second suite running beside it); the 12 are the known list (bath/shower locked check, blender_look fingerprint, generality: critic / critic_checks / ranker only, lessons 2, m13 ingest crops, polish words, run_agent and run_stages code lists, real04 sheets 2, streets flush entrance); the code-list failures print round 3's lists | yes |
+
+Architect dry run (`build.prepare` on fresh CPU readings with the project's stored answers, no AI answer of this run:
+what the build does with the AI off; "base" = e1c6bdfa; walk cuts and drawn doors made windows as in round 3):
+
+| project | stored answers | carried out (changes): base -> 3b | stale: base -> 3b | refused by a premise | new walk cuts | drawn doors made windows | guards | for_ai points: base -> 3b (fallback carried out / withheld / no safe default) |
+|---|---|---|---|---|---|---|---|---|
+| real06 | 112 (AI and Argus, 25-30 Oct, none signed) | 10 (5) -> 0 (0) | 56 -> 92 (all unsigned; 1 gave way to its point's fallback) | 3 -> 0 | 0 -> 0 | 0 -> 0 | 0 -> 0 | 1 -> 8 (1 / 0 / 7) |
+| real10 | 317 (AI, 2 Nov, none signed) | 49 (0) -> 0 (0) | 135 -> 186 (all unsigned; 1 gave way to its point's fallback) | 1 -> 0 | 0 -> 0 | 0 -> 0 | 42 -> 42 | 15 -> 64 (1 / 0 / 63) |
+| real04 | 6 (the user's, 25 Oct) | 4 (2) -> 4 (2) | 0 -> 0 | 0 -> 0 | 0 -> 0 | 0 -> 0 | 0 -> 0 | 0 -> 0 |
+| real11 | 0 | - | - | 0 -> 0 | 0 -> 0 | 0 -> 0 | 31 -> 31 | 0 -> 0 |
+
+The gone answers (their element is in no reading: real06 20, real10 131) are skipped as before. The fallbacks carried out: real06 C1:r_L1_soyunma_odasi retype_room:dressing (the dressing room, whose stale answer said storage), real10 F2:d_L0_001 move_piece. Item 8 alone turns real06's 36 and real10's 51 answers that round 3 still admitted or refused into stale ones. The other 15 real projects read (real01-03, 07, 09, 12-21): no stored answers, no walk cut and no drawn door made a window before or after; their defaults and open points are unchanged.
+
+Not done here: the AI architect still plans with no style family while the build uses the style's (style rules W5,
+D7, D8, D9 are raised only in the build); the answer-free chain costs one more default search per building and style
+(real10: about 3.5 min on a quiet CPU, once per building thanks to `architect_raised.json`). No pod run.
