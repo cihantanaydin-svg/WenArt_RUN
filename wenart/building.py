@@ -36,7 +36,7 @@ SCHEMA_VERSION = "0.1"
 METHODS = ("vector", "raster", "ocr", "ai", "derived", "inferred")   # inferred: Milestone 11
 ROOM_TYPES = ("living", "dining", "bedroom", "kitchen", "bathroom", "wc", "hall", "balcony", "storage", "prayer", "stair",
               "shaft", "garage", "technical", "other",
-              "unknown")
+              "unknown", "porch")   # porch: 27 Nov 2026 (R08), an open entrance porch under the slab above
 
 # Element kind -> ID prefix. Rooms and levels have their own functions.
 ID_PREFIX = {

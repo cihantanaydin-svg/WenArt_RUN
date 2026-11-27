@@ -71,6 +71,7 @@ ROOM_WORDS: dict[str, str] = {
     "shaft": "shaft",
     "garage": "garage",               # 4 Nov 2026 (UL320): GARAJ, carport
     "technical": "technical plant room",   # 4 Nov 2026 (UL321): boiler or heating room
+    "porch": "covered entrance porch",     # 27 Nov 2026 (R08): an open porch under the slab above
     "other": "room",
     "unknown": "room",
 }

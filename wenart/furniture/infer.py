@@ -300,6 +300,8 @@ WALL_BACK_DEG = 5.0               # ... parallel to the nearest outline segment 
 WALL_BACK_SHARE = 0.6             # ... along at least this share of its length can be a wall type's back
 ROUND_NEVER = ("chair",)          # user, 26 Oct 2026: "round shapes are never chairs"
 SAME_BLOCK_METHOD = "same_block"
+BLOCK_VOTE_RANK = {"block_name": 4, "name_text": 4, "block": 3, "ai_two_pass": 2, "rule": 2, "twin": 2, "level": 2,
+                   "same_block": 2}   # 27 Nov 2026 (R21): the strength of a copy's type in the one-block vote
 SAME_BLOCK_MIN_STROKES = 4        # a stroke pattern of fewer strokes says nothing (a plain box)
 SAME_BLOCK_COUNT_TOL = 0.02       # the strokes of each kind agree within this share (real06's two copies of its
                                   # 0.92 x 0.77 m armchair block hold 301 and 306 lines: a few loose strokes joined)
@@ -673,14 +675,31 @@ def _same_block_type(building: dict, piece: dict) -> Optional[dict]:
         if same_block(block_signature(f), sig):
             hits.append(f)
     types = sorted({f["type"] for f in hits})
-    if len(types) != 1:
+    vote = ""
+    if not hits:
         return None
+    if len(types) > 1:
+        # 27 Nov 2026 (audit fix round 5a, R21: "every insert of one block gets one type"): copies of one block that
+        # were typed differently decide by the strongest evidence (a block or name word over a code rule over the AI),
+        # then by the majority; a tie decides nothing
+        def strength(f):
+            return BLOCK_VOTE_RANK.get(str(f.get("type_method") or ""), 1)
+        best = max(strength(f) for f in hits)
+        strong = [f for f in hits if strength(f) == best]
+        counts = {t: sum(1 for f in strong if f["type"] == t) for t in {f["type"] for f in strong}}
+        top = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
+        if len(top) > 1 and top[0][1] == top[1][1]:
+            return None
+        types = [top[0][0]]
+        hits = [f for f in strong if f["type"] == types[0]]
+        vote = (f"; the copies disagree ({', '.join(f'{t} x{n}' for t, n in sorted(counts.items()))} among the "
+                f"strongest evidence): the majority of the strongest decides")
     src = sorted(hits, key=lambda f: (str(f.get("level_id") or ""), str(f["id"])))[0]
     what = f"block {sig[0][0]!r}" if sig[0] else "the same strokes (" + ", ".join(f"{n} {k}" for k, n in sig[1]) + \
         f" here, within {SAME_BLOCK_COUNT_TOL:.0%})"
     text = (f"{types[0]}: the same drawn block ({what}) and footprint ({_sorted_size(src)[1]:.2f} x "
             f"{_sorted_size(src)[0]:.2f} m, within {SAME_FOOTPRINT_M:.2f} m) as {', '.join(f['id'] for f in hits[:4])}"
-            f" (typed {types[0]}): one block, one type")
+            f" (typed {types[0]}): one block, one type" + vote)
     return {"type": types[0], "method": SAME_BLOCK_METHOD, "confidence": CONF_TWIN, "reason": text,
             "evidence": _evidence_code(piece, SAME_BLOCK_METHOD, text, CONF_TWIN, source_id=src["id"],
                                        copies=[f["id"] for f in hits]),
@@ -2252,6 +2271,26 @@ def _bath_named(item: dict) -> bool:
     return item.get("type_method") in BATH_STRONG_METHODS or any(w in text for w in BATH_WORDS)
 
 
+TUB_DRAWN_METHODS: tuple[str, ...] = ("ai_two_pass", "ai", "twin", "level")   # typed from its outline (or a copy of it)
+TUB_DRAWN_SHAPES: tuple[str, ...] = ("round", "oval", "curved", "corner", "quarter", "l_shape")
+
+
+def tub_drawn(item: dict) -> bool:
+    """27 Nov 2026 (audit fix round 5a, R18; the user's answer of 26 Nov "keep bathtub", UL397): the plan clearly draws a
+    bathtub: its type comes from its drawn outline (the AI passes, or a twin's or a storey's copy of them), its outline
+    is curved (a corner tub: an arc among its strokes, or a round or corner shape), or a drain is drawn in it. Only a
+    bath-sized box the code typed by its size may become a walk-in shower (UL200)."""
+    if str(item.get("type_method") or "") in TUB_DRAWN_METHODS:
+        return True
+    if str(item.get("shape") or "").lower() in TUB_DRAWN_SHAPES or item.get("drain"):
+        return True
+    for e in item.get("evidence") or []:
+        if isinstance(e, dict) and e.get("method") in ("vector", "raster") and \
+                any(p.strip().upper().startswith("ARC:") for p in str(e.get("entity") or "").split(",")):
+            return True
+    return False
+
+
 def bath_or_shower(building: dict) -> list[str]:
     """In place (UL200): the code-typed bathtubs outside the main bathrooms become walk-in showers (``adjusted_by_ai``
     by code, ``drawn_type`` and the drawn footprint kept); returns the reasons. The main bathrooms: the bathrooms with
@@ -2262,7 +2301,8 @@ def bath_or_shower(building: dict) -> list[str]:
         return []
     rooms = {r.get("id"): r for r in building.get("rooms") or []}
     tubs = [f for f in building.get("furniture") or [] if f.get("type") == "bathtub" and f.get("build") is not False
-            and f.get("source") == "from_documents" and not _bath_named(f) and f.get("room_id") in rooms]
+            and f.get("source") == "from_documents" and not _bath_named(f) and not tub_drawn(f)
+            and f.get("room_id") in rooms]
     if len({f["room_id"] for f in tubs}) < 2:
         return []
     beds: dict = {}

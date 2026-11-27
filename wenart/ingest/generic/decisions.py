@@ -93,7 +93,7 @@ RULE_CONFIDENCE: dict[str, float] = {
     "layer_not_chosen": 0.70,      # a pair on a layer that lost the label contest to the chosen one
     "layer_not_chosen_undecided": 0.50,   # ... when no layer closed in enough labels to decide
 }
-SIZE_TAG_RE = re.compile(r"^\s*(\d{2,3})\s*/\s*(\d{2,3})\s*$")   # a door or window size tag: width/height in cm
+# a door or window size tag: ``wenart.ingest.tag_grammar.parse`` (27 Nov 2026, R09: one parser for the pipeline)
 LABEL_RE = re.compile(r"[A-Za-zÇĞİÖŞÜçğıöşü]{3,}")
 TAG_REACH_M = 2.0                  # a size tag counts up to this far from the gap (the nearest one is recorded)
 OUTDOOR_REACH_M = 2.0              # a balcony / terrace label within this of the gap, outside the building
@@ -149,6 +149,7 @@ class _Text:
     text: str
     height: float
     size_tag: Optional[tuple[float, float]] = None    # (width, height) metres
+    tag_kind: Optional[str] = None                     # what its code or words name (tag_grammar: door, window ...)
     outdoor: bool = False
     label: bool = False
 
@@ -160,9 +161,10 @@ def _classify_text(t) -> Optional[_Text]:
     box = t.box
     at = ((box[0] + box[2]) / 2.0, (box[1] + box[3]) / 2.0)
     out = _Text(at=at, text=text, height=float(getattr(t, "height", 0.0) or 0.0))
-    m = SIZE_TAG_RE.match(text)
-    if m:
-        out.size_tag = (int(m.group(1)) / 100.0, int(m.group(2)) / 100.0)
+    from wenart.ingest import tag_grammar as TG
+    tg = TG.parse(text)
+    if tg is not None:
+        out.size_tag, out.tag_kind = (tg.w, tg.h), tg.kind
         return out
     if LABEL_RE.search(text) and LABEL_HEIGHT_M[0] <= out.height <= LABEL_HEIGHT_M[1]:
         out.label = True

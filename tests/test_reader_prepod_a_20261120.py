@@ -39,8 +39,8 @@ def test_a_mirror_twin_face_is_kept_only_when_it_mirrors_its_twin_and_the_drawin
     door = SimpleNamespace(kind="door", virtual=False, center=(6.0, 2.5))
     why, ev = GC.twin_evidence(face, twin, axis, [], [door], [], [], [])
     assert why is None and any("door" in e for e in ev)
-    assert GC.OPENING_TAG_RE.match("P:220/150") and GC.OPENING_TAG_RE.match("150/150") \
-        and GC.OPENING_TAG_RE.match("D1-90/210") and not GC.OPENING_TAG_RE.match("SALON")
+    from wenart.ingest import tag_grammar as TG     # 27 Nov 2026 (round 5a, R09): the one size-tag parser
+    assert TG.parse("P:220/150") and TG.parse("150/150") and TG.parse("D1-90/210") and not TG.parse("SALON")
 
 
 def test_a_room_closed_as_a_mirror_twin_takes_its_twins_label_and_type():

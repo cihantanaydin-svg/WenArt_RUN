@@ -1059,6 +1059,25 @@ def outdoor_spaces(building: dict, levels: Sequence[dict], outlines: dict, marks
         poly = _coords(sp)
         area = round(sp.area, 3)
         on = space_doors(poly, level_id, doors)
+        # 27 Nov 2026 (audit fix round 5a, R16; wenart.ingest.outdoor_checks): a rectangle fallback far off the stated
+        # area or an upper label whose own mark is a lower floor (the space below seen from above): kept as a finding,
+        # not built (the doorless inferred spaces are judged once every door is read, ``outdoor_checks.unreached``); an
+        # inferred upper space stays within reach of the storeys under it
+        from wenart.ingest import outdoor_checks as OC
+        refused = OC.refuse(a, sk["kind"], level_id, by_id, ground_id, method, poly, st["m2"] if st else None, None,
+                            site.get("areas") or [], marks, space_kind)
+        if refused:
+            warnings.append(f"outdoor space {a.get('id')} ({a.get('label')}) on {level_id} not built: {refused} (R16; "
+                            f"a finding to review)")
+            a["space"] = {"built": False, "reason": refused, "finding": "R16"}
+            continue
+        if OC.is_rectangle(method) and level_id != ground_id:
+            clipped, cut_why = OC.clip_upper(poly, level_id, by_id, outlines, ground_id)
+            if cut_why:
+                poly, why = clipped, f"{why}; {cut_why}"
+                sp = _shp(poly)
+                area = round(sp.area, 3)
+                on = space_doors(poly, level_id, doors)
         # the floor: a level mark inside, else the doors' thresholds, else the level's floor
         # 27 Nov 2026 (audit H5): a ground mark the reader found in the space (``outdoor_area``) is its floor too
         inside = [m for m in marks if m.get("level_id") in (None, level_id) and m.get("point") is not None

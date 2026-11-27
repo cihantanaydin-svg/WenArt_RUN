@@ -94,6 +94,7 @@ from wenart.ingest.generic import scale as SC
 from wenart.ingest.generic import symbols as SY
 from wenart.ingest.generic import topology as TP
 from wenart.ingest.generic import walls as W
+from wenart.ingest import tag_grammar as TG
 from wenart.ingest.generic.model import GenericPage, Stroke, TextRun
 from wenart.ingest.generic.reading import UNANSWERED_KEY
 from wenart.ingest.model import DimensionItem, FurnitureItem, LevelExtraction, OpeningItem, TextItem, WallItem
@@ -2261,7 +2262,9 @@ def _outline_closure(ex, where: str, walls2: list, openings: list, blocks: list,
     return all_walls, all_open, bw, site, sw, b_open, prob
 
 
-SIZE_TAG_RE = re.compile(r"^\s*(\d{2,3})\s*/\s*(\d{2,3})\s*$")   # a window's size tag: width/height in cm
+# 27 Nov 2026 (audit fix round 5a, R09): every size tag is read by ``wenart.ingest.tag_grammar`` (one parser: a code
+# 'CK3 ', 'K3-', 'P2:', W/H in cm, trailing words 'FRANSIZ PENCERE'); each reader keeps its own choice by the kind
+# the tag names (a window reader never takes a tag whose code or words say door, a door reader never a window's)
 TAG_REACH_M = 0.8               # a size tag stands this close to the wall of its window ...
 TAG_ANGLE_DEG = 15.0            # ... written along it
 TAG_ACROSS_FACE_M = 0.3         # 20 Nov 2026 (R10-P3): or written across it this close to its face
@@ -2455,9 +2458,9 @@ def _framed_windows(ex, where: str, walls2: list, openings: list, strokes: list,
     jambs = _segments(strokes, ("wall", "column"))
     tags = []
     for t in list(texts_m) + paired_size_tags(texts_m):
-        m = SIZE_TAG_RE.match(str(t.text or ""))
+        m = TG.window_size(t.text, t.evidence[0].get("layer") if t.evidence else None)
         if m:
-            tags.append((t, int(m.group(1)) / 100.0, int(m.group(2)) / 100.0))
+            tags.append((t, m.w, m.h))
     others = [((float(a[0]), float(a[1])), (float(b[0]), float(b[1]))) for st in strokes or []
               if not getattr(st, "arc", None) and len(getattr(st, "pts", None) or []) == 2
               for a, b in [st.pts] if 0.2 <= math.dist(a, b) <= 3.0]
@@ -2562,20 +2565,26 @@ def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, un
     pairs = [t for t in paired_size_tags(texts_m)
              if LN.layer_role(t.evidence[0].get("layer") if t.evidence else None) in DOOR_TAG_TEXT_ROLES]
     for t in list(texts_m) + pairs:
-        m = SIZE_TAG_RE.match(t.text or "")
         layer = (t.evidence[0].get("layer") if t.evidence else None)
+        tg = TG.window_size(t.text or "", layer)       # R09: a tag whose code or words say door is no window's
+        m = (tg.w_cm, tg.h_cm) if tg else None
         if m and LN.layer_role(layer) in ("window", "glass") \
-                and not _door_like_tag(t, int(m.group(1)), int(m.group(2)), openings):
-            tags.append((t, int(m.group(1)) / 100.0, int(m.group(2)) / 100.0))
-        elif m and LN.layer_role(layer) == "door" and int(m.group(2)) < DOOR_TAG_LOW_H_CM:
-            tags.append((t, int(m.group(1)) / 100.0, int(m.group(2)) / 100.0))
-        elif m and LN.layer_role(layer) in DOOR_TAG_TEXT_ROLES and strokes and int(m.group(1)) <= PLAIN_TAG_MAX_W_CM \
-                and int(m.group(2)) < DOOR_TAG_LOW_H_CM:
+                and (tg.says_window or not _door_like_tag(t, m[0], m[1], openings)):
+            tags.append((t, m[0] / 100.0, m[1] / 100.0))
+        elif m and LN.layer_role(layer) == "door" and m[1] < DOOR_TAG_LOW_H_CM:
+            tags.append((t, m[0] / 100.0, m[1] / 100.0))
+        elif m and LN.layer_role(layer) in DOOR_TAG_TEXT_ROLES and tg.says_window and m[0] <= PLAIN_TAG_MAX_W_CM:
+            # 27 Nov 2026 (R09, real17: '180/210 FRANSIZ PENCERE' on a plain layer): a tag whose words say window is a
+            # window's whatever its height, where window frame lines run along its wall (checked below)
+            tags.append((t, m[0] / 100.0, m[1] / 100.0))
+            plain.add(id(t))
+        elif m and LN.layer_role(layer) in DOOR_TAG_TEXT_ROLES and strokes and m[0] <= PLAIN_TAG_MAX_W_CM \
+                and m[1] < DOOR_TAG_LOW_H_CM:
             # 20 Nov 2026 (pre-pod R10-P3, real10: '150' over '150' on the text layer TEXT beside a PENCERE window read
             # as a sliding door): a window-high tag (under a door's height) on a plain text layer is a window's where
             # window frame lines run along its wall (checked below, ``PLAIN_TAG_FRAME_SHARE``); a door-high one stays
             # the door tags' (``_door_tags``)
-            tags.append((t, int(m.group(1)) / 100.0, int(m.group(2)) / 100.0))
+            tags.append((t, m[0] / 100.0, m[1] / 100.0))
             plain.add(id(t))
     if not tags or not walls2:
         return None
@@ -2807,7 +2816,6 @@ def _leaf_distance(c, o, strokes: dict) -> float:
     return best
 
 
-K_TAG_RE = re.compile(r"^\s*K\s*\d{0,2}\s*[:\-]\s*(\d{2,3})\s*/\s*(\d{2,3})\s*$", re.IGNORECASE)   # 'K1: 90/210'
 CUT_SPAN_WIDTH_TOL_M = 0.12     # rule cut_span_door: two jamb lines this close to the tag's width apart frame its door
 CUT_SPAN_BLOCK_W_M = (0.6, 2.4)  # ... (a door block with no tag: jambs this far apart)
 CUT_SPAN_JAMB_DEG = 5.0          # a jamb line runs across the wall within this angle of square
@@ -2817,6 +2825,8 @@ CUT_SPAN_BLOCK_REACH_M = 0.3     # a door block stands this close to the wall ba
 CUT_SPAN_BLOCK_MIN_M = 0.5       # a door block this large at least (a door's symbol; a handle or a frame detail is not)
 CUT_SPAN_BLOCK_TOL_M = 0.15      # ... and its jambs this close to its size apart
 CUT_SPAN_OWN_DOOR_M = 0.10       # a door within the tag's reach this close to its width is the tag's own door
+CUT_SPAN_WORD_W_M = (0.6, 1.4)   # 27 Nov 2026: a door word's door between jambs this far apart (a door's width)
+DOOR_WORD_RE = re.compile(r"(?<![A-Z])(?:KAPI|KAPISI|DOOR|TUR)(?![A-Z])")
 
 
 def _door_evidence(texts_m: list, strokes: list, unit_m: float = 1.0) -> list:
@@ -2831,10 +2841,11 @@ def _door_evidence(texts_m: list, strokes: list, unit_m: float = 1.0) -> list:
         text = str(t.text or "")
         layer = (t.evidence[0].get("layer") if t.evidence else None)
         role = LN.layer_role(layer)
-        m, k = SIZE_TAG_RE.match(text), K_TAG_RE.match(text)
-        if not (m or k):
+        tg = TG.door_size(text, 0, layer)              # R09: one parser; a code or word saying door is the 'K:' form
+        if tg is None:
             continue
-        w_cm, h_cm = (int(g) for g in (k or m).groups())
+        k = tg.says_door
+        w_cm, h_cm = tg.w_cm, tg.h_cm
         if w_cm > DOOR_TAG_MAX_W_CM or h_cm < DOOR_TAG_LOW_H_CM:
             continue
         if not (k or role == "door" or (role in DOOR_TAG_TEXT_ROLES and h_cm >= DOOR_TAG_PLAIN_MIN_H_CM)):
@@ -2842,6 +2853,18 @@ def _door_evidence(texts_m: list, strokes: list, unit_m: float = 1.0) -> list:
         c = ((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0)
         ev = dict(t.evidence[0]) if t.evidence else {}
         out.append((c, w_cm / 100.0, h_cm / 100.0, f"the door size tag '{text.strip()}'", ev))
+    for t in texts_m:
+        # 27 Nov 2026 (audit fix round 5a, item N1; real17's shower doors written 'SÜRGÜ KAPI' beside a wall stretch the
+        # wall's section lines closed): a door word without a size ('KAPI', 'SÜRGÜ KAPI', 'DOOR') on a door layer or a
+        # plain text layer is a door's evidence like a door block: a door between two jamb lines across the wall
+        text = str(t.text or "")
+        layer = (t.evidence[0].get("layer") if t.evidence else None)
+        if TG.parse(text) is None and DOOR_WORD_RE.search(B.fold_ascii(text).upper()) \
+                and len(text.split()) <= 3 and LN.layer_role(layer) in ("door",) + DOOR_TAG_TEXT_ROLES:
+            c = ((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0)
+            ev = dict(t.evidence[0]) if t.evidence else {}
+            ev["door_word"] = text.strip()
+            out.append((c, None, None, f"the door word '{text.strip()}'", ev))
     groups: dict = {}
     for st in strokes:
         if not st.block or "/" not in str(st.id):
@@ -2927,6 +2950,10 @@ def doors_in_cut_spans(walls2: list, openings: list, strokes: list, texts_m: lis
                         if abs(span - width) > CUT_SPAN_WIDTH_TOL_M or abs((a1 + a2) / 2.0 - ca) > \
                                 width / 2.0 + CUT_SPAN_TAG_SHIFT_M:
                             continue
+                    elif ev.get("door_word"):
+                        # 27 Nov 2026 (round 5a, item N1): a door word names a door of a door's size between the jambs
+                        if not (CUT_SPAN_WORD_W_M[0] <= span <= CUT_SPAN_WORD_W_M[1] and a1 - 0.05 <= ca <= a2 + 0.05):
+                            continue
                     elif not (CUT_SPAN_BLOCK_W_M[0] <= span <= CUT_SPAN_BLOCK_W_M[1] and a1 - 0.05 <= ca <= a2 + 0.05
                               and abs(span - float(ev.get("size_m") or 0.0)) <= CUT_SPAN_BLOCK_TOL_M):
                         continue
@@ -2989,18 +3016,22 @@ def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, unit
 
     tags = []
     for t in texts_m:
-        m = SIZE_TAG_RE.match(t.text or "")
         layer = (t.evidence[0].get("layer") if t.evidence else None)
-        if not m:
+        tg = TG.door_size(t.text or "", 0, layer)        # R09: one parser; a tag whose code or words say window is none
+        if tg is None:
             continue
         role = LN.layer_role(layer)
-        w_cm, h_cm = int(m.group(1)), int(m.group(2))
+        w_cm, h_cm = tg.w_cm, tg.h_cm
         if h_cm < DOOR_TAG_LOW_H_CM:
             # 12 Nov 2026 (round-2 review, F6: real11's vent size '75/45' on a door layer made a 0.45 m high door): a
             # size under a door's height is a window's or a vent's, never a door's
             continue
-        plain = role in DOOR_TAG_TEXT_ROLES
-        if role == "door" or (role == "window" and _door_like_tag(t, w_cm, h_cm, openings)) \
+        plain = role in DOOR_TAG_TEXT_ROLES and not tg.says_door
+        if tg.says_door and w_cm <= DOOR_TAG_MAX_W_CM:
+            # 27 Nov 2026 (R09, real15: 'K2-90/210' on the window-info layer, 'CK3 260/240' glass doors on the window
+            # layer): a tag whose code or words say door is a door's on any layer, as one on a door layer
+            tags.append((t, w_cm / 100.0, h_cm / 100.0, h_cm >= DOOR_TAG_MIN_H_CM, False))
+        elif role == "door" or (role == "window" and _door_like_tag(t, w_cm, h_cm, openings)) \
                 or (plain and h_cm >= DOOR_TAG_PLAIN_MIN_H_CM and w_cm <= DOOR_TAG_MAX_W_CM):
             # 6 Nov 2026 (real16 L1: the four shower rooms' '80/220' doors read as 0.68 m windows, their leaves' lines
             # in the wall taken for glass): a door-high tag on a door layer may take a drawn window of about its width
@@ -3117,8 +3148,11 @@ def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, unit
         if o.kind == "door" and isinstance(o.evidence, dict) and o.evidence.get("method") in ("vector", "raster") \
                 and not o.evidence.get("rule") and o.evidence.get("entity"):
             extra = [dict(o.evidence)] + extra
+        # 27 Nov 2026 (R09, real15: a window the 'CK3 260/240' tag made a door kept its 0.90 m sill): a door has no sill
         out[j] = dataclasses.replace(o, kind="door", width=round(new_w, 3), height=height, evidence=ev, center=centre,
-                                     type_raw=f"door size tag {t.text.strip()}", assumed=assumed, extra_evidence=extra)
+                                     type_raw=f"door size tag {t.text.strip()}", extra_evidence=extra,
+                                     assumed=[a for a in assumed if a != "sill_height"],
+                                     sill=None if o.kind != "door" else o.sill)
         done.append(f"{t.text.strip()} ({o.kind} {float(o.width):.2f} m -> door {new_w:.2f} m)")
     if clashes:
         ex.notes.append(f"{where}: door size tags on a spot that already took a tag: " + "; ".join(clashes[:8]))
@@ -3313,7 +3347,6 @@ DOOR_CHORD_TOL_M = 0.05         # ... and its chord (hinge to the closed leaf's 
 DOOR_WINDOW_SWEEP = (80.0, 100.0)   # on a door-and-window layer only a swing of about 90 degrees is a door's ...
 DOOR_WINDOW_MIN_R = 0.6         # ... of a door's size (a 35-degree sash of 0.5 m is a casement window)
 WINDOW_WORDS = ("PENCERE", "PENC", "WINDOW", "FENSTER", "FENETRE", "DOGRAMA", "VENTANA", "FINESTRA")
-WINDOW_TAG_RE = re.compile(r"^\s*[PW]\s*\d{0,2}\s*[:\-]?\s*\d{2,3}\s*/\s*\d{2,3}\s*$", re.IGNORECASE)
 
 
 def _door_window_name(names) -> bool:
@@ -3377,7 +3410,7 @@ def _door_blocks_in_gaps(ex, where: str, walls2: list, openings: list, strokes_m
                 continue
         arcs.append(st)
     tags = [((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0) for t in texts_m
-            if WINDOW_TAG_RE.match(str(getattr(t, "text", "") or ""))]
+            if TG.says_window(str(getattr(t, "text", "") or ""))]
     doors = [o for o in openings if o.kind == "door" and not getattr(o, "virtual", False)]
     # 13 Nov 2026 (round 3: real15's kitchen door lost its swing to the tag of the window beside it): a window size tag
     # speaks for the opening nearest to it only
@@ -4085,9 +4118,7 @@ TWIN_DOOR_REACH_M = 0.35        # ... a drawn door this close to its outline ...
 TWIN_FRAME_MIN_M = 1.0          # ... or this much of window and door frames along its outline
 TWIN_SAME_AREA = 0.02           # 21 Nov 2026: a closed unlabelled face within this share of its twin's area is named by
                                 # ``twins.mirror_labels`` (its 2 %), not by ``_closed_mirror_twins``
-# an opening's size tag: an optional kind letter and number ('P:220/150', 'K:80/240', 'D1-90/210', 'W 120/150'), then
-# width/height in cm
-OPENING_TAG_RE = re.compile(r"^\s*(?:[A-Z]{1,2}\s*\d{0,2}\s*[:\-.]?\s*)?(\d{2,3})\s*/\s*(\d{2,3})\s*$", re.IGNORECASE)
+# an opening's size tag ('P:220/150', 'K:80/240', 'D1-90/210', 'W 120/150', '150/150'): ``tag_grammar.parse`` (R09)
 
 
 def _mirror_point(q, axis) -> tuple:
@@ -4107,7 +4138,7 @@ def twin_evidence(face, twin_face, axis, texts_m: list, openings: list, strokes:
     'P:150/150' and a 'K:80/240' balcony door, stayed open because the missing salon itself made the shell 89 %
     symmetric, under ``facade.MIRROR_FIX_SHARE``): whether a face closed at the mirror of a labelled room is that room's
     twin (pure). ``(None, evidence)`` when its mirror overlaps the twin's face by ``TWIN_FACE_IOU`` and the drawing
-    marks a room there: opening size tags (``OPENING_TAG_RE``) within ``TWIN_TAG_REACH_M`` of it and in no other
+    marks a room there: opening size tags (``tag_grammar.parse``) within ``TWIN_TAG_REACH_M`` of it and in no other
     closed face (``others``), drawn doors within ``TWIN_DOOR_REACH_M`` of its outline, or ``TWIN_FRAME_MIN_M`` of
     window and door frames along it; else ``(why not, [])``."""
     from wenart.ingest.generic import facade as FC
@@ -4123,7 +4154,7 @@ def twin_evidence(face, twin_face, axis, texts_m: list, openings: list, strokes:
     near = face.buffer(TWIN_TAG_REACH_M, join_style=2)
     tags = []
     for t in texts_m or []:
-        if not OPENING_TAG_RE.match(str(getattr(t, "text", "") or "")):
+        if TG.parse(str(getattr(t, "text", "") or "")) is None:
             continue
         c = Point((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0)
         if near.contains(c) and not any(o.contains(c) for o in others):

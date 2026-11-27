@@ -57,7 +57,7 @@ STAIR_CLUSTER_M = 0.35
 WINDOW_W_M = (0.3, 8.0)
 TAG_MAX = 60                   # id tags drawn on one image at most
 RESERVE_TOKENS = 24            # kept under the cap for the last line (how many items were left out)
-SIZE_TAG_RE = re.compile(r"^\s*\d{2,3}\s*/\s*\d{2,3}\s*$")
+# size tags: ``wenart.ingest.tag_grammar`` (27 Nov 2026, R09: one parser for the pipeline; ``_is_tag``)
 NUMBER_RE = re.compile(r"^\s*[+-]?\d{1,5}(?:[.,]\d{1,3})?\s*$")
 AREA_RE = re.compile(r"(\d{1,4}[.,]\d{1,2})\s*(?:M2|M²|M\^2)\b", re.IGNORECASE)
 NOT_ARC_ROLES = ("furniture", "sanitary", "finish", "dimension", "text", "hatch", "axis", "site", "section")
@@ -65,6 +65,13 @@ WINDOW_ROLES = ("window", "glass", "sill")
 # the order in which the items of a list are kept under the cap (lower first) and the line kinds' names
 PRIORITY = {"T": 0, "A": 1, "G": 1, "Z": 2, "M": 2, "K": 2, "S": 3, "W": 3, "r": 1, "b": 1, "d": 2, "n": 2, "o": 2,
             "s": 3, "l": 3, "w": 4, "D": 5, "X": 6, "L": 7}
+
+
+def _is_tag(text) -> bool:
+    from wenart.ingest import tag_grammar as TG
+    return TG.parse(text) is not None
+
+
 HEADER = ("Exact data read from the drawing file (upper-case ids) and from the computer's model (lower-case ids), in "
           "metres in the frame of {what}: (0, 0) top-left, x to the right, y down; it is {w:.2f} m wide and {h:.2f} m "
           "high, so (x, y) is ({kx:.1f} x, {ky:.1f} y) in the 0-1000 scale. A drawing wall is two parallel wall lines, "
@@ -417,7 +424,7 @@ def source_items(page, frame: Frame, wall_layers=()) -> list:
             loose["K"].append({"p": p, "text": text[:24]})
         elif m:
             loose["M"].append({"p": p, "area": float(m.group(1).replace(",", "."))})
-        elif SIZE_TAG_RE.match(text):
+        elif _is_tag(text):
             loose["Z"].append({"p": p, "text": re.sub(r"\s+", "", text)})
         elif NUMBER_RE.match(text):
             loose["D"].append({"p": p, "text": text})

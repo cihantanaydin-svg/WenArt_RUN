@@ -75,7 +75,18 @@ STATION_M = 0.25
 CLEAR_SHARE = 0.75              # the share of a wall's stations one side must hold before its flag changes
 DOOR_TOUCH_M = 0.30             # a door this far beyond its wall's half thickness from a balcony opens onto it
 SWING_SWEEP_DEG = 75.0          # a door's swing sweeps at least this (a quarter); a tick or a sill arc less
-TAG_RE = re.compile(r"^\s*[a-z]?\s*(\d{2,3})\s*/\s*(\d{2,3})\s*$")
+# size tags: ``wenart.ingest.tag_grammar`` (27 Nov 2026, R09: one parser for the pipeline; ``_tag_cm`` below)
+def _tag_cm(text, door: bool = False, window: bool = False):
+    """``(width, height)`` in cm of the size tag ``text`` writes (``tag_grammar.parse``), or None; ``door``: not a tag
+    whose code or words say window; ``window``: not one whose code or words say door (pure)."""
+    from wenart.ingest import tag_grammar as TG
+
+    t = TG.parse(text)
+    if t is None or (door and t.says_window) or (window and t.says_door):
+        return None
+    return t.w_cm, t.h_cm
+
+
 WINDOW_LAYER_RE = re.compile(r"pencere|penc|window|glass|glazing|(?<![a-z])cam(?![a-z])|fenster|fenetre|ventana")
 TERRACE_RE = re.compile(r"(?<![a-z])(?:teras|terasi|terrace|dachterrasse|roof\s+terrace)(?![a-z])")
 SHAFT_RE = re.compile(r"(?<![a-z])(?:saft|s\.|tesisat|baca|havalandirma|hava\s+bacasi|duct|riser|vent\s+shaft)"
@@ -444,15 +455,15 @@ def window_evidence(o: dict, texts: list) -> Optional[str]:
             return f"its entity on the window layer '{e.get('layer')}'"
         if WINDOW_LAYER_RE.search(block):
             return f"the window block '{e.get('block') or e.get('block_name')}'"
-        m = TAG_RE.match(B.fold_ascii(str(e.get("text") or "")).lower())
-        if m and int(m.group(2)) < 180:
+        m = _tag_cm(e.get("text"), window=True)
+        if m and m[1] < 180:
             return f"its size tag '{e.get('text')}'"
     c = o.get("center")
     if c:
         reach = float(o.get("width") or 0.0) / 2.0 + 0.6
         for t in texts or []:
-            m = TAG_RE.match(B.fold_ascii(str(t.get("text") or "")).lower())
-            if m and int(m.group(2)) < 180 and G.distance((t["x"], t["y"]), c[:2]) <= reach:
+            m = _tag_cm(t.get("text"), window=True)
+            if m and m[1] < 180 and G.distance((t["x"], t["y"]), c[:2]) <= reach:
                 return f"the size tag '{t['text']}' at it"
     return None
 
@@ -585,15 +596,15 @@ def door_tag(o: dict, texts: list) -> Optional[str]:
     """A door-high W/H size tag (``DOOR_TAG_H_CM``) on the opening or beside it (its width / 2 + 0.6 m), or None
     (pure)."""
     for e in o.get("evidence") or []:
-        m = TAG_RE.match(B.fold_ascii(str(e.get("text") or "")).lower())
-        if m and int(m.group(2)) >= DOOR_TAG_H_CM:
+        m = _tag_cm(e.get("text"), door=True)
+        if m and m[1] >= DOOR_TAG_H_CM:
             return str(e.get("text"))
     c = o.get("center")
     if c:
         reach = float(o.get("width") or 0.0) / 2.0 + 0.6
         for t in texts or []:
-            m = TAG_RE.match(B.fold_ascii(str(t.get("text") or "")).lower())
-            if m and int(m.group(2)) >= DOOR_TAG_H_CM and "x" in t and G.distance((t["x"], t["y"]), c[:2]) <= reach:
+            m = _tag_cm(t.get("text"), door=True)
+            if m and m[1] >= DOOR_TAG_H_CM and "x" in t and G.distance((t["x"], t["y"]), c[:2]) <= reach:
                 return str(t["text"])
     return None
 
@@ -808,8 +819,8 @@ def fire_stairs(b: dict, texts_by_level: Optional[dict] = None) -> list:
                     continue                            # a stacked run beyond the enclosure: merged or left
                 tag = None
                 for t in texts:
-                    m = TAG_RE.match(B.fold_ascii(str(t.get("text") or "")).lower())
-                    if m and int(m.group(2)) >= DOOR_TAG_H_CM and "x" in t and \
+                    m = _tag_cm(t.get("text"), door=True)
+                    if m and m[1] >= DOOR_TAG_H_CM and "x" in t and \
                             G.distance((t["x"], t["y"]), g["center"][:2]) <= float(g.get("width") or 0) / 2.0 + 0.6:
                         tag = t["text"]
                         break

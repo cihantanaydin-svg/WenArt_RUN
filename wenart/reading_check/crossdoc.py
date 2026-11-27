@@ -97,9 +97,8 @@ SPACED_LETTERS_RE = re.compile(r"^\s*(?:[^\W\d_]\s+)+[^\W\d_]\s*$")
 LABEL_WORDS = ("HAVUZ", "POOL", "PISCINE", "PISCINA", "SCHWIMMBAD")
 POOL_RE = re.compile(r"(?<![A-Z])(?:HAVUZ|HAVUZU|POOL|SWIMMING|PISCINE|PISCINA|SCHWIMMBAD|POOLS)(?![A-Z])")
 PLOT_TOL_M = 0.10
-# RC11: SIZE_TAG_RE is ``wenart.ingest.generic.core.SIZE_TAG_RE`` (imported in ``size_tags``; copied here only if the
-# import fails): width/height in cm, "90/210", "90 / 210"
-SIZE_TAG_FALLBACK_RE = re.compile(r"^\s*(\d{2,3})\s*/\s*(\d{2,3})\s*$")
+# RC11: the size tags are read by ``wenart.ingest.tag_grammar`` (``size_tag_re``, 27 Nov 2026, R09): width/height in cm,
+# "90/210", "90 / 210", "K:80/240", "CK3 260/240", "180/210 FRANSIZ PENCERE"
 TAG_REACH_M = 0.8              # a tag stands this close to a wall of its level, its opening this close to it
 TAG_WIDTH_TOL_M = 0.10
 TAG_SIZE_CM = ((40, 600), (40, 400))
@@ -1058,12 +1057,28 @@ def rc10(building: dict, sheets: dict, site_texts: list[str], plan_texts: Option
 # --------------------------------------------------------------------------------------------------------------- RC11
 def size_tag_re():
     """20 Nov 2026 (pre-pod check: real09's 'P:150/150' and 'K:80/240' were no tag to RC11): the reader's opening tag,
-    an optional kind letter and number before W/H (``core.OPENING_TAG_RE``)."""
-    try:
-        from wenart.ingest.generic.core import OPENING_TAG_RE
-        return OPENING_TAG_RE
-    except ImportError:                                          # pragma: no cover
-        return SIZE_TAG_FALLBACK_RE
+    a code before W/H and words after it; since 27 Nov 2026 (R09) the pipeline's one parser ``tag_grammar.parse``
+    (this returns an object with ``match(text)`` giving ``group(1)`` / ``group(2)`` W and H in cm, for old callers)."""
+    return _ParserRe()
+
+
+class _ParserRe:
+    """``tag_grammar.parse`` behind a regular expression's ``match`` (R09)."""
+
+    class _M:
+        def __init__(self, t):
+            self.t = t
+
+        def group(self, i):
+            return str(self.t.w_cm if i == 1 else self.t.h_cm)
+
+        def groups(self):
+            return str(self.t.w_cm), str(self.t.h_cm)
+
+    def match(self, text):
+        from wenart.ingest import tag_grammar as TG
+        t = TG.parse(text)
+        return self._M(t) if t is not None else None
 
 
 def paired_texts(page, tf=None) -> list[dict]:

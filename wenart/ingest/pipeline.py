@@ -614,6 +614,7 @@ def _generic_rooms(build: ProjectBuild, level_id: str, ex: LevelExtraction) -> R
         if reason and reason.startswith("named:") and "|" in reason:
             reason = reason.rsplit("|", 1)[0].rstrip()
         label = label or TP.closet_label(reason, turkish)      # 3 Nov 2026 (real10): a closet is a "Depo"
+        label = label or TP.wet_cell_label(reason, turkish)    # 27 Nov 2026 (R21): a wet cell is a "Duş"
         return (room_type, reason, label) if label else (room_type, reason)
 
     anchors = [_to_building(ex, t.start) for t in ex.labels]
@@ -3395,10 +3396,20 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
     _add_named_pieces(build)          # 26 Oct 2026: a furniture name text with no drawn piece adds the piece it names
     RD.resolve_named_conflicts(build)  # 26 Oct 2026: the disputed pieces a name text, a zone label or the AI typed
     _gaps_behind_furniture(build)      # 27 Oct 2026: a gap the drawing puts furniture in front of is a window
+    from wenart.ingest import fixed_context as FXC  # 27 Nov 2026 (audit fix round 5a, R18): kitchen kit only in a
+    kit = FXC.kitchen_context(building)             # kitchen; a run along a bedroom's wall is a wardrobe
+    if kit:
+        building.setdefault("level_inference", {})["kitchen_context"] = kit
+        build.warn(f"fixed equipment: {len(kit)} kitchen piece(s) out of a kitchen read again (R18): "
+                   + "; ".join(x["reason"] for x in kit[:3]))
     from wenart.ingest import completion as CP   # 6 Nov 2026 (real21, UL331): the storeys and windows a drawing leaves out
     CP.complete(build, sheets, by_level, _to_building)
     from wenart.ingest import edge_guards as EGD   # 26 Nov 2026 (audit rule R04): balcony edges are guards, not walls
     EGD.apply(build)
+    from wenart.ingest import room_names as RN     # 27 Nov 2026 (audit fix round 5a, R28): a face no text names takes
+    named = RN.name_faces(building)                # its open neighbour's label or a role name, never a bare 'Oda'
+    if named:
+        building.setdefault("level_inference", {})["room_names"] = named
     masters =[sorted(ws, key=lambda w: w.rank)[0] for ws in by_level.values()]
     if any(w.extraction.source_kind is not None for w in masters):
         # The generic core's unit system; an evidence-only raster page beside a DXF/PDF level does not count.

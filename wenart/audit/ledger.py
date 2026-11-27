@@ -288,6 +288,8 @@ def classify_text(row: dict) -> str:
     f = fold(text)
     if role == "dimension":
         return "dimension"
+    if role == "schedule":
+        return "note"                    # 27 Nov 2026 (round 5a): a room schedule's words are a list, no rooms
     if role in ("title", "scale"):
         return "title"
     if MK.parse_mark(text) is not None or (MK.is_mark_tag(row.get("tag")) and MK.read_mark(text, bare=True)):

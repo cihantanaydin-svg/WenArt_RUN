@@ -278,6 +278,11 @@ def text_rows(ex, page_id: str, m6) -> list[dict]:
     s = _units_scale(m6) if m6 else None
     rows = []
     seen = set()
+    # 27 Nov 2026 (audit fix round 5a, R28 / Argus A1: real15's MAHAL LİSTESİ, nine room words outside the walls, was
+    # counted as nine rooms the model lacks): the texts of a room schedule the reading found (``labels.schedules``)
+    # keep the role ``schedule``; they are a list, not labels
+    sched = {str(i) for sc in ((getattr(ex, "report", None) or {}).get("schedules") or []) if isinstance(sc, dict)
+             for i in sc.get("run_ids") or []}
     for t in getattr(ex, "texts", None) or []:
         text = str(t.text or "").strip()
         if not text or t.entity in seen:
@@ -290,7 +295,8 @@ def text_rows(ex, page_id: str, m6) -> list[dict]:
         row = {"id": t.entity, "page": page_id, "text": text, "layer": ev.get("layer"), "block": ev.get("block"),
                "tag": ev.get("attrib_tag"), "pos": _pt(m6, centre),
                "height_m": round(float(t.height or 0.0) * s, 3) if s else None,
-               "rotation_deg": round(float(t.rotation_deg or 0.0), 1), "role": t.role,
+               "rotation_deg": round(float(t.rotation_deg or 0.0), 1),
+               "role": "schedule" if t.entity in sched else t.role,
                "label": label[0] if label else None, "label_part": label[1] if label else None,
                "label_id": label[2] if label else None}
         if ev.get("method") not in (None, "vector"):

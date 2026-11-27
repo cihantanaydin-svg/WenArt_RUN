@@ -130,6 +130,7 @@ from shapely.ops import unary_union
 from shapely.strtree import STRtree
 
 from wenart import building as B
+from wenart.ingest import tag_grammar as TG
 from wenart.ingest.generic.model import Stroke
 from wenart.ingest.model import DOOR_SWING_PROBE, OpeningItem, WallItem
 
@@ -4247,9 +4248,9 @@ def sliding_door_by_text(g: "Gap", log) -> Optional[str]:
         if d > SLIDING_TEXT_REACH_M:
             continue
         text = str(getattr(t, "text", "") or "")
-        m = DEC.SIZE_TAG_RE.match(text)
-        if m and int(m.group(2)) >= SLIDING_DOOR_TAG_H_CM:
-            return f"the size tag '{text}' {d:.2f} m away is a door's height"
+        m = TG.parse(text)                      # R09: one parser; a tag whose code or words say window is no door's
+        if m and not m.says_window and (m.says_door or m.h_cm >= SLIDING_DOOR_TAG_H_CM):
+            return f"the size tag '{text}' {d:.2f} m away is a door's" + ("" if m.says_door else " height")
         if any(w in text.translate(_FOLD).upper() for w in DOOR_WORDS):
             return f"the text '{text}' {d:.2f} m away names a door"
     normal = (0.0, 1.0) if g.axis == "h" else (1.0, 0.0)
@@ -4299,9 +4300,9 @@ def sliding_window_by_text(g: "Gap", log) -> Optional[str]:
         ev = getattr(t, "evidence", None) or []
         if ev and isinstance(ev[0], dict) and LN.layer_role(ev[0].get("layer")) == "door":
             continue                    # a size tag on the door layer names a door (real11's shaft hatches '50/50')
-        m = DEC.SIZE_TAG_RE.match(text)
-        if m and abs(int(m.group(1)) / 100.0 - g.width) <= SLIDING_WINDOW_TAG_W_M and (best is None or d < best[0]):
-            best = (d, text, int(m.group(2)))
+        m = TG.window_size(text)                # R09: one parser; a tag whose code or words say door names a door
+        if m and abs(m.w - g.width) <= SLIDING_WINDOW_TAG_W_M and (best is None or d < best[0]):
+            best = (d, text, m.h_cm)
     if best is None or best[2] >= SLIDING_WINDOW_TAG_H_CM:
         return None
     return (f"the size tag '{best[1]}' {best[0]:.2f} m away gives the {g.width:.2f} m gap a window's height "

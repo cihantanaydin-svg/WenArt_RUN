@@ -5072,6 +5072,96 @@
    "request": "27 Nov 2026 (audit fix round 3b, with UL423): a door whose own size tag gives another height than the one the reading assumed is built at the tag's height (the assumed height kept as drawn_height, logged); a height the documents give otherwise stays. H2 says why a drawn basin stays under its window as it is: the documents give the window's heights, or its assumed sill cannot rise because the window is too short.",
    "lesson": "27 Nov 2026 (audit fix round 3b, with UL423): a door whose own size tag gives another height than the one the reading assumed is built at the tag's height (the assumed height kept as drawn_height, logged); a height the documents give otherwise stays. H2 says why a drawn basin stays under its window as it is: the documents give the window's heights, or its assumed sill cannot rise because the window is too short.",
    "question": null
+  },
+  {
+   "id": "UL451",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 5a, rule R09; real15's 'CK3 260/240' glass doors were built as 1.20 m windows and three balconies had no door, real17's '180/210 FRANSIZ PENCERE' as two small windows at sill 0.90): one size-tag grammar reads every tag of the pipeline: a code of one to three letters and up to two digits ('CK3 ', 'K3-', 'P2:'), W/H in cm and trailing words (FRANSIZ PENCERE, SÜRGÜ KAPI, PORTE-FENÊTRE, French window); the code or the words say door, window or French window; stair formulas ('Rh=330/27') and texts on dimension or axis layers are no tags. Every reader decides by the kind the tag names: a window reader never takes a tag that says door, a door reader never one that says window.",
+   "lesson": "27 Nov 2026 (audit fix round 5a, rule R09; real15's 'CK3 260/240' glass doors were built as 1.20 m windows and three balconies had no door, real17's '180/210 FRANSIZ PENCERE' as two small windows at sill 0.90): one size-tag grammar reads every tag of the pipeline: a code of one to three letters and up to two digits ('CK3 ', 'K3-', 'P2:'), W/H in cm and trailing words (FRANSIZ PENCERE, SÜRGÜ KAPI, PORTE-FENÊTRE, French window); the code or the words say door, window or French window; stair formulas ('Rh=330/27') and texts on dimension or axis layers are no tags. Every reader decides by the kind the tag names: a window reader never takes a tag that says door, a door reader never one that says window.",
+   "question": null
+  },
+  {
+   "id": "UL452",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 5a, rule R09): one binding step after the openings binds each size tag to exactly one opening (the nearest whose wall it faces within 0.8 m, an opening of the tag's width first, a door never to a window-high tag): the tag sets the width when the read width agrees within 0.15 m (else the read gap wins and a finding says so), the height when it was assumed, a floor-level sill for a French window or a window tag 2.0 m high or more (a guard over a drop), and a glazed door where a balcony or terrace lies outside or a door tag stands on the ground storey; pieces of one window split at a mullion are one opening; one tag on two openings (two garage bays) gives one type; a second, smaller leaf drawn in the gap of a door its tag makes wider is one unequal double door.",
+   "lesson": "27 Nov 2026 (audit fix round 5a, rule R09): one binding step after the openings binds each size tag to exactly one opening (the nearest whose wall it faces within 0.8 m, an opening of the tag's width first, a door never to a window-high tag): the tag sets the width when the read width agrees within 0.15 m (else the read gap wins and a finding says so), the height when it was assumed, a floor-level sill for a French window or a window tag 2.0 m high or more (a guard over a drop), and a glazed door where a balcony or terrace lies outside or a door tag stands on the ground storey; pieces of one window split at a mullion are one opening; one tag on two openings (two garage bays) gives one type; a second, smaller leaf drawn in the gap of a door its tag makes wider is one unequal double door.",
+   "question": null
+  },
+  {
+   "id": "UL453",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 5a, rule R08; real06's recessed porch with three steps down to the ±0.00 mark 1.6 m out was built as a closed 'Oda' with a 1.88 m window): a gap in an outer wall that the reading saw as a gap (no window symbol), a few steps over the ground, is an open entrance when steps are drawn outside it, a ground or threshold mark lies within 2.5 m outside it, or the space behind is a small unlabelled recess whose only other openings are doors; a recess is a covered porch (open air under the slab above, the gap its open mouth) and its inner door the building entrance with its steps; behind a labelled room the gap is an entrance door. Garden steps next to a drawn window open nothing.",
+   "lesson": "27 Nov 2026 (audit fix round 5a, rule R08; real06's recessed porch with three steps down to the ±0.00 mark 1.6 m out was built as a closed 'Oda' with a 1.88 m window): a gap in an outer wall that the reading saw as a gap (no window symbol), a few steps over the ground, is an open entrance when steps are drawn outside it, a ground or threshold mark lies within 2.5 m outside it, or the space behind is a small unlabelled recess whose only other openings are doors; a recess is a covered porch (open air under the slab above, the gap its open mouth) and its inner door the building entrance with its steps; behind a labelled room the gap is an entrance door. Garden steps next to a drawn window open nothing.",
+   "question": null
+  },
+  {
+   "id": "UL454",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 5a, rule R08; real17's 'BİNA GİRİŞİ' lay outside the walls and was dropped as a room label, the shop door became the main entrance): an entrance word outside the walls ('BİNA GİRİŞİ', 'GİRİŞ', 'DAİRE GİRİŞİ', 'ENTRANCE', 'EINGANG'; a qualifier written as a text of its own beside it counts) names the nearest outside door within 2 m, one door only; a building word makes that door the main entrance, a shop word ('DÜKKAN GİRİŞİ') a shop entrance; a word-named door the terrain stands at most 0.20 m over is a flush entrance (the ground lowered to it).",
+   "lesson": "27 Nov 2026 (audit fix round 5a, rule R08; real17's 'BİNA GİRİŞİ' lay outside the walls and was dropped as a room label, the shop door became the main entrance): an entrance word outside the walls ('BİNA GİRİŞİ', 'GİRİŞ', 'DAİRE GİRİŞİ', 'ENTRANCE', 'EINGANG'; a qualifier written as a text of its own beside it counts) names the nearest outside door within 2 m, one door only; a building word makes that door the main entrance, a shop word ('DÜKKAN GİRİŞİ') a shop entrance; a word-named door the terrain stands at most 0.20 m over is a flush entrance (the ground lowered to it).",
+   "question": null
+  },
+  {
+   "id": "UL455",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 5a, rule R16; real15's first-floor 'TERAS +0.50' label got a 204 m2 rectangle cantilevering 5.5 m past the facade, real17's corner balcony was built at half its stated area): a labelled outdoor space is checked before it is built: a rectangle fallback under 80 % or over 120 % of the stated area is not the drawn space; an upper-plan label whose own level mark is a lower storey's floor, or an inferred one with no door over a same-kind space below, is the lower space seen from above; an inferred upper space no door reaches is not built, and one that is built reaches at most 2 m beyond the storeys under it. A space not built stays a finding (its reason on the site area and a warning), never a silent drop.",
+   "lesson": "27 Nov 2026 (audit fix round 5a, rule R16; real15's first-floor 'TERAS +0.50' label got a 204 m2 rectangle cantilevering 5.5 m past the facade, real17's corner balcony was built at half its stated area): a labelled outdoor space is checked before it is built: a rectangle fallback under 80 % or over 120 % of the stated area is not the drawn space; an upper-plan label whose own level mark is a lower storey's floor, or an inferred one with no door over a same-kind space below, is the lower space seen from above; an inferred upper space no door reaches is not built, and one that is built reaches at most 2 m beyond the storeys under it. A space not built stays a finding (its reason on the site area and a warning), never a silent drop.",
+   "question": null
+  },
+  {
+   "id": "UL456",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 5a, rule R28; real06's porch and corridor were named 'Oda' beside the real bedroom ODA, its hall 'Antre M²'): a room no text names takes the label of the room it opens onto without a door, else a role name from its type (Hol, Koridor, Giriş, Merdiven, Depo, Alan), never the placeholder 'Oda'; the name is label_inferred and label_role, so every check still sees an unlabelled room. An area unit written apart ('m²') joins the number beside it as the area and is never part of a name. A dressing room (SOYUNMA, GİYİNME, dressing, walk-in) keeps its name and is marked a dressing room of the bedroom it opens into, never storage.",
+   "lesson": "27 Nov 2026 (audit fix round 5a, rule R28; real06's porch and corridor were named 'Oda' beside the real bedroom ODA, its hall 'Antre M²'): a room no text names takes the label of the room it opens onto without a door, else a role name from its type (Hol, Koridor, Giriş, Merdiven, Depo, Alan), never the placeholder 'Oda'; the name is label_inferred and label_role, so every check still sees an unlabelled room. An area unit written apart ('m²') joins the number beside it as the area and is never part of a name. A dressing room (SOYUNMA, GİYİNME, dressing, walk-in) keeps its name and is marked a dressing room of the bedroom it opens into, never storage.",
+   "question": null
+  },
+  {
+   "id": "UL457",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 5a, rule R21; real15's eight 'KLO' toilet blocks stayed untyped): block names type by whole tokens, abbreviations and misspellings included (KLO, KLZ, KLOZ for a toilet, LAV, LVB for a washbasin, KÜV, KUVET for a bathtub, EVY, EVYE, EVİYE for a kitchen sink, DUŞ TEKNE for a shower tray; a stem of five letters or more also as a token's start, never LAVANTA); copies of one block typed differently take the type of the strongest evidence's majority (a block or name word over a code rule over the AI), a tie decides nothing.",
+   "lesson": "27 Nov 2026 (audit fix round 5a, rule R21; real15's eight 'KLO' toilet blocks stayed untyped): block names type by whole tokens, abbreviations and misspellings included (KLO, KLZ, KLOZ for a toilet, LAV, LVB for a washbasin, KÜV, KUVET for a bathtub, EVY, EVYE, EVİYE for a kitchen sink, DUŞ TEKNE for a shower tray; a stem of five letters or more also as a token's start, never LAVANTA); copies of one block typed differently take the type of the strongest evidence's majority (a block or name word over a code rule over the AI), a tie decides nothing.",
+   "question": null
+  },
+  {
+   "id": "UL458",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 5a, rule R18): kitchen kit (counter runs, hobs, kitchen sinks, hoods, dishwashers) that the reading typed by shape or a vision pass belongs to a kitchen, a kitchen-living or a utility room; in a bedroom, a hall or a dressing room a run 0.5-0.7 m deep along a wall is a wardrobe (adjusted_by_ai by code, the drawn type kept), other kitchen kit there is listed for review. A bathtub the plan draws (typed from its outline, a curved or corner outline, a drain) stays a bathtub in every bathroom (UL397); only a bath-sized box the code typed by its size may become a walk-in shower (UL200).",
+   "lesson": "27 Nov 2026 (audit fix round 5a, rule R18): kitchen kit (counter runs, hobs, kitchen sinks, hoods, dishwashers) that the reading typed by shape or a vision pass belongs to a kitchen, a kitchen-living or a utility room; in a bedroom, a hall or a dressing room a run 0.5-0.7 m deep along a wall is a wardrobe (adjusted_by_ai by code, the drawn type kept), other kitchen kit there is listed for review. A bathtub the plan draws (typed from its outline, a curved or corner outline, a drain) stays a bathtub in every bathroom (UL397); only a bath-sized box the code typed by its size may become a walk-in shower (UL200).",
+   "question": null
+  },
+  {
+   "id": "UL459",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 5a, check pod queue): the words of a room schedule the reading found (MAHAL LİSTESİ, a column of room words outside the walls) keep the role 'schedule' in the source inventory and Argus counts them as notes, never as rooms the model lacks (real15's A1 x18); a door word without a size ('SÜRGÜ KAPI', 'KAPI') on a door or plain text layer is a door's evidence like a door block: a door between two jamb lines across the wall where the wall's section lines closed the gap (real17's shower doors).",
+   "lesson": "27 Nov 2026 (audit fix round 5a, check pod queue): the words of a room schedule the reading found (MAHAL LİSTESİ, a column of room words outside the walls) keep the role 'schedule' in the source inventory and Argus counts them as notes, never as rooms the model lacks (real15's A1 x18); a door word without a size ('SÜRGÜ KAPI', 'KAPI') on a door or plain text layer is a door's evidence like a door block: a door between two jamb lines across the wall where the wall's section lines closed the gap (real17's shower doors).",
+   "question": null
   }
  ]
 }

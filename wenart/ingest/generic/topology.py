@@ -29,6 +29,7 @@ All geometry is in page metres (y up). Review reasons are returned as warnings s
 from __future__ import annotations
 
 import math
+import re
 from typing import Optional
 
 from shapely.errors import GEOSException
@@ -1104,6 +1105,14 @@ def unlabelled_face_type(face, walls: list, openings: list, stairs: list = (), o
             p = opening_polygon(o, walls)
             if p is not None and p.distance(poly) <= 0.02:
                 windows += 1
+        # 27 Nov 2026 (audit fix round 5a, R21; real15's shower cell with its tray and 'E.ŞOFBEN' became 'Depo'): a
+        # small walled face with sanitary words in it (a water heater, a drain, a shower tray, a fixture's name) is a
+        # wet cell of the room it opens into, never storage
+        wet = next((str(t) for t, q in texts or () if t and poly.buffer(0.05).contains(Point(q))
+                    and WET_CELL_RE.search(B.fold_ascii(str(t)).upper())), None)
+        if wet is not None:
+            return "bathroom", (f"wet cell: a face of {poly.area:.2f} m2 with one door and the sanitary word "
+                                 f"'{wet.strip()}' in it (a shower cell of the room it opens into, never storage)")
         if windows == 0:
             return "storage", (f"closet: a face of {poly.area:.2f} m2 with one door and no window (a small room to "
                                f"store things)")
@@ -1112,6 +1121,16 @@ def unlabelled_face_type(face, walls: list, openings: list, stairs: list = (), o
 
 CLOSET_M2 = (0.3, 3.5)
 CLOSET_LABELS = ("Depo", "Closet")
+WET_CELL_RE = re.compile(r"(?<![A-Z])(?:SOFBEN|SUZGEC|SUZGEC|DUS|TEKNE|SHOWER|TRAY|DRAIN|KLOZET|KLO|LAVABO|WC|PISUAR|"
+                         r"TERMOSIFON|BOYLER|KOMBI)(?![A-Z])")
+WET_CELL_LABELS = ("Duş", "Shower")
+
+
+def wet_cell_label(reason: Optional[str], turkish: bool) -> Optional[str]:
+    """The label of a face ``unlabelled_face_type`` found a wet cell (else None)."""
+    if reason and reason.startswith("wet cell"):
+        return WET_CELL_LABELS[0] if turkish else WET_CELL_LABELS[1]
+    return None
 
 
 def closet_label(reason: Optional[str], turkish: bool) -> Optional[str]:
