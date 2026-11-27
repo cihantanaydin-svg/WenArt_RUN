@@ -43,6 +43,11 @@ OPENING_REACH_M = 0.40       # an opening this close to a dropped room's outline
 STAIR_STROKES_MIN = 8        # the drawn storeys draw at least this many strokes where the stair is cut ...
 STAIR_EMPTY_SHARE = 0.2      # ... and the copy's storey at most this share of them: no stair drawn there
 RULE = "typical_vs_section"
+# 27 Nov 2026 (round 5b; the score gate: real10's ground floor copies the typical plan, and a correction of the user of
+# 4 Nov asks for the fire escape stair and its door on that storey, where the section draws a double-height hall): what
+# the section says against a copied storey is listed for the user and the architect, not carried out, until the user
+# decides which wins (``ACT``; ``check(..., act=True)`` carries it out)
+ACT = False
 
 
 def _union(spans: list) -> list:
@@ -253,10 +258,11 @@ def _drop_room(b: dict, room: dict, slab: Optional[dict], reason: str, evidence:
             "void": void["id"] if void else None, "void_m2": round(_poly(void["polygon"]).area, 2) if void else 0.0}
 
 
-def check(b: dict, sheets: dict, shift: tuple = (0.0, 0.0)) -> dict:
-    """The checks of every copied storey (module docstring; changes ``b`` in place). Returns
-    ``{"checked": [...], "dropped": [...], "stairs": [...], "notes": [...]}``."""
-    rec = {"checked": [], "dropped": [], "stairs": [], "notes": []}
+def check(b: dict, sheets: dict, shift: tuple = (0.0, 0.0), act: bool = True) -> dict:
+    """The checks of every copied storey (module docstring; changes ``b`` in place when ``act``, else it only lists what
+    the section says: ``"acted": False``). Returns ``{"checked": [...], "dropped": [...], "stairs": [...], "notes":
+    [...], "acted"}``."""
+    rec = {"checked": [], "dropped": [], "stairs": [], "notes": [], "acted": bool(act)}
     copies = copied_levels(sheets)
     if not copies:
         return rec
@@ -319,7 +325,11 @@ def check(b: dict, sheets: dict, shift: tuple = (0.0, 0.0)) -> dict:
                           f"above: a double-height space; {cid} copies the plan of {rid}, so its room "
                           f"{room['id']} '{room.get('label')}' ({share * 100:.0f} % of it on the cut inside) is not "
                           f"built: its floor is a void over the storey below (rule {RULE})")
-                done = _drop_room(b, room, slab, reason, {"region_id": ev.get("region_id")})
+                if act:
+                    done = _drop_room(b, room, slab, reason, {"region_id": ev.get("region_id")})
+                else:
+                    done = {"room": room["id"], "label": room.get("label"), "furniture": [], "openings": [],
+                            "walls": [], "void": None, "void_m2": 0.0}
                 done.update(level_id=cid, share=round(share, 2), reason=reason)
                 entry["rooms"].append(room["id"])
                 rec["dropped"].append(done)
@@ -362,19 +372,21 @@ def check(b: dict, sheets: dict, shift: tuple = (0.0, 0.0)) -> dict:
             med = theirs[len(theirs) // 2]
             if med < STAIR_STROKES_MIN or mine > STAIR_EMPTY_SHARE * med:
                 continue
-            f["build"] = False
+            if act:
+                f["build"] = False
             why = (f"section {ev.get('region_id')} draws no stair in {cid}'s storey where the cut crosses {f['id']} "
                    f"({mine} strokes against {med} in the drawn storeys of the same plan): its drawn flights start on "
                    f"a higher floor; {cid} copies that plan, the stair is not built here (rule {RULE})")
-            f.setdefault("evidence", []).append({"file": (c.get("evidence") or [{}])[0].get("file", ""),
-                                                 "method": "inferred", "confidence": 0.8, "entity": f["id"],
-                                                 "region_id": ev.get("region_id"), "rule": RULE, "text": why})
+            if act:
+                f.setdefault("evidence", []).append({"file": (c.get("evidence") or [{}])[0].get("file", ""),
+                                                     "method": "inferred", "confidence": 0.8, "entity": f["id"],
+                                                     "region_id": ev.get("region_id"), "rule": RULE, "text": why})
             item["stairs"].append(f["id"])
             rec["stairs"].append({"level_id": cid, "stair": f["id"], "strokes": mine, "drawn": med, "reason": why})
     # a stair not built here cuts no slab above it
     gone = {f for d in rec["dropped"] for f in d["furniture"]} | {s_["stair"] for s_ in rec["stairs"]}
     rec["voids_removed"] = []
-    for slab in b.get("slabs") or []:
+    for slab in (b.get("slabs") or []) if act else []:
         keep = []
         for o in slab.get("openings") or []:
             if o.get("kind") == "stair_void" and o.get("furniture_id") in gone:
@@ -393,18 +405,20 @@ def apply(build) -> dict:
     if not sheets:
         return {}
     try:
-        rec = check(b, sheets, tuple(getattr(build, "frame_shift", (0.0, 0.0)) or (0.0, 0.0)))
+        rec = check(b, sheets, tuple(getattr(build, "frame_shift", (0.0, 0.0)) or (0.0, 0.0)), act=ACT)
     except Exception as exc:  # noqa: BLE001 - logged: the copies stay as read
         build.warn(f"copied storeys not checked against the section ({type(exc).__name__}: {exc})")
         return {}
     for n in rec["notes"]:
         build.warn(f"copied storeys: {n}")
+    held = "" if rec["acted"] else " (listed, not carried out: the user decides first)"
     for d in rec["dropped"]:
-        build.warn(f"copied storey {d['level_id']}: {d['reason']}; gone with it: furniture "
-                   f"{', '.join(d['furniture']) or '-'}, openings {', '.join(d['openings']) or '-'}, walls "
-                   f"{', '.join(d['walls']) or '-'}; void {d['void'] or '-'} ({d['void_m2']:.2f} m2)")
+        build.warn(f"copied storey {d['level_id']}: {d['reason']}{held}" + (
+            f"; gone with it: furniture {', '.join(d['furniture']) or '-'}, openings {', '.join(d['openings']) or '-'}, "
+            f"walls {', '.join(d['walls']) or '-'}; void {d['void'] or '-'} ({d['void_m2']:.2f} m2)" if rec["acted"]
+            else ""))
     for s in rec["stairs"]:
-        build.warn(f"copied storey {s['level_id']}: {s['reason']}")
+        build.warn(f"copied storey {s['level_id']}: {s['reason']}{held}")
     for v in rec.get("voids_removed") or []:
         build.warn(f"copied storeys: the opening {v['opening']} of {v['slab']} over the stair {v['stair']} is not cut "
                    f"(the stair is not built)")
@@ -413,8 +427,11 @@ def apply(build) -> dict:
         if ids:
             build.conflict("other", ids, f"{item['level_id']} copies the plan of {item['drawn_level_id']}; section "
                                          f"{item['section']} draws it otherwise ({item['frame']})",
-                           f"the section wins where it clearly differs: rooms over a double-height space and stairs "
-                           f"the section does not draw are not built (rule {RULE})")
+                           (f"the section wins where it clearly differs: rooms over a double-height space and stairs "
+                            f"the section does not draw are not built (rule {RULE})") if rec["acted"] else
+                           (f"listed, not carried out (rule {RULE}): the rooms over the double-height space and the "
+                            f"stairs the section does not draw stay as the copied plan draws them until the user "
+                            f"decides which wins"))
     if rec["checked"] or rec["notes"]:
         b.setdefault("level_inference", {})["typical_checks"] = rec
     return rec

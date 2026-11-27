@@ -185,7 +185,7 @@ def structure_5b(b: dict) -> dict:
     tc = li.get("typical_checks") or {}
     typical = {"dropped": sorted(f"{d.get('level_id')}:{d.get('room')}" for d in tc.get("dropped") or []),
                "stairs": sorted(f"{s_.get('level_id')}:{s_.get('stair')}" for s_ in tc.get("stairs") or []),
-               "notes": len(tc.get("notes") or [])} if tc else None
+               "notes": len(tc.get("notes") or []), "acted": tc.get("acted", True)} if tc else None
     upper = sorted(f"{r.get('space')}:{r.get('action')}" for r in li.get("upper_support") or [])
     return {"slabs": slabs, "door_steps": steps, "typical_checks": typical, "upper_support": upper}
 
@@ -264,8 +264,9 @@ def structure_lines(st: Optional[dict]) -> list[str]:
                    f"{d.get('kind') or '-'} in {d.get('placed') or 'nothing (not built)'}")
     tc = st.get("typical_checks")
     if tc:
-        out.append(f"copied storeys vs section: rooms dropped {','.join(tc.get('dropped') or []) or '-'}; stairs not "
-                   f"built {','.join(tc.get('stairs') or []) or '-'}; {tc.get('notes')} note(s)")
+        verb = ("dropped", "not built") if tc.get("acted", True) else ("to drop (listed)", "to leave out (listed)")
+        out.append(f"copied storeys vs section: rooms {verb[0]} {','.join(tc.get('dropped') or []) or '-'}; stairs "
+                   f"{verb[1]} {','.join(tc.get('stairs') or []) or '-'}; {tc.get('notes')} note(s)")
     if st.get("upper_support"):
         out.append(f"upper outdoor spaces past the walls below: {', '.join(st['upper_support'])}")
     return out

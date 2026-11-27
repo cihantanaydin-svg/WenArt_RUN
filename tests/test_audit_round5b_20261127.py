@@ -154,6 +154,23 @@ def test_r22_rooms_over_a_double_height_space_are_not_built_on_the_copy(flipped)
     assert rec["dropped"][0]["room"] == "r_L0_stair"
 
 
+def test_r22_the_pipeline_lists_what_the_section_says_and_waits_for_the_user():
+    """The score gate (a correction of the user asks for a stair on a copied storey the section draws as a
+    double-height hall): the pipeline's default lists the section's verdict and changes nothing (``ACT``)."""
+    from wenart.sheets import typical_check as TCK
+    assert TCK.ACT is False
+    b = _copied_block()
+    before = copy.deepcopy(b)
+    warns, conflicts = [], []
+    build = SimpleNamespace(building=b, sheets=_sheets(), frame_shift=(0.0, 0.0), warn=warns.append,
+                            conflict=lambda *a: conflicts.append(a))
+    rec = TCK.apply(build)
+    assert rec["acted"] is False and [d["room"] for d in rec["dropped"]] == ["r_L0_stair"]
+    assert {k: b[k] for k in before} == before
+    assert any("listed, not carried out" in w for w in warns) and conflicts
+    assert b["level_inference"]["typical_checks"]["acted"] is False
+
+
 def test_r22_nothing_changes_when_the_section_does_not_say_so_clearly():
     from wenart.sheets import typical_check as TCK
     for kw in ({"l0_gap": False}, {"above_drawn": False}, {"cut": False}):
@@ -482,4 +499,7 @@ def test_struct_lines_show_slab_openings_door_steps_copies_and_upper_spaces():
         in text
     assert "door step d_1: rise 0.25 m, 2 risers, steps in r_garaj" in text
     assert "copied storeys vs section: rooms dropped L0:r_L0_oda" in text
+    b["level_inference"]["typical_checks"]["acted"] = False
+    lines2 = R.structure_lines(dict(R.structure_5b(b), levels={}, section={}, roof=None, stairs={}))
+    assert "copied storeys vs section: rooms to drop (listed) L0:r_L0_oda" in "\n".join(lines2)
     assert "upper outdoor spaces past the walls below: os_L1_teras:dropped" in text
