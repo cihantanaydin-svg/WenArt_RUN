@@ -226,7 +226,9 @@ def test_real06_the_kitchen_passage_stays_and_every_room_is_reached():
     from wenart.blender import build as B
 
     b = _real06()
-    b["architect_answers"] = {"AI.pass_through:o_L0_001": _ai("pass_through")}
+    # 27 Nov 2026 (audit fix round 3b, item 8): a machine answer is replayed only with its element's signature
+    sig = AA.element_signature(AA.Plan(b), "AI.pass_through", "o_L0_001", "AI.pass_through:o_L0_001")
+    b["architect_answers"] = {"AI.pass_through:o_L0_001": dict(_ai("pass_through"), signature=sig)}
     prep = B.prepare(b)
     rec = next(r for r in prep["architect"]["applied"] if r["key"] == "AI.pass_through:o_L0_001")
     assert not rec["ok"] and "o_L0_001 was the only way between r_L0_mutfak and r_L0_salon" in rec["change"]

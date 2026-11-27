@@ -305,6 +305,11 @@ def test_a_far_basin_move_needs_the_users_ok():
     basin = _piece(b, "washbasin")
     ans = {"option": "clear_basin", "params": {"piece_id": basin["id"], "max_move_m": 1.2}}
     ai = AA.apply_answers(copy.deepcopy(b), {f"H2:{basin['id']}": dict(ans, by="ai")})
+    # 27 Nov 2026 (audit fix round 3b, item 3): R17 d on every path: an AI answer never moves a drawn basin for a window
+    assert not ai[0]["ok"] and ai[0]["premise"] and "drawn sanitary ware is never moved" in ai[0]["change"]
+    added = copy.deepcopy(b)
+    _piece(added, "washbasin")["source"] = "added_by_ai"            # an added basin: the far move needs the user's OK
+    ai = AA.apply_answers(added, {f"H2:{basin['id']}": dict(ans, by="ai")})
     assert not ai[0]["ok"] and "user's OK" in ai[0]["change"]
     user = AA.apply_answers(b, {f"H2:{basin['id']}": dict(ans, by="user")})
     assert user[0]["ok"] and basin["adjusted_by_ai"]["answer_by"] == "user"

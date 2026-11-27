@@ -27,9 +27,12 @@ def _terrace(label="TERAS", texts=("9,00m²",)):
     return n, n["site"]["outdoor_spaces"][0]
 
 
-def _answer(action, element, params=None):
-    return {f"{AIA.AI_RULE}.{action}:{element}": {"option": action, "params": params or {}, "by": "ai",
-                                                   "answer": "test", "where": None}}
+def _answer(action, element, params=None, building=None):
+    # 27 Nov 2026 (audit fix round 3b, item 8): a machine answer is replayed only with its element's signature
+    key = f"{AIA.AI_RULE}.{action}:{element}"
+    sig = AA.element_signature(AA.Plan(building), key.partition(":")[0], element, key) if building else None
+    return {key: {"option": action, "params": params or {}, "by": "ai", "answer": "test", "where": None,
+                  **({"signature": sig} if sig else {})}}
 
 
 def _front(space):
@@ -55,7 +58,7 @@ def test_an_asked_guard_lands_on_the_platform_edges_it_names_and_never_on_the_st
     n, t = _terrace()
     plain = next(p for p in AIA.prep_of(n, None, {})["site"]["platforms"] if p["id"] == t["id"])
     asked = _sides(t) + [_front(t)]
-    prep = AIA.prep_of(n, None, _answer("guard_edge", t["id"], {"edges": asked}))
+    prep = AIA.prep_of(n, None, _answer("guard_edge", t["id"], {"edges": asked}, n))
     applied = {r["key"]: r for r in prep["architect"]["applied"]}
     rec = applied[f"{AIA.AI_RULE}.guard_edge:{t['id']}"]
     assert rec["ok"] and "a guard on" in rec["change"]
@@ -90,7 +93,7 @@ def test_drawn_steps_and_asked_guards_both_hold_on_one_platform():
 def test_cover_space_puts_a_light_roof_over_an_open_space():
     n, t = _terrace()
     assert t.get("roof") is None                                       # a terrace: an open kind
-    prep = AIA.prep_of(n, None, _answer("cover_space", t["id"]))
+    prep = AIA.prep_of(n, None, _answer("cover_space", t["id"], None, n))
     rec = next(r for r in prep["architect"]["applied"] if r["key"].startswith(f"{AIA.AI_RULE}.cover_space"))
     assert rec["ok"], rec["change"]
     pf = next(p for p in prep["site"]["platforms"] if p["id"] == t["id"])

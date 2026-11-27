@@ -245,40 +245,54 @@ def test_r02_an_answer_is_carried_out_only_while_its_question_is_raised_and_a_st
     still = [a for q in first["architect"]["questions"] for a in q["answers"] if a.get("open")]
     assert still and all(a.get("signature", {}).get("v") == AA.SIG_VERSION for a in still)   # each carries its signature
     win = next(o for o in b["openings"] if o["id"] == "win_L1_004")
+    plan = AA.Plan(b)
     answers = {
-        # raised: the AI's keep is carried out (the point closes, no default)
+        # raised: the AI's keep (signed: round 3b, item 8) is carried out (the point closes, no default)
         "W2:win_L1_008": dict(_ai("keep"), where={"kind": "window", "level_id": "L1",
                                                    "centre": next(o for o in b["openings"]
-                                                                  if o["id"] == "win_L1_008")["center"]}),
+                                                                  if o["id"] == "win_L1_008")["center"]},
+                              signature=AA.element_signature(plan, "W2", "win_L1_008", "W2:win_L1_008")),
         # an answer for a question this reading does not raise for its room: stale
-        "C1:r_L1_banyo": dict(_ai("retype_room", room_type="storage"), date="2026-10-30"),
-        # an old id at win_L1_004's place, no signature: stale, the point stays open for the AI architect
+        "C1:r_L1_banyo": dict(_ai("retype_room", room_type="storage"), date="2026-10-30",
+                              signature=AA.element_signature(plan, "C1", "r_L1_banyo", "C1:r_L1_banyo")),
+        # an old id at win_L1_004's place, no signature: stale, the point goes to the AI architect
         "W2:win_L1_099": dict(_ai("interior_glazing"), date="2026-10-26",
                               where={"kind": "window", "level_id": "L1", "centre": list(win["center"])}),
     }
     prep = BB.prepare(copy.deepcopy(b), "base", {"architect_answers": answers})
     app = {r["key"]: r for r in prep["architect_applied"]}
+    assert set(answers) <= set(app)                                        # 27 Nov 2026 (round 3b): presence first
     assert app["W2:win_L1_008"]["ok"] and not app["W2:win_L1_008"].get("stale")
     assert app["C1:r_L1_banyo"]["stale"] and "not raised" in app["C1:r_L1_banyo"]["change"]
     assert app["W2:win_L1_099"]["stale"] and app["W2:win_L1_099"]["element"] == "win_L1_004"
-    assert "W2:win_L1_004" not in prep["architect_defaults"]              # the AI decides, no default settles it
-    assert any(o["id"] == "win_L1_004" for o in prep["building"]["openings"])
-    point = next(a for q in prep["architect"]["questions"] if q["id"] == "W2" for a in q["answers"]
-                 if a["element"] == "win_L1_004")
-    assert point["open"] and point["for_ai"] and point["stale_answers"][0]["key"] == "W2:win_L1_099"
     assert prep["architect"]["stale"] == 2
     assert prep["architect_replay"]["admitted"].get("W2:win_L1_008") == "win_L1_008"
-    # the AI architect asks it again although an answer was stored; the user is not asked (report)
-    qs = AI.open_questions(prep["architect"], {"W2:win_L1_004"})
-    q = next(x for x in qs if x["key"] == "W2:win_L1_004")
-    assert q["stale_answers"] and q["signature"]["kind"] == "window"
-    assert "earlier_answer_stale" in AI.prompt([q], prep["building"], AA.Plan(prep["building"]))
+    # round 3b (item 7): the stale answer named another element (found at its old place): when no AI answer comes, the
+    # build carries out the point's safe default as the fallback, logged as such (here W2's next safe fix closes it)
+    fb = prep["architect_defaults"]["W2:win_L1_004"]
+    assert fb["fallback"] and fb["fallback_for"] == [app["W2:win_L1_099"]["old"]["id"]]
+    done = next(r for r in prep["architect_applied"] if r["key"] == "W2:win_L1_004")
+    assert done["ok"] and done["fallback"] and done["option"] == fb["option"]
+    assert "win_L1_004" not in {o["id"] for o in prep["building"]["openings"]} or fb["option"] != "close_window"
     md = AR.report_md(prep["architect"], "real06")
     assert "## Stale answers (not carried out)" in md and "`W2:win_L1_099`" in md
+    assert "as the fallback (W2:win_L1_004" in md
+    # in the AI architect's own plan the point waits for the AI (no fallback there), the user is not asked
+    ai = AI.prep_of(copy.deepcopy(b), {"architect_answers": answers}, {})
+    point = next(a for q in ai["architect"]["questions"] if q["id"] == "W2" for a in q["answers"]
+                 if a["element"] == "win_L1_004")
+    assert point["open"] and point["for_ai"] and point["stale_answers"][0]["key"] == "W2:win_L1_099"
+    assert "W2:win_L1_004" not in ai["architect_defaults"]
+    qs = AI.open_questions(ai["architect"], {"W2:win_L1_004"})
+    q = next(x for x in qs if x["key"] == "W2:win_L1_004")
+    assert q["stale_answers"] and q["signature"]["kind"] == "window"
+    assert "earlier_answer_stale" in AI.prompt([q], ai["building"], AA.Plan(ai["building"]))
+    md = AR.report_md(ai["architect"], "real06")
     assert "open: the AI architect decides again (W2:win_L1_004)" in md
     questions = md.split("## The architect's questions for you")[1].split("## ")[0] \
         if "## The architect's questions for you" in md else ""
     assert "W2:win_L1_004" not in questions
+    prep = ai
     # the AI's new decision replaces it: carried out, old and new side by side in the report and the log
     pick = AI._answer(next(o for o in q["options"] if o["id"] != "keep"), "decided again", "mock", q.get("where"), q)
     assert pick["signature"] == q["signature"] and pick["replaces"][0]["key"] == "W2:win_L1_099"
@@ -613,9 +627,10 @@ def test_r02_real06_replay_stale_answers_put_no_guard_on_the_balcony_doors(real0
     stale = [r for r in app if r.get("stale")]
     assert len(stale) >= 40, len(stale)
     by_key = {r["key"]: r for r in app}
+    # 27 Nov 2026 (round 3b, item 6): the keys are in the stored answers: their records must be there (presence first)
     for key in ("AI.french_window:d_L1_011", "AI.french_window:win_L1_005"):
-        if key in by_key:
-            assert not by_key[key]["ok"], by_key[key]
+        assert key in answers and key in by_key, key
+        assert not by_key[key]["ok"], by_key[key]
     built = {o["id"]: o for o in prep["building"]["openings"]}
     # the balcony doors stay doors without a guard (they open onto os_L1_balkon)
     for oid in ("d_L1_002", "d_L1_007"):
@@ -646,10 +661,25 @@ def test_r02_real10_the_mirror_balcony_door_stays_a_door(real10_reading):
     the 'Günlük Oda' rooms (M2) are refused by their premise (the rooms have their daylight)."""
     answers = _stored("real10")
     b = copy.deepcopy(real10_reading)
+    b["project"]["source_folder"] = "projects/no_such_project"
     keys = {k: v for k, v in answers.items() if k == "E1:d_L0_024" or (k.startswith("L1:")
                                                                         and v.get("option") == "retype_room")}
-    res = {r["key"]: r for r in AA.apply_answers(b, keys)}
-    if "E1:d_L0_024" in res:
-        assert not res["E1:d_L0_024"]["ok"]
-    assert next(o for o in b["openings"] if o["id"] == "d_L0_025")["type"] == "door"
-    assert not [k for k, r in res.items() if k.startswith("L1:") and r["ok"] and "gunluk" in k]
+    # 27 Nov 2026 (round 3b, item 6): presence first, and through the replay gate as the build replays them
+    gunluk = [k for k in keys if "gunluk" in k]
+    assert "E1:d_L0_024" in keys and gunluk, sorted(keys)
+    base, plan = BB.replay_gate(b, "base", {"architect_answers": keys})
+    gate = base["architect_replay"]
+    assert "E1:d_L0_024" in gate["keys"] and set(gunluk) <= set(gate["keys"])
+    res = {r["key"]: r for r in plan["architect_applied"]}
+    assert set(keys) <= set(res)
+    assert not res["E1:d_L0_024"]["ok"] and not any(res[k]["ok"] for k in gunluk)
+    assert next(o for o in plan["building"]["openings"] if o["id"] == "d_L0_025")["type"] == "door"
+    rooms = {r["id"]: r for r in plan["building"]["rooms"]}
+    read = {r["id"]: r for r in real10_reading["rooms"]}
+    assert all(rooms[k.partition(":")[2]]["room_type"] == read[k.partition(":")[2]]["room_type"] != "storage"
+               for k in gunluk if k.partition(":")[2] in read)
+    # signed as given on this very reading, the premise refuses them where the room has its daylight
+    plan0 = AA.Plan(copy.deepcopy(real10_reading))
+    lit = [k for k in gunluk if k.partition(":")[2] in plan0.room
+           and AA.retype_premise(plan0, "L1", plan0.room[k.partition(":")[2]], "storage", {})]
+    assert lit, "the 'Günlük Oda' rooms have their daylight in this reading"

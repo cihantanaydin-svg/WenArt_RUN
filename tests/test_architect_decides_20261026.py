@@ -341,8 +341,10 @@ def test_a_decision_that_takes_a_rooms_only_shower_is_refused():
     base = AI.prep_of(b, None, {})
     assert not any(r == bath and "shower" in m for r, m in AI.set_gaps(base))
     key = "AI.remove_piece:f_add_shower"
+    # 27 Nov 2026 (audit fix round 3b, item 8): a machine answer is replayed only with its element's signature
+    sig = AA.element_signature(AA.Plan(b), "AI.remove_piece", "f_add_shower", key)
     cand = {key: {"option": "remove_piece", "params": {}, "choice": "remove_piece", "answer": "a second shower",
-                  "reason": "a second shower", "by": "ai", "where": None, "own": True}}
+                  "reason": "a second shower", "by": "ai", "where": None, "own": True, "signature": sig}}
     ok, why = AI._verdicts(b, None, {}, cand, base)[key]
     assert not ok and why.startswith("a room loses a piece of its set") and bath in why
 

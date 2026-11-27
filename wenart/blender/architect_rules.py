@@ -1198,8 +1198,14 @@ def _basin_wall(plan: AA.Plan, h2: dict, f: dict, room: dict, here: list, openin
     if f.get("source") in (None, "from_documents"):
         near = far = None
         if not raise_ok:
-            _ok(h2, f["id"], f"the drawn {f.get('type')} stays under {got['window']} (its heights are drawn): a basin "
-                             f"under a window is normal, its mirror hangs beside it")
+            # 27 Nov 2026 (round 3b, item 14): why the sill is not raised, as it is: the documents give the window's
+            # heights, or the window is too short to raise (its sill only assumed)
+            given = AA.heights_given(plan.b, o) if o else None
+            why = (f"the documents give its heights: {given}" if given else
+                   f"its sill is assumed, but the window is too short to raise to {FU.BASIN_SILL_M:.2f} m and keep "
+                   f"{AA.MIN_WINDOW_H:.2f} m of glass" if o else "no window record to raise")
+            _ok(h2, f["id"], f"the drawn {f.get('type')} stays under {got['window']} ({why}): a basin under a window "
+                             f"is normal, its mirror hangs beside it")
             return
     opts = []
     if raise_ok:

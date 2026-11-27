@@ -4866,6 +4866,152 @@
    "request": "27 Nov 2026 (audit fix round 3 dry run; real11: twelve tagged 2.40 m balcony doors carried an assumed 0.90 m sill, so E1 found nothing to step onto and its default made them windows, the balconies unreachable): E1 and O2 judge a door's landing at its threshold when its sill is only assumed (no drawn sill), and a balcony or terrace at that floor is its landing.",
    "lesson": "27 Nov 2026 (audit fix round 3 dry run; real11: twelve tagged 2.40 m balcony doors carried an assumed 0.90 m sill, so E1 found nothing to step onto and its default made them windows, the balconies unreachable): E1 and O2 judge a door's landing at its threshold when its sill is only assumed (no drawn sill), and a balcony or terrace at that floor is its landing.",
    "question": null
+  },
+  {
+   "id": "UL440",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [
+    "E1",
+    "W2",
+    "F2"
+   ],
+   "request": "27 Nov 2026 (audit fix round 3b, with UL417; the review of round 3: a point that opens only after a default ran was 'not raised' on a plan not seeded with the defaults and raised on a seeded one, so the Blender build on the pod, whose brief carries the merged answers and so runs unseeded, dropped answers the AI architect had accepted): the replay gate decides from the answer-free default chain (the review with no answer, then after each of its defaults; the union of the points they raise, kept per building), never from a seed: seeded or not, the same verdict; an answer whose question only this plan raises is admitted after the default search; the report never says 'not raised' next to a point still open.",
+   "lesson": "27 Nov 2026 (audit fix round 3b, with UL417; the review of round 3: a point that opens only after a default ran was 'not raised' on a plan not seeded with the defaults and raised on a seeded one, so the Blender build on the pod, whose brief carries the merged answers and so runs unseeded, dropped answers the AI architect had accepted): the replay gate decides from the answer-free default chain (the review with no answer, then after each of its defaults; the union of the points they raise, kept per building), never from a seed: seeded or not, the same verdict; an answer whose question only this plan raises is admitted after the default search; the report never says 'not raised' next to a point still open.",
+   "question": null
+  },
+  {
+   "id": "UL441",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [
+    "F2",
+    "F3",
+    "W2"
+   ],
+   "request": "27 Nov 2026 (audit fix round 3b, with UL417; the review's exp6: an answer re-targeted by place onto the door d2 was checked on d2 and carried out on d1, the element its params still named): an answer found again by place acts on its target (every id in its params equal to its old element becomes the target); every other element it names (away_from, other_id, room_id, piece_id ...) is found again from the signature the answer keeps of it (its kind, level, place and own signature), else the answer is stale. Every new answer carries its signature, the AI architect's overrides of the architect's major defaults too.",
+   "lesson": "27 Nov 2026 (audit fix round 3b, with UL417; the review's exp6: an answer re-targeted by place onto the door d2 was checked on d2 and carried out on d1, the element its params still named): an answer found again by place acts on its target (every id in its params equal to its old element becomes the target); every other element it names (away_from, other_id, room_id, piece_id ...) is found again from the signature the answer keeps of it (its kind, level, place and own signature), else the answer is stale. Every new answer carries its signature, the AI architect's overrides of the architect's major defaults too.",
+   "question": null
+  },
+  {
+   "id": "UL442",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [
+    "H2",
+    "F3",
+    "F2"
+   ],
+   "request": "27 Nov 2026 (audit fix round 3b, with UL422; the review's exp8 / exp9: the AI's own clear_basin moved a drawn basin H2 keeps, and a legacy move_piece away from what is now a window re-seated real06's drawn kitchen sink): R17 d holds on every path: an answer that is not the user's never moves a drawn piece with clear_basin, and never moves drawn fixed equipment (stairs, kitchen runs and appliances, sanitary ware) away from a window with move_piece or clear_front; the refusal is logged. Moves out of a door's swing stay allowed (at most 0.5 m).",
+   "lesson": "27 Nov 2026 (audit fix round 3b, with UL422; the review's exp8 / exp9: the AI's own clear_basin moved a drawn basin H2 keeps, and a legacy move_piece away from what is now a window re-seated real06's drawn kitchen sink): R17 d holds on every path: an answer that is not the user's never moves a drawn piece with clear_basin, and never moves drawn fixed equipment (stairs, kitchen runs and appliances, sanitary ware) away from a window with move_piece or clear_front; the refusal is logged. Moves out of a door's swing stay allowed (at most 0.5 m).",
+   "question": null
+  },
+  {
+   "id": "UL443",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [
+    "L1",
+    "R4",
+    "R1",
+    "R2"
+   ],
+   "request": "27 Nov 2026 (audit fix round 3b, with UL418; the review's exp7: R4's storage retype of a 4 m2 'bedroom' was refused because the room had a window): each retype checks its own rule's premise: the daylight premise only for an answer that claims the room has no daylight (L1, the AI's own retype of a lived-in room to a room that needs none, an answer whose words say so); R4 that the room is still under its type's minimum area; R1 that it is a bedroom still too narrow; R2 that it still lacks its type's anchor piece; R5 that it still has no type and no name.",
+   "lesson": "27 Nov 2026 (audit fix round 3b, with UL418; the review's exp7: R4's storage retype of a 4 m2 'bedroom' was refused because the room had a window): each retype checks its own rule's premise: the daylight premise only for an answer that claims the room has no daylight (L1, the AI's own retype of a lived-in room to a room that needs none, an answer whose words say so); R4 that the room is still under its type's minimum area; R1 that it is a bedroom still too narrow; R2 that it still lacks its type's anchor piece; R5 that it still has no type and no name.",
+   "question": null
+  },
+  {
+   "id": "UL444",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [
+    "W2",
+    "F2",
+    "E1"
+   ],
+   "request": "27 Nov 2026 (audit fix round 3b; CLAUDE.md: the architect carries out the safe default of every open point that has one): a point left for the AI architect because its earlier answer went stale still gets its safe default when no AI answer comes (the AI architect off, out of time, or asking the user), logged as the fallback with the stale answers it stands for; the AI architect's own plans keep the point open for the AI first. No fallback where it is the very change a stale answer shown to be about this same element (signed, and found by its own id) decided against (an unsigned answer shows nothing about its element: the fallback stands): neither is carried out, the point waits, with the reason.",
+   "lesson": "27 Nov 2026 (audit fix round 3b; CLAUDE.md: the architect carries out the safe default of every open point that has one): a point left for the AI architect because its earlier answer went stale still gets its safe default when no AI answer comes (the AI architect off, out of time, or asking the user), logged as the fallback with the stale answers it stands for; the AI architect's own plans keep the point open for the AI first. No fallback where it is the very change a stale answer shown to be about this same element (signed, and found by its own id) decided against (an unsigned answer shows nothing about its element: the fallback stands): neither is carried out, the point waits, with the reason.",
+   "question": null
+  },
+  {
+   "id": "UL445",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [
+    "W2",
+    "E1"
+   ],
+   "request": "27 Nov 2026 (audit fix round 3b; the user's decision: 'unsigned machine answers are retired'): a stored answer that is not the user's (the AI architect's, Argus', a stored default) and carries no signature of its element is never replayed by its id alone: it is stale, its point goes to the AI architect with the fallback default; the stored file is never changed; the user's own answers keep their path (no signature, no premise check).",
+   "lesson": "27 Nov 2026 (audit fix round 3b; the user's decision: 'unsigned machine answers are retired'): a stored answer that is not the user's (the AI architect's, Argus', a stored default) and carries no signature of its element is never replayed by its id alone: it is stale, its point goes to the AI architect with the fallback default; the stored file is never changed; the user's own answers keep their path (no signature, no premise check).",
+   "question": null
+  },
+  {
+   "id": "UL446",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [
+    "E1"
+   ],
+   "request": "27 Nov 2026 (audit fix round 3b, with UL417): an answer of a rule that did not run in this review (a site rule without a site plan, N1, A1) is not carried out unless it is the user's: it is logged as 'not checked: its rule did not run'.",
+   "lesson": "27 Nov 2026 (audit fix round 3b, with UL417): an answer of a rule that did not run in this review (a site rule without a site plan, N1, A1) is not carried out unless it is the user's: it is logged as 'not checked: its rule did not run'.",
+   "question": null
+  },
+  {
+   "id": "UL447",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [
+    "E1",
+    "W2"
+   ],
+   "request": "27 Nov 2026 (audit fix round 3b, with UL417): every plan decides its own replay gate: a planned building (prep['building'], building_built.json) never carries the gate into a later plan, and a gate that never saw an answer does not carry it out; the gate's cached answer-free chain is keyed by the building without the architect's answers only (the agent's other overrides change the plan).",
+   "lesson": "27 Nov 2026 (audit fix round 3b, with UL417): every plan decides its own replay gate: a planned building (prep['building'], building_built.json) never carries the gate into a later plan, and a gate that never saw an answer does not carry it out; the gate's cached answer-free chain is keyed by the building without the architect's answers only (the agent's other overrides change the plan).",
+   "question": null
+  },
+  {
+   "id": "UL448",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [
+    "W2"
+   ],
+   "request": "27 Nov 2026 (audit fix round 3b, with UL421; real14 win_L6_015: its glass drawn as a hatch in the gap gave no window evidence, so W2 offered to read it again as a passage): a hatch the reading's window rule read in a window's gap is its glass: window evidence.",
+   "lesson": "27 Nov 2026 (audit fix round 3b, with UL421; real14 win_L6_015: its glass drawn as a hatch in the gap gave no window evidence, so W2 offered to read it again as a passage): a hatch the reading's window rule read in a window's gap is its glass: window evidence.",
+   "question": null
+  },
+  {
+   "id": "UL449",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [
+    "W2"
+   ],
+   "request": "27 Nov 2026 (audit fix round 3b, with UL417): the AI architect's new answer that names the stale answer it replaces wins over that answer of the same key in the AI architect's own plans too, not only in the build.",
+   "lesson": "27 Nov 2026 (audit fix round 3b, with UL417): the AI architect's new answer that names the stale answer it replaces wins over that answer of the same key in the AI architect's own plans too, not only in the build.",
+   "question": null
+  },
+  {
+   "id": "UL450",
+   "date": "2026-11-27",
+   "area": "other",
+   "status": "open",
+   "checks": [
+    "D5",
+    "H2"
+   ],
+   "request": "27 Nov 2026 (audit fix round 3b, with UL423): a door whose own size tag gives another height than the one the reading assumed is built at the tag's height (the assumed height kept as drawn_height, logged); a height the documents give otherwise stays. H2 says why a drawn basin stays under its window as it is: the documents give the window's heights, or its assumed sill cannot rise because the window is too short.",
+   "lesson": "27 Nov 2026 (audit fix round 3b, with UL423): a door whose own size tag gives another height than the one the reading assumed is built at the tag's height (the assumed height kept as drawn_height, logged); a height the documents give otherwise stays. H2 says why a drawn basin stays under its window as it is: the documents give the window's heights, or its assumed sill cannot rise because the window is too short.",
+   "question": null
   }
  ]
 }

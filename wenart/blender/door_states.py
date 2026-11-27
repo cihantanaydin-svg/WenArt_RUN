@@ -533,6 +533,43 @@ def _door_height(building: dict, o: dict, wall: dict, level: dict, target: Optio
     return round(want, 4), f"{what}: {want:.2f} m high"
 
 
+def tag_heights(building: dict) -> list[dict]:
+    """27 Nov 2026 (audit fix round 3b, item 14; the reviewer: the reading records a door's own size tag, 'K1-80/230',
+    and the build kept its assumed 2.10 m): a door whose height the reading assumed (``assumed`` holds ``height``, or it
+    has none) and whose own size tag (``architect_actions.door_tag``) gives another height (by more than
+    ``HEIGHT_TOL_M``) is built at the tag's height: ``drawn_height`` keeps the assumed one, ``height`` is no longer
+    assumed (``height_source`` names the tag), an evidence entry and an assumed entry say why. A height the documents
+    give otherwise stays. Whatever the style (D5's role sizes then keep it, ``plan_sizes``). Pure apart from the
+    building (in place); returns the assumed entries; a second call changes nothing."""
+    from wenart.blender import architect_actions as AA
+
+    out = []
+    for o in building.get("openings") or []:
+        if o.get("type") != "door" or o.get("virtual"):
+            continue
+        tag = AA.door_tag(o)
+        if tag is None:
+            continue
+        height = o.get("height")
+        listed = list(o.get("assumed") or ()) if isinstance(o.get("assumed"), (list, tuple)) else []
+        h = float(height) if isinstance(height, (int, float)) and not isinstance(height, bool) else None
+        if (h is not None and "height" not in listed) or (h is not None and abs(h - tag[1]) <= HEIGHT_TOL_M):
+            continue
+        reason = (f"{o.get('id')}: its own door size tag '{tag[2]}' gives {tag[1]:.2f} m"
+                  + (f" (the reading assumed {h:.2f} m)" if h is not None else " (the reading gave no height)"))
+        o.setdefault("drawn_height", height)
+        o["height"] = round(tag[1], 4)
+        o["assumed"] = [f for f in listed if f != "height"]
+        o["height_source"] = f"door size tag '{tag[2]}'"
+        ev = o.setdefault("evidence", [])
+        if isinstance(ev, list):
+            ev.append({"file": "door_states", "method": "inferred", "confidence": 0.9, "rule": "door_tag_height",
+                       "text": reason})
+        out.append({"object": o["id"], "field": "height", "value": o["height"], "reason": reason, "parent": o["id"],
+                    "kind": "door_tag_height"})
+    return out
+
+
 def apply_sizes(building: dict, style) -> tuple[list[dict], list[dict]]:
     """Carry out ``plan_sizes`` on ``building`` (in place): ``(changes, assumed entries)``."""
     changes = plan_sizes(building, style)

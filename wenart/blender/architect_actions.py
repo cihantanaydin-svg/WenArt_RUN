@@ -241,9 +241,27 @@ def answers_of(building: dict, brief_answers: Optional[dict] = None) -> dict:
     for src in sources:
         if isinstance(src, dict):
             for k, v in src.items():
-                if not str(k).startswith("_"):
-                    out[str(k)] = normalise(str(k), v)
+                if str(k).startswith("_"):
+                    continue
+                new = normalise(str(k), v)
+                # 27 Nov 2026 (audit fix round 3b, item 13): an earlier source's answer that replaces this very answer
+                # (its ``replaces`` names this answer's ``answer_id``: a stale answer the AI architect decided again)
+                # wins over it here too, in the AI architect's own plans as in the build (``merge_user_answers``)
+                if replaces(out.get(str(k)), new):
+                    continue
+                out[str(k)] = new
     return out
+
+
+def replaces(newer: Optional[dict], older) -> bool:
+    """Whether the answer ``newer`` replaces the answer ``older`` (pure; R02): its ``replaces`` (one summary or a list)
+    names ``older``'s ``answer_id``."""
+    if not isinstance(newer, dict) or not isinstance(older, dict):
+        return False
+    reps = newer.get("replaces")
+    reps = reps if isinstance(reps, list) else [reps] if isinstance(reps, dict) else []
+    ids = {str(x.get("id")) for x in reps if isinstance(x, dict) and x.get("id")}
+    return bool(ids) and answer_id(older) in ids
 
 
 AI_ANSWERS = "orchestrator/architect_answers.json"      # the AI architect's accepted answers (wenart/agent/architect_ai.py)
@@ -270,10 +288,7 @@ def merge_user_answers(ai: dict, user: dict) -> dict:
     and the AI architect decided again; the user's file is never changed."""
     out = dict(ai or {})
     for k, v in (user or {}).items():
-        mine = out.get(k)
-        reps = (mine or {}).get("replaces") if isinstance(mine, dict) else None
-        reps = reps if isinstance(reps, list) else [reps] if isinstance(reps, dict) else []
-        if isinstance(v, dict) and any(isinstance(x, dict) and x.get("id") == answer_id(normalise(k, v)) for x in reps):
+        if isinstance(v, dict) and replaces(out.get(k), normalise(k, v)):
             continue
         out[k] = v
     return {str(k): v for k, v in out.items() if not str(k).startswith("_")}
@@ -2863,25 +2878,48 @@ def answer_id(ans: dict) -> str:
     return hashlib.sha1(json.dumps(keep, sort_keys=True, default=str).encode("utf-8")).hexdigest()[:12]
 
 
-def stale_summary(key: str, ans: dict, why: str, target: Optional[str] = None) -> dict:
-    """What the report and the AI architect see of a stale answer (pure)."""
+def stale_summary(key: str, ans: dict, why: str, target: Optional[str] = None, how: Optional[str] = None) -> dict:
+    """What the report and the AI architect see of a stale answer (pure); ``how`` (round 3b): how it resolved to
+    ``target`` (``id``: its own id where it saw it; ``place``: another element at its old place)."""
     return {"key": key, "id": answer_id(ans), "by": ans.get("by", "user"), "option": ans.get("option") or "keep",
             "choice": ans.get("choice") or ans.get("option") or "keep", "params": dict(ans.get("params") or {}),
-            "date": ans.get("date"), "answer": ans.get("answer"), "why": why, "element": target}
+            "date": ans.get("date"), "answer": ans.get("answer"), "why": why, "element": target,
+            "signed": isinstance(ans.get("signature"), dict), **({"how": how} if how else {})}
 
 
-def replay_check(plan: Plan, key: str, ans: dict) -> dict:
-    """``{"target", "how", "stale"}`` of an answer that is not the architect's own default of this run (pure; R02): the
-    element it resolves to (``resolve_how``) and why it is stale, or None: an answer re-targeted by place without a
-    signature is stale (its element moved: the nearest element there is another one); an answer with a signature is
-    stale when the element it resolves to differs from it (``signature_diff``)."""
+UNSIGNED_SINCE = "27 Nov 2026"
+
+
+def unsigned_text(element: str, ans: dict) -> str:
+    """Why an unsigned machine answer is not replayed (audit fix round 3b, item 8; pure)."""
+    who = {"ai": "the AI architect", "argus": "Argus, the auditor", "architect": "the architect's default"}.get(
+        str(ans.get("by") or ""), f"'{ans.get('by')}'")
+    return (f"an answer of {who} that carries no signature of its element ({element}): a machine answer is replayed only "
+            f"with its signature (since {UNSIGNED_SINCE}), never by its id alone; the AI architect decides again")
+
+
+def replay_check(plan: Plan, key: str, ans: dict, retire_unsigned: bool = False) -> dict:
+    """``{"target", "how", "stale", "params"}`` of an answer that is not the architect's own default of this run (pure;
+    R02): the element it resolves to (``resolve_how``), why it is stale (or None) and its parameters for this reading:
+    an answer re-targeted by place without a signature is stale (its element moved: the nearest element there is
+    another one); an answer with a signature is stale when the element it resolves to differs from it
+    (``signature_diff``).
+
+    27 Nov 2026 (audit fix round 3b): ``params`` names the elements of this reading (``resolve_params``: an answer
+    re-targeted by place acts on its target, every other element it names is found again or the answer is stale);
+    ``retire_unsigned`` (the build's replay gate): a machine answer (not the user's) without a signature is stale
+    whatever its id says (item 8: ids move between readings)."""
     rule, _sep, element = key.partition(":")
     where = ans.get("where") if isinstance(ans.get("where"), dict) else None
     target, how = resolve_how(plan, element, where)
-    out = {"target": target, "how": how, "stale": None}
+    params = dict(ans.get("params") or {})
+    out = {"target": target, "how": how, "stale": None, "params": params}
     if target is None:
         return out
     sig = ans.get("signature") if isinstance(ans.get("signature"), dict) else None
+    if sig is None and retire_unsigned and ans.get("by", "user") != "user":
+        out["stale"] = unsigned_text(element, ans)
+        return out
     if how == "place" and sig is None:
         c = (where or {}).get("centre") or [0, 0]
         out["stale"] = (f"{element} is no longer where the answer saw it ({where.get('kind')} at {float(c[0]):.2f}, "
@@ -2892,12 +2930,188 @@ def replay_check(plan: Plan, key: str, ans: dict) -> dict:
         diff = signature_diff(sig, element_signature(plan, rule, target, key))
         if diff:
             out["stale"] = f"{target} is not the element the answer was given for: {'; '.join(diff)}"
+            return out
+    out["params"], why = resolve_params(plan, rule, element, target, how, params, sig)
+    if why:
+        out["stale"] = why
     return out
+
+
+# --------------------------------------------------------------------------
+# 27 Nov 2026 (audit fix round 3b, item 2; the reviewer's exp6: an answer re-targeted by place onto d2 was checked on d2
+# and carried out on d1, the element its params still named): the other elements an answer names (its params) are part
+# of what it was given for. An open point's signature keeps theirs (``refs``: kind, level, place and their own
+# signature); a replayed answer re-targeted by place acts on its target, and every other element it names is found
+# again (by id where it still is that element, else by place) or the answer is stale.
+# --------------------------------------------------------------------------
+
+REF_PARAMS = ("room_id", "window_id", "door_id", "piece_id", "space_id", "opening_id", "other_id", "away_from")
+REF_PLACE_M = 1.0               # an element an answer names, found again by place: of its kind within this of its place
+
+
+def ref_ids(value) -> list[str]:
+    """The element ids a parameter holds (one id, a comma-separated list or a list; pure)."""
+    if isinstance(value, str):
+        return [x.strip() for x in value.split(",") if x.strip()]
+    if isinstance(value, (list, tuple)):
+        return [str(x).strip() for x in value if isinstance(x, str) and str(x).strip()]
+    return []
+
+
+def element_spot(plan: Plan, element: str) -> Optional[tuple]:
+    """Where an element stands in plan, as drawn (pure): a room's vertex mean, an opening's drawn centre, a piece's drawn
+    footprint centre, an outdoor space's centroid, a wall's middle; None when it is not in the plan."""
+    try:
+        if element in plan.room:
+            return centre_of(plan, element)
+        if element in plan.openings:
+            o = plan.openings[element]
+            c = o.get("drawn_center") or o.get("center")
+            return (float(c[0]), float(c[1])) if c else None
+        f = _piece(plan, element)
+        if f is not None:
+            fp = f.get("drawn_footprint") if isinstance(f.get("drawn_footprint"), dict) else (f.get("footprint") or {})
+            c = fp.get("center")
+            return (float(c[0]), float(c[1])) if c else None
+        s = _space(plan, element)
+        if s is not None and len(s.get("polygon") or []) >= 3:
+            return tuple(G.polygon_centroid(s["polygon"])[:2])
+        if element in plan.walls:
+            a, u, length = plan.axis(plan.walls[element])
+            return a[0] + u[0] * length / 2.0, a[1] + u[1] * length / 2.0
+    except (TypeError, ValueError, IndexError, KeyError, ZeroDivisionError):
+        return None
+    return None
+
+
+def ref_signature(plan: Plan, rule: str, element: str) -> Optional[dict]:
+    """The signature an answer keeps of another element it names (pure): ``element_signature`` without the rule and
+    key, with the element's place (``centre``); None for an element not in the plan."""
+    if element_kind(plan, element) is None:
+        return None
+    sig = {k: v for k, v in element_signature(plan, rule, element).items() if k not in ("v", "rule", "key")}
+    spot = element_spot(plan, element)
+    if spot is not None:
+        sig["centre"] = [round(float(spot[0]), 3), round(float(spot[1]), 3)]
+    return sig
+
+
+def option_refs(plan: Plan, rule: str, element: str, options) -> dict:
+    """``{id: ref_signature}`` of every element other than ``element`` that the parameters of ``options`` (option
+    dicts or bare params) name (pure)."""
+    ids = set()
+    for opt in options or []:
+        params = (opt.get("params") if "params" in opt else opt) if isinstance(opt, dict) else None
+        for k, v in (params or {}).items():
+            if k in REF_PARAMS:
+                ids |= {i for i in ref_ids(v) if i != element}
+    out = {}
+    for i in sorted(ids):
+        try:
+            got = ref_signature(plan, rule, i)
+        except Exception:  # noqa: BLE001 - an element the signature cannot read: no ref (the answer is checked by id)
+            got = None
+        if got:
+            out[i] = got
+    return out
+
+
+def _near_of_kind(plan: Plan, kind: Optional[str], level, c, reach: float) -> list[tuple[float, str]]:
+    """``[(distance, id)]`` of the elements of ``kind`` on ``level`` (any level when None) within ``reach`` of ``c``,
+    nearest first (pure)."""
+    if kind == "room":
+        items = [(i, r) for i, r in plan.room.items()]
+    elif kind in ("door", "window", "opening"):
+        items = [(i, o) for i, o in plan.openings.items()
+                 if str(o.get("drawn_type") or o.get("type") or "opening") == kind]
+    elif kind == "piece":
+        items = [(str(f["id"]), f) for f in plan.b.get("furniture") or [] if f.get("id")]
+    elif kind == "space":
+        site = plan.b.get("site") if isinstance(plan.b.get("site"), dict) else {}
+        items = [(str(s["id"]), s) for s in site.get("outdoor_spaces") or [] if s.get("id")]
+    elif kind == "wall":
+        items = list(plan.walls.items())
+    else:
+        items = []
+    out = []
+    for i, el in items:
+        if level is not None and el.get("level_id") != level:
+            continue
+        if kind == "piece":
+            fp = el.get("drawn_footprint") if isinstance(el.get("drawn_footprint"), dict) else (el.get("footprint") or {})
+            here = tuple(fp["center"][:2]) if fp.get("center") else None
+        else:
+            here = element_spot(plan, i)
+        if here is None:
+            continue
+        d = G.distance(here, c[:2])
+        if d <= reach:
+            out.append((d, i))
+    return sorted(out)
+
+
+def find_ref(plan: Plan, rule: str, element: str, stored: dict) -> Optional[str]:
+    """The element of this reading that is the one an answer named ``element`` (pure): ``element`` itself where its
+    signature still matches (and it stands within ``WHERE_TOL_M`` of its kept place), else the nearest element of its
+    kind on its level within ``REF_PLACE_M`` of that place whose signature matches; None when none is."""
+    def same(i: str) -> bool:
+        try:
+            return not signature_diff(stored, element_signature(plan, rule, i))
+        except Exception:  # noqa: BLE001 - an element the signature cannot read is not shown to be the same
+            return False
+
+    c = stored.get("centre")
+    if element_kind(plan, element) is not None and same(element):
+        here = element_spot(plan, element)
+        if not c or here is None or G.distance(here, c[:2]) <= WHERE_TOL_M:
+            return element
+    if not c:
+        return None
+    return next((i for _d, i in _near_of_kind(plan, stored.get("kind"), stored.get("level"), c, REF_PLACE_M)
+                 if i != element and same(i)), None)
+
+
+def resolve_params(plan: Plan, rule: str, element: str, target: str, how: Optional[str], params: dict,
+                   sig: Optional[dict]) -> tuple[dict, Optional[str]]:
+    """``(params, why_stale)`` of a replayed answer on this reading (pure): every element id in its parameters
+    (``REF_PARAMS``) equal to its own element becomes the element it resolves to (``target``: an answer re-targeted by
+    place acts on its target); every other one is found again (``find_ref`` with the signature's ``refs``); without a
+    kept signature of it, an answer found by its id keeps the ids that are still in the plan, one re-targeted by place
+    cannot confirm them. ``why_stale`` says which element could not be found again (the answer is then stale)."""
+    refs = sig.get("refs") if isinstance(sig, dict) and isinstance(sig.get("refs"), dict) else {}
+    out = {}
+    for k, v in (params or {}).items():
+        ids = ref_ids(v) if k in REF_PARAMS else []
+        if not ids:
+            out[k] = v
+            continue
+        got = []
+        for i in ids:
+            if i == element:
+                got.append(target)
+                continue
+            stored = refs.get(i)
+            if isinstance(stored, dict):
+                new = find_ref(plan, rule, i, stored)
+                if new is None:
+                    return dict(params), (f"its {k} {i} is not found again in this reading (no {stored.get('kind')} that "
+                                          f"matches it at or near its place)")
+                got.append(new)
+            elif how == "place":
+                return dict(params), (f"it was found again by place ({target} for {element}); its {k} {i} cannot be "
+                                      f"confirmed (the answer keeps no signature of it)")
+            elif element_kind(plan, i) is None:
+                return dict(params), f"its {k} {i} is not in this reading"
+            else:
+                got.append(i)
+        out[k] = got if isinstance(v, (list, tuple)) else (", ".join(got) if len(ids) > 1 or "," in str(v) else got[0])
+    return out, None
 
 
 def stamp_signatures(building: dict, questions: list) -> None:
     """Every open point of a review gets the signature of its element (``element_signature``, in place; R02): the AI
-    architect's and the architect's answers copy it, so a later reading can tell whether the answer still fits."""
+    architect's and the architect's answers copy it, so a later reading can tell whether the answer still fits.
+    27 Nov 2026 (round 3b, item 2): with the signatures of the other elements its options name (``refs``)."""
     plan = None
     for q in questions or []:
         for a in q.get("answers") or []:
@@ -2906,7 +3120,11 @@ def stamp_signatures(building: dict, questions: list) -> None:
             if plan is None:
                 plan = Plan(building)
             try:
-                a["signature"] = element_signature(plan, q["id"], str(a["element"]))
+                sig = element_signature(plan, q["id"], str(a["element"]))
+                refs = option_refs(plan, q["id"], str(a["element"]), a.get("options"))
+                if refs:
+                    sig["refs"] = refs
+                a["signature"] = sig
             except Exception:  # noqa: BLE001 - an element the signature cannot read: the answer goes without one
                 continue
 
@@ -3108,7 +3326,8 @@ STROKES = ("LINE:", "LWPOLYLINE:", "POLYLINE:", "ARC:")
 
 def window_evidence(o: dict) -> Optional[str]:
     """What says a window is drawn as a window (pure; R17 c): a window size tag, a window block or layer, frame or sash
-    lines on a window layer, or the frame and glass strokes the reading's window rule read in its gap; None for a
+    lines on a window layer, a glass hatch or the frame and glass strokes the reading's window rule read in its gap
+    (round 3b: a HATCH counts); None for a
     window without any (no evidence, only inferred evidence, a gap of unclassified content) or one code made from a
     door or a gap (``drawn_type``). W2 never moves a window without it to a facade: it is read again as a passage."""
     from wenart.ingest.generic import layer_names as LN
@@ -3147,6 +3366,10 @@ def window_evidence(o: dict) -> Optional[str]:
             continue
         if any(x.startswith("INSERT:") for x in ents):
             return "its window block"
+        # 27 Nov 2026 (audit fix round 3b, item 12; real14 win_L6_015: the glass drawn as a HATCH in its gap lost W2's
+        # move): a hatch the reading's window rule read in the gap is its glass
+        if any(x.startswith("HATCH:") for x in ents):
+            return "its glass hatch in the wall"
         if strokes is None and any(x.startswith(STROKES) for x in ents):
             strokes = "its frame and glass strokes in the wall"
     return strokes
@@ -3177,11 +3400,15 @@ def premise_refusal(plan: Plan, rule: str, opt: str, target: Optional[str], para
     - ``french_window`` on an opening onto such a landing at its floor: no drop, no guard;
     - ``move_window_to_outer_wall`` on a window between two rooms with no window evidence (``window_evidence``): never
       a new facade window the elevations do not show (it is read again as a passage);
-    - ``retype_room`` to a room that needs no daylight (storage, technical ...) of a lived-in room that has its
-      daylight (glass to the outside of ``DAYLIGHT_RATIO`` of its floor), an L1 (daylight) retype of a room that has
-      it, and a retype to a type with an anchor piece (``architect.ANCHORS``: a bed, a sofa, a toilet, a counter) of
-      a room whose drawn pieces hold none;
-    - ``gap_to_door`` into rooms that another door already reaches (R17 f: no privacy door from an unclassified gap)."""
+    - ``retype_room``: each rule's own premise (``retype_premise``, audit fix round 3b, item 4): the daylight premise
+      only for an answer that claims the room has no daylight (L1, the AI's own retype of a lived-in room to a room
+      that needs none, an answer whose words say so), the size premise for R4, the width for R1, the missing anchor
+      for R2, no type and no name for R5; and a retype to a type with an anchor piece (``architect.ANCHORS``: a bed, a
+      sofa, a toilet, a counter) of a room whose drawn pieces hold none;
+    - ``gap_to_door`` into rooms that another door already reaches (R17 f: no privacy door from an unclassified gap);
+    - ``clear_basin`` of a drawn piece, and ``move_piece`` / ``clear_front`` away from a window of drawn fixed
+      equipment (``fixture_use.FIXED_TYPES``, source ``from_documents``; R17 d on every path, round 3b item 3): drawn
+      sanitary ware and a drawn kitchen run are never moved because of a window."""
     if ans.get("by", "user") == "user":
         return None
     if opt in ("door_to_window", "pass_through", "french_window"):
@@ -3213,13 +3440,9 @@ def premise_refusal(plan: Plan, rule: str, opt: str, target: Optional[str], para
         r = plan.room.get(rid)
         new = str(params.get("room_type") or "")
         if r is not None and new != r.get("room_type"):
-            area = room_area(r)
-            have, _wins = outside_glass(plan, rid)
-            lit = area > 0 and have + 1e-6 >= DAYLIGHT_RATIO * area
-            if lit and (rule == "L1" or (new in NO_DAYLIGHT_TYPES and str(r.get("room_type") or "") in LIVED_IN_TYPES)):
-                return (f"{rid} has {have:.2f} m2 of glass to the outside (at least 1/{1 / DAYLIGHT_RATIO:.0f} of its "
-                        f"{area:.1f} m2 floor): the premise of a room without daylight is not true in this reading, "
-                        f"its type stays {r.get('room_type')}")
+            why = retype_premise(plan, rule, r, new, ans)
+            if why:
+                return why
             # a room whose drawn pieces say what it is: a retype to a type with an anchor piece (a bed, a sofa, a
             # toilet, a counter) needs that piece drawn in it (real06: an old decision made the dressing room with its
             # two drawn wardrobes a bedroom "for its double bed", a bed of another reading)
@@ -3241,6 +3464,111 @@ def premise_refusal(plan: Plan, rule: str, opt: str, target: Optional[str], para
             if private and all(served.values()):
                 return (f"{oid}: {', '.join(f'{rid} is reached by {served[rid][0]}' for rid in private)} already: no "
                         f"second (privacy) door from a gap")
+    elif opt in ("clear_basin", "move_piece", "clear_front"):
+        return fixed_piece_refusal(plan, opt, params.get("piece_id") or target, params)
+    return None
+
+
+def drawn_fixed(f: Optional[dict]) -> bool:
+    """Whether a piece is fixed equipment the documents draw (pure; CLAUDE.md: stairs, kitchen runs and appliances,
+    sanitary ware, treated like walls): a ``fixture_use.FIXED_TYPES`` type (as drawn or as typed now) with source
+    ``from_documents`` (or none)."""
+    from wenart.furniture import fixture_use as FU
+
+    if not isinstance(f, dict) or f.get("source") not in (None, "from_documents"):
+        return False
+    return any(str(f.get(k) or "") in FU.FIXED_TYPES for k in ("drawn_type", "type"))
+
+
+def fixed_piece_refusal(plan: Plan, opt: str, piece_id: Optional[str], params: dict) -> Optional[str]:
+    """27 Nov 2026 (audit fix round 3b, item 3; the reviewer's exp8 / exp9: the AI's own clear_basin moved a drawn basin
+    0.46 m that H2 keeps, and a legacy move_piece away from what is now a window re-seated real06's drawn kitchen sink):
+    R17 d on every path: ``clear_basin`` never moves a drawn piece (a drawn basin under a window is normal, its mirror
+    hangs beside it), ``move_piece`` / ``clear_front`` never move drawn fixed equipment (``drawn_fixed``) away from a
+    window (``away_from`` naming a window). Moves out of a door's swing stay allowed (at most 0.5 m, CLAUDE.md). Pure."""
+    f = _piece(plan, piece_id) if piece_id else None
+    if f is None:
+        return None
+    what = str(f.get("drawn_type") or f.get("type") or "piece")
+    if opt == "clear_basin":
+        if f.get("source") in (None, "from_documents"):
+            return (f"{piece_id} is a drawn {what}: drawn sanitary ware is never moved because of a window (R17 d; a "
+                    f"basin under a window is normal, its mirror hangs beside it)")
+        return None
+    if not drawn_fixed(f):
+        return None
+    windows = [i for i in ref_ids(params.get("away_from")) if (plan.openings.get(i) or {}).get("type") == "window"]
+    if windows:
+        return (f"{piece_id} is drawn fixed equipment (a {what}): it is never moved because of a window "
+                f"({', '.join(windows)}; R17 d)")
+    return None
+
+
+NO_DAYLIGHT_WORDS = ("daylight", "day light", "no window", "without window", "windowless", "no light", "dark",
+                     "natural light", "unlit")
+
+
+def claims_no_daylight(rule: str, new: str, old: str, ans: dict) -> bool:
+    """Whether a retype rests on the claim that the room has no daylight (pure; round 3b, item 4): L1 (the daylight
+    rule), the AI's own retype of a lived-in room to a room that needs none (the rule of 24 Nov 2026,
+    ``architect_ai.dark_retype_refusal``), or an answer to a room that needs no daylight whose words say so."""
+    if rule == "L1":
+        return True
+    if new not in NO_DAYLIGHT_TYPES:
+        return False
+    if rule.startswith("AI.") and old in LIVED_IN_TYPES:
+        return True
+    words = " ".join(str(ans.get(k) or "") for k in ("answer", "reason")).lower()
+    return any(w in words for w in NO_DAYLIGHT_WORDS)
+
+
+def retype_premise(plan: Plan, rule: str, r: dict, new: str, ans: dict) -> Optional[str]:
+    """Why a retype of the room ``r`` to ``new`` by ``rule`` is refused because its rule's own premise is not true in
+    this reading (pure; 27 Nov 2026, audit fix round 3b, item 4; the reviewer's exp7: R4's storage retype of a 4 m2
+    'bedroom' was refused because the room had a window): each rule checks what it rests on:
+
+    - the daylight claim (``claims_no_daylight``): the room has no glass to the outside of ``DAYLIGHT_RATIO`` of its
+      floor;
+    - R4 (a room too small for its type): its area is still under the type's minimum (``architect_rules.ROOM_MIN_M2``);
+    - R1 (a bedroom too narrow): it is a bedroom narrower than ``architect.BED_ROOM_MIN_M``;
+    - R2 (a room without its anchor piece): it still lacks its type's anchor (``architect.ANCHORS``);
+    - R5 (a room with no type and no name): it has neither."""
+    from wenart.blender import architect as AR          # lazy: architect imports this module
+    from wenart.blender import architect_rules as RU    # lazy: architect_rules imports this module
+
+    rid, old = r["id"], str(r.get("room_type") or "")
+    area = room_area(r)
+    if claims_no_daylight(rule, new, old, ans):
+        have, _wins = outside_glass(plan, rid)
+        if area > 0 and have + 1e-6 >= DAYLIGHT_RATIO * area:
+            return (f"{rid} has {have:.2f} m2 of glass to the outside (at least 1/{1 / DAYLIGHT_RATIO:.0f} of its "
+                    f"{area:.1f} m2 floor): the premise of a room without daylight is not true in this reading, "
+                    f"its type stays {old}")
+    if rule == "R4":
+        low = RU.ROOM_MIN_M2.get(old)
+        if low is None or area + 1e-6 >= low:
+            return (f"{rid} is a {old or 'room'} of {area:.1f} m2" + (f" (a {old} has at least {low:g} m2)" if low else "")
+                    + f": the premise of a room too small for its type is not true in this reading, its type stays "
+                      f"{old}")
+    elif rule == "R1":
+        xs, ys = [p[0] for p in r["polygon"]], [p[1] for p in r["polygon"]]
+        narrow = min(max(xs) - min(xs), max(ys) - min(ys))
+        if old != "bedroom" or narrow + 1e-6 >= AR.BED_ROOM_MIN_M:
+            return (f"{rid} is a {old or 'room'} {narrow:.2f} m wide: the premise of a bedroom narrower than "
+                    f"{AR.BED_ROOM_MIN_M:.2f} m is not true in this reading, its type stays {old}")
+    elif rule == "R2":
+        want = AR.ANCHORS.get(old) or ()
+        have = {str(f.get("type") or "") for f in plan.b.get("furniture") or []
+                if f.get("room_id") == rid and f.get("build", True) is not False}
+        if not want or have & set(want):
+            held = ", ".join(sorted(have & set(want))) or "none is needed"
+            return (f"{rid} holds its {old or 'room'}'s anchor piece ({held}): the premise of a room without its anchor "
+                    f"piece is not true in this reading, its type stays {old}")
+    elif rule == "R5":
+        name = r.get("label") or r.get("name")
+        if old not in RU.UNKNOWN_TYPES or name:
+            return (f"{rid} is a {old or 'room'}" + (f" named '{name}'" if name else "")
+                    + ": the premise of a room with no type and no name is not true in this reading")
     return None
 
 
@@ -3286,11 +3614,21 @@ def apply_answers(building: dict, answers: dict, head_limit=None, replay: Option
     "withhold": bool}``) adds this run's review: an answer is carried out only when it is admitted (its question is
     raised for its element in this reading); one the gate calls stale is recorded stale; with ``withhold`` the others
     wait (``withheld``: the gate's first round). An answer that is not the user's is also refused when its premise is
-    not true in this reading (``premise_refusal``, ``premise`` True; R02 and R17)."""
+    not true in this reading (``premise_refusal``, ``premise`` True; R02 and R17).
+
+    27 Nov 2026 (audit fix round 3b): an answer acts on the elements of this reading (``replay_check``'s ``params``:
+    re-targeted by place it acts on its target, item 2); every answer the gate checked (``keys``, a stored default too)
+    goes through it; with ``withhold`` every one of them waits (the answer-free default chain); a gate that never saw
+    an answer does not carry it out (a plan made before: concern 5); the record says ``how`` it resolved and why the
+    gate made it stale (``unsigned``, ``unchecked``: its rule did not run, ``not_raised``); a fallback default of a
+    stale answer's point is marked (``fallback``, ``fallback_for``: the stale answers' ids)."""
     out = []
     plan = Plan(building, head_limit)
     replay = building.get("architect_replay") if replay is None else replay
     replay = replay if isinstance(replay, dict) else None
+    gate_stale = dict((replay or {}).get("stale") or {})
+    gate_admitted = dict((replay or {}).get("admitted") or {})
+    gate_keys = set((replay or {}).get("keys") or ()) | set(gate_stale) | set(gate_admitted)
     for key in sorted(answers, key=lambda k: (k.partition(":")[0] not in FIRST_RULES, k)):
         ans = answers[key]
         rule, _sep, element = key.partition(":")
@@ -3299,17 +3637,41 @@ def apply_answers(building: dict, answers: dict, head_limit=None, replay: Option
         rec = {"key": key, "rule": rule, "option": opt, "by": ans.get("by", "user"), "answer": ans.get("answer")}
         if ans.get("replaces"):
             rec["replaces"] = ans["replaces"]
+        if ans.get("fallback"):                         # round 3b, item 7: the safe default of a stale answer's point
+            rec["fallback"] = True
+            rec["fallback_for"] = list(ans.get("fallback_for") or [])
         stale = None
-        if replayed(ans):
+        # a fallback default (round 3b, item 7) is this run's own answer: the gate's verdict on the stale answer it
+        # replaces (of the same key) is not its verdict
+        if (replayed(ans) or key in gate_keys) and not (ans.get("fallback") and ans.get("by") == "architect"):
             chk = replay_check(plan, key, ans)
-            target, stale = chk["target"], chk["stale"]
-            if target is not None and stale is None and replay is not None:
-                if key in (replay.get("stale") or {}):
-                    stale = replay["stale"][key]
-                elif key not in (replay.get("admitted") or {}) and replay.get("withhold"):
+            target, stale, params = chk["target"], chk["stale"], chk["params"]
+            rec["how"] = chk["how"]
+            if replay is not None and replay.get("withhold") and key not in gate_admitted \
+                    and (key in gate_keys or (target is not None and stale is None)):
+                # the answer-free review (the replay gate's default chain): every stored answer waits, stale or not
+                rec.update(element=target or element, ok=False, withheld=True, change=None)
+                out.append(rec)
+                continue
+            if replay is not None and key in gate_stale:
+                # round 3b: the gate's verdict stands, made on the reading before any answer was carried out (an
+                # earlier answer of this plan may have moved or closed the element since)
+                stale = gate_stale[key]
+                target = (replay.get("targets") or {}).get(key) or target or element
+                rec["how"] = (replay.get("how") or {}).get(key) or rec["how"]
+                rec.update({k: True for k in ("unsigned", "unchecked", "not_raised")
+                            if key in ((replay.get("why") or {}).get(k) or ())})
+            elif target is not None and stale is None and replay is not None:
+                if key in gate_admitted:
+                    pass
+                elif replay.get("withhold"):
                     rec.update(element=target, ok=False, withheld=True, change=None)
                     out.append(rec)
                     continue
+                else:
+                    # round 3b (concern 5): a gate given with the building (a plan made before) that never saw this
+                    # answer does not carry it out unchecked
+                    stale = "not checked by this plan's replay gate (it came after the gate was made)"
         else:
             target = resolve(plan, element, ans.get("where"))
         rec["element"] = target or element
@@ -3318,8 +3680,9 @@ def apply_answers(building: dict, answers: dict, head_limit=None, replay: Option
             rec.update(ok=False, skipped=True, change=f"{element} is not in this reading of the plan (nothing at the "
                                                       f"place the answer named)")
         elif stale:
-            rec.update(ok=False, stale=True, change=f"stale: not applied: {stale}",
-                       old=stale_summary(key, ans, stale, target))
+            rec.update(ok=False, stale=True, change=(f"not applied: {stale}" if rec.get("unchecked") else
+                                                     f"stale: not applied: {stale}"),
+                       old=stale_summary(key, ans, stale, target, rec.get("how")))
         elif why_not:
             rec.update(ok=False, premise=True, change=why_not)
         elif opt == "keep":
