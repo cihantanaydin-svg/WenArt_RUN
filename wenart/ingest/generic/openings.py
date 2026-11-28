@@ -4301,7 +4301,8 @@ def sliding_window_by_text(g: "Gap", log) -> Optional[str]:
         if ev and isinstance(ev[0], dict) and LN.layer_role(ev[0].get("layer")) == "door":
             continue                    # a size tag on the door layer names a door (real11's shaft hatches '50/50')
         m = TG.window_size(text)                # R09: one parser; a tag whose code or words say door names a door
-        if m and abs(m.w - g.width) <= SLIDING_WINDOW_TAG_W_M and (best is None or d < best[0]):
+        if m and min(abs(w - g.width) for w in m.widths) <= SLIDING_WINDOW_TAG_W_M \
+                and (best is None or d < best[0]):         # TAGS-1: either reading of a glued 'P150/50'
             best = (d, text, m.h_cm)
     if best is None or best[2] >= SLIDING_WINDOW_TAG_H_CM:
         return None

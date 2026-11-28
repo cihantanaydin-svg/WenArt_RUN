@@ -1065,13 +1065,15 @@ def keyword_type(name: str, extended: bool = True) -> Optional[str]:
     key, ftype = match(BLOCK_KEYWORDS_M10)
     if ftype is not None:
         return ftype
-    ftype = abbreviation_type(name)             # 27 Nov 2026 (R21): KLO, LAV, KÜV, EVİYE, DUŞ TEKNE as name tokens
-    if ftype is not None:
-        return ftype
     upper = (name or "").upper()
     hit = next(((key, ftype) for key, ftype in BLOCK_KEYWORDS if key in upper or key in folded), None)
     if hit is not None:
         return "seat" if hit[0] in SEAT_KEYWORDS else hit[1]
+    # 27 Nov 2026 (R21): KLO, LAV, KÜV, EVİYE, DUŞ TEKNE as name tokens; 28 Nov 2026 (round 5a fix-up, BLOCK-1): after
+    # the M7 table, so a counter block with a sink or basin word ('TEZGAH EVIYE') stays a counter
+    ftype = abbreviation_type(name)
+    if ftype is not None:
+        return ftype
     return match(BLOCK_GENERIC_M10)[1]
 
 

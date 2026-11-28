@@ -110,3 +110,29 @@ def test_the_column_rule_runs_without_jsonschema():
     check does not reach: the import sits inside a function)."""
     res = subprocess.run([sys.executable, "-c", RUN], cwd=str(ROOT), capture_output=True, text=True, timeout=600)
     assert res.returncode == 0 and res.stdout.strip() == "ok", res.stdout + res.stderr[-2000:]
+
+
+TAGGED = r'''
+import sys
+for m in ("jsonschema", "yaml", "ezdxf", "cv2", "scipy", "PIL", "torch", "transformers", "openai"):
+    sys.modules[m] = None
+from wenart.blender import architect_actions as AA
+from wenart.blender import door_states as DS
+door = {"id": "d1", "type": "door", "level_id": "L0", "wall_id": "w", "center": [1, 0], "width": 0.8, "height": 2.1,
+        "assumed": ["height"], "door_tags": ["K1-80/230"],
+        "evidence": [{"rule": "own_door_tag", "tag": "K1-80/230"}, {"rule": "size_tag", "text": "K290/210"}]}
+assert AA._tag_cm("K1-80/210") == (80, 210)
+assert AA.door_tag(door)[:2] == (0.8, 2.3)
+assert AA.drawn_door_evidence(door)
+got = DS.tag_heights({"openings": [door]})
+assert got and door["height"] == 2.3
+print("ok")
+'''
+
+
+def test_a_tagged_door_runs_through_the_build_without_jsonschema():
+    """28 Nov 2026 (round 5a review TAGS-2 / GENERAL-1: ``AA.door_tag`` -> ``tag_grammar.is_formula`` -> ``stair_formula``
+    -> ``wenart.building`` -> jsonschema crashed the Blender build on every tagged door, and the import check above
+    stayed green: the import sits inside a function). The build's door-tag path is called, not only imported."""
+    res = subprocess.run([sys.executable, "-c", TAGGED], cwd=str(ROOT), capture_output=True, text=True, timeout=600)
+    assert res.returncode == 0 and res.stdout.strip() == "ok", res.stdout + res.stderr[-2000:]

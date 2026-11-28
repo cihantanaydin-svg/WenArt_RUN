@@ -434,6 +434,7 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
         evidence = []
         label_size = None
         size_conflict = None
+        role_label = False
         if not indices:
             label, area_label, label_raw = unlabelled_label, None, None
             room_type = "unknown"
@@ -447,6 +448,7 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
                 if len(typed) > 2 and typed[2]:
                     # Milestone 11 (M8): a face the stair fills is named for it ("Merdiven"), not "Oda".
                     label = typed[2]
+                    role_label = len(typed) > 3 and bool(typed[3])
                 result.warnings.append(f"{level_id}: room at {face[0]} ({area:.2f} m²) has no label: {reason}")
             else:
                 result.warnings.append(f"{level_id}: room at {face[0]} ({area:.2f} m²) has no label")
@@ -502,6 +504,12 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
         }
         if label_size is not None:
             room["label_size"] = label_size
+        if role_label:
+            # 28 Nov 2026 (round 5a fix-up, ROOMS-3): a name the reader gives by the face's role (round 5a's wet cell
+            # 'Duş') is no text of the plan: ``label_role`` (R28); the placeholder the score and the furniture program
+            # read stays that name
+            room["label_role"] = True
+            room["label_placeholder"] = label
         if pendings:
             room["sub_spaces"] = pendings
             for rec in result.sub_space_labels[-len(pendings):]:

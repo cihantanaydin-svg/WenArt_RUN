@@ -765,7 +765,7 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
     # 27 Nov 2026 (audit fix round 5a, R08): a facade gap at the floor with steps, a ground mark or a small recess behind
     # it is an open entrance (a covered porch and its door, or an entrance door), before the core rules check entrances
     from wenart.ingest import porches as PCH
-    porches = PCH.open_porches(b, strokes_by_level, build.warn)
+    porches = PCH.open_porches(b, strokes_by_level, build.warn, texts_by_level)
     if porches:
         b["level_inference"]["open_entrances"] = porches
     rules = CR.apply(build, texts_by_level, party_by_level, strokes_by_level, drawn_by_level)

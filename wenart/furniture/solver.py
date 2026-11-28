@@ -207,6 +207,11 @@ GENERATE_BUDGET = 150000
 GRID_M = 0.10
 REQUIRED_BONUS = 10.0
 OPTIONAL_BONUS = 3.0
+# 28 Nov 2026 (round 5a fix-up; real17's 1.9 m2 'DUŞ' rooms got a washbasin and no shower: every required member of a
+# set scored alike, and where only one fits the soft terms chose): a bathroom's bath role (the shower or the bath, what
+# makes the room a bathroom) scores this many required bonuses, so it is placed first where only one member fits
+SET_ANCHOR_ROLES = {"bathroom_set": "bath"}
+SET_ANCHOR_WEIGHT = 1.5
 ACCESSORY_SCALE = 0.1          # 26 Oct 2026: an accessory set member's terms count this much (no bonus)
 RUN_AISLE_END_M = 0.10         # 26 Oct 2026: a fridge beside a run stays out of its aisle but this much at its ends
 MERGE_M = 0.5                  # same option and turn, anchor within this: one candidate (the better one)
@@ -2443,6 +2448,8 @@ def _levels(space: Space, prog: dict, info: dict) -> list[tuple[dict, list[Cand]
                 if entry.get("drawn") and not any(m.get("required") for m in types):
                     continue                           # a drawn set gets only its missing required members
                 required = entry["required"] and any(m.get("required") for m in types)
+                if required and SET_ANCHOR_ROLES.get(entry.get("group")) == role:
+                    required = SET_ANCHOR_WEIGHT       # the set's anchor role: placed first where only one fits
                 levels.append((entry, member_candidates(space, entry, types, len(levels), info), required))
     return levels
 
@@ -2649,7 +2656,7 @@ def _search(space: Space, levels: list, walk: Walk, budget: dict, skip_fps: Opti
     beam = [root]
     skip_fps = skip_fps or {}
     for level_index, (_entry, cands, required) in enumerate(levels):
-        bonus = REQUIRED_BONUS if required else OPTIONAL_BONUS
+        bonus = REQUIRED_BONUS * (1.0 if required is True else float(required)) if required else OPTIONAL_BONUS
         children = []
         for node in beam:
             layers = (Layer(node.occ | node.res), Layer(node.occ))
@@ -3867,7 +3874,7 @@ def _candidate(score, terms, pieces, groups, hard, violations, levels, node, kep
             continue                 # 26 Oct 2026: an optional member of a placed set (a third wardrobe run, a bench)
         if c is None:
             why = "no place passes the checks" if cands else "no candidate position fits the room"
-            not_placed.append({"group_id": entry["group_id"], "group": entry["group"], "required": required,
+            not_placed.append({"group_id": entry["group_id"], "group": entry["group"], "required": bool(required),
                                "reason": why})
     options = {}
     resolved = []

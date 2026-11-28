@@ -41,6 +41,8 @@ import re
 from pathlib import Path
 from typing import Optional
 
+from wenart.ingest import room_names as RN
+
 CHECKS = ("inventory", "compare", "plausibility")
 CALL_MAX_TOKENS = {"inventory": 3072, "compare": 1536, "plausibility": 2048}   # the longest valid answer + margin
 COMPARE_MAX = 48               # questions per level (pod 1: 40 left real10's L-1 windows read as doors unasked)
@@ -58,7 +60,8 @@ ANGLED_MIN_M = 1.0
 GROUND_UP_M = 0.5
 PROBE_M = 0.3
 MIRROR_TOL_M = 1.2             # a listed room's mirror place this near a listed room of the same label: a twin pair
-OPEN_AIR_TYPES = ("balcony", "terrace", "loggia", "deck", "patio", "courtyard", "roof_terrace", "garden")
+OPEN_AIR_TYPES = ("balcony", "terrace", "loggia", "deck", "patio", "courtyard", "roof_terrace", "garden",
+                  "porch")                    # 28 Nov 2026 (round 5a fix-up, ENTRANCES-12): the open porch (R08)
 HABITABLE_TYPES = ("living", "bedroom", "kitchen", "dining", "study", "office", "kids", "guest", "living_kitchen")
 WET_TYPES = ("bathroom", "wc", "shower", "toilet")
 LIFT_WORDS = ("asans", "lift", "elevator", "elevat")
@@ -267,7 +270,9 @@ def level_facts(building: dict, lid: str, *, outline=None, below=None, page=None
     out = {"level": lid, "label": lv.get("label"), "elevation": lv.get("elevation"),
            "above_ground": float(lv.get("elevation") or 0.0) > ground + GROUND_UP_M, "axis_deg": ax,
            "extent": wall_extent(list(walls.values())), "mirror": mirror_facts(list(walls.values()))}
-    out["rooms"] = [{"id": r["id"], "label": r.get("label_raw") or r.get("label"), "type": r.get("room_type"),
+    # 28 Nov 2026 (round 5a fix-up, ROOMS-2): a role name (R28, ``label_role``) is no label of the plan
+    out["rooms"] = [{"id": r["id"], "label": r.get("label_raw") or RN.label_of(r) or None, "type": r.get("room_type"),
+                     **({"role_name": r.get("label")} if r.get("label_role") else {}),
                      "subtype": r.get("room_subtype"), "at": _rep(r["polygon"]),
                      "area": round(float(r.get("area_computed") or _poly(r["polygon"]).area), 1),
                      "poly": [_r(q) for q in r["polygon"]], "twin_of": r.get("twin_of"),

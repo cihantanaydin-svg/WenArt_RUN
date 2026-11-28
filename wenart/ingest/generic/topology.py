@@ -1106,13 +1106,21 @@ def unlabelled_face_type(face, walls: list, openings: list, stairs: list = (), o
             if p is not None and p.distance(poly) <= 0.02:
                 windows += 1
         # 27 Nov 2026 (audit fix round 5a, R21; real15's shower cell with its tray and 'E.ŞOFBEN' became 'Depo'): a
-        # small walled face with sanitary words in it (a water heater, a drain, a shower tray, a fixture's name) is a
-        # wet cell of the room it opens into, never storage
-        wet = next((str(t) for t, q in texts or () if t and poly.buffer(0.05).contains(Point(q))
-                    and WET_CELL_RE.search(B.fold_ascii(str(t)).upper())), None)
-        if wet is not None:
-            return "bathroom", (f"wet cell: a face of {poly.area:.2f} m2 with one door and the sanitary word "
-                                 f"'{wet.strip()}' in it (a shower cell of the room it opens into, never storage)")
+        # small walled face with a shower or bath word in it is a wet cell of the room it opens into, never storage.
+        # 28 Nov 2026 (fix-up decision, WET-1 / GENERAL-7): only a shower or bath word ('DUŞ', 'DUŞAKABİN', 'DUŞ
+        # TEKNESİ', 'KÜVET') makes a shower cell; a toilet word ('WC', 'KLOZET') a WC; a boiler, water-heater or drain
+        # word ('KOMBİ', 'BOYLER', 'TERMOSİFON', 'ŞOFBEN' alone, 'SÜZGEÇ') a technical closet, a laundry word a
+        # laundry: never a 'Duş' (a drawn shower or toilet in it makes it a wet cell after the furniture is read,
+        # ``furniture.infer``)
+        inside = [str(t) for t, q in texts or () if t and poly.buffer(0.05).contains(Point(q))]
+        for rx, rtype, what in ((SHOWER_WORD_RE, "bathroom", "wet cell"), (TOILET_WORD_RE, "wc", "wc cell"),
+                                (LAUNDRY_WORD_RE, "other", "laundry cell"),
+                                (HEATER_WORD_RE, "technical", "technical cell")):
+            word = next((t for t in inside if rx.search(B.fold_ascii(t).upper())), None)
+            if word is None or (windows and rtype in ("technical", "other")):
+                continue
+            return rtype, (f"{what}: a face of {poly.area:.2f} m2 with one door and the word '{word.strip()}' in it "
+                           f"(of the room it opens into, never storage)")
         if windows == 0:
             return "storage", (f"closet: a face of {poly.area:.2f} m2 with one door and no window (a small room to "
                                f"store things)")
@@ -1121,15 +1129,23 @@ def unlabelled_face_type(face, walls: list, openings: list, stairs: list = (), o
 
 CLOSET_M2 = (0.3, 3.5)
 CLOSET_LABELS = ("Depo", "Closet")
-WET_CELL_RE = re.compile(r"(?<![A-Z])(?:SOFBEN|SUZGEC|SUZGEC|DUS|TEKNE|SHOWER|TRAY|DRAIN|KLOZET|KLO|LAVABO|WC|PISUAR|"
-                         r"TERMOSIFON|BOYLER|KOMBI)(?![A-Z])")
+# 28 Nov 2026 (round 5a fix-up, WET-1 / GENERAL-7): the words of a small cell, by what they make it
+SHOWER_WORD_RE = re.compile(r"(?<![A-Z])(?:DUS(?:U|AKABIN\w*|\s*KABIN\w*|\s*TEKNE\w*)?|KUVET\w*|SHOWER\w*|DUSCHE|"
+                            r"BATH\s*TUB|BADEWANNE)(?![A-Z])")
+TOILET_WORD_RE = re.compile(r"(?<![A-Z])(?:WC|KLOZET\w*|PISUAR\w*|TOILET\w*)(?![A-Z])")
+LAUNDRY_WORD_RE = re.compile(r"(?<![A-Z])(?:CAMASIR\w*|LAUNDRY|UTILITY|WASCHKUCHE)(?![A-Z])")
+HEATER_WORD_RE = re.compile(r"(?<![A-Z])(?:E\.?\s*)?(?:SOFBEN|KOMBI|BOYLER|TERMOSIFON|SUZGEC|KAZAN|BOILER|HEATER|"
+                            r"DRAIN)(?![A-Z])")
 WET_CELL_LABELS = ("Duş", "Shower")
+CELL_LABELS = {"wet cell": ("Duş", "Shower"), "wc cell": ("WC", "WC"), "laundry cell": ("Çamaşırlık", "Laundry"),
+               "technical cell": ("Teknik Hacim", "Technical room")}
 
 
 def wet_cell_label(reason: Optional[str], turkish: bool) -> Optional[str]:
-    """The label of a face ``unlabelled_face_type`` found a wet cell (else None)."""
-    if reason and reason.startswith("wet cell"):
-        return WET_CELL_LABELS[0] if turkish else WET_CELL_LABELS[1]
+    """The label of a face ``unlabelled_face_type`` found a wet, WC, laundry or technical cell (else None)."""
+    for what, names in CELL_LABELS.items():
+        if reason and reason.startswith(what):
+            return names[0] if turkish else names[1]
     return None
 
 

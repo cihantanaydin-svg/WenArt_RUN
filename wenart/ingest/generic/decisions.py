@@ -149,7 +149,7 @@ class _Text:
     text: str
     height: float
     size_tag: Optional[tuple[float, float]] = None    # (width, height) metres
-    tag_kind: Optional[str] = None                     # what its code or words name (tag_grammar: door, window ...)
+    tag_widths: tuple = ()                             # every width reading (a glued 'K290/210': 0.90 and 2.90; TAGS-1)
     outdoor: bool = False
     label: bool = False
 
@@ -164,7 +164,7 @@ def _classify_text(t) -> Optional[_Text]:
     from wenart.ingest import tag_grammar as TG
     tg = TG.parse(text)
     if tg is not None:
-        out.size_tag, out.tag_kind = (tg.w, tg.h), tg.kind
+        out.size_tag, out.tag_widths = (tg.w, tg.h), tg.widths
         return out
     if LABEL_RE.search(text) and LABEL_HEIGHT_M[0] <= out.height <= LABEL_HEIGHT_M[1]:
         out.label = True
@@ -188,7 +188,9 @@ def text_features(texts: list[_Text], centre, normal, width: float) -> dict:
         d = _dist(t.at, centre)
         if t.size_tag is not None:
             if d < tag_d:
-                tag_d, tag_w, tag_h = d, t.size_tag[0], t.size_tag[1]
+                # TAGS-1: the reading of a glued tag nearest the gap's width
+                tw = min(t.tag_widths or (t.size_tag[0],), key=lambda x: abs(x - width))
+                tag_d, tag_w, tag_h = d, tw, t.size_tag[1]
             continue
         if t.outdoor and d <= OUTDOOR_REACH_M:
             outdoor = True
@@ -232,7 +234,7 @@ class DecisionLog:
         """The texts in the aligned frame of the gaps (rotated by -theta), computed once per level."""
         if self._aligned is None:
             self._aligned = [_Text(at=_rot(t.at, -self._theta), text=t.text, height=t.height, size_tag=t.size_tag,
-                                   outdoor=t.outdoor, label=t.label) for t in self._texts]
+                                   tag_widths=t.tag_widths, outdoor=t.outdoor, label=t.label) for t in self._texts]
         return self._aligned
 
     def add_gap(self, g, record: dict) -> dict:

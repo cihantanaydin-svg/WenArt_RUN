@@ -1323,7 +1323,7 @@ def wall_face_slot(wall: dict, centre, normal, outward, indoor_polys, wet_polys,
 
 
 # Rooms that are outside: an exterior face looking into one keeps the exterior material.
-OUTDOOR_ROOM_TYPES = {"balcony"}
+OUTDOOR_ROOM_TYPES = {"balcony", "porch"}    # 28 Nov 2026 (round 5a fix-up): an open porch (R08) is outside too
 # 30 Oct 2026 (UL159): rooms whose floor is the outdoor floor (``build.prepare``'s ``terrace_floor``) when it is given
 OUTDOOR_FLOOR_ROOMS = ("balcony", "terrace", "loggia", "veranda", "porch", "deck", "patio")
 

@@ -208,6 +208,13 @@ Furniture name texts of 26 Oct 2026 (the auditor Argus, source ledger check A6; 
   the product of a fixed type is seated in it (``_seated_member``: its back on a wall and along it, clear of the
   room's other drawn fixed pieces and the door swings, covering most of the outline, a corner counting more; its
   front away from its wall). Only when no such place exists are the centre and the rotation kept as before.
+- **The wet room's untyped cluster** (``wet_cluster_members``, 28 Nov 2026, round 5a fix-up; real10's 'Duş' rooms
+  L0-L6: one 2.45 x 1.40 m arc cluster over the whole fixture wall, its toilet and basin read on their own, the AI
+  unsure, the shower never built): an untyped drawn footprint in a bathroom, shower room or WC whose room misses its
+  shower or bath (``_group_wants``) is that member, seated in the part of the outline the room's typed fixtures leave
+  free (``_seated_member``: back on a wall, clear of the other fixtures and the door swings, at least half on the
+  outline); the shower first, the bath first where the room's label names one ('KÜVET', 'BANYO'); ``type_method``
+  inferred, ``adjusted_by_ai`` by code with ``drawn_*`` kept and the plan crop. One piece per room.
 - **A wardrobe run the room's program needs** (``_wardrobe_run_type``, method ``group_member`` after the group-member
   rule): in a dressing room (``program.room_kind`` ``dressing`` / ``program.dressing_room``: wardrobe runs along its
   walls) every untyped drawn footprint with its long side on a wall, a wardrobe run's length (the size table, +15 %)
@@ -246,6 +253,11 @@ NAME_RETYPE_METHOD = "name_text_retype"   # the proposal's method of rule 1b; th
 ZONE_LABEL_METHOD = "zone_label"          # 26 Oct 2026: a zone label of the room ("YEMEK BÖLÜMÜ") names its anchor
 AI_MEMBER_METHOD = "ai_member"            # 26 Oct 2026: ai_named_members' proposal method (type_method inferred)
 AI_MEMBER_RULE = "furniture.infer.ai_named_members"
+WET_CLUSTER_METHOD = "wet_cluster"        # 28 Nov 2026: wet_cluster_members' proposal method (type_method inferred)
+WET_CLUSTER_RULE = "furniture.infer.wet_cluster_members"
+WET_CLUSTER_ROOMS = ("bathroom", "shower", "wc", "toilet")
+TUB_WORD_RE = re.compile(r"(?<![a-z])(?:kuvet|kuveti|banyo|bathtub|bath\s+tub|badewanne)(?![a-z])")
+SHOWER_WORD_RE = re.compile(r"(?<![a-z])(?:dus|dusu|dusakabin|shower|dusche)(?![a-z])")
 INFER_METHOD_VALUE = "inferred"           # the schema's type_method of a piece typed by inference
 # 26 Oct 2026 (wardrobe runs, method group_member): a drawn wardrobe run is this deep (its doors drawn in front, a
 # block drawn deeper than the product); a depth outside the wardrobe's range is snapped to the product depth.
@@ -300,8 +312,11 @@ WALL_BACK_DEG = 5.0               # ... parallel to the nearest outline segment 
 WALL_BACK_SHARE = 0.6             # ... along at least this share of its length can be a wall type's back
 ROUND_NEVER = ("chair",)          # user, 26 Oct 2026: "round shapes are never chairs"
 SAME_BLOCK_METHOD = "same_block"
-BLOCK_VOTE_RANK = {"block_name": 4, "name_text": 4, "block": 3, "ai_two_pass": 2, "rule": 2, "twin": 2, "level": 2,
-                   "same_block": 2}   # 27 Nov 2026 (R21): the strength of a copy's type in the one-block vote
+BLOCK_VOTE_RANK = {"block_name": 4, "name_text": 4, "zone_label": 4, "block": 3, "ai_two_pass": 2, "rule": 2}
+# 27 Nov 2026 (R21): the strength of a copy's type in the one-block vote; 28 Nov 2026 (round 5a fix-up, BLOCK-2): a
+# drawn zone label counts with a name text, and a type copied from another piece (a storey's, a twin's, another copy of
+# the block's) is no vote of its own: only the copies typed from their own evidence vote
+DERIVED_METHODS = ("level", "twin", "same_block")
 SAME_BLOCK_MIN_STROKES = 4        # a stroke pattern of fewer strokes says nothing (a plain box)
 SAME_BLOCK_COUNT_TOL = 0.02       # the strokes of each kind agree within this share (real06's two copies of its
                                   # 0.92 x 0.77 m armchair block hold 301 and 306 lines: a few loose strokes joined)
@@ -684,8 +699,11 @@ def _same_block_type(building: dict, piece: dict) -> Optional[dict]:
         # then by the majority; a tie decides nothing
         def strength(f):
             return BLOCK_VOTE_RANK.get(str(f.get("type_method") or ""), 1)
-        best = max(strength(f) for f in hits)
-        strong = [f for f in hits if strength(f) == best]
+        own = [f for f in hits if str(f.get("type_method") or "") not in DERIVED_METHODS]
+        if not own:
+            return None                     # only copies of other pieces disagree: the plan crop decides
+        best = max(strength(f) for f in own)
+        strong = [f for f in own if strength(f) == best]
         counts = {t: sum(1 for f in strong if f["type"] == t) for t in {f["type"] for f in strong}}
         top = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
         if len(top) > 1 and top[0][1] == top[1][1]:
@@ -1120,6 +1138,55 @@ def ai_named_members(building: dict) -> list[dict]:
     return out
 
 
+def wet_cluster_members(building: dict, done: Optional[set] = None) -> list[dict]:
+    """28 Nov 2026 (module docstring, round 5a fix-up): proposals ``{"piece_id", "type", "type_method":
+    WET_CLUSTER_METHOD, "rule", "reason", "confidence", "evidence", "drawn_type", "crop", "footprint", "front_deg"}``
+    for the untyped drawn clusters of wet rooms whose room misses its shower or bath: the member seated in the outline's
+    free part. ``done``: pieces other rules typed already. Pure."""
+    from wenart import building as B
+
+    rooms = _rooms(building)
+    furniture = building.get("furniture") or []
+    out: list[dict] = []
+    taken: set = set()
+    for f in sorted(furniture, key=lambda f: str(f.get("id"))):
+        room = rooms.get(f.get("room_id") or "")
+        if room is None or f["id"] in (done or ()) or room["id"] in taken or not untyped_drawn(f):
+            continue
+        if not set(PL.room_types(building, room)) & set(WET_CLUSTER_ROOMS) \
+                and str(room.get("room_type") or "") not in WET_CLUSTER_ROOMS:
+            continue
+        wanted = _group_wants(building, room)
+        options = [t for t in ("shower", "bathtub") if t in wanted]
+        if not options:
+            continue
+        words = B.fold_ascii(f"{room.get('label_raw') or ''} {room.get('label') or ''}").lower()
+        if TUB_WORD_RE.search(words) and not SHOWER_WORD_RE.search(words):
+            options.sort(key=lambda t: t != "bathtub")
+        mates = [g for g in furniture if g.get("room_id") == f.get("room_id") and g["id"] != f["id"]]
+        for ftype in options:
+            seated = _seated_member(building, f, room, ftype, mates)
+            if seated is None:
+                continue
+            drawn = [float(v) for v in f["footprint"]["size"]]
+            held = sorted(g["id"] for g in mates if g.get("build") is not False and g.get("type") in schemas.FIXED_TYPES)
+            crop = _crop_of(f)
+            reason = (f"{ftype}: the untyped drawn cluster {f['id']} ({drawn[0]:.2f} x {drawn[1]:.2f} m) in the wet room "
+                      f"{room['id']} '{room.get('label') or ''}', which misses it ({'; '.join(wanted[ftype][:2])})"
+                      + (f"; the room's typed fixtures {', '.join(held[:4])} read on their own" if held else "")
+                      + f": {seated['reason']} (CLAUDE.md: the room's missing group member of that size), "
+                        f"drawn_footprint kept" + (f"; plan crop {crop}" if crop else ""))
+            ev = _evidence(f, reason, CONF_GROUP)
+            ev.update({"rule": WET_CLUSTER_RULE, "missing": wanted[ftype][:3]})
+            out.append({"piece_id": f["id"], "type": ftype, "type_method": WET_CLUSTER_METHOD,
+                        "rule": WET_CLUSTER_RULE, "reason": reason, "confidence": CONF_GROUP, "evidence": ev,
+                        "drawn_type": f.get("type"), "crop": crop, "footprint": dict(seated["footprint"]),
+                        "front_deg": seated["front_deg"]})
+            taken.add(room["id"])
+            break
+    return out
+
+
 def _seated_member(building: dict, f: dict, room: dict, ftype: str, mates: list[dict]) -> Optional[dict]:
     """27 Oct 2026 (``ai_named_members``, ``fixture_seat`` rule 1): the product of the fixed type ``ftype`` seated in
     the drawn outline of ``f`` (its back on a wall of ``room`` and along it, clear of the room's other built fixed
@@ -1170,8 +1237,8 @@ def _apply_ai_member(item: dict, prop: dict) -> None:
             # 27 Oct 2026: a seated fixture faces away from its wall (``_seated_member``)
             changed["front_deg"] = None
             item["front_deg"] = round(G.normalise_angle(float(prop["front_deg"])), 3)
-        label = {"by": "code", "stage": "reading", "rule": AI_MEMBER_METHOD, "reason": prop["reason"],
-                 "changed": changed}
+        label = {"by": "code", "stage": "reading", "rule": prop.get("rule") or AI_MEMBER_METHOD,
+                 "reason": prop["reason"], "changed": changed}
         if prop.get("crop"):
             label["crop"] = prop["crop"]
         merge_code_label(item, label)
@@ -1677,6 +1744,9 @@ def infer_types(building: dict) -> list[dict]:
         building = apply_code_types(building)[0]
     # 26 Oct 2026: the member the room misses, named by the AI passes (answer or reason), before the size inference
     out += ai_named_members(building)
+    done = {p["piece_id"] for p in out}
+    # 28 Nov 2026 (round 5a fix-up): a wet room's untyped cluster is the shower or bath the room misses
+    out += wet_cluster_members(building, done)
     done = {p["piece_id"] for p in out}
     rooms = _rooms(building)
     furniture = building.get("furniture") or []
@@ -2271,23 +2341,32 @@ def _bath_named(item: dict) -> bool:
     return item.get("type_method") in BATH_STRONG_METHODS or any(w in text for w in BATH_WORDS)
 
 
-TUB_DRAWN_METHODS: tuple[str, ...] = ("ai_two_pass", "ai", "twin", "level")   # typed from its outline (or a copy of it)
+TUB_DRAWN_METHODS: tuple[str, ...] = ("ai_two_pass", "ai")   # typed from its outline
+TUB_COPY_METHODS: tuple[str, ...] = ("twin", "level", "same_block")   # a copy: as drawn as its source (TUB-1)
 TUB_DRAWN_SHAPES: tuple[str, ...] = ("round", "oval", "curved", "corner", "quarter", "l_shape")
 
 
-def tub_drawn(item: dict) -> bool:
+def tub_drawn(item: dict, building: Optional[dict] = None, _seen: Optional[set] = None) -> bool:
     """27 Nov 2026 (audit fix round 5a, R18; the user's answer of 26 Nov "keep bathtub", UL397): the plan clearly draws a
-    bathtub: its type comes from its drawn outline (the AI passes, or a twin's or a storey's copy of them), its outline
-    is curved (a corner tub: an arc among its strokes, or a round or corner shape), or a drain is drawn in it. Only a
-    bath-sized box the code typed by its size may become a walk-in shower (UL200)."""
-    if str(item.get("type_method") or "") in TUB_DRAWN_METHODS:
+    bathtub: its type comes from its drawn outline (the AI passes), its outline is curved (a corner tub: an arc or a
+    circle among its strokes, or a round or corner shape), or a drain is drawn in it (``drain``, carried from the
+    reader's details by the pipeline). 28 Nov 2026 (round 5a fix-up, TUB-1): a twin's, a storey's or a block's copy is
+    as drawn as its source (followed in ``building``; without it a copy is not), so identical bathrooms of a typical
+    floor stay alike. Only a bath-sized box the code typed by its size may become a walk-in shower (UL200)."""
+    method = str(item.get("type_method") or "")
+    if method in TUB_DRAWN_METHODS:
         return True
     if str(item.get("shape") or "").lower() in TUB_DRAWN_SHAPES or item.get("drain"):
         return True
     for e in item.get("evidence") or []:
         if isinstance(e, dict) and e.get("method") in ("vector", "raster") and \
-                any(p.strip().upper().startswith("ARC:") for p in str(e.get("entity") or "").split(",")):
+                any(p.strip().upper().startswith(("ARC:", "CIRCLE:")) for p in str(e.get("entity") or "").split(",")):
             return True
+    if method in TUB_COPY_METHODS and building is not None:
+        seen = set(_seen or ()) | {item.get("id")}
+        src_ids = [e.get("source_id") for e in item.get("evidence") or [] if isinstance(e, dict) and e.get("source_id")]
+        by_id = {f.get("id"): f for f in building.get("furniture") or []}
+        return any(tub_drawn(by_id[s], building, seen) for s in src_ids if s in by_id and s not in seen)
     return False
 
 
@@ -2301,7 +2380,7 @@ def bath_or_shower(building: dict) -> list[str]:
         return []
     rooms = {r.get("id"): r for r in building.get("rooms") or []}
     tubs = [f for f in building.get("furniture") or [] if f.get("type") == "bathtub" and f.get("build") is not False
-            and f.get("source") == "from_documents" and not _bath_named(f) and not tub_drawn(f)
+            and f.get("source") == "from_documents" and not _bath_named(f) and not tub_drawn(f, building)
             and f.get("room_id") in rooms]
     if len({f["room_id"] for f in tubs}) < 2:
         return []
@@ -2428,8 +2507,8 @@ def apply_inferences(building: dict, proposals: list[dict]) -> dict:
         if prop.get("type_method") == NAME_RETYPE_METHOD:        # 26 Oct 2026: the name text written on it
             _apply_nightstand(item, dict(prop, type_method=NAME_TEXT_METHOD))
             continue
-        if prop.get("type_method") == AI_MEMBER_METHOD:          # 26 Oct 2026: the missing member the AI named
-            _apply_ai_member(item, prop)
+        if prop.get("type_method") in (AI_MEMBER_METHOD, WET_CLUSTER_METHOD):   # the missing member (AI named / the
+            _apply_ai_member(item, prop)                                       # wet room's cluster, 28 Nov 2026)
             continue
         if prop.get("type_method") in (CORNER_TABLE_METHOD, RING_TABLE_METHOD):   # a seating group's drawn table
             _apply_nightstand(item, prop)

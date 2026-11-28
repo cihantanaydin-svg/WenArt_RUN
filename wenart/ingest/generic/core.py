@@ -2264,7 +2264,10 @@ def _outline_closure(ex, where: str, walls2: list, openings: list, blocks: list,
 
 # 27 Nov 2026 (audit fix round 5a, R09): every size tag is read by ``wenart.ingest.tag_grammar`` (one parser: a code
 # 'CK3 ', 'K3-', 'P2:', W/H in cm, trailing words 'FRANSIZ PENCERE'); each reader keeps its own choice by the kind
-# the tag names (a window reader never takes a tag whose code or words say door, a door reader never a window's)
+# the tag names (a window reader never takes a tag whose code or words say door, a door reader never a window's).
+# 28 Nov 2026 (round 5a fix-up, TAGS-1): a type number glued to a 3-digit width ('K290/210': K2 + 90 or 2.90 m) is read
+# by the page's convention (``tag_grammar.glued_convention``: a glued 4-digit 'K2100/210' proves K2 + 90); a tag still
+# ambiguous never sets a width alone: a reader takes the reading the gap, the door, the frames or the jambs agree with
 TAG_REACH_M = 0.8               # a size tag stands this close to the wall of its window ...
 TAG_ANGLE_DEG = 15.0            # ... written along it
 TAG_ACROSS_FACE_M = 0.3         # 20 Nov 2026 (R10-P3): or written across it this close to its face
@@ -2457,10 +2460,11 @@ def _framed_windows(ex, where: str, walls2: list, openings: list, strokes: list,
         return None
     jambs = _segments(strokes, ("wall", "column"))
     tags = []
+    conv = TG.glued_convention(texts_m)
     for t in list(texts_m) + paired_size_tags(texts_m):
-        m = TG.window_size(t.text, t.evidence[0].get("layer") if t.evidence else None)
+        m = TG.window_size(t.text, t.evidence[0].get("layer") if t.evidence else None, conv)
         if m:
-            tags.append((t, m.w, m.h))
+            tags += [(t, w, m.h) for w in m.widths]      # TAGS-1: the frames' span picks a glued tag's reading
     others = [((float(a[0]), float(a[1])), (float(b[0]), float(b[1]))) for st in strokes or []
               if not getattr(st, "arc", None) and len(getattr(st, "pts", None) or []) == 2
               for a, b in [st.pts] if 0.2 <= math.dist(a, b) <= 3.0]
@@ -2564,9 +2568,12 @@ def _window_tags(ex, where: str, walls2: list, openings: list, texts_m: list, un
     # every size is one 'W/H' text, the two-text pairs joined numbers of different tags)
     pairs = [t for t in paired_size_tags(texts_m)
              if LN.layer_role(t.evidence[0].get("layer") if t.evidence else None) in DOOR_TAG_TEXT_ROLES]
+    conv = TG.glued_convention(texts_m)
     for t in list(texts_m) + pairs:
         layer = (t.evidence[0].get("layer") if t.evidence else None)
-        tg = TG.window_size(t.text or "", layer)       # R09: a tag whose code or words say door is no window's
+        tg = TG.window_size(t.text or "", layer, conv)  # R09: a tag whose code or words say door is no window's
+        if tg is not None and tg.ambiguous:
+            continue                # TAGS-1: a glued 'P150/50' the page does not decide sets no window's width alone
         m = (tg.w_cm, tg.h_cm) if tg else None
         if m and LN.layer_role(layer) in ("window", "glass") \
                 and (tg.says_window or not _door_like_tag(t, m[0], m[1], openings)):
@@ -2826,7 +2833,7 @@ CUT_SPAN_BLOCK_MIN_M = 0.5       # a door block this large at least (a door's sy
 CUT_SPAN_BLOCK_TOL_M = 0.15      # ... and its jambs this close to its size apart
 CUT_SPAN_OWN_DOOR_M = 0.10       # a door within the tag's reach this close to its width is the tag's own door
 CUT_SPAN_WORD_W_M = (0.6, 1.4)   # 27 Nov 2026: a door word's door between jambs this far apart (a door's width)
-DOOR_WORD_RE = re.compile(r"(?<![A-Z])(?:KAPI|KAPISI|DOOR|TUR)(?![A-Z])")
+DOOR_WORD_RE = re.compile(r"(?<![A-Z])(?:KAPI|KAPISI|DOOR)(?![A-Z])")   # never TUR: the Turkish TÜR is a type
 
 
 def _door_evidence(texts_m: list, strokes: list, unit_m: float = 1.0) -> list:
@@ -2837,11 +2844,12 @@ def _door_evidence(texts_m: list, strokes: list, unit_m: float = 1.0) -> list:
     from wenart.ingest.generic import layer_names as LN
 
     out = []
+    conv = TG.glued_convention(texts_m)
     for t in texts_m:
         text = str(t.text or "")
         layer = (t.evidence[0].get("layer") if t.evidence else None)
         role = LN.layer_role(layer)
-        tg = TG.door_size(text, 0, layer)              # R09: one parser; a code or word saying door is the 'K:' form
+        tg = TG.door_size(text, 0, layer, conv)        # R09: one parser; a code or word saying door is the 'K:' form
         if tg is None:
             continue
         k = tg.says_door
@@ -2852,6 +2860,8 @@ def _door_evidence(texts_m: list, strokes: list, unit_m: float = 1.0) -> list:
             continue
         c = ((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0)
         ev = dict(t.evidence[0]) if t.evidence else {}
+        if tg.ambiguous:
+            ev["tag_widths"] = [w for w in tg.widths if w * 100 <= DOOR_TAG_MAX_W_CM]   # TAGS-1: the jambs pick one
         out.append((c, w_cm / 100.0, h_cm / 100.0, f"the door size tag '{text.strip()}'", ev))
     for t in texts_m:
         # 27 Nov 2026 (audit fix round 5a, item N1; real17's shower doors written 'SÜRGÜ KAPI' beside a wall stretch the
@@ -2912,8 +2922,10 @@ def doors_in_cut_spans(walls2: list, openings: list, strokes: list, texts_m: lis
     out = list(openings)
     added = []
     for c, width, height, what, ev in evidence:
+        widths = list(ev.get("tag_widths") or ([width] if width is not None else []))
         if width is not None and any(
-                not o.virtual and o.kind in ("door", "opening") and abs(float(o.width) - width) <= CUT_SPAN_OWN_DOOR_M
+                not o.virtual and o.kind in ("door", "opening")
+                and min(abs(float(o.width) - x) for x in widths) <= CUT_SPAN_OWN_DOOR_M
                 and math.dist(o.center, c) <= DOOR_TAG_REACH_M + float(o.width) / 2.0 for o in out + added):
             continue                            # the tag's own door is read (the size tags step sizes it)
         best = None
@@ -2947,8 +2959,9 @@ def doors_in_cut_spans(walls2: list, openings: list, strokes: list, texts_m: lis
                 for a2 in jambs[i + 1:]:
                     span = a2 - a1
                     if width is not None:
-                        if abs(span - width) > CUT_SPAN_WIDTH_TOL_M or abs((a1 + a2) / 2.0 - ca) > \
-                                width / 2.0 + CUT_SPAN_TAG_SHIFT_M:
+                        wk = min(widths, key=lambda x: abs(span - x))     # TAGS-1: the jambs pick the reading
+                        if abs(span - wk) > CUT_SPAN_WIDTH_TOL_M or abs((a1 + a2) / 2.0 - ca) > \
+                                wk / 2.0 + CUT_SPAN_TAG_SHIFT_M:
                             continue
                     elif ev.get("door_word"):
                         # 27 Nov 2026 (round 5a, item N1): a door word names a door of a door's size between the jambs
@@ -3015,9 +3028,10 @@ def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, unit
     from wenart.ingest.generic import layer_names as LN
 
     tags = []
+    conv = TG.glued_convention(texts_m)
     for t in texts_m:
         layer = (t.evidence[0].get("layer") if t.evidence else None)
-        tg = TG.door_size(t.text or "", 0, layer)        # R09: one parser; a tag whose code or words say window is none
+        tg = TG.door_size(t.text or "", 0, layer, conv)  # R09: one parser; a tag whose code or words say window is none
         if tg is None:
             continue
         role = LN.layer_role(layer)
@@ -3027,27 +3041,40 @@ def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, unit
             # size under a door's height is a window's or a vent's, never a door's
             continue
         plain = role in DOOR_TAG_TEXT_ROLES and not tg.says_door
-        if tg.says_door and w_cm <= DOOR_TAG_MAX_W_CM:
+        if tg.says_door and role != "door" and min(tg.widths) * 100 <= DOOR_TAG_MAX_W_CM:
             # 27 Nov 2026 (R09, real15: 'K2-90/210' on the window-info layer, 'CK3 260/240' glass doors on the window
-            # layer): a tag whose code or words say door is a door's on any layer, as one on a door layer
-            tags.append((t, w_cm / 100.0, h_cm / 100.0, h_cm >= DOOR_TAG_MIN_H_CM, False))
+            # layer): a tag whose code or words say door is a door's on any layer. 28 Nov 2026 (round 5a fix-up,
+            # GENERAL-2: swiss-b1128's 'K:85/210' on a text layer turned the drawn window beside it into a door): the
+            # code decides the kind, not the layer's authority: off a door layer it takes no drawn window (``over``
+            # False) and keeps the plain tag's guards (no gap widened past its jambs, none that holds window content or
+            # lies in an outer wall)
+            tags.append((t, tg, False, True))
         elif role == "door" or (role == "window" and _door_like_tag(t, w_cm, h_cm, openings)) \
                 or (plain and h_cm >= DOOR_TAG_PLAIN_MIN_H_CM and w_cm <= DOOR_TAG_MAX_W_CM):
             # 6 Nov 2026 (real16 L1: the four shower rooms' '80/220' doors read as 0.68 m windows, their leaves' lines
             # in the wall taken for glass): a door-high tag on a door layer may take a drawn window of about its width
             over = role == "door" and h_cm >= DOOR_TAG_MIN_H_CM
-            tags.append((t, w_cm / 100.0, h_cm / 100.0, over, plain))
+            tags.append((t, tg, over, plain))
     if not tags:
         return None
     by_id = {st.id: st for st in strokes or ()}
     pairs = []
-    for ti, (t, width, height, over, plain) in enumerate(tags):
+    pair_w: dict = {}
+    for ti, (t, tg, over, plain) in enumerate(tags):
         c = Point((t.box[0] + t.box[2]) / 2.0, (t.box[1] + t.box[3]) / 2.0)
         for j, o in enumerate(openings):
             if o.virtual or o.kind not in DOOR_TAG_KINDS:
                 continue
             w = float(o.width)
             gap = o.kind == "opening" or (o.kind == "window" and "gap" in str(o.type_raw or ""))
+            # TAGS-1: a glued 'K290/210' the page does not decide takes the reading the opening agrees with; it never
+            # sets a width alone (a gap must agree within DOOR_TAG_SAME_M, a door within DOOR_TAG_DOOR_W_M)
+            rd = tg.pick(w, DOOR_TAG_DOOR_W_M if o.kind == "door" else DOOR_TAG_WINDOW_WIDTH_M if not gap
+                         else DOOR_TAG_SAME_M) if tg.ambiguous else tg
+            if rd is None or (tg.ambiguous and rd.w_cm > DOOR_TAG_MAX_W_CM):
+                continue
+            width = rd.w
+            pair_w[(ti, j)] = width
             if o.kind == "door":
                 # 13 Nov 2026 (review REGX-1: real16's two '100/220' doors, read from their leaf lines alone as 1.78
                 # and 1.67 m sliding doors, could no longer take their tags): a door narrower than the tag by more than
@@ -3097,7 +3124,8 @@ def _door_tags(ex, where: str, walls2: list, openings: list, texts_m: list, unit
     for *_key, ti, j in pairs:
         if ti in used_tags or j in taken:
             continue
-        t, width, height, over, plain = tags[ti]
+        t, tg, over, plain = tags[ti]
+        width, height = pair_w[(ti, j)], tg.h
         o = openings[j]
         spot = next((sp for sp in spots if math.dist(sp[0], tuple(o.center)) <= DOOR_TAG_COINCIDENT_M), None)
         if spot is not None:

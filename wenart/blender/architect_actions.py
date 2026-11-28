@@ -3265,10 +3265,14 @@ NOT_DRAWN_RULES = ("inferred_door", "lift_door", "cut_span_door", "wide_gap", "g
 WINDOW_RULES = ("framed_window", "glazed_facade", "door_over_window", "sliding_window", "window_block")
 
 
-def _tag_cm(text) -> Optional[tuple[int, int]]:
+def _tag_cm(text, width=None) -> Optional[tuple[int, int]]:
+    """``(width, height)`` in cm of a door size tag; a glued 'K290/210' (K2 + 90 or 2.90 m, TAGS-1) takes the reading
+    nearest the door's own ``width`` (m)."""
     from wenart.ingest import tag_grammar as TG
 
     m = TG.door_size(text, 0)
+    if m is not None and m.ambiguous and width:
+        m = m.pick(width) or m
     return (m.w_cm, m.h_cm) if m else None
 
 
@@ -3281,7 +3285,7 @@ def door_tag(o: dict) -> Optional[tuple[float, float, str]]:
                                     ("door_tag", "own_door_tag")):
             texts += [str(e.get(k)) for k in ("text", "tag") if e.get(k)]
     for t in texts:
-        got = _tag_cm(t)
+        got = _tag_cm(t, o.get("width"))
         if got and got[1] >= DOOR_TAG_MIN_H_CM:
             return got[0] / 100.0, got[1] / 100.0, t.strip()
     return None

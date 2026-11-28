@@ -1,7 +1,7 @@
 {
  "_note": "What the user asked and corrected while this project was built, each turned into a general lesson the architect applies to every project (wenart/blender/architect_lessons.py; user request of 25 Oct 2026: 'the architect should ask the questions and corrections I was asking all along the build; use AI to understand what I was asking and keep developing with the future requests'). checks: the architect rules that check it on every build (architect.ORDER ids) or 'build' (the build does it by itself); status: rule (a rule checks it), built (code does it), open (no automatic check yet: the AI architect looks for it on every run and it is the next rule to write), process (how we work). Add a new request with: python -m wenart.agent.lessons add \"<the request>\"",
  "version": 1,
- "updated": "2026-11-27",
+ "updated": "2026-11-28",
  "lessons": [
   {
    "id": "UL01",
@@ -5301,6 +5301,116 @@
    "checks": [],
    "request": "27 Nov 2026 (audit fix round 4b, the eaves default of round 4 measured): with no eaves, knee wall or ridge drawn, a full top storey's eaves stand on its ceiling and slab (floor + ceiling + 0.20 m) and only a level the drawings name an attic takes the 1.0 m knee wall. Measured on every pitched-roof project before and after round 4: only real18 uses the default (the others draw their eaves or have an attic); its section shows the roof standing on the top slab, and the old knee wall clipped all 19 openings of its full top storey: the default is kept.",
    "lesson": "27 Nov 2026 (audit fix round 4b, the eaves default of round 4 measured): with no eaves, knee wall or ridge drawn, a full top storey's eaves stand on its ceiling and slab (floor + ceiling + 0.20 m) and only a level the drawings name an attic takes the 1.0 m knee wall. Measured on every pitched-roof project before and after round 4: only real18 uses the default (the others draw their eaves or have an attic); its section shows the roof standing on the top slab, and the old knee wall clipped all 19 openings of its full top storey: the default is kept.",
+   "question": null
+  },
+  {
+   "id": "UL460",
+   "date": "2026-11-28",
+   "area": "openings",
+   "status": "open",
+   "checks": [],
+   "request": "28 Nov 2026 (audit fix round 5a fix-up, TAGS-1; real14's POZ layer): a door or window code whose type number runs straight into the width reads both ways ('K290/210' is K2 + 90/210 or 2.90 m); a glued 4-digit group in the same drawing ('K2100/210', 'P3130/150') proves the type-number convention; a tag still ambiguous never sets a width alone: the reader takes the reading the opening's own width (gap, door, frames, jambs) agrees with.",
+   "lesson": "28 Nov 2026 (audit fix round 5a fix-up, TAGS-1; real14's POZ layer): a door or window code whose type number runs straight into the width reads both ways ('K290/210' is K2 + 90/210 or 2.90 m); a glued 4-digit group in the same drawing ('K2100/210', 'P3130/150') proves the type-number convention; a tag still ambiguous never sets a width alone: the reader takes the reading the opening's own width (gap, door, frames, jambs) agrees with.",
+   "question": null
+  },
+  {
+   "id": "UL461",
+   "date": "2026-11-28",
+   "area": "openings",
+   "status": "open",
+   "checks": [],
+   "request": "28 Nov 2026 (round 5a fix-up, R09 decision): a size tag never turns a drawn window into a door, nor an upper storey's French window: only a balcony or terrace outside it, the opening's own door evidence (a door layer or block) or a garage's bay a car passes at grade (the room's use) does; a door-coded tag off a door layer keeps the plain tag's guards; an opening of the tag's own kind whose width agrees takes it first, then the nearest (its width breaks only a near tie); window pieces merge only along one wall run; a window tag on a doorless gap makes a window at the head rule's sill; one tag, one product only where a door may be.",
+   "lesson": "28 Nov 2026 (round 5a fix-up, R09 decision): a size tag never turns a drawn window into a door, nor an upper storey's French window: only a balcony or terrace outside it, the opening's own door evidence (a door layer or block) or a garage's bay a car passes at grade (the room's use) does; a door-coded tag off a door layer keeps the plain tag's guards; an opening of the tag's own kind whose width agrees takes it first, then the nearest (its width breaks only a near tie); window pieces merge only along one wall run; a window tag on a doorless gap makes a window at the head rule's sill; one tag, one product only where a door may be.",
+   "question": null
+  },
+  {
+   "id": "UL462",
+   "date": "2026-11-28",
+   "area": "access",
+   "status": "open",
+   "checks": [],
+   "request": "28 Nov 2026 (round 5a fix-up, R08 decision): open entrances and porches only on the entrance level (never an upper storey of a hillside house); the cited mark lies in front of the gap on its side, at least a step under the floor, with no wall between, each mark used once; a recess with fixtures, a labelled or copied label, a wet, storage or service room is never a porch; a building keeps one main entrance and never loses its drawn one; garage, vehicle, service, garden and car-park entrance words never name the main entrance (the garage drive C0045 holds).",
+   "lesson": "28 Nov 2026 (round 5a fix-up, R08 decision): open entrances and porches only on the entrance level (never an upper storey of a hillside house); the cited mark lies in front of the gap on its side, at least a step under the floor, with no wall between, each mark used once; a recess with fixtures, a labelled or copied label, a wet, storage or service room is never a porch; a building keeps one main entrance and never loses its drawn one; garage, vehicle, service, garden and car-park entrance words never name the main entrance (the garage drive C0045 holds).",
+   "question": null
+  },
+  {
+   "id": "UL463",
+   "date": "2026-11-28",
+   "area": "site",
+   "status": "open",
+   "checks": [],
+   "request": "28 Nov 2026 (round 5a fix-up, R16 decision): an outdoor space a drawn door lands on, with a drawn outline or with a label of its own storey is never dropped; a poor rectangle or no door is a finding on the space (a facing low-sill window named as its probable door, a stacked twin's status), only a purely inferred space is not built; the refusals live in the levels model so a re-run gives the same verdict.",
+   "lesson": "28 Nov 2026 (round 5a fix-up, R16 decision): an outdoor space a drawn door lands on, with a drawn outline or with a label of its own storey is never dropped; a poor rectangle or no door is a finding on the space (a facing low-sill window named as its probable door, a stacked twin's status), only a purely inferred space is not built; the refusals live in the levels model so a re-run gives the same verdict.",
+   "question": null
+  },
+  {
+   "id": "UL464",
+   "date": "2026-11-28",
+   "area": "plan",
+   "status": "open",
+   "checks": [],
+   "request": "28 Nov 2026 (round 5a fix-up, R21 decision): only shower or bath words (DUŞ, DUŞAKABİN, DUŞ TEKNESİ, KÜVET) make a small cell a shower room; boiler, water-heater and drain words (KOMBİ, BOYLER, TERMOSİFON, ŞOFBEN, SÜZGEÇ) a technical closet, laundry words a laundry, toilet words a WC; a drawn shower or toilet in a cell no text names makes it that wet cell; block abbreviations come after the main keyword table (a counter with a sink word stays a counter); copies of another piece are no votes of their own.",
+   "lesson": "28 Nov 2026 (round 5a fix-up, R21 decision): only shower or bath words (DUŞ, DUŞAKABİN, DUŞ TEKNESİ, KÜVET) make a small cell a shower room; boiler, water-heater and drain words (KOMBİ, BOYLER, TERMOSİFON, ŞOFBEN, SÜZGEÇ) a technical closet, laundry words a laundry, toilet words a WC; a drawn shower or toilet in a cell no text names makes it that wet cell; block abbreviations come after the main keyword table (a counter with a sink word stays a counter); copies of another piece are no votes of their own.",
+   "question": null
+  },
+  {
+   "id": "UL465",
+   "date": "2026-11-28",
+   "area": "plan",
+   "status": "open",
+   "checks": [],
+   "request": "28 Nov 2026 (round 5a fix-up, R28 decision): a role name (label_role) is no label of the plan for every consumer (Argus plan-vs-model and ledger, the critic's and the architect's facts); the reading score and the furniture program read the reader's placeholder as before (no silent change of what is furnished); only a hall-like face takes its open neighbour's label.",
+   "lesson": "28 Nov 2026 (round 5a fix-up, R28 decision): a role name (label_role) is no label of the plan for every consumer (Argus plan-vs-model and ledger, the critic's and the architect's facts); the reading score and the furniture program read the reader's placeholder as before (no silent change of what is furnished); only a hall-like face takes its open neighbour's label.",
+   "question": null
+  },
+  {
+   "id": "UL466",
+   "date": "2026-11-28",
+   "area": "plan",
+   "status": "open",
+   "checks": [],
+   "request": "28 Nov 2026 (round 5a fix-up): an open porch is open air in every consumer: never furnished as an indoor hall or office, in the vision critic's open-air list, built and rendered as outside.",
+   "lesson": "28 Nov 2026 (round 5a fix-up): an open porch is open air in every consumer: never furnished as an indoor hall or office, in the vision critic's open-air list, built and rendered as outside.",
+   "question": null
+  },
+  {
+   "id": "UL467",
+   "date": "2026-11-28",
+   "area": "furniture",
+   "status": "open",
+   "checks": [],
+   "request": "28 Nov 2026 (round 5a fix-up, R18): a kitchen run is judged as a whole: a counter run with a kitchen sink or a hob (any method), or in a room a kitchen word names, is a kitchen, never a wardrobe; only a bedroom or a hall or dressing room a drawn label names is read again; a retyped counter leaves the room's kitchen zone, its earlier label is merged, and other kitchen kit there is not built (listed with its plan crop).",
+   "lesson": "28 Nov 2026 (round 5a fix-up, R18): a kitchen run is judged as a whole: a counter run with a kitchen sink or a hob (any method), or in a room a kitchen word names, is a kitchen, never a wardrobe; only a bedroom or a hall or dressing room a drawn label names is read again; a retyped counter leaves the room's kitchen zone, its earlier label is merged, and other kitchen kit there is not built (listed with its plan crop).",
+   "question": null
+  },
+  {
+   "id": "UL468",
+   "date": "2026-11-28",
+   "area": "furniture",
+   "status": "open",
+   "checks": [],
+   "request": "28 Nov 2026 (round 5a fix-up; real10's 'Duş' rooms L0-L6, 14 critical M7): an untyped drawn cluster in a wet room whose room misses its shower or bath is that member, seated in the part of the outline the room's typed fixtures leave free (inferred, drawn footprint kept); a kitchen counter in a bathroom is its vanity whatever typed it.",
+   "lesson": "28 Nov 2026 (round 5a fix-up; real10's 'Duş' rooms L0-L6, 14 critical M7): an untyped drawn cluster in a wet room whose room misses its shower or bath is that member, seated in the part of the outline the room's typed fixtures leave free (inferred, drawn footprint kept); a kitchen counter in a bathroom is its vanity whatever typed it.",
+   "question": null
+  },
+  {
+   "id": "UL469",
+   "date": "2026-11-28",
+   "area": "furniture",
+   "status": "open",
+   "checks": [],
+   "request": "28 Nov 2026 (round 5a fix-up; real17's 1.9 m² 'DUŞ' rooms got a washbasin and no shower): in a bathroom set the bath role (the shower or the bath) is placed first where only one member fits.",
+   "lesson": "28 Nov 2026 (round 5a fix-up; real17's 1.9 m² 'DUŞ' rooms got a washbasin and no shower): in a bathroom set the bath role (the shower or the bath) is placed first where only one member fits.",
+   "question": null
+  },
+  {
+   "id": "UL470",
+   "date": "2026-11-28",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "28 Nov 2026 (round 5a fix-up, TAGS-2): a module the Blender build calls must run without jsonschema, yaml and the other CPU-only libraries, its function-level imports too; the import guard calls the build's door-tag path, it does not only import it.",
+   "lesson": "28 Nov 2026 (round 5a fix-up, TAGS-2): a module the Blender build calls must run without jsonschema, yaml and the other CPU-only libraries, its function-level imports too; the import guard calls the build's door-tag path, it does not only import it.",
    "question": null
   }
  ]

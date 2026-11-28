@@ -1059,18 +1059,25 @@ def outdoor_spaces(building: dict, levels: Sequence[dict], outlines: dict, marks
         poly = _coords(sp)
         area = round(sp.area, 3)
         on = space_doors(poly, level_id, doors)
-        # 27 Nov 2026 (audit fix round 5a, R16; wenart.ingest.outdoor_checks): a rectangle fallback far off the stated
-        # area or an upper label whose own mark is a lower floor (the space below seen from above): kept as a finding,
-        # not built (the doorless inferred spaces are judged once every door is read, ``outdoor_checks.unreached``); an
-        # inferred upper space stays within reach of the storeys under it
+        # 27 Nov 2026 (audit fix round 5a, R16; wenart.ingest.outdoor_checks): an upper rectangle no door lands on whose
+        # own mark (outside the storey) is a lower floor is the space below seen from above: not built, a finding on
+        # site.outdoor_spaces_refused (by area: a re-run gives the same); 28 Nov 2026 (fix-up decision): a space a door
+        # lands on, with a drawn outline or its own label is never dropped: a rectangle off its stated area is a finding
+        # (the doorless spaces are findings once every door is read, ``outdoor_checks.unreached``); an inferred upper
+        # space stays within reach of the storeys under it
         from wenart.ingest import outdoor_checks as OC
-        refused = OC.refuse(a, sk["kind"], level_id, by_id, ground_id, method, poly, st["m2"] if st else None, None,
-                            site.get("areas") or [], marks, space_kind)
+        landed = OC.landing_doors(building, a, level_id, poly, [d["id"] for d in on], site.get("areas") or [])
+        refused, r16 = OC.verdict(a, sk["kind"], level_id, by_id, ground_id, method, poly, st["m2"] if st else None,
+                                  landed, site.get("areas") or [], marks, space_kind, outline)
         if refused:
             warnings.append(f"outdoor space {a.get('id')} ({a.get('label')}) on {level_id} not built: {refused} (R16; "
                             f"a finding to review)")
             a["space"] = {"built": False, "reason": refused, "finding": "R16"}
+            OC.record_refusal(building, a, level_id, poly, method, refused)
             continue
+        if r16:
+            warnings.append(f"outdoor space {a.get('id')} ({a.get('label')}) on {level_id}: {r16} (R16; a finding to "
+                            f"review)")
         if OC.is_rectangle(method) and level_id != ground_id:
             clipped, cut_why = OC.clip_upper(poly, level_id, by_id, outlines, ground_id)
             if cut_why:
@@ -1130,6 +1137,8 @@ def outdoor_spaces(building: dict, levels: Sequence[dict], outlines: dict, marks
             used = m.setdefault("used_for", [])
             if f"outdoor_floor:{sid}" not in used:
                 used.append(f"outdoor_floor:{sid}")
+        if r16:
+            rec["finding"] = {"rule": OC.RULE, "reason": r16}     # 28 Nov 2026 (R16 fix-up): built, with its finding
         out.append(rec)
         a["space"] = {"built": True, "id": sid}
     if not out:

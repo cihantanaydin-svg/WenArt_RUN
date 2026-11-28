@@ -1125,7 +1125,9 @@ def rc11(level_id: str, tags: list[dict], walls: list[dict], openings: list[dict
         if t.get("unknown_layer") and near_wall > TAG_WALL_FACE_M:
             continue                         # a column or furniture tag ('50/50', '60/120') on a layer of no role
         dists = sorted(((_seg_dist(p, a, b), o) for o, (a, b) in spans), key=lambda x: x[0])
-        if any(d <= TAG_REACH_M and abs(float(o.get("width") or 0) - t["w"]) <= TAG_WIDTH_TOL_M for d, o in dists):
+        ws = t.get("ws") or [t["w"]]         # TAGS-1: a glued 'K290/210' reads 0.90 or 2.90 m
+        if any(d <= TAG_REACH_M and min(abs(float(o.get("width") or 0) - w) for w in ws) <= TAG_WIDTH_TOL_M
+               for d, o in dists):
             continue
         nearest = next(((d, o) for d, o in dists if d <= TAG_NEAREST_M), None)
         hits.append((t, nearest))
@@ -1135,7 +1137,7 @@ def rc11(level_id: str, tags: list[dict], walls: list[dict], openings: list[dict
         sev = "minor"
         if nearest:
             d, o = nearest
-            if abs(float(o.get("width") or 0) - t["w"]) > TAG_MAJOR_WIDTH_M:
+            if min(abs(float(o.get("width") or 0) - w) for w in (t.get("ws") or [t["w"]])) > TAG_MAJOR_WIDTH_M:
                 sev = "major"
             what = (f"the nearest opening is {o['id']} ({o.get('type')}" + (f", {o['type_raw']}" if o.get("type_raw")
                                                                              else "")
@@ -1244,19 +1246,20 @@ def size_tags(texts: list[dict]) -> list[dict]:
     """The size tags among a level's texts (``{"text", "x", "y", "layer", "entity"}``): ``W/H`` in cm on a door,
     window, glass or text layer (``wenart.ingest.generic.layer_names``), or on a layer of no known role (marked
     ``unknown_layer``: ``rc11`` takes those only next to a wall face), sizes in ``TAG_SIZE_CM``."""
+    from wenart.ingest import tag_grammar as TG
     from wenart.ingest.generic import layer_names as LN
 
-    rx = size_tag_re()
+    conv = TG.glued_convention(texts)        # 28 Nov 2026 (TAGS-1): 'K2100/210' proves 'K290/210' = K2 + 90
     out = []
     for t in texts:
-        m = rx.match(str(t.get("text") or ""))
+        m = TG.parse(str(t.get("text") or ""), None, conv)
         role = LN.layer_role(t.get("layer"))
         if not m or (role is not None and role not in TAG_LAYER_ROLES):
             continue
-        w, h = int(m.group(1)), int(m.group(2))
+        w, h = m.w_cm, m.h_cm
         if not (TAG_SIZE_CM[0][0] <= w <= TAG_SIZE_CM[0][1] and TAG_SIZE_CM[1][0] <= h <= TAG_SIZE_CM[1][1]):
             continue
-        out.append(dict(t, w=w / 100.0, h=h / 100.0, unknown_layer=role is None))
+        out.append(dict(t, w=w / 100.0, h=h / 100.0, ws=list(m.widths), unknown_layer=role is None))
     return out
 
 

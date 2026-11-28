@@ -9,9 +9,14 @@ the reader's placeholder 'Oda' / 'Room') takes
    collides with real ODA rooms (real06's bedroom became r_L1_oda_2 beside an unlabelled 'Oda' corridor).
 
 The new name is ``label_inferred`` (method ``open_neighbour`` or ``role``) and ``label_role: true``; ``label_raw`` stays
-empty (no text names it), so every check that asks whether a room is labelled sees it unlabelled as before. A room
-whose label names a dressing room ('SOYUNMA ODASI', 'GİYİNME BÖL.', 'dressing', 'walk-in') keeps its name and gets
-``room_use: dressing`` with ``dressing_of``: the bedroom it opens into (never storage).
+empty (no text names it) and ``label_placeholder`` keeps the reader's name ('Oda'), so every check that asks whether a
+room is labelled sees it unlabelled as before: every consumer reads ``label_of`` (empty for a role name: Argus's
+plan-vs-model and ledger, the critic's and the architect's facts; 28 Nov 2026, ROOMS-2), the reading score and the
+furniture program read the placeholder as before (``reader_label``: no silent change of the score or of what is
+furnished, ROOMS-4). Only a hall-like face (a hall, a corridor, an entry, an unknown face) takes its open neighbour's
+label (ROOMS-1). A room whose label names a dressing room ('SOYUNMA ODASI', 'GİYİNME BÖL.', 'dressing', 'walk-in
+closet') keeps its name and gets ``room_use: dressing`` with ``dressing_of``: the bedroom it opens into (never
+storage); the furniture program furnishes it as a dressing room (ROOMS-5).
 
 Why: names feed the cameras, the room programs and the reports; two 'Oda' rooms beside a real ODA confused all three.
 
@@ -37,9 +42,13 @@ ROLE_NAMES = {
 }
 PLACEHOLDERS = ("oda", "room")
 CORRIDOR_ASPECT = 3.0           # a hall face this many times longer than wide is a corridor
-DRESSING_RE = re.compile(r"(?<![a-z])(?:soyunma|giyinme|giyinme\s+bol\w*|dressing|walk\s*-?\s*in|vestiyer)(?![a-z])")
+# 28 Nov 2026 (ROOMS-5): 'walk-in' names a dressing room only with closet / wardrobe or alone ('WALK-IN SHOWER',
+# 'WALK-IN PANTRY' do not); 'vestiyer' is an entrance's coat closet, no dressing room
+DRESSING_RE = re.compile(r"(?<![a-z])(?:soyunma|giyinme|giyinme\s+bol\w*|dressing|walk\s*-?\s*in"
+                         r"(?!\s*-?\s*(?:shower|pantry|bath|dus|kiler|cooler|freezer|fridge)))(?![a-z])")
 OPEN_LINK_M = 0.35              # a doorless gap this close to two rooms' outlines joins them
 OPEN_JOIN_TYPES = ("hall",)     # an unnamed face takes the label of an open neighbour of these types (or of its own)
+HALL_LIKE = ("hall", "corridor", "entry", "unknown", "")    # ... when it is one of these itself (ROOMS-1)
 
 
 def _fold(text) -> str:
@@ -107,10 +116,12 @@ def name_faces(b: dict) -> list[dict]:
             if not unnamed(r):
                 continue
             lang = _lang(r)
+            placeholder = str(r.get("label") or "")
             # the open neighbour's label when it is the same kind of space (a corridor that is part of the HOL), never
             # a room of another use beside an open hall (a hall holding the stair beside the drawing room)
             named = [x for x in _links(b, r, rooms) if x.get("label_raw") and not unnamed(x)
-                     and (x.get("room_type") in OPEN_JOIN_TYPES or x.get("room_type") == r.get("room_type"))]
+                     and (x.get("room_type") in OPEN_JOIN_TYPES or x.get("room_type") == r.get("room_type"))] \
+                if str(r.get("room_type") or "") in HALL_LIKE else []
             if named:
                 src = named[0]
                 r["label"] = src.get("label")
@@ -127,6 +138,7 @@ def name_faces(b: dict) -> list[dict]:
                                        "reason": f"no text names it: the role name of a {rtype} (never the "
                                                  f"placeholder 'Oda', R28)"}
             r["label_role"] = True
+            r["label_placeholder"] = placeholder
             out.append({"room": r["id"], "level_id": lid, "label": r["label"],
                         "method": r["label_inferred"]["method"]})
         for r in rooms:
@@ -165,4 +177,14 @@ def label_of(room: Optional[dict]) -> str:
     """The room's label as a check reads it: empty for a role name (``label_role``; no text names the room)."""
     if not room or room.get("label_role"):
         return ""
+    return str(room.get("label") or room.get("label_raw") or "")
+
+
+def reader_label(room: Optional[dict]) -> str:
+    """The label the reader gave the room before R28's role names (its placeholder 'Oda' for a role-named room): what
+    the reading score and the furniture program read, as before the round (ROOMS-2, ROOMS-4)."""
+    if not room:
+        return ""
+    if room.get("label_role"):
+        return str(room.get("label_placeholder") or "")
     return str(room.get("label") or room.get("label_raw") or "")

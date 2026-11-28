@@ -2309,7 +2309,7 @@ def lift_cars(rooms: list[dict], symbols: list[dict], furniture: list[dict], ope
         tag = next((t for t in texts or () if t.get("level_id") == lv and t.get("point") is not None
                     and (m := TG.door_size(t.get("text"), DOOR_SIZE_TAG_MIN_H_CM))
                     and poly.contains(Point(t["point"][:2]))
-                    and not (LIFT_DOOR_MIN_W_M <= m.w <= LIFT_DOOR_MAX_W_M
+                    and not (any(LIFT_DOOR_MIN_W_M <= w <= LIFT_DOOR_MAX_W_M for w in m.widths)   # TAGS-1
                              and any(Point(t["point"][:2]).distance(Point(o["center"][:2])) <= LIFT_WALL_REACH_M
                                      for o in car_gaps))), None)
         if tag is not None:

@@ -653,15 +653,16 @@ class _Ledger:
         rooms_using = [self.m.elements[k] for k in built if self.m.elements[k]["path"] == "rooms"]
         if built and not rooms_using:
             return True                                  # a built site surface or another built element
+        from wenart.ingest import room_names as RN    # 28 Nov 2026 (ROOMS-2): a role name is no label of the plan
         for el in rooms_using:
             room = el["dict"]
-            if same_label(room.get("label_raw") or room.get("label"), label) or not r.get("label"):
+            if same_label(room.get("label_raw") or RN.label_of(room), label) or not r.get("label"):
                 return True
         if rooms_using:
             self._merged(r, page, rooms_using[0]["dict"], label, "is a second label of")
             return False
         room = self.m.room_at(level, r.get("pos"))
-        if room is not None and same_label(room.get("label_raw") or room.get("label"), label):
+        if room is not None and same_label(room.get("label_raw") or RN.label_of(room), label):
             return True
         if room is not None and not od:
             self._merged(r, page, room, label, "lies unused in")
