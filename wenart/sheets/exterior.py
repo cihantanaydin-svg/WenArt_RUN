@@ -716,11 +716,19 @@ def roof_from_roof_plan(roof_plans: list) -> Optional[dict]:
     one pitch per roof part is not built yet (the whole roof takes the main pitch; multi-part roofs are a later
     round)."""
     for r in roof_plans:
-        slopes, left = [], []
+        slopes, left, bare = [], [], set()
         for t in r.texts:
-            v = T.slope_pct(t.text, roof=True)   # round 5b (R07 f): degrees and bare numbers too
-            if v is None:
+            rd = T.slope_reading(t.text, roof=True)   # round 5b (R07 f): degrees and bare numbers too
+            if rd is None:
                 continue
+            v = rd["pct"]
+            if rd["form"] == "bare angle":
+                # 28 Nov 2026 (fix-up, SECTIONS-7): a bare angle is a pitch only off a dimension layer and (below) only
+                # inside the eaves loop
+                if t.layer and DIM_LAYER_RE.search(T.fold(t.layer)):
+                    left.append(f"'{t.text}' (an angle on a dimension layer)")
+                    continue
+                bare.add(id(t))
             if not ROOF_SLOPE_PCT[0] <= v <= ROOF_SLOPE_PCT[1]:
                 left.append(f"'{t.text}' ({v:g} %, no roof pitch)")
             elif _drain_text(t, r.texts):
@@ -748,6 +756,13 @@ def roof_from_roof_plan(roof_plans: list) -> Optional[dict]:
                 ids = {id(t) for _v, t in inside}
                 left += [f"'{t.text}' (outside the main roof's eaves loop)" for _v, t in slopes if id(t) not in ids]
                 voting = inside
+            elif bare:
+                left += [f"'{t.text}' (a bare angle outside the main roof's eaves loop)" for _v, t in slopes
+                         if id(t) in bare]
+                voting = [(v, t) for v, t in slopes if id(t) not in bare]
+        elif bare:
+            left += [f"'{t.text}' (a bare angle and no eaves loop read)" for _v, t in slopes if id(t) in bare]
+            voting = [(v, t) for v, t in slopes if id(t) not in bare]
         groups: list = []
         for v, t in sorted(voting, key=lambda x: x[0]):
             if groups and v - groups[-1][0][0] <= SAME_SLOPE_PCT:
@@ -776,6 +791,7 @@ def roof_from_roof_plan(roof_plans: list) -> Optional[dict]:
     return None
 
 
+DIM_LAYER_RE = re.compile(r"DIM|OLCU|COTE|COTA|BEMASS")   # 28 Nov 2026 (fix-up, SECTIONS-7): dimension layers
 RIDGE_MARK_INSIDE_M = 0.5          # 27 Nov 2026 (R07 c): a roof plan's mark this far inside its eaves loop is a ridge's
 # 27 Nov 2026 (round 4b): a mark beside such a word (this many text heights) or inside a closed outline of this size on
 # the roof is a stair house's, a lift room's, a chimney's or a tank's top, never the main ridge

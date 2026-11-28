@@ -2431,7 +2431,7 @@ def _threshold(opening, wall, centre, angle, floor_z, has_below, rooms, style, l
     if step is not None:
         manifest_objects[-1]["step"] = {"rise": step["rise"], "low_room": step["low_room"],
                                         "high_room": step["high_room"]}
-    blocks = door_step_blocks(opening, has_below)
+    blocks = door_step_blocks(opening, has_below, wall)
     if blocks is not None:
         # 27 Nov 2026 (audit fix round 5b): the reading's steps (or a garage's ramp) in front of the door, in the lower
         # room (``wenart.levels.door_steps``; inferred)
@@ -2450,16 +2450,23 @@ def _threshold(opening, wall, centre, angle, floor_z, has_below, rooms, style, l
     return ob
 
 
-def door_step_blocks(opening: dict, has_below: bool = False) -> tuple[list, list] | None:
+def door_step_blocks(opening: dict, has_below: bool = False, wall: dict | None = None) -> tuple[list, list] | None:
     """27 Nov 2026 (audit fix round 5b; pure): the mesh of the steps or ramp the reading planned in front of a door
-    between two floors of different height (``opening["steps"]["blocks"]``, ``wenart.levels.door_steps``): a prism per
-    tread block, a sloped prism for a ramp (low at its far end, at the threshold at the door); None without them."""
+    between two floors of different height (``wenart.levels.door_steps``): a prism per tread block, a sloped prism for a
+    ramp (low at its far end, at the threshold at the door). 28 Nov 2026 (fix-up, STEPS-1 / STEPS-5): the blocks are
+    rebuilt from the opening and its wall as they are now (``door_steps.plan_blocks``: a door the later stages move or
+    resize carries its steps, a door moved to another wall loses them), and the ramp's faces are wound outwards for
+    either side of the wall. None without steps to build."""
+    from wenart.levels import door_steps as DS
     st = opening.get("steps") if isinstance(opening.get("steps"), dict) else None
-    if not st or not st.get("blocks"):
+    if not st:
+        return None
+    blocks = DS.plan_blocks(opening, wall, st)
+    if not blocks:
         return None
     lift = DEFAULTS["threshold_lift"] if has_below else 0.0
     parts = []
-    for blk in st["blocks"]:
+    for blk in blocks:
         poly = [tuple(p[:2]) for p in blk.get("polygon") or []]
         if len(poly) < 3:
             continue
@@ -2470,6 +2477,8 @@ def door_step_blocks(opening: dict, has_below: bool = False) -> tuple[list, list
                                                      (poly[2][0], poly[2][1], z0 + 0.001),
                                                      (poly[3][0], poly[3][1], z0 + 0.001)]
             faces = [[3, 2, 1, 0], [4, 5, 6, 7], [0, 1, 5, 4], [1, 2, 6, 5], [2, 3, 7, 6], [3, 0, 4, 7]]
+            if G.polygon_signed_area(poly) < 0:
+                faces = [list(reversed(f)) for f in faces]      # a clockwise ring: every face turned outwards
             parts.append((verts, faces))
         elif z1 > z0 + 1e-4:
             parts.append(geom2d.prism(poly, z0, z1))

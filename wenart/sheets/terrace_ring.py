@@ -49,12 +49,21 @@ def rings(region) -> list:
     out = []
     for layer, lines in by.items():
         try:
-            polys = [p for p in polygonize(unary_union(lines)) if p.is_valid and p.area >= RING_MIN_M2]
+            faces = [p for p in polygonize(unary_union(lines)) if p.is_valid]
         except Exception:  # noqa: BLE001 - a layer whose lines do not polygonize closes no ring
             continue
-        for p in polys:
-            out.append({"layer": layer, "area_m2": round(p.area, 3),
-                        "points": [[round(x, 4) + 0.0, round(y, 4) + 0.0] for x, y in list(p.exterior.coords)[:-1]]})
+        # 28 Nov 2026 (fix-up, GENERAL-6: a double-line parapet on one layer is a band face whose own area is small):
+        # every face's outer ring counts by the area it encloses; its holes are candidate inner faces
+        seen = set()
+        for p in faces:
+            for ring in [p.exterior] + list(p.interiors):
+                q = Polygon(ring)
+                key = tuple(round(v, 3) for v in q.bounds) + (round(q.area, 2),)
+                if q.area < RING_MIN_M2 or key in seen:
+                    continue
+                seen.add(key)
+                out.append({"layer": layer, "area_m2": round(q.area, 3),
+                            "points": [[round(x, 4) + 0.0, round(y, 4) + 0.0] for x, y in list(ring.coords)[:-1]]})
     return sorted(out, key=lambda r: -r["area_m2"])[:RING_MAX]
 
 
@@ -87,13 +96,13 @@ def choose(candidates: list, below: Optional[Polygon], core: list, shift=(0.0, 0
         return None
     p, c, share = max(ok, key=lambda t: t[0].area)
     inner, thick = None, None
-    for q, d, _s in ok:
-        if q is p or q.area >= p.area or q.area < 0.9 * p.area:
+    for q, d, _s in sorted(ok, key=lambda t: -t[0].area):
+        if q is p or q.area >= p.area or q.area < 0.85 * p.area:
             continue
-        gap = LineString(q.exterior.coords).hausdorff_distance(LineString(p.exterior.coords))
-        if gap <= DOUBLE_M and p.buffer(0.01).contains(q):
-            mean = (p.area - q.area) / max(LineString(p.exterior.coords).length, 1e-9)
-            inner, thick = q, round(max(0.05, min(DOUBLE_M, mean)), 3)
+        # 28 Nov 2026 (fix-up, GENERAL-6): the inner face by its mean offset (a corner is t * sqrt 2 off, never Hausdorff)
+        mean = (p.area - q.area) / max(LineString(p.exterior.coords).length, 1e-9)
+        if 0.0 < mean <= DOUBLE_M and p.buffer(0.01).contains(q):
+            inner, thick = q, round(max(0.05, mean), 3)
             break
     return {"polygon": p, "inner": inner, "thickness": thick, "layer": c["layer"], "near_share": round(share, 3),
             "area_m2": round(p.area, 3)}

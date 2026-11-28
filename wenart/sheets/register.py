@@ -339,6 +339,16 @@ def cut_marks(region, letter: Optional[str] = None) -> Optional[dict]:
         tris = _triangles_near(t.point, segs, closed, reach, side)
         if tris:
             cands.setdefault(word, []).append((t, tris))
+    cache: dict = {}
+
+    def tight():
+        """The building's outline without its annotation layers (dimensions, axes, texts, hatches): the letters of a cut
+        stand outside it (round 5b fix-up, SECTIONS-3)."""
+        if "p" not in cache:
+            ann = {e.id for e in region.ents if e.layer and ANNOTATION_LAYER_RE.search(T.fold(e.layer))}
+            cache["p"] = outline(region, mpu, excl | ann)
+        return cache["p"]
+
     best = None
     for jog in (False, True):
         # 27 Nov 2026 (audit fix round 5b, R22: real10's 'A' marks stand 2.4 m apart across the cut, a jogged cut line,
@@ -359,7 +369,8 @@ def cut_marks(region, letter: Optional[str] = None) -> Optional[dict]:
                         continue                      # a straight pair: found in the first pass
                     axis = 0 if dx >= dy else 1
                     lo, hi = sorted((pa[axis], pb[axis]))
-                    if (lo > bx[axis] + beyond or hi < bx[axis + 2] - beyond) and not _outside_both(poly, pa, pb, axis):
+                    if (lo > bx[axis] + beyond or hi < bx[axis + 2] - beyond) and \
+                            not _outside_both(poly, pa, pb, axis, beyond, tight() or poly):
                         continue                          # not on both sides of the building
                     if jog:
                         sgn = 1.0 if pb[axis] >= pa[axis] else -1.0
@@ -388,10 +399,15 @@ def cut_marks(region, letter: Optional[str] = None) -> Optional[dict]:
 CUT_MARK_SPAN_SHARE = 0.8        # 27 Nov 2026 (round 5b): ... or apart along the cut by this share of the outline's extent
 
 
-def _outside_both(poly, pa, pb, axis: int) -> bool:
-    """27 Nov 2026 (audit fix round 5b, R22: real10's bottom 'A' stands at its facade line, 2 m inside the outline's box
-    that a pointed bay, steps and balconies widen): two letters stand on both sides of the building also when they lie on
-    opposite sides of the outline's centre along the cut, at least ``CUT_MARK_SPAN_SHARE`` of the outline's extent apart
+ANNOTATION_LAYER_RE = re.compile(r"DIM|OLCU|AKS|AXIS|GRID|KOT|LEVEL|TEXT|YAZI|ANNO|KESIT|SECTION|TARAMA|HATCH")
+
+
+def _outside_both(poly, pa, pb, axis: int, beyond: float = 0.0, body=None) -> bool:
+    """27 Nov 2026 (audit fix round 5b, R22: real10's bottom 'A' stands at its facade line, inside the outline's box that
+    a pointed bay, steps and balconies widen): two letters stand on both sides of the building also when they lie on
+    opposite sides of the outline's centre along the cut, at least ``CUT_MARK_SPAN_SHARE`` of the outline's extent apart.
+    28 Nov 2026 (fix-up, SECTIONS-3: two 'WC' labels inside a plan made a cut): each letter lies outside the building's
+    body (``body``: the caller's outline without annotation layers, else ``poly``) or within ``beyond`` of its boundary
     (pure; the caller asks for their triangles too)."""
     try:
         c = poly.centroid
@@ -399,7 +415,14 @@ def _outside_both(poly, pa, pb, axis: int) -> bool:
         ext = b[axis + 2] - b[axis]
         ca = (c.x, c.y)[axis]
         da, db = pa[axis] - ca, pb[axis] - ca
-        return ext > 0 and da * db < 0 and abs(pb[axis] - pa[axis]) >= CUT_MARK_SPAN_SHARE * ext
+        if not (ext > 0 and da * db < 0 and abs(pb[axis] - pa[axis]) >= CUT_MARK_SPAN_SHARE * ext):
+            return False
+        inner = body if body is not None else poly
+        for q in (pa, pb):
+            pt = Point(q)
+            if inner.contains(pt) and inner.exterior.distance(pt) > beyond:
+                return False
+        return True
     except Exception:  # noqa: BLE001 - a broken outline gives no cut (the box rule decides)
         return False
 

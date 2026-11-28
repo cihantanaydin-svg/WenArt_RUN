@@ -83,6 +83,43 @@ def test_r22_a_jogged_cut_line_gives_the_cut_axis_and_both_places():
     assert straight is not None and not straight.get("jogged")
 
 
+def _plan_with_bay_and_marks(bottom, top, label="A", interior=False) -> Region:
+    """A 12 x 8 m plan whose south facade (y 0) has a pointed bay (x 4-8, its tip at y -2: it widens the outline's box);
+    the letters ``label`` at ``bottom`` and ``top`` with a triangle each, its base along the cut (x = const), apex +x.
+    ``interior``: the letters stand inside rooms beside a floor-level triangle (two wet rooms' labels, no cut)."""
+    ents = [_line("w1", (0, 0), (4, 0)), _line("w2", (4, 0), (6, -2)), _line("w3", (6, -2), (8, 0)),
+            _line("w4", (8, 0), (12, 0)), _line("w5", (12, 0), (12, 8)), _line("w6", (12, 8), (0, 8)),
+            _line("w7", (0, 8), (0, 0)), _line("w8", (6, 0), (6, 8)), _line("w9", (0, 4), (12, 4))]
+    texts = []
+    for k, (x, y) in enumerate((bottom, top)):
+        pts = [(x + 0.35, y - 0.2), (x + 0.35, y + 0.2), (x + 0.35 + 0.3464, y)]
+        ents += [_line(f"t{k}a", pts[0], pts[1]), _line(f"t{k}b", pts[1], pts[2]), _line(f"t{k}c", pts[2], pts[0])]
+        texts.append(_txt(f"m{k}", label, x, y, 0.3))
+    return Region(id="r9", file="x.dxf", sheet=_sheet(), box=(-5, -5, 17, 13), geometry_box=(-5, -5, 17, 13), ents=ents,
+                  texts=texts, metres_per_unit=1.0, transform_to_building=[1.0, 0.0, 0.0, 0.0, 1.0, 0.0])
+
+
+def test_r22_cut_letters_stand_outside_the_outline_never_two_labels_inside_it():
+    """Round 5b fix-up (SECTIONS-3): a letter at the facade line inside the outline's box (a pointed bay widens it) is a
+    cut mark when it stands outside the outline polygon; two labels inside the plan, each by a floor-level triangle, on
+    opposite sides of the centre, are no cut."""
+    from wenart.sheets import register as RG
+    sec = SimpleNamespace(title={"text": "KESİT"})
+    cut = RG.cut_line([_plan_with_bay_and_marks((2.0, -0.6), (2.0, 9.6))], sec)
+    assert cut is not None and cut["axis"] == "y" and cut["letter"] == "A"
+    assert cut["view"] == [1.0, 0.0]
+    # two 'WC' labels 1.15 m inside the end walls, on one line across the plan and 0.8 of its extent apart
+    inside = RG.cut_line([_plan_with_bay_and_marks((1.15, 6.0), (10.85, 6.0), label="WC")], sec)
+    assert inside is None
+    # the pure test: each letter outside the polygon or within the beyond band of its boundary
+    from shapely.geometry import Polygon
+    poly = Polygon([(0, 0), (4, 0), (6, -2), (8, 0), (12, 0), (12, 8), (0, 8)])
+    assert RG._outside_both(poly, (2.0, -0.6), (2.0, 9.6), 1, 1.0) is True
+    assert RG._outside_both(poly, (1.15, 6.0), (10.85, 6.0), 0, 1.0) is False
+    assert RG._outside_both(poly, (0.5, 6.0), (11.5, 6.0), 0, 1.0) is True       # within the band of the end walls
+    assert RG._outside_both(poly, (-0.5, 6.0), (10.85, 6.0), 0, 1.0) is False    # one letter inside the plan
+
+
 # --------------------------------------------------------------------------------------------------------------------
 # R22: a copied storey against the section
 # --------------------------------------------------------------------------------------------------------------------
@@ -154,21 +191,120 @@ def test_r22_rooms_over_a_double_height_space_are_not_built_on_the_copy(flipped)
     assert rec["dropped"][0]["room"] == "r_L0_stair"
 
 
-def test_r22_the_pipeline_lists_what_the_section_says_and_waits_for_the_user():
-    """The score gate (a correction of the user asks for a stair on a copied storey the section draws as a
-    double-height hall): the pipeline's default lists the section's verdict and changes nothing (``ACT``)."""
+def _corrections_file(tmp_path, rows):
+    import json
+    path = tmp_path / "reading_corrections.jsonl"
+    path.write_text("\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8")
+    return path
+
+
+def test_r22_the_section_acts_but_a_users_correction_on_the_storey_vetoes_the_whole_stretch(tmp_path, monkeypatch):
+    """Fix-up (SECTIONS-4): R22 acts (``ACT``); a double-height stretch holding anything a correction of the user asserts
+    present on that copied storey is left whole as it is (the room, its stair, its openings), listed as a conflict naming
+    the correction; a correction of another project, another storey or a brief input vetoes nothing."""
     from wenart.sheets import typical_check as TCK
-    assert TCK.ACT is False
+    assert TCK.ACT is True
+    orig = TCK.user_assertions
+
+    def run(rows):
+        path = _corrections_file(tmp_path, rows)
+        monkeypatch.setattr(TCK, "user_assertions", lambda project, lid, path_=None: orig(project, lid, path))
+        b = _copied_block()
+        b["project"] = {"id": "pX"}
+        warns, conflicts = [], []
+        build = SimpleNamespace(building=b, sheets=_sheets(), frame_shift=(0.0, 0.0), warn=warns.append,
+                                conflict=lambda *a: conflicts.append(a))
+        return b, TCK.apply(build), warns, conflicts
+
+    # no correction: the section wins, every removal carries the section crop's evidence
+    b, rec, warns, conflicts = run([])
+    assert rec["acted"] is True and [d["room"] for d in rec["dropped"]] == ["r_L0_stair"]
+    assert "r_L0_stair" not in {r["id"] for r in b["rooms"]} and not rec.get("vetoed")
+    assert rec["dropped"][0]["evidence"]["rule"] == "typical_vs_section"
+    # the user asserts the stair on L0 (its place on the stair): nothing of the stretch changes
+    row = {"id": "C9", "project": "pX", "status": "accepted", "level": "L0", "place": {"x": 5.5, "y": 2.0},
+           "user_words": "the stair is here"}
+    b, rec, warns, conflicts = run([row])
+    before = _copied_block()
+    assert {r["id"] for r in b["rooms"]} == {r["id"] for r in before["rooms"]}
+    assert {o["id"] for o in b["openings"]} == {o["id"] for o in before["openings"]}
+    assert next(f for f in b["furniture"] if f["id"] == "f_L0_stair").get("build") is not False
+    assert rec["dropped"] == [] and rec["stairs"] == []
+    assert {c for v in rec["vetoed"] for c in v["corrections"]} == {"C9"}
+    assert any("left as it is" in w and "C9" in w for w in warns)
+    assert any("C9" in a[2] for a in conflicts)
+    # the correction's place in the room, away from its stair: the stair of the kept room stays too (no partial removal)
+    b, rec, _w, _c = run([dict(row, place={"x": 4.2, "y": 3.8})])
+    assert "r_L0_stair" in {r["id"] for r in b["rooms"]} and rec["stairs"] == []
+    assert next(f for f in b["furniture"] if f["id"] == "f_L0_stair").get("build") is not False
+    # a correction of another project, another storey, or a brief input: the section acts
+    for other in (dict(row, project="pY"), dict(row, level="L1"), dict(row, truth_role="brief_input"),
+                  dict(row, status="rejected")):
+        b, rec, _w, _c = run([other])
+        assert [d["room"] for d in rec["dropped"]] == ["r_L0_stair"], other
+
+
+def test_r22_user_assertions_read_the_corrections_and_their_elements(tmp_path):
+    from wenart.sheets import typical_check as TCK
+    rows = [{"id": "C1", "project": "pX", "status": "accepted", "level": "L0", "place": {"x": 1.0, "y": 2.0}},
+            {"id": "C2", "project": "pX", "status": "accepted", "level": "L2",
+             "truth_action": {"elements": [{"op": "add", "level": "L0", "center": [3.0, 4.0],
+                                            "polygon": _rect(2, 3, 4, 5)},
+                                           {"op": "remove", "level": "L0", "center": [9.0, 9.0]}]}}]
+    got = TCK.user_assertions("pX", "L0", _corrections_file(tmp_path, rows))
+    assert [(a["id"], a["points"]) for a in got] == [("C1", [(1.0, 2.0)]), ("C2", [(3.0, 4.0)])]
+    assert got[1]["polygons"] == [_rect(2, 3, 4, 5)]
+    assert TCK.user_assertions(None, "L0", _corrections_file(tmp_path, rows)) == []
+
+
+def test_r22_the_frame_stands_on_the_copied_storeys_own_outline():
+    """Fix-up (SECTIONS-5): a basement longer than the storeys the section's walls bound does not move the stretch; a
+    section whose ends lie more than ``END_TOL_M`` from the storey's facades is not placed."""
+    from wenart.sheets import typical_check as TCK
     b = _copied_block()
-    before = copy.deepcopy(b)
-    warns, conflicts = [], []
-    build = SimpleNamespace(building=b, sheets=_sheets(), frame_shift=(0.0, 0.0), warn=warns.append,
-                            conflict=lambda *a: conflicts.append(a))
-    rec = TCK.apply(build)
-    assert rec["acted"] is False and [d["room"] for d in rec["dropped"]] == ["r_L0_stair"]
-    assert {k: b[k] for k in before} == before
-    assert any("listed, not carried out" in w for w in warns) and conflicts
-    assert b["level_inference"]["typical_checks"]["acted"] is False
+    b["levels"].insert(0, {"id": "L-1", "order": -1, "elevation": -3.0, "ceiling_height": 2.7, "label": "L-1",
+                           "evidence": [{"file": "x.dxf"}]})
+    b["walls"] += _walls("L-1", 0, -3.0, 10, 15.0)                           # 6 m longer along the cut
+    b["rooms"].append(_room("r_Lm1_hall", "L-1", _rect(0, -3.0, 10, 15.0), "hall"))
+    rec = TCK.check(b, _sheets())
+    assert [d["room"] for d in rec["dropped"]] == ["r_L0_stair"]
+    # the section 1 m wider than the storey: each end 0.5 m off its facade: not checked
+    sh = _sheets()
+    sh["heights"]["section_evidence"]["s_width"] = 13.2
+    b2 = _copied_block()
+    rec2 = TCK.check(b2, sh)
+    assert rec2["dropped"] == [] and any("cannot be placed" in n for n in rec2["notes"])
+
+
+def test_r22_a_split_level_is_no_double_height_space():
+    """Fix-up (SECTIONS-6): where the section draws the copy's floor at another height over the stretch (its own slab
+    lines, a split level or a sunken floor), nothing is removed."""
+    from wenart.sheets import typical_check as TCK
+    sh = _sheets()
+    sh["heights"]["section_evidence"]["bands"][0]["near_slabs"] = [{"s": [0.0, 4.0], "z": -0.45}]
+    b = _copied_block()
+    rec = TCK.check(b, sh)
+    dh = rec["checked"][0]["double_height"]
+    assert rec["dropped"] == [] and dh and dh[0]["used"] is False and "split level" in dh[0]["why"]
+
+
+def test_r22_section_evidence_reads_a_lower_slab_beside_the_band():
+    """The section's own lines of a floor 0.45 m under the band (a split level) are the band's ``near_slabs``."""
+    from wenart.sheets import heights as HT
+    from wenart.sheets import section_evidence as SEV
+    ents = []
+    for k, (a, b_) in enumerate([((0, -1.5), (0, 9.0)), ((12, -1.5), (12, 9.0)), ((0.25, -1.5), (0.25, 9.0)),
+                                 ((11.75, -1.5), (11.75, 9.0)), ((0, -0.3), (7, -0.3)), ((0, 0.0), (7, 0.0)),
+                                 ((7, -0.75), (12, -0.75)), ((7, -0.45), (12, -0.45)), ((7, -0.45), (7, 0.0))]):
+        ents.append(_line(f"l{k}", a, b_))
+    for k, y in enumerate((2.7, 5.7, 8.7)):
+        ents += [_line(f"f{k}a", (0, y), (12, y)), _line(f"f{k}b", (0, y + 0.3), (12, y + 0.3))]
+    reg = Region(id="r1", file="x.dxf", sheet=_sheet(), box=(-5, -5, 20, 15), geometry_box=(-5, -5, 20, 15), ents=ents,
+                 texts=[], metres_per_unit=1.0, transform_to_building=None)
+    sec = HT.read_section(reg, 1.0)
+    ev = SEV.read(sec, {"_bands": [(sec.bands[0][0], sec.bands[0][1])]}, {"axis": "y", "at": 5.0, "flipped": False})
+    near = ev["bands"][0].get("near_slabs") or []
+    assert near and min(q["s"][0] for q in near) <= 7.5 and max(q["s"][1] for q in near) >= 11.0
 
 
 def test_r22_nothing_changes_when_the_section_does_not_say_so_clearly():
@@ -239,6 +375,134 @@ def test_the_build_keeps_a_clipped_opening_and_cuts_none_for_a_stair_that_does_n
     assert len(rec2["voids"]) == 1 and not any("widened" in a for a in rec2["assumed"])
 
 
+def test_stair_opening_counts_uncovered_area_as_open_and_keeps_a_closed_room_inside_it_as_a_hole():
+    """Fix-up (SLABS-1, SLABS-3): the part of the opening no room covers is open (a stair well); 'does not stack' needs
+    closed rooms over more than half of it; a closed room inside the opening is cut round (no hole quietly open)."""
+    from shapely.geometry import Polygon
+    from shapely.ops import unary_union
+    from wenart.sheets import to_building as TB
+    # a 2 m2 bedroom strip over an 8 m2 opening, the rest in no room: the strip is clipped, the well stays open
+    fit = TB.void_fit(_rect(1, 1, 5, 3), "L1", [_room("r_L1_bed", "L1", _rect(4, 0, 6, 4), "bedroom")])
+    assert fit["stacks"] is True and fit["clipped"] == ["r_L1_bed"] and fit["open_m2"] == pytest.approx(6.0, abs=0.05)
+    assert Polygon(fit["polygon"]).area == pytest.approx(6.0, abs=0.05)
+    # a 1 m2 WC inside a 24 m2 opening: the opening is the rest, in pieces without holes
+    fit2 = TB.void_fit(_rect(0, 0, 6, 4), "L1", [_room("r_L1_wc", "L1", _rect(2, 1.5, 3, 2.5), "wc")])
+    polys = [Polygon(q) for q in fit2["polygons"]]
+    assert fit2["clipped"] == ["r_L1_wc"] and len(polys) >= 2 and all(not q.interiors for q in polys)
+    assert unary_union(polys).area == pytest.approx(23.0, abs=0.1)
+    assert not unary_union(polys).intersects(Polygon(_rect(2.05, 1.55, 2.95, 2.45)))
+    # a store near the opening's edge: no piece of the opening round it is lost (its narrow side piece is 0.38 m2)
+    fit3 = TB.void_fit(_rect(0, 0, 6, 4), "L1", [_room("r_L1_depo", "L1", _rect(0.05, 0.2, 0.95, 3.8), "storage")])
+    u3 = unary_union([Polygon(q) for q in fit3["polygons"]])
+    assert fit3["clipped"] == ["r_L1_depo"] and u3.area == pytest.approx(24.0 - 0.9 * 3.6, abs=0.05)
+
+
+def test_open_plan_kitchens_generic_rooms_garages_and_stores_close_an_opening_only_where_their_walls_cross_it():
+    """Fix-up (SLABS-5): an open-plan kitchen, a generic 'ODA', a garage or a store is a common arrival: it closes the
+    opening only where one of its edges (a wall) crosses the flights."""
+    from wenart.sheets import to_building as TB
+    for rtype, label in (("kitchen", "MUTFAK-SALON"), ("bedroom", "ODA"), ("garage", "GARAJ"), ("storage", "DEPO")):
+        whole = [_room("r_L1_x", "L1", _rect(0, 0, 8, 6), rtype, label)]
+        fit = TB.void_fit(_rect(1, 1, 5, 3), "L1", whole)
+        assert fit["stacks"] is True and fit["closed"] == [], (rtype, label)
+        # its wall crosses the flights (the room covers only half the opening): closed there
+        half = [_room("r_L1_x", "L1", _rect(3, 0, 8, 6), rtype, label)]
+        assert TB.void_fit(_rect(1, 1, 5, 3), "L1", half)["closed"] == ["r_L1_x"], (rtype, label)
+    # a closed kitchen (no open-plan word) closes it
+    assert TB.void_fit(_rect(1, 1, 5, 3), "L1", [_room("r_L1_k", "L1", _rect(0, 0, 8, 6), "kitchen",
+                                                       "MUTFAK")])["stacks"] is False
+
+
+def _flight_stair(fid="f_L0_1", level="L0", x=1.0, y0=0.5):
+    """One straight flight along +y at ``x``, 1.0 m wide, from ``y0`` (17 lines, 0.25 m going: 4 m)."""
+    return {"id": fid, "level_id": level, "type": "stair", "room_id": f"r_{level}_hall", "source": "from_documents",
+            "footprint": {"center": [x, y0 + 2.0], "size": [1.0, 4.2], "rotation_deg": 0.0}, "build": True,
+            "stair": {"flights": [{"start": [x, y0], "end": [x, y0 + 4.0], "width": 1.0, "lines": 17,
+                                   "spacing": 0.25}],
+                      "direction": [0.0, 1.0], "direction_assumed": False, "turn": "straight", "turn_assumed": False,
+                      "void_assumed": True, "riser_m": None, "riser_source": None, "reason": "test"}}
+
+
+def _slab_case(rooms_l1, furniture=None):
+    from shapely.geometry import box
+    from wenart.sheets import to_building as TB
+    levels = [{"id": "L0", "order": 0, "elevation": 0.0, "ceiling_height": 2.8},
+              {"id": "L1", "order": 1, "elevation": 3.0, "ceiling_height": 2.8}]
+    unions = {"L0": box(-0.1, -0.1, 8.1, 6.1), "L1": box(-0.1, -0.1, 8.1, 6.1)}
+    furn = furniture or [_flight_stair()]
+    rooms = [_room("r_L0_hall", "L0", _rect(0, 0, 8, 6), "hall")] + rooms_l1
+    warns = []
+    slabs = TB.slabs_block({"heights": {}}, levels, unions, furn, 0.2, warns.append, rooms=rooms)
+    b = {"levels": levels, "furniture": furn, "slabs": slabs, "rooms": rooms, "openings": [],
+         "walls": _walls("L0", -0.1, -0.1, 8.1, 6.1) + _walls("L1", -0.1, -0.1, 8.1, 6.1)}
+    return b, warns
+
+
+def test_slabs_block_blocks_a_stair_that_does_not_stack_and_the_checks_see_it():
+    """Fix-up (SLABS-2, integration): a stair under a bedroom of the plan above gets no opening, is blocked (the level
+    above cannot be reached by it): the slab lists it, RC17 raises it as critical, M9 judges the stair cut off and the
+    build-time fix leaves it open (never 'fixed')."""
+    from wenart.blender import stair_access as SA
+    from wenart.reading_check import structure as ST
+    b, warns = _slab_case([_room("r_L1_bed", "L1", _rect(0, 0, 4, 6), "bedroom"),
+                           _room("r_L1_hall", "L1", _rect(4, 0, 8, 6), "hall")])
+    f = b["furniture"][0]
+    sl = next(x for x in b["slabs"] if x["id"] == "sl_L1")
+    assert f["stair_blocked"]["level_above"] == "L1" and f["stair_blocked"]["closed_rooms"] == ["r_L1_bed"]
+    assert sl["openings"] == [] and sl["stairs_not_stacked"][0]["stair"] == "f_L0_1"
+    assert any("does not stack" in w for w in warns)
+    rc = ST.stairs_blocked(b)
+    assert [(x["rule"], x["severity"]) for x in rc] == [("stair_blocked", "critical")]
+    assert "cannot be reached" in rc[0]["message"]
+    m9 = SA.walk_review(b)
+    assert [(x["stair"], x["ok"]) for x in m9["stairs"]] == [("f_L0_1", False)]
+    assert "cannot be reached" in SA.cut_off_text(m9["stairs"][0])
+    assert [(x["stair"], x["status"]) for x in SA.fix_arrivals(b)["stairs"]] == [("f_L0_1", "open")]
+    # Argus's sense (N3): with an entrance on L0, the level above is reached by no stair
+    from wenart.audit import sense as AS
+    b["openings"] = [{"id": "d_in", "level_id": "L0", "type": "door", "wall_id": "w_L0_001", "width": 0.9,
+                      "center": [6.0, -0.1]}]
+    b["walls"].append({"id": "w_L1_mid", "level_id": "L1", "start": [4, 0], "end": [4, 6], "thickness": 0.1})
+    b["openings"].append({"id": "d_bed", "level_id": "L1", "type": "door", "wall_id": "w_L1_mid", "width": 0.9,
+                          "center": [4.0, 5.0]})
+    assert ("N3", "critical") in [(x["check"], x["severity"]) for x in AS.audit(b)["findings"]]
+    # the plan above draws a hall there: the stair stacks again and the stale block is cleared on a re-read
+    b2, _w = _slab_case([_room("r_L1_hall", "L1", _rect(0, 0, 8, 6), "hall")], furniture=b["furniture"])
+    assert "stair_blocked" not in b2["furniture"][0]
+    assert [o["kind"] for o in next(x for x in b2["slabs"] if x["id"] == "sl_L1")["openings"]] == ["stair_void"]
+
+
+def test_a_clipped_opening_reports_the_headroom_over_the_flights_left_under_the_slab():
+    """Fix-up (SLABS-4): a bathroom over the top of the flight: the opening is clipped and says how much clear height
+    the flights under the bathroom keep (under 2.00 m: RC17 stair_headroom)."""
+    from shapely.geometry import Polygon
+    from wenart.reading_check import structure as ST
+    b, warns = _slab_case([_room("r_L1_hall", "L1", _rect(0, 0, 8, 3.6), "hall"),
+                           _room("r_L1_bath", "L1", _rect(0, 3.6, 3, 6), "bathroom")])
+    sl = next(x for x in b["slabs"] if x["id"] == "sl_L1")
+    o = sl["openings"][0]
+    assert o["clipped_rooms"] == ["r_L1_bath"] and o["headroom_short"] is True and o["headroom_m"] < 0.5
+    assert Polygon(o["polygon"]).bounds[3] <= 3.6 + 1e-6
+    assert "clear height" in o["reason"] and any("clear height" in w for w in warns)
+    assert [(x["rule"], x["severity"]) for x in ST.stairs_blocked(b)] == [("stair_headroom", "major")]
+
+
+def test_the_same_stair_offset_on_the_level_above_is_a_registration_finding_and_keeps_the_opening():
+    """Fix-up (SLABS-4, real19 L2): the plan above draws the same stair 1.70 m off (its levels registered off): the
+    opening over the stair below is kept, a registration finding (RC17 major), never a blocked stair."""
+    from wenart.reading_check import structure as ST
+    up = _flight_stair("f_L1_1", "L1", x=2.7)
+    b, warns = _slab_case([_room("r_L1_bed", "L1", _rect(0, 0, 2.2, 6), "bedroom"),
+                           _room("r_L1_hall", "L1", _rect(2.2, 0, 8, 6), "hall")], furniture=[_flight_stair(), up])
+    f = b["furniture"][0]
+    sl = next(x for x in b["slabs"] if x["id"] == "sl_L1")
+    assert "stair_blocked" not in f
+    ops = [o for o in sl["openings"] if o.get("furniture_id") == "f_L0_1"]
+    assert ops and ops[0]["registration"]["stair"] == "f_L1_1" and ops[0]["registration"]["offset_m"] == 1.7
+    assert any("registered off" in w for w in warns)
+    assert ("stair_registration", "major") in [(x["rule"], x["severity"]) for x in ST.stairs_blocked(b)]
+
+
 # --------------------------------------------------------------------------------------------------------------------
 # R07: section roof heights in a rejected frame, slopes in degrees, marks snapped, written pitch vs drawn heights
 # --------------------------------------------------------------------------------------------------------------------
@@ -258,8 +522,10 @@ def test_r07e_roof_heights_go_with_rejected_storey_heights():
 
 @pytest.mark.parametrize("text,roof,pct,unit", [
     ("EĞİM 30°", False, 57.735, "degrees"), ("EĞİM 30 DERECE", False, 57.735, "degrees"), ("30°", True, 57.735, "degrees"),
-    ("EĞİM 30", False, 30.0, "percent"), ("EĞİM:35", False, 35.0, "percent"), ("EĞİM 7", False, 12.278, "degrees"),
-    ("%30 EĞİM", False, 30.0, "percent")])
+    ("EĞİM 30", False, 30.0, "percent"), ("EĞİM:35", False, 35.0, "percent"), ("%30 EĞİM", False, 30.0, "percent"),
+    # fix-up (SECTIONS-7): a bare number is per cent over its whole range: 9.9 is flatter than 10, never 17 %
+    ("EĞİM 7", False, 7.0, "percent"), ("EĞİM 9.9", True, 9.9, "percent"), ("EĞİM 10", True, 10.0, "percent"),
+    ("RAMP SLOPE 8", False, 8.0, "percent")])
 def test_r07f_written_slopes_in_degrees_and_bare_numbers(text, roof, pct, unit):
     from wenart.sheets import titles as T
     rd = T.slope_reading(text, roof)
@@ -271,6 +537,42 @@ def test_r07f_no_slope_from_a_bare_angle_off_a_roof_plan_or_a_length():
     from wenart.sheets import titles as T
     assert T.slope_pct("30°", roof=False) is None and T.slope_pct("EĞİM 30 cm", roof=True) is None
     assert T.slope_pct("EĞİM 2", roof=True) is None and T.slope_reading("EĞİM 2 m") is None
+    # fix-up (SECTIONS-7): every length word, and a plan's 45 or 90 degree angle, is no slope
+    for text in ("EĞİM 30 MT", "EĞİM 30 METRE", "EĞİM 30 mt", "SLOPE 12 METERS", "EĞİM 12 M2", "EĞİM 30 ADET"):
+        assert T.slope_reading(text, roof=True) is None, text
+    assert T.slope_reading("45°", roof=True) is None and T.slope_reading("90°", roof=True) is None
+    assert T.slope_reading("EĞİM 45°", roof=True)["deg"] == 45.0          # a slope word says it is a pitch
+    # monotonic: a larger bare number is never a flatter roof
+    vals = [T.slope_pct(f"EĞİM {v}") for v in (5, 7, 9.5, 9.99, 10, 12, 30, 60)]
+    assert vals == sorted(vals)
+
+
+def test_r07f_a_bare_angle_votes_only_inside_the_eaves_loop_and_never_on_a_dimension_layer():
+    """Fix-up (SECTIONS-7): two '45°' angles at the corners of a roof plan (or any bare angle on a dimension layer) never
+    outvote its two '%30' slope texts."""
+    from wenart.sheets import exterior as EX
+    from wenart.sheets import titles as T
+
+    def plan(texts, layer=None):
+        ents = [_line("h1", (0, 0), (4, 4)), _line("h2", (20, 0), (16, 4)), _line("h3", (0, 12), (4, 8)),
+                _line("h4", (20, 12), (16, 8))]
+        txts = []
+        for k, (t, x, y) in enumerate(texts):
+            tx = _txt(f"s{k}", t, x, y)
+            if layer and "°" in t:
+                tx.layer = layer
+            txts.append(tx)
+        return Region(id="r4", file="x.dxf", sheet=_sheet(), box=(0, -1, 20, 12), geometry_box=(0, -1, 20, 12),
+                      ents=ents, texts=txts, metres_per_unit=1.0, features={"hip_lines": 4}, cls="roof_plan",
+                      use="exterior")
+    corners = [("45°", 0.5, 0.5), ("45°", 19.5, 11.5)]
+    hip = EX.roof_from_roof_plan([plan([("%30 EĞİM", 3, 6), ("%30 EĞİM", 17, 6)] + corners)])
+    assert hip is not None and hip["slope_pct"] == 30.0
+    # a bare 35 degree angle on a dimension layer: listed, not counted
+    dims = [("35°", 0.5, 0.5), ("35°", 19.5, 11.5), ("35°", 10, 6)]
+    hip2 = EX.roof_from_roof_plan([plan([("%30 EĞİM", 3, 6), ("%30 EĞİM", 17, 6)] + dims, layer="OLCU")])
+    assert hip2 is not None and hip2["slope_pct"] == 30.0 and "dimension layer" in hip2["note"]
+    assert T.slope_reading("35°", roof=True)["form"] == "bare angle"
 
 
 def _section(marks):
@@ -288,10 +590,10 @@ def _section(marks):
 def test_r07d_eaves_and_ridge_snap_to_the_sections_own_printed_marks():
     from wenart.sheets import heights as HT
     levels = [{"id": "L0", "order": 0, "kind": "floor"}, {"id": "L1", "order": 1, "kind": "floor"}]
-    g = _section([("±0.00", 0.0, 0.0), ("+5.80", 5.80, 5.75), ("+7.45", 7.45, 7.40)])
+    g = _section([("±0.00", 0.0, 0.0), ("+5.80", 5.80, 5.75), ("+7.50", 7.50, 7.45)])
     out, _w = HT.heights(g, levels, None, {}, "x.dxf", lambda *a, **k: "c1", None)
     assert out["roof"]["eaves_z"]["value"] == pytest.approx(5.80) and "snapped" in out["roof"]["eaves_z"]["note"]
-    assert out["roof"]["ridge_z"]["value"] == pytest.approx(7.30)        # +7.45 is 0.15 m off: not snapped
+    assert out["roof"]["ridge_z"]["value"] == pytest.approx(7.30)        # +7.50 is 0.20 m off: not snapped
     g2 = _section([("±0.00", 0.0, 0.0), ("+7.40", 7.40, 7.35)])
     out2, _w = HT.heights(g2, levels, None, {}, "x.dxf", lambda *a, **k: "c1", None)
     assert out2["roof"]["ridge_z"]["value"] == pytest.approx(7.40)
@@ -314,12 +616,49 @@ def _roof(eaves, ridge, pct):
             "ridge_lines": [[[-0.5, 5.0], [20.5, 5.0]]]}
 
 
+def _roof_drawn(eaves, ridge, pct, profile=None, plan_ridge=False, outline=None):
+    """``_roof`` with the section's own profile (cut across the ridge), the ridge height from the roof plan's mark, or
+    another outline."""
+    r = _roof(eaves, ridge, pct)
+    if profile:
+        r["profile"] = {"region_id": "r5", "cut_axis": "y", "points": profile, "method": "vector"}
+    if plan_ridge:
+        r["ridge_height"]["evidence"] = [{"rule": "roof_plan_mark", "region_id": "r4"}]
+    if outline:
+        r["outline"] = outline
+    return r
+
+
+L_OUTLINE = [[-0.5, -0.5], [20.5, -0.5], [20.5, 10.5], [10, 10.5], [10, 4], [-0.5, 4]]
+
+
 def test_r07g_drawn_heights_win_when_their_pitch_is_plausible():
     from wenart.blender import roof as RF
     b = _roof_building()
     d = RF.derive(_roof(5.8, 7.8, 60.0), b)          # drawn 20.8 deg, written 31 deg: the drawn heights win
     assert d["eaves_z"] == pytest.approx(5.8) and d["ridge_z"] == pytest.approx(7.8, abs=0.01)
     assert any("drawn heights win" in w for w in d["warnings"])
+    # fix-up (SECTIONS-2): an L outline (it does not fill its rectangle) and no drawn profile: the span is unknown, the
+    # written pitch is not judged (no conflict, a note)
+    dl = RF.derive(_roof_drawn(5.8, 7.8, 60.0, outline=L_OUTLINE), b)
+    assert not any("R07 g" in w for w in dl["warnings"]) and any("not judged" in n for n in dl["notes"])
+    assert dl["pitches"][0] == pytest.approx(30.96, abs=0.01)
+    # ... with the section's profile its own run is the span (5.5 m: 20 degrees, the drawn heights win)
+    dp = RF.derive(_roof_drawn(5.8, 7.8, 60.0, profile=[[0, 5.8], [5.5, 7.8], [11, 5.8]], outline=L_OUTLINE), b)
+    assert any("give 20.0 degrees: the drawn heights win" in w for w in dp["warnings"])
+
+
+def test_r07g_drawn_rafters_that_agree_with_the_text_say_one_roof_over_several():
+    """Fix-up (SECTIONS-2, real06): the section's own rafters draw the written pitch: the one roof's span is the wrong
+    reading (several drawn roofs), the written pitch and the drawn eaves stay, listed."""
+    from wenart.blender import roof as RF
+    b = _roof_building()
+    prof = [[0, 5.0], [3.0, 6.0], [4.0, 7.55], [5.5, 7.55], [11, 5.0]]      # a rafter of 18.4 degrees from the eaves
+    d = RF.derive(_roof_drawn(5.0, 7.55, 33.0, profile=prof), b)
+    assert d["pitches"][0] == pytest.approx(18.26, abs=0.01) and d["eaves_z"] == pytest.approx(5.0)
+    assert any("one roof over several drawn roofs (multi-part roofs not built)" in w and "rafters draw 18.4" in w
+               for w in d["warnings"])
+    assert not any(w.startswith("conflict") for w in d["warnings"])
 
 
 def test_r07g_a_ridge_mark_that_cannot_stand_with_the_full_storeys_eaves_is_the_wrong_reading():
@@ -329,6 +668,14 @@ def test_r07g_a_ridge_mark_that_cannot_stand_with_the_full_storeys_eaves_is_the_
     assert d["eaves_z"] == pytest.approx(5.8)
     assert d["pitches"][0] == pytest.approx(16.7, abs=0.1) and d["ridge_z"] > 6.4 + 0.5
     assert any("wrong reading" in w for w in d["warnings"])
+    # fix-up (SECTIONS-1, real15): the roof plan's ridge mark and the section's ridge agree: the ridge is right, the one
+    # roof's span is the wrong reading: the drawn eaves and ridge are kept, listed, never a conflict on the ridge
+    prof = [[0, 5.8], [5.5, 6.4], [11, 5.8]]
+    d2 = RF.derive(_roof_drawn(5.8, 6.4, 30.0, profile=prof, plan_ridge=True), b)
+    assert d2["eaves_z"] == pytest.approx(5.8) and d2["ridge_z"] == pytest.approx(6.4, abs=0.01)
+    assert any("one roof over several drawn roofs" in w and "agree" in w for w in d2["warnings"])
+    assert not any("wrong reading (another roof part" in w for w in d2["warnings"])
+    assert any(a.get("value") == "multi_part_roof" for a in d2["assumed"])
 
 
 def test_r07g_the_written_pitch_wins_with_the_drawn_ridge_when_the_eaves_may_come_down():
@@ -356,21 +703,94 @@ def _two_rooms(rise: float, low_type="garage", width=0.8, low_depth=4.0):
     return b, steps
 
 
+def _outward_faces(verts, faces) -> list:
+    """For each face of a closed convex mesh: does its winding (Newell normal) point away from the mesh's centre?"""
+    cx = sum(v[0] for v in verts) / len(verts)
+    cy = sum(v[1] for v in verts) / len(verts)
+    cz = sum(v[2] for v in verts) / len(verts)
+    out = []
+    for f in faces:
+        n = [0.0, 0.0, 0.0]
+        for i in range(len(f)):
+            a, c = verts[f[i]], verts[f[(i + 1) % len(f)]]
+            n[0] += (a[1] - c[1]) * (a[2] + c[2])
+            n[1] += (a[2] - c[2]) * (a[0] + c[0])
+            n[2] += (a[0] - c[0]) * (a[1] + c[1])
+        fc = [sum(verts[k][j] for k in f) / len(f) for j in range(3)]
+        out.append(n[0] * (fc[0] - cx) + n[1] * (fc[1] - cy) + n[2] * (fc[2] - cz) > 0)
+    return out
+
+
 def test_steps_are_built_in_the_lower_room_and_a_garage_vehicle_door_gets_a_ramp():
+    from shapely.geometry import Polygon
     from wenart.blender import shell as SH
     from wenart.levels import door_steps as DS
     from wenart.levels import rules as RU
     b, steps = _two_rooms(0.35)
     res = DS.place(b, steps, dict(RU.BUILTIN_PARAMS))
-    st = b["openings"][0]["steps"]
+    o = b["openings"][0]
+    st = o["steps"]
     assert res["built"] and st["kind"] == "steps" and st["risers"] == 2 and st["room_id"] == "r_low"
-    assert len(st["blocks"]) == 1 and st["blocks"][0]["z1"] == pytest.approx(-0.175)
-    assert all(p[1] <= 4.0 + 1e-6 for p in st["blocks"][0]["polygon"])          # in front of the door, low side
-    verts, faces = SH.door_step_blocks(b["openings"][0])
-    assert len(verts) == 8 and len(faces) >= 6
-    b2, steps2 = _two_rooms(0.25, width=2.4, low_depth=6.0)
-    DS.place(b2, steps2, dict(RU.BUILTIN_PARAMS))
-    assert b2["openings"][0]["steps"]["kind"] == "ramp"
+    assert "blocks" not in st and st["side"] == -1.0 and st["wall_id"] == "w_mid"      # relative to the door
+    blocks = DS.plan_blocks(o)
+    assert len(blocks) == 1 and blocks[0]["z1"] == pytest.approx(-0.175) and blocks[0]["z0"] == pytest.approx(-0.35)
+    assert all(q[1] <= 4.0 + 1e-6 for q in blocks[0]["polygon"])                # in front of the door, low side
+    assert Polygon(blocks[0]["polygon"]).area == pytest.approx(0.8 * st["tread"], abs=1e-6)
+    verts, faces = SH.door_step_blocks(o)
+    assert len(verts) == 8 and len(faces) >= 6 and all(_outward_faces(verts, faces))
+    # a garage's vehicle door: a ramp 0.25 / 0.12 m long, inside the garage, its faces wound outwards (STEPS-5) with
+    # the garage on either side of the wall
+    for low_depth, flip in ((6.0, False), (6.0, True)):
+        b2, steps2 = _two_rooms(0.25, width=2.4, low_depth=low_depth)
+        if flip:                                       # the wall drawn the other way round
+            w = b2["walls"][0]
+            w["start"], w["end"] = w["end"], w["start"]
+        DS.place(b2, steps2, dict(RU.BUILTIN_PARAMS))
+        o2 = b2["openings"][0]
+        assert o2["steps"]["kind"] == "ramp" and o2["steps"]["run"] == pytest.approx(0.25 / 0.12, abs=1e-3)
+        ramp = DS.plan_blocks(o2)
+        assert len(ramp) == 1 and all(q[1] <= low_depth + 1e-6 for q in ramp[0]["polygon"])
+        v2, f2 = SH.door_step_blocks(o2)
+        assert v2 and all(_outward_faces(v2, f2)), flip
+    # STEPS-6: one garage predicate (levels.model.is_garage_door): a 2.1 m garage door lets no car pass: steps
+    from wenart.ingest.twins import GARAGE_DOOR_MIN_M
+    b3, steps3 = _two_rooms(0.25, width=GARAGE_DOOR_MIN_M - 0.1, low_depth=6.0)
+    DS.place(b3, steps3, dict(RU.BUILTIN_PARAMS))
+    assert b3["openings"][0]["steps"]["kind"] == "steps"
+
+
+def test_steps_follow_their_door_and_never_outlive_a_reinference():
+    """Fix-up (STEPS-1, STEPS-2, GENERAL-4): the plan is relative to the door: a door moved along its wall carries its
+    steps; a door moved to another wall loses them; a re-inference where the floors became flush leaves none behind."""
+    from wenart.levels import door_steps as DS
+    from wenart.levels import rules as RU
+    b, steps = _two_rooms(0.35)
+    DS.place(b, steps, dict(RU.BUILTIN_PARAMS))
+    o = b["openings"][0]
+    xs = [q[0] for q in DS.plan_blocks(o)[0]["polygon"]]
+    assert min(xs) == pytest.approx(1.6) and max(xs) == pytest.approx(2.4)
+    o["center"] = [3.0, 4.1]                            # a later stage moves the door 1 m along its wall
+    xs2 = [q[0] for q in DS.plan_blocks(o)[0]["polygon"]]
+    assert min(xs2) == pytest.approx(2.6) and max(xs2) == pytest.approx(3.4)
+    o["wall_id"] = "w_other"                            # ... or onto another wall: no blocks there
+    assert DS.plan_blocks(o) == []
+    o["wall_id"] = "w_mid"
+    DS.place(b, [], dict(RU.BUILTIN_PARAMS))           # the floors flush now: no inner step record
+    assert "steps" not in b["openings"][0]
+
+
+def test_a_rerun_of_infer_levels_plans_the_steps_again_and_leaves_none_behind():
+    """Integration (GENERAL-4): the level model plans a door's steps (the hall 0.35 m lower); a second run where the
+    floors are flush (the hall's mark gone) leaves no step plan on any opening."""
+    from tests import _levels_fixture  # noqa: F401 - the fixture module the helper below imports
+    from tests.test_audit_round2_20261126 import _two_storeys
+    from wenart.levels import model as M
+    b = M.infer_levels(_two_storeys([("r_living", 0.5), ("r_bed", 0.5), ("r_hall", 0.15)],
+                                    [("r_living", 3.5), ("r_bed", 3.5), ("r_hall", 3.5)]))
+    assert [(o["id"], o["steps"]["room_id"]) for o in b["openings"] if o.get("steps")] == [("d_inner", "r_hall")]
+    b["level_marks"] = [m for m in b["level_marks"] if m.get("room_id") != "r_hall"]
+    b = M.infer_levels(b)
+    assert b["level_inference"]["inner_steps"] == [] and not any(o.get("steps") for o in b["openings"])
 
 
 def test_steps_that_do_not_fit_are_a_finding_not_a_build():
@@ -378,7 +798,74 @@ def test_steps_that_do_not_fit_are_a_finding_not_a_build():
     from wenart.levels import rules as RU
     b, steps = _two_rooms(0.90, low_type="hall", low_depth=0.6)
     res = DS.place(b, steps, dict(RU.BUILTIN_PARAMS))
-    assert res["unbuilt"] and b["openings"][0]["steps"] is None and steps[0]["placed"] is None
+    assert res["unbuilt"] and b["openings"][0].get("steps") is None and steps[0]["placed"] is None
+    assert "does not fit" in steps[0]["reason"]
+
+
+def _corridor_case(with_wc=True, with_stair=True, width=1.0):
+    """A corridor ``width`` wide (floor -0.50) under a room door on its north wall; a WC door on its south wall opposite,
+    a stair at its west end."""
+    b = {"levels": [{"id": "L0", "elevation": 0.0}],
+         "rooms": [dict(_room("r_cor", "L0", _rect(0, 0, 6, width), "hall"), floor_offset_m=-0.5),
+                   _room("r_room", "L0", _rect(0, width + 0.2, 6, 5), "living")],
+         "walls": [{"id": "w_n", "level_id": "L0", "start": [0, width + 0.1], "end": [6, width + 0.1], "thickness": 0.2},
+                   {"id": "w_s", "level_id": "L0", "start": [0, -0.1], "end": [6, -0.1], "thickness": 0.2}],
+         "openings": [{"id": "d_room", "level_id": "L0", "type": "door", "wall_id": "w_n", "width": 0.9,
+                       "center": [1.2, width + 0.1]}],
+         "furniture": []}
+    if with_wc:
+        b["openings"].append({"id": "d_wc", "level_id": "L0", "type": "door", "wall_id": "w_s", "width": 0.8,
+                              "center": [1.2, -0.1]})
+    if with_stair:
+        b["furniture"].append({"id": "f_stair", "level_id": "L0", "type": "stair",
+                               "footprint": {"center": [1.2, width / 2], "size": [0.9, 0.5], "rotation_deg": 0}})
+    return b
+
+
+def test_steps_never_block_another_door_a_stair_or_the_walkway():
+    """Fix-up (STEPS-3): the flight is an obstacle check: on another door's approach, on a stair, or leaving less than a
+    walkway beside it, it is not built (a finding naming what it would block)."""
+    from wenart.levels import door_steps as DS
+    from wenart.levels import rules as RU
+    for kw, word in (({"with_stair": False}, "approach of d_wc"), ({"with_wc": False}, "the stair f_stair")):
+        b = _corridor_case(**kw)
+        steps = [{"opening_id": "d_room", "rise": 0.5, "low_room": "r_cor"}]
+        res = DS.place(b, steps, dict(RU.BUILTIN_PARAMS))
+        assert res["unbuilt"] and not res["built"] and word in steps[0]["reason"], kw
+        assert "steps" not in b["openings"][0]
+    # nothing in the way in a wide hall: built
+    b = _corridor_case(with_wc=False, with_stair=False, width=3.0)
+    steps = [{"opening_id": "d_room", "rise": 0.5, "low_room": "r_cor"}]
+    assert DS.place(b, steps, dict(RU.BUILTIN_PARAMS))["built"]
+
+
+def test_drawn_short_steps_at_the_door_are_its_steps_and_outdoor_steps_use_outdoor_risers():
+    """Fix-up (STEPS-4, STEPS-6): a short run of steps the plan draws at the door is its steps (no inferred blocks);
+    a storey's stair beside the door is not; a lower outdoor room (a balcony) takes the outdoor riser."""
+    from wenart.levels import door_steps as DS
+    from wenart.levels import rules as RU
+    b, steps = _two_rooms(0.34, low_type="living")
+    b["furniture"] = [{"id": "f_L0_steps", "level_id": "L0", "type": "stair", "stair": {"short_steps": 2},
+                       "footprint": {"center": [2.0, 3.7], "size": [1.2, 0.6], "rotation_deg": 0.0}}]
+    res = DS.place(b, steps, dict(RU.BUILTIN_PARAMS))
+    st = b["openings"][0]["steps"]
+    assert res["built"] and st["source"] == "drawn" and st["piece"] == "f_L0_steps" and DS.plan_blocks(b["openings"][0]) == []
+    assert steps[0]["kind"] == "drawn"
+    # a storey's stair (17 steps) by the door is no door step: the steps are inferred (they do not overlap it)
+    b3, steps3 = _two_rooms(0.34, low_type="living")
+    b3["furniture"] = [{"id": "f_L0_st", "level_id": "L0", "type": "stair",
+                        "stair": {"flights": [{"start": [0.5, 0.5], "end": [0.5, 3.5], "width": 0.9, "lines": 17}]},
+                        "footprint": {"center": [0.5, 2.0], "size": [0.9, 3.0], "rotation_deg": 0.0}}]
+    DS.place(b3, steps3, dict(RU.BUILTIN_PARAMS))
+    assert b3["openings"][0]["steps"]["source"] == "inferred"
+    params = dict(RU.BUILTIN_PARAMS)
+    b4, steps4 = _two_rooms(0.36, low_type="balcony")
+    DS.place(b4, steps4, params)
+    b5, steps5 = _two_rooms(0.36, low_type="living")
+    DS.place(b5, steps5, params)
+    r_out, r_in = b4["openings"][0]["steps"]["riser"], b5["openings"][0]["steps"]["riser"]
+    assert r_out <= float(params["riser_max_outdoor"]) + 1e-9 and r_in <= float(params["riser_max_indoor"]) + 1e-9
+    assert (b4["openings"][0]["steps"]["risers"], b5["openings"][0]["steps"]["risers"]) == (3, 2)
 
 
 # --------------------------------------------------------------------------------------------------------------------
@@ -480,6 +967,80 @@ def test_r23_the_terrace_slab_and_parapets_follow_the_drawn_ring():
     assert any(abs(w["start"][1] - 2.0) < 0.15 or abs(w["end"][1] - 2.0) < 0.15 for w in pars)  # round the recess
 
 
+def _terrace_building(rooms_below=()):
+    return {"levels": [{"id": "L6", "order": 6, "elevation": 18.0, "ceiling_height": 2.7},
+                       {"id": "L7", "order": 7, "elevation": 21.0, "ceiling_height": 3.0, "roof_terrace": True,
+                        "region_id": "r9", "evidence": [{"file": "x.dxf"}]}],
+            "walls": [w for w in _walls("L6", 0, 0, 12, 10)],
+            "rooms": [_room("r_L7_stair", "L7", _rect(4, 4, 8, 7), "stair")] + list(rooms_below),
+            "slabs": [{"id": "sl_L7", "above_level_id": "L7", "below_level_id": "L6", "outline": [
+                [0, 0], [12, 0], [12, 10], [7, 10], [7, 7.5], [5, 7.5], [5, 10], [0, 10]], "openings": [],
+                "variants": []}],
+            "openings": [], "furniture": []}
+
+
+def test_r23_a_ring_never_leaves_a_closed_room_below_open_to_the_sky():
+    """Fix-up (RING-1): the ring's south recess stands over a bedroom of the floor below: the floor below's outline stays
+    there (a finding naming the room); over a light well the recess stays open."""
+    from shapely.geometry import Polygon
+    from wenart.sheets import terrace_ring as TRG
+    from wenart.sheets import to_building as TB
+    cands = TRG.rings(_terrace_region())
+    b = _terrace_building([_room("r_L6_bed", "L6", _rect(4, 0, 8, 3), "bedroom", "YATAK ODASI")])
+    warns = []
+    ring = TB.drawn_ring(b, {"levels": [{"id": "L7", "edge_rings": cands}], "regions": []}, b["levels"][1],
+                         [Polygon(_rect(4, 4, 8, 7))], warns.append)
+    slab = Polygon(b["slabs"][0]["outline"])
+    assert slab.area == pytest.approx(120.0 - 0.6, abs=0.1)              # the recess over the bedroom stays covered
+    assert ring["kept_below"] and ring["kept_below"][0][0] == "r_L6_bed"
+    assert any("r_L6_bed" in w and "open to the sky" in w for w in warns)
+    b2 = _terrace_building([_room("r_L6_lw", "L6", _rect(4.5, 0, 7.5, 2.5), "other", "IŞIKLIK")])
+    warns2 = []
+    TB.drawn_ring(b2, {"levels": [{"id": "L7", "edge_rings": cands}], "regions": []}, b2["levels"][1],
+                  [Polygon(_rect(4, 4, 8, 7))], warns2.append)
+    assert Polygon(b2["slabs"][0]["outline"]).area == pytest.approx(120.0 - 4.0 - 0.6, abs=0.1)
+    assert not any("open to the sky" in w for w in warns2)
+
+
+def test_r23_a_double_line_parapet_on_one_layer_gives_the_outer_face_and_its_thickness():
+    """Fix-up (GENERAL-6): the parapet drawn as two lines on one layer (outer face and inner face 0.20 m inside): the
+    ring is the outer face, its thickness the mean offset (a corner never counts as sqrt 2 of it); the parapets are drawn
+    (vector) and stand half the thickness inside; in a frame shifted from the sheets the ring moves with it."""
+    from shapely.geometry import Polygon
+    from wenart.sheets import terrace_ring as TRG
+    from wenart.sheets import to_building as TB
+    outer = [(0, 0), (12, 0), (12, 10), (0, 10)]
+    inner = [(0.2, 0.2), (11.8, 0.2), (11.8, 9.8), (0.2, 9.8)]
+    ents = [_line(f"o{k}", a, c, "PARAPET") for k, (a, c) in enumerate(zip(outer, outer[1:] + outer[:1]))]
+    ents += [_line(f"i{k}", a, c, "PARAPET") for k, (a, c) in enumerate(zip(inner, inner[1:] + inner[:1]))]
+    house = [(4, 4), (8, 4), (8, 7), (4, 7)]
+    ents += [_line(f"h{k}", a, c, "0") for k, (a, c) in enumerate(zip(house, house[1:] + house[:1]))]
+    reg = Region(id="r9", file="x.dxf", sheet=_sheet(), box=(-1, -1, 13, 11), geometry_box=(-1, -1, 13, 11),
+                 ents=ents, texts=[], metres_per_unit=1.0, transform_to_building=[1.0, 0.0, 0.0, 0.0, 1.0, 0.0])
+    cands = TRG.rings(reg)
+    assert {round(c["area_m2"], 1) for c in cands} >= {120.0, 111.4}       # the outer face and the inner face
+    below = Polygon(_rect(0, 0, 12, 10))
+    ring = TRG.choose(cands, below, [(6, 5.5)])
+    assert ring is not None and ring["polygon"].area == pytest.approx(120.0, abs=0.01)
+    assert ring["thickness"] == pytest.approx(0.2, abs=0.01)
+    b = _terrace_building()
+    n = TB._edge_parapets(b, b["levels"][1], 1.1, "assumed", ring=ring)
+    pars = [w for w in b["walls"] if w.get("parapet")]
+    assert n == len(pars) > 0 and all(w["status"] == "verified" and w["rule"] == "roof_terrace_ring" for w in pars)
+    assert all(w["evidence"][0]["method"] == "vector" for w in pars)
+    assert min(min(w["start"][0], w["end"][0]) for w in pars) == pytest.approx(0.1, abs=0.01)
+    # the building frame stands 3 m east of the sheets' (building = sheets - shift): the ring is chosen there
+    shifted = TRG.choose(cands, Polygon(_rect(-3, 0, 9, 10)), [(3, 5.5)], (3.0, 0.0))
+    assert shifted is not None and shifted["polygon"].bounds[0] == pytest.approx(-3.0, abs=0.01)
+    # one face only (no inner line): the line, not the thickness: inferred parapets on the ring
+    cands1 = [c for c in cands if round(c["area_m2"], 1) == 120.0]
+    ring1 = TRG.choose(cands1, below, [(6, 5.5)])
+    b1 = _terrace_building()
+    TB._edge_parapets(b1, b1["levels"][1], 1.1, "assumed", ring=ring1)
+    p1 = [w for w in b1["walls"] if w.get("parapet")]
+    assert p1 and all(w["status"] == "unverified" and w["rule"] == "roof_terrace_ring" for w in p1)
+
+
 def test_r23_a_ring_that_is_no_terrace_edge_is_not_taken():
     from shapely.geometry import Polygon
     from wenart.sheets import terrace_ring as TRG
@@ -516,24 +1077,94 @@ def test_struct_lines_show_slab_openings_door_steps_copies_and_upper_spaces():
     assert "upper outdoor spaces past the walls below: os_L1_teras:dropped" in text
 
 
+def test_struct_lines_from_the_producers_show_blocked_stairs_short_headroom_and_held_copies(tmp_path, monkeypatch):
+    """Fix-up (weak test: the struct lines guarded only hand-made records): the records the slab, step and copy rules
+    themselves write reach the regression set's lines."""
+    from wenart.reading_check import regress as R
+    from wenart.sheets import typical_check as TCK
+
+    def lines(b):
+        return "\n".join(R.structure_lines(dict(R.structure_5b(b), levels={}, section={}, roof=None, stairs={})))
+    b, _w = _slab_case([_room("r_L1_bed", "L1", _rect(0, 0, 4, 6), "bedroom"),
+                        _room("r_L1_hall", "L1", _rect(4, 0, 8, 6), "hall")])
+    text = lines(b)
+    assert "not stacked f_L0_1" in text and "stairs blocked (the level above cannot be reached): L0:f_L0_1" in text
+    b2, _w = _slab_case([_room("r_L1_hall", "L1", _rect(0, 0, 8, 3.6), "hall"),
+                         _room("r_L1_bath", "L1", _rect(0, 3.6, 3, 6), "bathroom")])
+    assert "clipped f_L0_1 (headroom short f_L0_1)" in lines(b2)
+    orig = TCK.user_assertions
+    path = _corrections_file(tmp_path, [{"id": "C9", "project": "pX", "status": "accepted", "level": "L0",
+                                         "place": {"x": 5.5, "y": 2.0}}])
+    monkeypatch.setattr(TCK, "user_assertions", lambda project, lid, path_=None: orig(project, lid, path))
+    b3 = _copied_block()
+    b3["project"] = {"id": "pX"}
+    TCK.apply(SimpleNamespace(building=b3, sheets=_sheets(), frame_shift=(0.0, 0.0), warn=lambda *a: None,
+                              conflict=lambda *a: None))
+    assert "held by the user's corrections L0:f_L0_stair(C9),L0:r_L0_stair(C9)" in lines(b3)
+
+
 # --------------------------------------------------------------------------------------------------------------------
 # the coordinator's check-pod findings: a section line over the ground floor's doors is no ground
 # --------------------------------------------------------------------------------------------------------------------
 
-def test_a_section_ground_line_over_the_ground_floors_doors_is_refused():
-    from wenart.levels import model as M
-    from wenart.levels import rules as RU
+def _ground_case():
     b = {"levels": [{"id": "L0", "order": 0, "elevation": 0.0, "ceiling_height": 2.7}],
          "walls": _walls("L0", 0, 0, 10, 8), "rooms": [_room("r_L0_salon", "L0", _rect(0.1, 0.1, 9.9, 7.9))],
          "openings": [{"id": "d_L0_1", "level_id": "L0", "type": "door", "wall_id": "w_L0_001", "width": 0.9,
                        "center": [5.0, 0.0], "threshold_z": 0.0}],
          "furniture": [], "site": {}}
+    return b
+
+
+def _gline(side, z):
+    return {"side": side, "azimuth_deg": None,
+            "z": {"value": z, "method": "vector", "evidence": [{"rule": "ground_line"}]}}
+
+
+def test_a_section_ground_line_over_the_ground_floors_doors_is_refused():
+    """A section ground line is refused when it would bury an outside door on its own side (fix-up SECTIONS-8: each
+    line stands at its own end of the cut; a door on another facade never refuses it)."""
+    from wenart.levels import model as M
+    from wenart.levels import rules as RU
+    b = _ground_case()                                   # the door d_L0_1 on the front (-y) facade
     outline = M.level_outline(b, "L0")
-    high = [{"side": "right", "z": {"value": 2.2, "method": "vector", "evidence": [{"rule": "ground_line"}]}}]
-    rec = M._section_ground_gate(b, [], b["levels"][0], outline, high, dict(RU.BUILTIN_PARAMS))
-    assert rec is not None and "section's ground line" in rec["why"] and rec["refused"]
+    gl = b["levels"][0]
+    front = [_gline("front", 2.2)]
+    rec = M._section_ground_gate(b, [], gl, outline, front, dict(RU.BUILTIN_PARAMS))
+    assert rec is not None and "section's ground line" in rec["why"] and rec["refused"] and rec["buried"] == ["d_L0_1"]
+    # the same line at the section's other end (the back, +y) or across (right, +x): no door there, kept
+    for side in ("back", "right"):
+        assert M._section_ground_gate(b, [], gl, outline, [_gline(side, 2.2)], dict(RU.BUILTIN_PARAMS)) is None, side
+    # a site sloping across the cut (both ends of a cut along x at +1.0, the door on the front): kept
+    assert M._section_ground_gate(b, [], gl, outline, [_gline("left", 1.0), _gline("right", 1.0)],
+                                  dict(RU.BUILTIN_PARAMS)) is None
     # one side under the floor (a sloping site): kept
-    both = high + [{"side": "left", "z": {"value": -0.4, "method": "vector", "evidence": []}}]
-    assert M._section_ground_gate(b, [], b["levels"][0], outline, both, dict(RU.BUILTIN_PARAMS)) is None
-    low = [{"side": "all", "z": {"value": -0.5, "method": "vector", "evidence": []}}]
-    assert M._section_ground_gate(b, [], b["levels"][0], outline, low, dict(RU.BUILTIN_PARAMS)) is None
+    both = front + [_gline("back", -0.4)]
+    assert M._section_ground_gate(b, [], gl, outline, both, dict(RU.BUILTIN_PARAMS)) is None
+    low = [_gline("all", -0.5)]
+    assert M._section_ground_gate(b, [], gl, outline, low, dict(RU.BUILTIN_PARAMS)) is None
+    # a line for every side over the door: refused
+    assert M._section_ground_gate(b, [], gl, outline, [_gline("all", 1.0)], dict(RU.BUILTIN_PARAMS)) is not None
+
+
+def test_the_ground_step_lists_a_refused_section_line_and_takes_the_next_source():
+    """The wiring in ``_ground``: a refused section ground line is listed (``refused_levels``, ``level_inference``), it
+    is no ground level any more, and the default ground is held to the gate's limit."""
+    from wenart.levels import model as M
+    from wenart.levels import rules as RU
+    b = _ground_case()
+    b["site"] = {"ground": {"levels": [_gline("front", 2.2)]}}
+    outline = M.level_outline(b, "L0")
+    inferred, warnings = [], []
+    M._ground(b, [], dict(RU.BUILTIN_PARAMS), b["levels"][0], outline, inferred, warnings)
+    g = b["site"]["ground"]
+    assert [x["side"] for x in g["refused_levels"]] == ["front"] and "refused" in g["refused_levels"][0]
+    assert b["level_inference"]["section_ground_gate"]["buried"] == ["d_L0_1"]
+    assert all(lv.get("side") != "front" for lv in g["levels"])
+    assert g["source"] == "D3a" and all(float(lv["z"]["value"]) <= 0.0 + 1e-9 for lv in g["levels"])
+    assert any("section's ground line" in w for w in warnings)
+    # the line at the back (no door there) stays the ground
+    b2 = _ground_case()
+    b2["site"] = {"ground": {"levels": [_gline("back", 2.2)]}}
+    M._ground(b2, [], dict(RU.BUILTIN_PARAMS), b2["levels"][0], outline, [], [])
+    assert b2["site"]["ground"]["source"] == "section" and not b2["site"]["ground"].get("refused_levels")

@@ -16,9 +16,13 @@ the same plan:
    (``STAIR_EMPTY_SHARE`` of the strokes the drawn storeys draw there, at least ``STAIR_STROKES_MIN`` of them), is not
    built (``build: false``): its drawn flights start on a higher floor.
 
-Everything is logged (warnings, a listed conflict per storey, ``level_inference.typical_checks``). It acts only where the
-section clearly says so: a known cut line (its place and the way it is seen), a section width that fits the building at
-the cut within ``WIDTH_TOL_M``, bands at the two storeys' floors. Otherwise it records why it did not check.
+Everything is logged (warnings, a listed conflict per storey, ``level_inference.typical_checks``, every removal with
+the section crop as its evidence). It acts only where the section clearly says so: a known cut line (its place and the
+way it is seen), the section's two ends on the copied and drawn storeys' own facades at each half of the cut (within
+``END_TOL_M``), bands at the two storeys' floors, no floor drawn at another height over the stretch (a split level or a
+sunken floor is no double height). Otherwise it records why it did not check. A stretch holding anything a correction of
+the user asserts present on that storey (``user_assertions``) is left whole as it is, with what stands in it, and listed
+as a conflict naming the correction (28 Nov 2026, fix-up SECTIONS-4/-5/-6).
 
 Why: real10 (finding F02): its ground floor reuses the typical plan; section A-A draws the +2.50 slab stopping at the core
 landing, a double-height entrance hall south of it up to the +5.50 slab, and the escape stair starting on +5.50; the
@@ -43,11 +47,13 @@ OPENING_REACH_M = 0.40       # an opening this close to a dropped room's outline
 STAIR_STROKES_MIN = 8        # the drawn storeys draw at least this many strokes where the stair is cut ...
 STAIR_EMPTY_SHARE = 0.2      # ... and the copy's storey at most this share of them: no stair drawn there
 RULE = "typical_vs_section"
-# 27 Nov 2026 (round 5b; the score gate: real10's ground floor copies the typical plan, and a correction of the user of
-# 4 Nov asks for the fire escape stair and its door on that storey, where the section draws a double-height hall): what
-# the section says against a copied storey is listed for the user and the architect, not carried out, until the user
-# decides which wins (``ACT``; ``check(..., act=True)`` carries it out)
-ACT = False
+# 28 Nov 2026 (round 5b fix-up, SECTIONS-4): the check acts (``ACT``), but a double-height stretch holding anything a
+# correction of the user asserts present on that storey is left as it is, listed as a conflict naming the correction
+# (``user_assertions``; never a partial removal that leaves a stair in a removed room)
+ACT = True
+END_TOL_M = 0.30             # SECTIONS-5: each end of the section lies this close to the storey's facade at its half
+NEAR_FLOOR_SHARE = 0.5       # SECTIONS-6: a floor drawn at another height over this share of a stretch: no double height
+ASSERT_REACH_M = 0.30        # a correction's place or element this close to a stretch's rooms vetoes the stretch
 
 
 def _union(spans: list) -> list:
@@ -132,11 +138,14 @@ def _poly(points) -> Optional[Polygon]:
     return p if not p.is_empty and p.area > 0 else None
 
 
-def _outline_extent(b: dict, axis: str, across: float) -> Optional[tuple]:
-    """The building's extent along ``axis`` on the line ``across`` (every level's outline), or None."""
+def _outline_extent(b: dict, axis: str, across: float, level_ids: Optional[list] = None) -> Optional[tuple]:
+    """The extent along ``axis`` on the line ``across`` of the outlines of ``level_ids`` (every level's when None), or
+    None."""
     from wenart.levels import model as LMO
     polys = []
     for lv in b.get("levels") or []:
+        if level_ids is not None and lv["id"] not in level_ids:
+            continue
         p = _poly(LMO.level_outline(b, lv["id"]))
         if p is not None:
             polys.append(p)
@@ -167,10 +176,21 @@ def _storey_at(ev: dict, z: float) -> Optional[dict]:
 class Frame:
     """Section s (metres from its left outer wall) <-> the building axis along the cut (centre-anchored, flipped)."""
 
-    def __init__(self, axis: str, flipped: bool, width: float, extent: tuple, ends: Optional[list], at: float):
+    def __init__(self, axis: str, flipped: bool, width: float, extent: tuple, ends: Optional[list], at: float,
+                 src: Optional[dict] = None):
         self.axis, self.flipped, self.width = axis, bool(flipped), float(width)
         self.u_c = (extent[0] + extent[1]) / 2.0
         self.ends, self.at = ends, float(at)
+        self.src = src or {}
+
+    def crop(self, s0: float, s1: float, z0: float, z1: float, y_floor: Optional[float], z_floor: float) -> Optional[list]:
+        """The box of the section drawing (source units) over the stretch ``s0``-``s1`` and the heights ``z0``-``z1``:
+        the crop a change cites as its evidence, or None without the section's own frame."""
+        x0, m = self.src.get("x0_src"), self.src.get("mpu")
+        if x0 is None or not m or y_floor is None:
+            return None
+        return [round(x0 + s0 / m, 6), round(y_floor + (z0 - z_floor) / m, 6), round(x0 + s1 / m, 6),
+                round(y_floor + (z1 - z_floor) / m, 6)]
 
     def u(self, s: float) -> float:
         d = float(s) - self.width / 2.0
@@ -191,8 +211,12 @@ class Frame:
         return LineString([(x, u0), (x, u1)]) if self.axis == "y" else LineString([(u0, x), (u1, x)])
 
 
-def frame_of(b: dict, ev: dict, shift: tuple) -> tuple[Optional[Frame], str]:
-    """The section's frame in the building (``Frame``) and a note, or (None, why not)."""
+def frame_of(b: dict, ev: dict, shift: tuple, level_ids: Optional[list] = None) -> tuple[Optional[Frame], str]:
+    """The section's frame in the building (``Frame``) and a note, or (None, why not). 28 Nov 2026 (round 5b fix-up,
+    SECTIONS-5: the frame was centred on every level's outline, so a longer basement or roof ring moved the stretch onto
+    the wrong rooms): anchored on the outline of ``level_ids`` (the drawn storey and its copy) at each half of the cut
+    (a jogged cut: each end at its own mark's place); refused when either end of the section lies more than
+    ``END_TOL_M`` from that storey's facade."""
     cut = ev.get("cut") or {}
     if cut.get("axis") not in ("x", "y") or cut.get("at") is None or cut.get("flipped") is None:
         return None, "no cut line with a known way of seeing it on the plans"
@@ -200,18 +224,73 @@ def frame_of(b: dict, ev: dict, shift: tuple) -> tuple[Optional[Frame], str]:
     at = float(cut["at"]) - float(shift[k])
     ends = None
     if cut.get("ends"):
-        ends = [[float(e[0]) - float(shift[1 - k]), float(e[1]) - float(shift[k])] for e in cut["ends"]]
-    ext = _outline_extent(b, cut["axis"], at)
-    if ext is None:
-        return None, f"the cut line at {at:.2f} m crosses no level outline"
+        ends = sorted([[float(e[0]) - float(shift[1 - k]), float(e[1]) - float(shift[k])] for e in cut["ends"]])
+    lo_at, hi_at = (ends[0][1], ends[-1][1]) if ends else (at, at)
+    ext_lo = _outline_extent(b, cut["axis"], lo_at, level_ids)
+    ext_hi = _outline_extent(b, cut["axis"], hi_at, level_ids)
+    if ext_lo is None or ext_hi is None:
+        return None, f"the cut line at {at:.2f} m crosses no outline of {', '.join(level_ids or ['the levels'])}"
+    ext = (ext_lo[0], ext_hi[1])
     width = float(ev.get("s_width") or 0.0)
     length = ext[1] - ext[0]
-    if abs(length - width) > max(WIDTH_TOL_M, 0.1 * length):
-        return None, (f"the section is {width:.2f} m wide, the building {length:.2f} m along the cut: the section's "
+    off = abs(length - width) / 2.0
+    if off > END_TOL_M:
+        return None, (f"the section is {width:.2f} m wide, the storey {length:.2f} m along the cut at its halves: each "
+                      f"end of the section lies {off:.2f} m from the facade (over {END_TOL_M:.2f} m): the section's "
                       f"stretches cannot be placed")
-    return Frame(cut["axis"], cut["flipped"], width, ext, ends, at), (
+    src = {k2: ev.get(k2) for k2 in ("x0_src", "x1_src", "mpu", "file", "region_id")}
+    return Frame(cut["axis"], cut["flipped"], width, ext, ends, at, src), (
         f"cut along {cut['axis']} at {at:.2f} m" + (" (jogged)" if ends else "") + f", seen "
-        f"{'flipped' if cut['flipped'] else 'as drawn'}; section {width:.2f} m, building {length:.2f} m at the cut")
+        f"{'flipped' if cut['flipped'] else 'as drawn'}; section {width:.2f} m, the storey {length:.2f} m at the cut's "
+        f"halves (each end {off:.2f} m off)")
+
+
+def user_assertions(project: Optional[str], level_id: str, path=None) -> list:
+    """28 Nov 2026 (round 5b fix-up, SECTIONS-4): what the user's corrections (``results/reading_corrections.jsonl``,
+    accepted, not a brief input) assert present on ``level_id`` of ``project``: ``[{"id", "points": [(x, y)],
+    "polygons": [[...]]}]`` (their place and the places and outlines of the elements they add or retype), read only."""
+    import json
+    from pathlib import Path
+    if not project:
+        return []
+    path = Path(path) if path is not None else Path(__file__).resolve().parents[2] / "results" / \
+        "reading_corrections.jsonl"
+    try:
+        rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    except (OSError, ValueError):
+        return []
+    out = []
+    for r in rows:
+        if r.get("project") != project or r.get("status") != "accepted" or r.get("truth_role") == "brief_input":
+            continue
+        ta = r.get("truth_action") or {}
+        els = [e for e in ta.get("elements") or [] if isinstance(e, dict) and e.get("op") != "remove"
+               and (e.get("level") or r.get("level")) == level_id]
+        pts, polys = [], []
+        if r.get("level") == level_id and isinstance(r.get("place"), dict) and r["place"].get("x") is not None:
+            pts.append((float(r["place"]["x"]), float(r["place"]["y"])))
+        for e in els:
+            if e.get("center"):
+                pts.append((float(e["center"][0]), float(e["center"][1])))
+            if len(e.get("polygon") or []) >= 3:
+                polys.append(e["polygon"])
+        if pts or polys:
+            out.append({"id": r.get("id"), "points": pts, "polygons": polys,
+                        "words": str(r.get("user_words") or "")[:120]})
+    return out
+
+
+def _vetoed(assertions: list, area) -> list:
+    """The ids of the corrections whose points or outlines stand on ``area`` (within ``ASSERT_REACH_M``)."""
+    if area is None or area.is_empty:
+        return []
+    grown = area.buffer(ASSERT_REACH_M)
+    hit = []
+    for a in assertions:
+        if any(grown.contains(Point(p)) for p in a["points"]) or \
+                any((q := _poly(pg)) is not None and q.intersects(area) for pg in a["polygons"]):
+            hit.append(a["id"])
+    return hit
 
 
 def _chord_share(room: Polygon, fr: Frame, u0: float, u1: float) -> float:
@@ -252,7 +331,7 @@ def _drop_room(b: dict, room: dict, slab: Optional[dict], reason: str, evidence:
             pts = [[round(x, 4) + 0.0, round(y, 4) + 0.0] for x, y in list(clip.exterior.coords)[:-1]]
             void = {"id": f"sv_{slab['id'][3:]}_{len(slab.get('openings') or []) + 1:03d}", "kind": "void",
                     "room_id": None, "polygon": pts, "source": "derived", "reason": reason,
-                    "entity": evidence.get("region_id"), "rule": RULE}
+                    "entity": evidence.get("region_id"), "rule": RULE, "crop_box": evidence.get("crop_box")}
             slab.setdefault("openings", []).append(void)
     return {"room": room["id"], "label": room.get("label"), "furniture": gone_f, "openings": gone_o, "walls": gone_w,
             "void": void["id"] if void else None, "void_m2": round(_poly(void["polygon"]).area, 2) if void else 0.0}
@@ -271,12 +350,8 @@ def check(b: dict, sheets: dict, shift: tuple = (0.0, 0.0), act: bool = True) ->
         rec["notes"].append("no section evidence: the copied storeys " + ", ".join(sorted(copies)) + " are not "
                             "checked against a section")
         return rec
-    fr, note = frame_of(b, ev, shift)
-    if fr is None:
-        rec["notes"].append(f"section {ev.get('region_id')}: {note}: the copied storeys "
-                            + ", ".join(sorted(copies)) + " are not checked against it")
-        return rec
     levels = {lv["id"]: lv for lv in b.get("levels") or []}
+    project = (b.get("project") or {}).get("id")
     by_z = sorted(levels.values(), key=lambda lv: float(lv.get("elevation") or 0.0))
     # the section's marks may point at the finished floor and its band tops at the structure: one shift for all
     diffs = sorted(float(lv.get("elevation") or 0.0) - float(bd["z"]) for lv in by_z for bd in
@@ -287,11 +362,16 @@ def check(b: dict, sheets: dict, shift: tuple = (0.0, 0.0), act: bool = True) ->
         ev = dict(ev, bands=[dict(bd, z=float(bd["z"]) + dz) for bd in ev.get("bands") or []],
                   storeys=[dict(st, z_floor=float(st["z_floor"]) + dz, z_ceiling=float(st["z_ceiling"]) + dz)
                            for st in ev.get("storeys") or []])
-    width = fr.width
     for cid, rid in sorted(copies.items()):
         c, r = levels.get(cid), levels.get(rid)
         if c is None or r is None:
             continue
+        fr, note = frame_of(b, ev, shift, [rid, cid])
+        if fr is None:
+            rec["notes"].append(f"section {ev.get('region_id')}: {note}: the copied storey {cid} is not checked "
+                                f"against it")
+            continue
+        width = fr.width
         bc, br = _band_at(ev, float(c["elevation"])), _band_at(ev, float(r["elevation"]))
         i = by_z.index(c)
         above = by_z[i + 1] if i + 1 < len(by_z) else None
@@ -303,34 +383,58 @@ def check(b: dict, sheets: dict, shift: tuple = (0.0, 0.0), act: bool = True) ->
             item["note"] = "no slab band at the copy's or the drawn storey's floor"
             continue
         new = [g for g in minus(gaps(bc, width), gaps(br, width)) if g[1] - g[0] >= GAP_MIN_M]
+        held_area = None                     # the vetoed stretches' rooms: what stands in them stays too
         slab = next((s for s in b.get("slabs") or [] if s.get("above_level_id") == cid and not s.get("variants")), None)
         for s0, s1 in new:
             if ba is None or covered_share(ba, s0, s1) < ABOVE_COVER_SHARE:
                 item["double_height"].append({"s": [round(s0, 2), round(s1, 2)], "used": False,
                                               "why": "the slab above is not drawn over it (open to the sky?)"})
                 continue
+            near = _union([[max(s0, float(q["s"][0])), min(s1, float(q["s"][1]))] for q in bc.get("near_slabs") or []
+                           if min(s1, float(q["s"][1])) > max(s0, float(q["s"][0]))])
+            if sum(b_ - a_ for a_, b_ in near) >= NEAR_FLOOR_SHARE * (s1 - s0):
+                item["double_height"].append({"s": [round(s0, 2), round(s1, 2)], "used": False,
+                                              "why": "the section draws a floor at another height there (a split "
+                                                     "level or a sunken floor), not a double-height space"})
+                continue
             u0, u1 = sorted((fr.u(s0), fr.u(s1)))
+            crop = fr.crop(s0, s1, float(c["elevation"]) - 0.5, float(above["elevation"]) + 0.5,
+                           bc.get("y_top_src"), float(bc["z"]))
             entry = {"s": [round(s0, 2), round(s1, 2)], "along": [round(u0, 2), round(u1, 2)], "used": True,
-                     "rooms": []}
+                     "rooms": [], "crop": {"region_id": ev.get("region_id"), "file": ev.get("file"), "box": crop}}
             item["double_height"].append(entry)
+            hits = []
             for room in [x for x in b.get("rooms") or [] if x.get("level_id") == cid]:
                 poly = _poly(room.get("polygon"))
                 if poly is None:
                     continue
                 share = _chord_share(poly, fr, u0, u1)
-                if share < ROOM_INSIDE_SHARE:
-                    continue
+                if share >= ROOM_INSIDE_SHARE:
+                    hits.append((room, poly, share))
+            if not hits:
+                continue
+            area = unary_union([q for _r, q, _s in hits])
+            veto = _vetoed(user_assertions(project, cid), area)
+            if veto:
+                held_area = area if held_area is None else held_area.union(area)
+                entry.update(used=False, vetoed_by=veto, rooms=[r_["id"] for r_, _q, _s in hits])
+                rec.setdefault("vetoed", []).append({"level_id": cid, "rooms": entry["rooms"], "corrections": veto,
+                                                     "s": entry["s"], "crop": entry["crop"]})
+                continue
+            for room, poly, share in hits:
                 reason = (f"section {ev.get('region_id')} draws no floor slab at {cid} ({c.get('label')}) over "
                           f"{fr.axis} {u0:.2f}-{u1:.2f} m at the cut, while it draws {rid}'s slab there and the slab "
                           f"above: a double-height space; {cid} copies the plan of {rid}, so its room "
                           f"{room['id']} '{room.get('label')}' ({share * 100:.0f} % of it on the cut inside) is not "
                           f"built: its floor is a void over the storey below (rule {RULE})")
+                evidence = {"region_id": ev.get("region_id"), "file": ev.get("file"), "rule": RULE,
+                            "crop_box": crop, "method": "vector"}
                 if act:
-                    done = _drop_room(b, room, slab, reason, {"region_id": ev.get("region_id")})
+                    done = _drop_room(b, room, slab, reason, evidence)
                 else:
                     done = {"room": room["id"], "label": room.get("label"), "furniture": [], "openings": [],
                             "walls": [], "void": None, "void_m2": 0.0}
-                done.update(level_id=cid, share=round(share, 2), reason=reason)
+                done.update(level_id=cid, share=round(share, 2), reason=reason, evidence=evidence)
                 entry["rooms"].append(room["id"])
                 rec["dropped"].append(done)
         # 2. stairs the section does not draw in the copy's storey
@@ -372,15 +476,25 @@ def check(b: dict, sheets: dict, shift: tuple = (0.0, 0.0), act: bool = True) ->
             med = theirs[len(theirs) // 2]
             if med < STAIR_STROKES_MIN or mine > STAIR_EMPTY_SHARE * med:
                 continue
+            veto = _vetoed(user_assertions(project, cid), fpoly)
+            if not veto and held_area is not None and held_area.buffer(0.05).contains(Point(fp["center"])):
+                veto = sorted({c_ for v_ in rec.get("vetoed") or [] if v_.get("level_id") == cid
+                               for c_ in v_.get("corrections") or []})
+            if veto:
+                rec.setdefault("vetoed", []).append({"level_id": cid, "stairs": [f["id"]], "corrections": veto})
+                continue
             if act:
                 f["build"] = False
             why = (f"section {ev.get('region_id')} draws no stair in {cid}'s storey where the cut crosses {f['id']} "
                    f"({mine} strokes against {med} in the drawn storeys of the same plan): its drawn flights start on "
                    f"a higher floor; {cid} copies that plan, the stair is not built here (rule {RULE})")
+            crop_s = fr.crop(max(0.0, s_lo), min(width, s_hi), float(c["elevation"]), float(c["elevation"]) + 3.0,
+                             bc.get("y_top_src") if bc else None, float(bc["z"]) if bc else 0.0)
             if act:
                 f.setdefault("evidence", []).append({"file": (c.get("evidence") or [{}])[0].get("file", ""),
                                                      "method": "inferred", "confidence": 0.8, "entity": f["id"],
-                                                     "region_id": ev.get("region_id"), "rule": RULE, "text": why})
+                                                     "region_id": ev.get("region_id"), "rule": RULE, "text": why,
+                                                     "crop_box": crop_s})
             item["stairs"].append(f["id"])
             rec["stairs"].append({"level_id": cid, "stair": f["id"], "strokes": mine, "drawn": med, "reason": why})
     # a stair not built here cuts no slab above it
@@ -419,6 +533,15 @@ def apply(build) -> dict:
             else ""))
     for s in rec["stairs"]:
         build.warn(f"copied storey {s['level_id']}: {s['reason']}{held}")
+    for v in rec.get("vetoed") or []:
+        what = ", ".join(v.get("rooms") or v.get("stairs") or [])
+        build.warn(f"copied storey {v['level_id']}: the section says {what} is not built, but the user's correction(s) "
+                   f"{', '.join(map(str, v['corrections']))} assert it on {v['level_id']}: left as it is (listed)")
+        build.conflict("other", list(v.get("rooms") or v.get("stairs") or []),
+                       f"{v['level_id']} copies another storey's plan; section "
+                       f"{next((c_['section'] for c_ in rec['checked'] if c_.get('section')), '')} draws "
+                       f"{what} otherwise, but the user's correction(s) {', '.join(map(str, v['corrections']))} assert "
+                       f"it on this storey", "left as it is until the user decides which wins (rule " + RULE + ")")
     for v in rec.get("voids_removed") or []:
         build.warn(f"copied storeys: the opening {v['opening']} of {v['slab']} over the stair {v['stair']} is not cut "
                    f"(the stair is not built)")

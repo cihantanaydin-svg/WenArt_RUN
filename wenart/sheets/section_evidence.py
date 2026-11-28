@@ -24,6 +24,12 @@ from typing import Optional
 BIN_M = 0.25                 # the strokes of a storey are counted per this many metres along the section
 STROKE_MAX_M = 0.45          # a stroke this short or shorter is a tread, a riser or a stair rail post (counted)
 LINE_TOL = 1e-6              # a slab line lies on its band's y within this (source units)
+# 28 Nov 2026 (round 5b fix-up, SECTIONS-6: a lobby a few steps lower, drawn with its own slab lines, read as a
+# double-height space): the slab-like pairs of lines (two horizontal lines this far apart, both at least
+# NEAR_PIECE_M long) within NEAR_SLAB_M of a band's top are recorded per band (``near_slabs``: floors at another height)
+NEAR_SLAB_M = 1.5
+NEAR_GAP_M = (0.08, 0.60)
+NEAR_PIECE_M = 0.6
 
 
 def _frame_free_lines(section) -> list:
@@ -73,6 +79,26 @@ def _cover(lines: list, y: float, x0: float, x1: float, s: float) -> list:
     return [[round((a - x0) * s, 3) + 0.0, round((b - x0) * s, 3) + 0.0] for a, b in out]
 
 
+def _near_slabs(horiz: list, yb: float, yt: float, x0: float, x1: float, s: float, z_of) -> list:
+    """The slab-like pairs of horizontal lines within ``NEAR_SLAB_M`` of a band's top, the band's own two lines left out:
+    ``[{"s": [s0, s1], "dz": z of the pair's top less the band's}]`` (metres from the left outer wall)."""
+    reach = NEAR_SLAB_M / s
+    ys = sorted({round(ln.a[1], 6) for ln in horiz if abs(ln.a[1] - yt) <= reach
+                 and abs(ln.a[1] - yt) > LINE_TOL and abs(ln.a[1] - yb) > LINE_TOL})
+    out = []
+    for i, ya in enumerate(ys):
+        for yc in ys[i + 1:]:
+            if not NEAR_GAP_M[0] <= (yc - ya) * s <= NEAR_GAP_M[1]:
+                continue
+            ca, cc = _cover(horiz, ya, x0, x1, s), _cover(horiz, yc, x0, x1, s)
+            for a0, a1 in ca:
+                for c0, c1 in cc:
+                    lo, hi = max(a0, c0), min(a1, c1)
+                    if hi - lo >= NEAR_PIECE_M:
+                        out.append({"s": [round(lo, 3), round(hi, 3)], "dz": round(z_of(yc) - z_of(yt), 3)})
+    return out[:40]
+
+
 def read(section, heights: dict, cut: Optional[dict]) -> Optional[dict]:
     """The section evidence (module docstring), or None without a usable section."""
     if section is None or not section.mpu or section.walls is None or not section.bands:
@@ -84,10 +110,12 @@ def read(section, heights: dict, cut: Optional[dict]) -> Optional[dict]:
         return None
     lines = _frame_free_lines(section)
     bands = []
+    horiz = [ln for ln in lines if abs(ln.a[1] - ln.b[1]) <= LINE_TOL and ln.length * s >= NEAR_PIECE_M]
     for yb, yt, _ib, _it in section.bands:
         top, bot = _cover(lines, yt, x0, x1, s), _cover(lines, yb, x0, x1, s)
         bands.append({"z": round(z_of(yt), 3) + 0.0, "thickness": round((yt - yb) * s, 3) + 0.0,
-                      "cover_top": top, "cover_bottom": bot})
+                      "cover_top": top, "cover_bottom": bot, "y_top_src": yt + 0.0,
+                      "near_slabs": _near_slabs(horiz, yb, yt, x0, x1, s, z_of)})
     storeys = []
     for (yb0, yt0, _a, _b), (yb1, _yt1, _c, _d) in zip(section.bands, section.bands[1:]):
         bins: dict = {}
@@ -103,7 +131,9 @@ def read(section, heights: dict, cut: Optional[dict]) -> Optional[dict]:
         storeys.append({"z_floor": round(z_of(yt0), 3) + 0.0, "z_ceiling": round(z_of(yb1), 3) + 0.0,
                         "strokes": {str(k): v for k, v in sorted(bins.items())}})
     rec = {"region_id": section.region.id, "z_frame": how, "s_width": round((x1 - x0) * s, 3) + 0.0,
-           "bin_m": BIN_M, "bands": bands, "storeys": storeys, "cut": None}
+           "bin_m": BIN_M, "bands": bands, "storeys": storeys, "cut": None,
+           # the section's own frame (source units), for the crop a change cites as its evidence
+           "x0_src": x0 + 0.0, "x1_src": x1 + 0.0, "mpu": s, "file": getattr(section.region, "file", None)}
     if cut is not None:
         rec["cut"] = {k: cut.get(k) for k in ("axis", "at", "flipped", "jogged", "ends", "region", "method")
                       if cut.get(k) is not None}

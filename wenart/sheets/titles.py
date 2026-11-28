@@ -291,21 +291,30 @@ def slope_pct(text: str, roof: bool = False) -> Optional[float]:
 
 # 27 Nov 2026 (audit fix round 5b, R07 f: 'EĞİM 30' and 'EĞİM 30°' were not read): a slope in degrees ('EĞİM 30°',
 # '30 DERECE', on a roof plan a bare '30°') and a slope word with a bare number ('EĞİM 30', 'EĞİM:30'); a bare number is
-# per cent when a roof's per cent is plausible (``SLOPE_PCT_PLAUSIBLE``), degrees only when only a roof's angle is
-# (``SLOPE_DEG_PLAUSIBLE``); a length unit after it is no slope
+# per cent (28 Nov 2026 fix-up: over the whole of ``SLOPE_BARE_PCT``, never degrees); a length unit after it is no slope
 _DEG = r"(\d{1,2}(?:[.,]\d+)?)\s*(?:DEG\b|DERECE\b)"
 SLOPE_DEG_RE = re.compile(r"\b" + _SLOPE_WORD + r"\b\s*[:=]?\s*" + _DEG + r"|" + _DEG + r"\s*" + _SLOPE_WORD + r"\b")
 SLOPE_BARE_DEG_RE = re.compile(r"^\s*" + _DEG + r"\s*$")
-SLOPE_BARE_RE = re.compile(r"\b" + _SLOPE_WORD + r"\b\s*[:=]?\s*(\d{1,3}(?:[.,]\d+)?)(?![\d.,%])(?!\s*(?:CM|MM|M)\b)")
+# 28 Nov 2026 (fix-up, SECTIONS-7: 'EĞİM 30 MT' read as 30 %): every length, area, volume or count word after the number
+# is no slope
+UNIT_WORDS = r"(?:CM|MM|MT|MTR|METRESI|METRES|METERS|METRE|METER|M2|M3|M²|M³|M|ADET|AD|KG|LT)"
+SLOPE_BARE_RE = re.compile(r"\b" + _SLOPE_WORD + r"\b\s*[:=]?\s*(\d{1,3}(?:[.,]\d+)?)(?![\d.,%])(?!\s*" + UNIT_WORDS
+                           + r"(?![A-Z0-9]))")
 SLOPE_PCT_PLAUSIBLE = (10.0, 150.0)
-SLOPE_DEG_PLAUSIBLE = (5.0, 60.0)
+SLOPE_BARE_PCT = (5.0, 150.0)       # 28 Nov 2026 (fix-up, SECTIONS-7): a bare number is per cent over this whole range
+PLAN_ANGLES_DEG = (45.0, 90.0)      # ... and a bare angle on a roof plan of 45 or 90 degrees is a plan angle, no pitch
 
 
 def slope_reading(text: str, roof: bool = False) -> Optional[dict]:
     """``{"pct", "deg", "unit": "percent" | "degrees", "form"}`` of a slope text, or None (pure): ``SLOPE_PCT_RE`` (a
     '%' sign), then degrees (a degree sign or 'DERECE' next to a slope word; on a roof plan, ``roof``, a bare angle),
     then a slope word with a bare number (per cent when plausible as a roof's per cent, degrees when only plausible as
-    a roof's angle)."""
+    a roof's angle).
+    28 Nov 2026 (fix-up, SECTIONS-7: 'EĞİM 9.5' gave 16.7 % and 'EĞİM 12' 12 %, a larger number a flatter roof; '45°' on
+    a roof plan gave a 45 degree roof): a bare number is always per cent (``SLOPE_BARE_PCT``: monotonic; a low one is a
+    low pitch that the roof readers list as no roof pitch), a bare angle on a roof plan is never 45 or 90 degrees (a
+    plan's corner or hip angle) and has the form "bare angle" (the roof plan reader counts it only inside the eaves
+    loop and never on a dimension layer)."""
     import math as _m
     raw = (text or "").replace("°", " DEG ").replace("º", " DEG ").replace("˚", " DEG ")
     folded = fold(raw)
@@ -313,19 +322,19 @@ def slope_reading(text: str, roof: bool = False) -> Optional[dict]:
     if m:
         v = float(next(g for g in m.groups() if g).replace(",", "."))
         return {"pct": v, "deg": _m.degrees(_m.atan(v / 100.0)), "unit": "percent", "form": "percent sign"}
-    m = SLOPE_DEG_RE.search(folded) or (SLOPE_BARE_DEG_RE.search(folded) if roof else None)
-    if m:
-        d = float(next(g for g in m.groups() if g).replace(",", "."))
+    m = SLOPE_DEG_RE.search(folded)
+    bare = None if m else (SLOPE_BARE_DEG_RE.search(folded) if roof else None)
+    if m or bare:
+        d = float(next(g for g in (m or bare).groups() if g).replace(",", "."))
+        if bare and any(abs(d - a) <= 0.5 for a in PLAN_ANGLES_DEG):
+            return None
         if 0.0 < d < 80.0:
             return {"pct": round(_m.tan(_m.radians(d)) * 100.0, 3), "deg": d, "unit": "degrees",
-                    "form": "degree sign"}
+                    "form": "bare angle" if bare else "degree sign"}
         return None
     m = SLOPE_BARE_RE.search(folded)
     if m:
         v = float(m.group(1).replace(",", "."))
-        if SLOPE_PCT_PLAUSIBLE[0] <= v <= SLOPE_PCT_PLAUSIBLE[1]:
+        if SLOPE_BARE_PCT[0] <= v <= SLOPE_BARE_PCT[1]:
             return {"pct": v, "deg": _m.degrees(_m.atan(v / 100.0)), "unit": "percent", "form": "bare number"}
-        if SLOPE_DEG_PLAUSIBLE[0] <= v <= SLOPE_DEG_PLAUSIBLE[1]:
-            return {"pct": round(_m.tan(_m.radians(v)) * 100.0, 3), "deg": v, "unit": "degrees",
-                    "form": "bare number (only plausible as degrees)"}
     return None

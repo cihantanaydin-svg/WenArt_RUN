@@ -795,6 +795,38 @@ def covering_kind(roof: dict) -> str:
     return "tiled"
 
 
+PROFILE_SLOPE_RUN_M = 1.0        # 28 Nov 2026 (round 5b fix-up): a profile segment this long is a drawn rafter
+PROFILE_SLOPE_DEG = (5.0, 60.0)  # ... at this angle (a trim, a gutter or a wall is no rafter)
+RIDGE_MARKS_AGREE_M = 0.30       # the roof plan's ridge mark and the section's ridge agree within this
+
+
+def drawn_roof_evidence(roof: dict) -> dict:
+    """28 Nov 2026 (audit fix round 5b fix-up, SECTIONS-1/-2): what the drawings themselves say about the pitch and the
+    span of a roof, before a written pitch is judged against heights (pure): ``slopes`` the angles of the section
+    profile's drawn rafter segments (``PROFILE_SLOPE_RUN_M``, ``PROFILE_SLOPE_DEG``), ``run`` the profile's own
+    horizontal run from its lower end to its peak, ``section_ridge`` its peak, ``plan_ridge`` the roof plan's ridge mark
+    (evidence rule ``roof_plan_mark``)."""
+    prof = roof.get("profile") if isinstance(roof.get("profile"), dict) else {}
+    pts = [(float(q[0]), float(q[1])) for q in prof.get("points") or [] if len(q) >= 2]
+    slopes = []
+    for (s0, z0), (s1, z1) in zip(pts, pts[1:]):
+        ds = abs(s1 - s0)
+        if ds >= PROFILE_SLOPE_RUN_M:
+            ang = math.degrees(math.atan2(abs(z1 - z0), ds))
+            if PROFILE_SLOPE_DEG[0] <= ang <= PROFILE_SLOPE_DEG[1]:
+                slopes.append(round(ang, 2))
+    run, section_ridge = None, None
+    if len(pts) >= 2:
+        peak = max(pts, key=lambda q: q[1])
+        low = min((pts[0], pts[-1]), key=lambda q: q[1])
+        section_ridge = peak[1]
+        run = abs(peak[0] - low[0]) or None
+    rh = roof.get("ridge_height") if isinstance(roof.get("ridge_height"), dict) else {}
+    plan_ridge = _value(rh) if any((e or {}).get("rule") == "roof_plan_mark" for e in rh.get("evidence") or []) \
+        else None
+    return {"slopes": slopes, "run": run, "section_ridge": section_ridge, "plan_ridge": plan_ridge}
+
+
 def written_pitch(roof: dict) -> Optional[float]:
     """The first pitch when it comes from a slope text (evidence rule ``roof_slope_text``), else None (pure)."""
     for p in roof.get("pitches_deg") or []:
@@ -997,18 +1029,47 @@ def _derive(roof: dict, building: dict, pitch: Optional[float] = None, turn: boo
     # the ridge of a stepped hip roof rises over its widest part: half the shorter side of its largest square fit
     rise_half = max(min(q[1] - q[0], q[3] - q[2]) / 2.0 for q in rects) if stepped else half_across
 
-    # 27 Nov 2026 (audit fix round 5b, R07 g): a written pitch against the drawn eaves and ridge (module constants)
+    # 27 Nov 2026 (audit fix round 5b, R07 g): a written pitch against the drawn eaves and ridge (module constants).
+    # 28 Nov 2026 (fix-up, SECTIONS-1/-2: the rule threw away drawn ridges and rafters for a text pitch spread over the
+    # outline's rectangle): the drawings are asked first: when the section's own rafters agree with the written pitch,
+    # or the roof plan's ridge mark and the section's ridge agree, the one roof's span is the wrong reading (one roof
+    # over several drawn roofs), never the ridge or the pitch: the drawn eaves and ridge stay, listed; a pitch from the
+    # heights is taken over the profile's own run, else over the rectangle only when the outline fills it
     eaves_from_pitch = False
     ridge_wrong = False
     p_w = written_pitch(roof)
     if p_w is not None and pitch is None and rtype in ("gable", "hip") and eaves is not None and ridge is not None \
             and not _is_assumed(roof.get("eaves_height")) and not _is_assumed(roof.get("ridge_height")) \
             and rise_half > 0 and ridge > eaves:
-        p_d = math.degrees(math.atan2(ridge - eaves, rise_half))
-        if abs(p_d - p_w) > PITCH_AGREE_DEG:
+        ev = drawn_roof_evidence(roof)
+        agree_slope = [a for a in ev["slopes"] if abs(a - p_w) <= PITCH_AGREE_DEG]
+        marks_agree = ev["plan_ridge"] is not None and ev["section_ridge"] is not None and \
+            abs(ev["plan_ridge"] - ev["section_ridge"]) <= RIDGE_MARKS_AGREE_M
+        span = ev["run"] if ev["run"] else (rise_half if (stepped or rect["fill"] >= 0.98) else None)
+        p_d = math.degrees(math.atan2(ridge - eaves, span)) if span else None
+        if p_d is not None and abs(p_d - p_w) > PITCH_AGREE_DEG and (agree_slope or marks_agree):
+            why = (f"the section's own rafters draw {', '.join(f'{a:.1f}' for a in agree_slope)} degrees"
+                   if agree_slope else
+                   f"the roof plan's ridge mark ({ev['plan_ridge']:.2f} m) and the section's ridge "
+                   f"({ev['section_ridge']:.2f} m) agree")
+            text = (f"one roof over several drawn roofs (multi-part roofs not built): the written pitch {p_w:.1f} "
+                    f"degrees and the drawn eaves {eaves:.3f} m / ridge {ridge:.3f} m give {p_d:.1f} degrees over this "
+                    f"one roof's span, but {why}: the span is the wrong reading, not the ridge or the pitch; the drawn "
+                    f"eaves and ridge are kept (R07 g)")
+            warnings.append(text)
+            assumed.append({"field": "conflict", "value": "multi_part_roof", "reason": text})
+            if not agree_slope:
+                # the two ridge readings agree: the one roof built keeps the drawn eaves and ridge (its pitch from them
+                # over the built roof's own half width); drawn rafters that agree with the text keep the written pitch
+                pitches = [math.degrees(math.atan2(ridge - eaves, rise_half))] + list(pitches[1:])
+            p_d = None                                 # no verdict on the ridge or the pitch
+        elif p_d is None:
+            notes.append(f"the written pitch {p_w:.1f} degrees is not judged against the drawn heights: the roof's span "
+                         f"is unknown (no drawn profile, an outline that does not fill its rectangle)")
+        if p_d is not None and abs(p_d - p_w) > PITCH_AGREE_DEG:
             kind = covering_kind(roof)
             low = PITCH_MIN_DEG.get(kind, 10.0)
-            low_eaves = ridge - rise_half * math.tan(math.radians(p_w))
+            low_eaves = ridge - span * math.tan(math.radians(p_w))
             storey_top = (floor_z + float(level.get("ceiling_height") or 2.70)) \
                 if level is not None and not attic_level(level) else None
             if p_d < low and storey_top is not None and low_eaves < storey_top - EAVES_CEILING_TOL_M <= eaves:
@@ -1497,7 +1558,15 @@ def follow_section(roof: dict, building: dict, base: dict) -> dict:
            "misfit_m": {"before": round(max(r0, p0), 4), "after": round(max(r1, p1), 4)},
            "points_compared": bool(points_ok), "reasons": ([why] if why else []) + ([] if points_ok else reasons),
            "evidence": _section_evidence(roof)}
-    out = dict(chosen, warnings=warnings, section_fit=fit, follows_section=fit["follows_section"])
+    # 28 Nov 2026 (round 5b fix-up): the derived roof's R07 g listing (one roof over several drawn roofs, a pitch
+    # conflict) stays when the roof follows its section
+    keep = [w for w in base.get("warnings") or [] if "(R07 g)" in str(w) and w not in warnings]
+    warnings = warnings + keep
+    assumed_out = list(chosen.get("assumed") or [])
+    assumed_out += [a for a in base.get("assumed") or [] if a.get("field") == "conflict"
+                    and "(R07 g)" in str(a.get("reason")) and a not in assumed_out]
+    out = dict(chosen, warnings=warnings, assumed=assumed_out, section_fit=fit,
+               follows_section=fit["follows_section"])
     out.pop("_ctx", None)
     if change is not None:
         out["notes"] = list(chosen["notes"]) + [f"adjusted to follow {where} ({change}): see section_fit"]

@@ -1240,21 +1240,8 @@ def _ground_gate(b: dict, marks: list, gl: dict, outline, points: list, params: 
     make (``terrain.fit_surface`` as ``_ground`` fits it, else the nearest mark) stands over a limiting door's
     threshold in front of it (a site sloping down to its door keeps its marks); with no such door, when they all stand
     over the plinth top. The default ground the gate leaves is held to the same limit (``_ground``)."""
-    elev = float(gl.get("elevation") or 0.0)
-    sb = [float(m["z"]) for m in marks if m.get("kind") == "plinth" and m.get("z") is not None]
-    lim = [(min(sb), "the plinth top (its SB. mark)") if sb else (elev, f"the floor of {gl['id']} (the plinth top)")]
-    rooms = {r["id"]: r for r in b.get("rooms") or [] if r.get("level_id") == gl["id"]}
-    ramps = {r.get("door_id") for r in (b.get("site") or {}).get("drawn_ramps") or [] if isinstance(r, dict)}
-    rooms_l = list(rooms.values())
-    doors = []
-    for d in outside_doors(b, [gl], outline, outlines_of(b)):
-        o = next((x for x in b.get("openings") or [] if x.get("id") == d["id"]), {})
-        sides = opening_sides(b, o, rooms_l, outlines_of(b).get(gl["id"]) or outline) if o else None
-        room = next((r for r in (sides or {}).get("rooms") or [] if r is not None), None)
-        if d["level_id"] != gl["id"] or d["id"] in ramps or is_garage_door(o, room) or \
-                (room is not None and room.get("room_type") == "garage"):
-            continue                                       # its own drive or ramp down (audit H3)
-        doors.append(d)
+    plinth, doors = _gate_limits(b, marks, gl, outline)
+    lim = [plinth]
     if doors:
         d = min(doors, key=lambda x: (x["threshold"], x["id"]))
         lim.append((float(d["threshold"]), f"the threshold of the outside door {d['id']}"))
@@ -1280,28 +1267,96 @@ def _ground_gate(b: dict, marks: list, gl: dict, outline, points: list, params: 
             "refused": [m["id"] for m in points], "buried": [d["id"] for d, _z in buried]}
 
 
+def _gate_limits(b: dict, marks: list, gl: dict, outline) -> tuple:
+    """``((plinth_z, what), doors)``: the plinth top (its SB. mark, else the ground floor's floor) and the ground floor's
+    outside doors that limit the ground (never a garage's or a door with a drawn ramp: their own drive or ramp down;
+    audit H3) (pure; 28 Nov 2026, fix-up SECTIONS-8: shared by the marks' and the section lines' gates)."""
+    elev = float(gl.get("elevation") or 0.0)
+    sb = [float(m["z"]) for m in marks if m.get("kind") == "plinth" and m.get("z") is not None]
+    plinth = (min(sb), "the plinth top (its SB. mark)") if sb else (elev, f"the floor of {gl['id']} (the plinth top)")
+    rooms = {r["id"]: r for r in b.get("rooms") or [] if r.get("level_id") == gl["id"]}
+    ramps = {r.get("door_id") for r in (b.get("site") or {}).get("drawn_ramps") or [] if isinstance(r, dict)}
+    rooms_l = list(rooms.values())
+    doors = []
+    for d in outside_doors(b, [gl], outline, outlines_of(b)):
+        o = next((x for x in b.get("openings") or [] if x.get("id") == d["id"]), {})
+        sides = opening_sides(b, o, rooms_l, outlines_of(b).get(gl["id"]) or outline) if o else None
+        room = next((r for r in (sides or {}).get("rooms") or [] if r is not None), None)
+        if d["level_id"] != gl["id"] or d["id"] in ramps or is_garage_door(o, room) or \
+                (room is not None and room.get("room_type") == "garage"):
+            continue                                       # its own drive or ramp down (audit H3)
+        doors.append(d)
+    return plinth, doors
+
+
+SIDE_DOOR_COS = 0.7       # 28 Nov 2026 (fix-up, SECTIONS-8): a door faces a section end's side when its outward normal
+#                           lies within about 45 degrees of that side's direction
+
+
+def _line_side(b: dict, g: dict) -> Optional[tuple]:
+    """The outward unit vector in the building frame of a drawn ground level's side (its compass azimuth with the
+    site's north, a compass or drawing-relative side: the section's own end, its flip applied), None for ``all``
+    (pure)."""
+    from wenart.blender import site as S
+    north = S.north_deg(b)[0]
+    if g.get("azimuth_deg") is not None:
+        return S.compass_to_building(float(g["azimuth_deg"]), north)
+    return S.side_direction(g.get("side"), north)
+
+
 def _section_ground_gate(b: dict, marks: list, gl: dict, outline, drawn_levels: list,
                          params: Optional[dict] = None) -> Optional[dict]:
-    """28 Nov 2026 (audit fix round 5b): the ground marks' gate (``_ground_gate``) on the section's drawn ground lines
-    (each as a mark at the outline's centre): a record when every one of them stands more than ``GROUND_GATE_M`` over
-    the plinth top and the ground floor's outside doors (a building is never sunk into its ground on every side; a
-    sloping site keeps a line under the floor on its low side and passes), else None (pure)."""
+    """28 Nov 2026 (audit fix round 5b): the ground marks' gate (``_ground_gate``) on the section's drawn ground lines:
+    a record when every one of them stands more than ``GROUND_GATE_M`` over the plinth top and the outside doors it
+    would bury (a building is never sunk into its ground on every side; a sloping site keeps a line under the floor on
+    its low side and passes), else None (pure).
+    28 Nov 2026 (fix-up, SECTIONS-8: every line stood at the outline's centre, so a right line on the high side of a
+    slope was refused because of a door on the far facade): each line stands at its own end of the cut (its side, the
+    section's flip applied) and is refused only when it would bury an outside door on that side (``SIDE_DOOR_COS``):
+    with no door on its side it stays (a building dug into its slope: the wall there retains the ground); a line for
+    every side (``all``) is judged against every door, and with none against the plinth top."""
     lines = [g for g in drawn_levels if not g.get("from_mark") and not g.get("from_frame")
              and isinstance(g.get("z"), dict) and g["z"].get("value") is not None]
     if not lines or len(outline) < 3:
         return None
+    plinth, doors = _gate_limits(b, marks, gl, outline)
     cx = sum(p[0] for p in outline) / len(outline)
     cy = sum(p[1] for p in outline) / len(outline)
-    pseudo = [{"id": f"section_ground_{g.get('side') or 'all'}_{k + 1}", "point": [cx, cy],
-               "z": float(g["z"]["value"]), "kind": "ground"} for k, g in enumerate(lines)]
-    rec = _ground_gate(b, marks, gl, outline, pseudo, params)
-    if rec is None or len(rec.get("refused") or []) < len(pseudo):
-        return None
-    zs = ", ".join(f"{p['z']:+.2f} m ({g.get('side')})" for p, g in zip(pseudo, lines))
-    rec = dict(rec, why=f"the section's ground line(s) {zs} " + rec["why"].split(") ", 1)[-1]
-               if ") " in rec["why"] else rec["why"])
-    rec["section_lines"] = [g.get("z", {}).get("evidence") for g in lines]
-    return rec
+    refused, buried_all, notes, tops = [], [], [], [plinth]
+    for k, g in enumerate(lines):
+        z = float(g["z"]["value"])
+        side = _line_side(b, g)
+        if side is None:
+            mine, at = doors, [cx, cy]
+        else:
+            mine = [d for d in doors if float(d["outward"][0]) * side[0] + float(d["outward"][1]) * side[1]
+                    >= SIDE_DOOR_COS]
+            reach = max(p[0] * side[0] + p[1] * side[1] for p in outline) - (cx * side[0] + cy * side[1])
+            at = [cx + side[0] * reach, cy + side[1] * reach]
+        lim = [plinth] + [(float(d["threshold"]), f"the threshold of the outside door {d['id']}") for d in mine]
+        top, what = min(lim, key=lambda x: (x[0], x[1]))
+        tops.append((top, what))
+        if z <= top + GROUND_GATE_M:
+            return None                                     # this line passes: the drawn ground stays
+        buried = [(d, _r(z)) for d in mine if z > float(d["threshold"]) + GROUND_GATE_M]
+        if (mine or side is not None) and not buried:
+            return None                                     # under every door on its side (or none there): it stays
+        refused.append(f"section_ground_{g.get('side') or 'all'}_{k + 1}")
+        buried_all += buried
+        notes.append(f"{z:+.2f} m ({g.get('side')}, at {at[0]:.2f}, {at[1]:.2f}: "
+                     + (f"it would bury {', '.join(d['id'] for d, _z in buried)} on its side"
+                        if buried else f"over {what} {top:+.2f} m and no outside door") + ")")
+    top, what = min(tops, key=lambda x: (x[0], x[1]))
+    fz = frame_zero(b, gl)
+    if fz is not None and fz > top + GROUND_GATE_M:
+        fz = None
+    why = ("the section's ground line(s) " + "; ".join(notes) + f" stand more than {GROUND_GATE_M:.2f} m over the "
+           f"limit of their own side: a building is never sunk into its ground; those lines are refused (listed), the "
+           f"ground comes from the plans' ±0.00" + (f" ({fz:+.2f} m)" if fz is not None else "")
+           + ", else the default, never over that limit")
+    return {"why": why, "limit": _r(top), "limit_from": what, "frame_zero": None if fz is None else _r(fz),
+            "refused": refused, "buried": [d["id"] for d, _z in buried_all],
+            "section_lines": [g.get("z", {}).get("evidence") for g in lines]}
 
 
 def _buried_doors(points: list, doors: list, params: Optional[dict]) -> list:

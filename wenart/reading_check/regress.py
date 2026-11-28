@@ -175,6 +175,9 @@ def structure_5b(b: dict) -> dict:
                               "voids": sum(1 for o in ops if o.get("kind") == "void"),
                               "void_m2": _r(sum(area(o) for o in ops), 1),
                               "clipped": sorted(str(o.get("furniture_id")) for o in ops if o.get("clipped_rooms")),
+                              # 28 Nov 2026 (fix-up): clipped openings short of the stair's headroom (SLABS-4)
+                              "headroom_short": sorted({str(o.get("furniture_id")) for o in ops
+                                                        if o.get("headroom_short")}),
                               "not_stacked": sorted(str(x.get("stair")) for x in s.get("stairs_not_stacked") or []),
                               "outline": s.get("outline_source")}
     li = b.get("level_inference") or {}
@@ -185,9 +188,17 @@ def structure_5b(b: dict) -> dict:
     tc = li.get("typical_checks") or {}
     typical = {"dropped": sorted(f"{d.get('level_id')}:{d.get('room')}" for d in tc.get("dropped") or []),
                "stairs": sorted(f"{s_.get('level_id')}:{s_.get('stair')}" for s_ in tc.get("stairs") or []),
-               "notes": len(tc.get("notes") or []), "acted": tc.get("acted", True)} if tc else None
+               "notes": len(tc.get("notes") or []), "acted": tc.get("acted", True),
+               # 28 Nov 2026 (fix-up, SECTIONS-4): stretches the user's corrections hold
+               "vetoed": sorted(f"{v.get('level_id')}:{'+'.join(v.get('rooms') or v.get('stairs') or [])}"
+                                f"({'+'.join(map(str, v.get('corrections') or []))})" for v in tc.get("vetoed") or [])} \
+        if tc else None
     upper = sorted(f"{r.get('space')}:{r.get('action')}" for r in li.get("upper_support") or [])
-    return {"slabs": slabs, "door_steps": steps, "typical_checks": typical, "upper_support": upper}
+    # 28 Nov 2026 (fix-up, SLABS-2): stairs the reading found blocked (the level above cannot be reached by them)
+    blocked = sorted(f"{f.get('level_id')}:{f.get('id')}" for f in b.get("furniture") or []
+                     if isinstance(f, dict) and f.get("stair_blocked"))
+    return {"slabs": slabs, "door_steps": steps, "typical_checks": typical, "upper_support": upper,
+            "stairs_blocked": blocked}
 
 
 def _ridge_dir(d: dict) -> Optional[str]:
@@ -257,6 +268,7 @@ def structure_lines(st: Optional[dict]) -> list[str]:
         out.append(f"slab {sid}: {s_.get('stair_voids')} stair void(s), {s_.get('voids')} void(s), "
                    f"{f(s_.get('void_m2'), '{:.1f}')} m2 open"
                    + (f"; clipped {','.join(s_['clipped'])}" if s_.get("clipped") else "")
+                   + (f" (headroom short {','.join(s_['headroom_short'])})" if s_.get("headroom_short") else "")
                    + (f"; not stacked {','.join(s_['not_stacked'])}" if s_.get("not_stacked") else "")
                    + (f"; outline {s_['outline']}" if s_.get("outline") else ""))
     for d in st.get("door_steps") or []:
@@ -266,7 +278,10 @@ def structure_lines(st: Optional[dict]) -> list[str]:
     if tc:
         verb = ("dropped", "not built") if tc.get("acted", True) else ("to drop (listed)", "to leave out (listed)")
         out.append(f"copied storeys vs section: rooms {verb[0]} {','.join(tc.get('dropped') or []) or '-'}; stairs "
-                   f"{verb[1]} {','.join(tc.get('stairs') or []) or '-'}; {tc.get('notes')} note(s)")
+                   f"{verb[1]} {','.join(tc.get('stairs') or []) or '-'}; {tc.get('notes')} note(s)"
+                   + (f"; held by the user's corrections {','.join(tc['vetoed'])}" if tc.get("vetoed") else ""))
+    if st.get("stairs_blocked"):
+        out.append(f"stairs blocked (the level above cannot be reached): {', '.join(st['stairs_blocked'])}")
     if st.get("upper_support"):
         out.append(f"upper outdoor spaces past the walls below: {', '.join(st['upper_support'])}")
     return out

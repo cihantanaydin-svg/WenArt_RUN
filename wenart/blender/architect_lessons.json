@@ -5219,8 +5219,8 @@
    "area": "other",
    "status": "open",
    "checks": [],
-   "request": "27 Nov 2026 (audit fix round 5b, R22): a storey no plan draws (the typical plan stands for it, or the ground floor of ground_from_typical) is checked against the section the heights come from: where the section draws no floor slab at that storey over at least 2 m while it draws the drawn storey's slab and the slab above (a double-height space), the copy's rooms the cut crosses there are not built (their floor is a void over the storey below, their pieces and the openings on their walls go); a stair the section does not draw in the copy's storey is not built. It acts only with a known cut (a jogged cut line's two marks count) and a section as wide as the building at the cut. Test case real10 (no ground-floor escape stair, no window o_L0_001). Until the user decides, the pipeline lists what the section says and does not carry it out (real10: the user's correction C0035 of 4 Nov asks for the fire escape stair and its door on the ground floor, where the section draws a double-height hall; the score gate must hold).",
-   "lesson": "27 Nov 2026 (audit fix round 5b, R22): a storey no plan draws (the typical plan stands for it, or the ground floor of ground_from_typical) is checked against the section the heights come from: where the section draws no floor slab at that storey over at least 2 m while it draws the drawn storey's slab and the slab above (a double-height space), the copy's rooms the cut crosses there are not built (their floor is a void over the storey below, their pieces and the openings on their walls go); a stair the section does not draw in the copy's storey is not built. It acts only with a known cut (a jogged cut line's two marks count) and a section as wide as the building at the cut. Test case real10 (no ground-floor escape stair, no window o_L0_001). Until the user decides, the pipeline lists what the section says and does not carry it out (real10: the user's correction C0035 of 4 Nov asks for the fire escape stair and its door on the ground floor, where the section draws a double-height hall; the score gate must hold).",
+   "request": "27 Nov 2026 (audit fix round 5b, R22): a storey no plan draws (the typical plan stands for it, or the ground floor of ground_from_typical) is checked against the section the heights come from: where the section draws no floor slab at that storey over at least 2 m while it draws the drawn storey's slab and the slab above (a double-height space), the copy's rooms the cut crosses there are not built (their floor is a void over the storey below, their pieces and the openings on their walls go); a stair the section does not draw in the copy's storey is not built. It acts only with a known cut (a jogged cut line's two marks count) and a section as wide as the building at the cut. Test case real10 (no ground-floor escape stair, no window o_L0_001). 28 Nov 2026 (fix-up): the check acts; a stretch holding anything a correction of the user asserts present on that storey is left whole, listed as a conflict naming the correction (UL511). real10: correction C0035 (4 Nov, 'There should have been fire escape ladders here, and a door to reach there via Hall') was placed on L0 by the machine (located_by_machine, 'the same on L1 to L6'); the user's words name no storey; the user is asked whether it holds for the ground floor (Zemin Kat); until then L0's stretch stays as read, listed.",
+   "lesson": "27 Nov 2026 (audit fix round 5b, R22): a storey no plan draws (the typical plan stands for it, or the ground floor of ground_from_typical) is checked against the section the heights come from: where the section draws no floor slab at that storey over at least 2 m while it draws the drawn storey's slab and the slab above (a double-height space), the copy's rooms the cut crosses there are not built (their floor is a void over the storey below, their pieces and the openings on their walls go); a stair the section does not draw in the copy's storey is not built. It acts only with a known cut (a jogged cut line's two marks count) and a section as wide as the building at the cut. Test case real10 (no ground-floor escape stair, no window o_L0_001). 28 Nov 2026 (fix-up): the check acts; a stretch holding anything a correction of the user asserts present on that storey is left whole, listed as a conflict naming the correction (UL511). real10: correction C0035 (4 Nov, 'There should have been fire escape ladders here, and a door to reach there via Hall') was placed on L0 by the machine (located_by_machine, 'the same on L1 to L6'); the user's words name no storey; the user is asked whether it holds for the ground floor (Zemin Kat); until then L0's stretch stays as read, listed.",
    "question": null
   },
   {
@@ -5249,8 +5249,8 @@
    "area": "other",
    "status": "open",
    "checks": [],
-   "request": "27 Nov 2026 (audit fix round 5b, R07 f): a written slope with a degree sign or 'DERECE' is degrees ('EĞİM 30°'; on a roof plan a bare '30°' too); a slope word with a bare number is per cent when a roof's per cent is plausible (10-150) and degrees only when only a roof's angle is (5-60); a length unit after it is no slope.",
-   "lesson": "27 Nov 2026 (audit fix round 5b, R07 f): a written slope with a degree sign or 'DERECE' is degrees ('EĞİM 30°'; on a roof plan a bare '30°' too); a slope word with a bare number is per cent when a roof's per cent is plausible (10-150) and degrees only when only a roof's angle is (5-60); a length unit after it is no slope.",
+   "request": "27 Nov 2026 (audit fix round 5b, R07 f): a written slope with a degree sign or 'DERECE' is degrees ('EĞİM 30°'; on a roof plan a bare '30°' too); a slope word with a bare number is per cent when a roof's per cent is plausible (10-150) and degrees only when only a roof's angle is (5-60); a length unit after it is no slope. 28 Nov 2026 (fix-up, UL516): a bare number is per cent over 5-150, never degrees.",
+   "lesson": "27 Nov 2026 (audit fix round 5b, R07 f): a written slope with a degree sign or 'DERECE' is degrees ('EĞİM 30°'; on a roof plan a bare '30°' too); a slope word with a bare number is per cent when a roof's per cent is plausible (10-150) and degrees only when only a roof's angle is (5-60); a length unit after it is no slope. 28 Nov 2026 (fix-up, UL516): a bare number is per cent over 5-150, never degrees.",
    "question": null
   },
   {
@@ -5269,8 +5269,8 @@
    "area": "other",
    "status": "open",
    "checks": [],
-   "request": "27 Nov 2026 (audit fix round 5b, R07 g, the main session's default): a written pitch against the drawn eaves and ridge: within 2 degrees they agree; else first check whether one reading is wrong (drawn eaves on a full top storey's ceiling confirm themselves: a ridge that would need eaves under that ceiling is the wrong reading, the written pitch and the drawn eaves stay); else the drawn heights win unless their pitch is under the covering's minimum (10 degrees for a tiled pitched roof), then the written pitch wins with the drawn ridge; the conflict is listed either way. Test case real15 (6.5 degrees from the heights against the plan's 30 %).",
-   "lesson": "27 Nov 2026 (audit fix round 5b, R07 g, the main session's default): a written pitch against the drawn eaves and ridge: within 2 degrees they agree; else first check whether one reading is wrong (drawn eaves on a full top storey's ceiling confirm themselves: a ridge that would need eaves under that ceiling is the wrong reading, the written pitch and the drawn eaves stay); else the drawn heights win unless their pitch is under the covering's minimum (10 degrees for a tiled pitched roof), then the written pitch wins with the drawn ridge; the conflict is listed either way. Test case real15 (6.5 degrees from the heights against the plan's 30 %).",
+   "request": "27 Nov 2026 (audit fix round 5b, R07 g, the main session's default): a written pitch against the drawn eaves and ridge: within 2 degrees they agree; else first check whether one reading is wrong (drawn eaves on a full top storey's ceiling confirm themselves: a ridge that would need eaves under that ceiling is the wrong reading, the written pitch and the drawn eaves stay); else the drawn heights win unless their pitch is under the covering's minimum (10 degrees for a tiled pitched roof), then the written pitch wins with the drawn ridge; the conflict is listed either way. Test case real15 (6.5 degrees from the heights against the plan's 30 %). 28 Nov 2026 (fix-up, UL510): the drawings are asked first (the section's rafters, the roof plan's ridge mark): when they agree, the span is the wrong reading, not the ridge.",
+   "lesson": "27 Nov 2026 (audit fix round 5b, R07 g, the main session's default): a written pitch against the drawn eaves and ridge: within 2 degrees they agree; else first check whether one reading is wrong (drawn eaves on a full top storey's ceiling confirm themselves: a ridge that would need eaves under that ceiling is the wrong reading, the written pitch and the drawn eaves stay); else the drawn heights win unless their pitch is under the covering's minimum (10 degrees for a tiled pitched roof), then the written pitch wins with the drawn ridge; the conflict is listed either way. Test case real15 (6.5 degrees from the heights against the plan's 30 %). 28 Nov 2026 (fix-up, UL510): the drawings are asked first (the section's rafters, the roof plan's ridge mark): when they agree, the span is the wrong reading, not the ridge.",
    "question": null
   },
   {
@@ -5309,8 +5309,88 @@
    "area": "other",
    "status": "open",
    "checks": [],
-   "request": "27 Nov 2026 (audit fix round 5b, the coordinator's check-pod finding): a section's drawn ground line passes the same gate as the ground marks: when every drawn line stands more than 0.05 m over the plinth top and the ground floor's outside door thresholds (a building is never sunk into its ground on every side; a sloping site keeps a line under the floor on its low side) it is refused and listed, and the ground comes from the next source. Test case real15 (section B-B's '+2.70' line read as the ground 2.2 m over the terrace doors).",
-   "lesson": "27 Nov 2026 (audit fix round 5b, the coordinator's check-pod finding): a section's drawn ground line passes the same gate as the ground marks: when every drawn line stands more than 0.05 m over the plinth top and the ground floor's outside door thresholds (a building is never sunk into its ground on every side; a sloping site keeps a line under the floor on its low side) it is refused and listed, and the ground comes from the next source. Test case real15 (section B-B's '+2.70' line read as the ground 2.2 m over the terrace doors).",
+   "request": "27 Nov 2026 (audit fix round 5b, the coordinator's check-pod finding): a section's drawn ground line passes the same gate as the ground marks: when every drawn line stands more than 0.05 m over the plinth top and the ground floor's outside door thresholds (a building is never sunk into its ground on every side; a sloping site keeps a line under the floor on its low side) it is refused and listed, and the ground comes from the next source. Test case real15 (section B-B's '+2.70' line read as the ground 2.2 m over the terrace doors). 28 Nov 2026 (fix-up, UL517): each line stands at its own end of the cut and is judged only against the doors on that side.",
+   "lesson": "27 Nov 2026 (audit fix round 5b, the coordinator's check-pod finding): a section's drawn ground line passes the same gate as the ground marks: when every drawn line stands more than 0.05 m over the plinth top and the ground floor's outside door thresholds (a building is never sunk into its ground on every side; a sloping site keeps a line under the floor on its low side) it is refused and listed, and the ground comes from the next source. Test case real15 (section B-B's '+2.70' line read as the ground 2.2 m over the terrace doors). 28 Nov 2026 (fix-up, UL517): each line stands at its own end of the cut and is judged only against the doors on that side.",
+   "question": null
+  },
+  {
+   "id": "UL510",
+   "date": "2026-11-28",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "28 Nov 2026 (audit fix round 5b fix-up, R07 g): before a written pitch is judged against the drawn eaves and ridge, the drawings are asked: when the section's own rafter lines (segments of 1 m or more at 5-60 degrees) draw the written pitch, or the roof plan's ridge mark and the section's ridge agree within 0.3 m, the one roof's span is the wrong reading (one roof over several drawn roofs): the drawn eaves and ridge are kept and 'multi-part roofs not built' is listed. A pitch from the heights is taken over the section profile's own eaves-to-ridge run, never over a rectangle's half width; an outline that does not fill its rectangle with no profile: the span is unknown, the pitch is not judged. Test cases real15 (ridge 6.95 with the listing), real06 (18.3 degrees with the listing).",
+   "lesson": "28 Nov 2026 (audit fix round 5b fix-up, R07 g): before a written pitch is judged against the drawn eaves and ridge, the drawings are asked: when the section's own rafter lines (segments of 1 m or more at 5-60 degrees) draw the written pitch, or the roof plan's ridge mark and the section's ridge agree within 0.3 m, the one roof's span is the wrong reading (one roof over several drawn roofs): the drawn eaves and ridge are kept and 'multi-part roofs not built' is listed. A pitch from the heights is taken over the section profile's own eaves-to-ridge run, never over a rectangle's half width; an outline that does not fill its rectangle with no profile: the span is unknown, the pitch is not judged. Test cases real15 (ridge 6.95 with the listing), real06 (18.3 degrees with the listing).",
+   "question": null
+  },
+  {
+   "id": "UL511",
+   "date": "2026-11-28",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "28 Nov 2026 (audit fix round 5b fix-up, R22): the section is placed on the copied and drawn storeys' own outline at each half of the cut (never a longer basement or roof ring) and not used when either end lies more than 0.3 m off that storey's facade; a floor the section draws at another height over the stretch (a split level, a sunken floor) is no double-height space. The check acts; a stretch holding anything a correction of the user asserts present on that storey is left whole as it is (its rooms, its stair, its openings: never a stair left in a removed room), listed as a conflict naming the correction; every removal carries the section crop as its evidence.",
+   "lesson": "28 Nov 2026 (audit fix round 5b fix-up, R22): the section is placed on the copied and drawn storeys' own outline at each half of the cut (never a longer basement or roof ring) and not used when either end lies more than 0.3 m off that storey's facade; a floor the section draws at another height over the stretch (a split level, a sunken floor) is no double-height space. The check acts; a stretch holding anything a correction of the user asserts present on that storey is left whole as it is (its rooms, its stair, its openings: never a stair left in a removed room), listed as a conflict naming the correction; every removal carries the section crop as its evidence.",
+   "question": null
+  },
+  {
+   "id": "UL512",
+   "date": "2026-11-28",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "28 Nov 2026 (audit fix round 5b fix-up): a stair's floor opening counts the area no room of the level above covers as open (a stair well); the stair does not stack only when closed rooms hold more than half of it, and then it is blocked: a critical reading finding ('the level above cannot be reached by this stair') that the model review's walk (M9) and the build's stair fix see; an open-plan kitchen, a generic 'ODA', a garage or a store closes the opening only where one of its walls crosses the flights; a closed room inside the opening stays a hole (the opening cut round it); a clipped opening reports the clear height over the flights left under the slab; the same stair a few metres off on the level above is a registration finding and the opening is kept.",
+   "lesson": "28 Nov 2026 (audit fix round 5b fix-up): a stair's floor opening counts the area no room of the level above covers as open (a stair well); the stair does not stack only when closed rooms hold more than half of it, and then it is blocked: a critical reading finding ('the level above cannot be reached by this stair') that the model review's walk (M9) and the build's stair fix see; an open-plan kitchen, a generic 'ODA', a garage or a store closes the opening only where one of its walls crosses the flights; a closed room inside the opening stays a hole (the opening cut round it); a clipped opening reports the clear height over the flights left under the slab; the same stair a few metres off on the level above is a registration finding and the opening is kept.",
+   "question": null
+  },
+  {
+   "id": "UL513",
+   "date": "2026-11-28",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "28 Nov 2026 (audit fix round 5b fix-up): a door's steps are planned relative to the door (its wall, side, width) and rebuilt by the build from the opening as it is then (a door moved along its wall carries them, a door moved to another wall loses them); every re-inference clears the old plans first; a flight on another door's approach, on a stair or leaving less than a 0.8 m walkway beside it is a finding, not a build; a short run of steps the plan draws at the door is its steps; a ramp's faces are wound outwards whichever way the wall runs; the vehicle door is the one garage predicate (levels.model.is_garage_door); a lower outdoor room takes the outdoor riser.",
+   "lesson": "28 Nov 2026 (audit fix round 5b fix-up): a door's steps are planned relative to the door (its wall, side, width) and rebuilt by the build from the opening as it is then (a door moved along its wall carries them, a door moved to another wall loses them); every re-inference clears the old plans first; a flight on another door's approach, on a stair or leaving less than a 0.8 m walkway beside it is a finding, not a build; a short run of steps the plan draws at the door is its steps; a ramp's faces are wound outwards whichever way the wall runs; the vehicle door is the one garage predicate (levels.model.is_garage_door); a lower outdoor room takes the outdoor riser.",
+   "question": null
+  },
+  {
+   "id": "UL514",
+   "date": "2026-11-28",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "28 Nov 2026 (audit fix round 5b fix-up, R23): what a roof terrace's drawn edge ring leaves out of the floor below's outline may be open only over a void, a light well, a shaft or a stair (or outside the walls); over any other room the old outline stays there and the room is a finding. A parapet drawn as two lines on one layer gives the outer face as the ring and its thickness from the mean offset of the inner face (drawn parapets); one line gives the parapets' line, not their thickness (inferred).",
+   "lesson": "28 Nov 2026 (audit fix round 5b fix-up, R23): what a roof terrace's drawn edge ring leaves out of the floor below's outline may be open only over a void, a light well, a shaft or a stair (or outside the walls); over any other room the old outline stays there and the room is a finding. A parapet drawn as two lines on one layer gives the outer face as the ring and its thickness from the mean offset of the inner face (drawn parapets); one line gives the parapets' line, not their thickness (inferred).",
+   "question": null
+  },
+  {
+   "id": "UL515",
+   "date": "2026-11-28",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "28 Nov 2026 (audit fix round 5b fix-up): a section cut's two letters stand outside the building's outline (drawn without its dimension, axis, text and hatch layers) or within 1 m of it; two labels inside the plan (two WCs by their floor marks) are never a cut. Test case real10 (its bottom 'A' outside the outline, inside its box).",
+   "lesson": "28 Nov 2026 (audit fix round 5b fix-up): a section cut's two letters stand outside the building's outline (drawn without its dimension, axis, text and hatch layers) or within 1 m of it; two labels inside the plan (two WCs by their floor marks) are never a cut. Test case real10 (its bottom 'A' outside the outline, inside its box).",
+   "question": null
+  },
+  {
+   "id": "UL516",
+   "date": "2026-11-28",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "28 Nov 2026 (audit fix round 5b fix-up): a slope word with a bare number is per cent over 5-150 (a larger number is never a flatter roof; a roof reader lists a low one as no roof pitch); a bare angle on a roof plan is never 45 or 90 degrees, never on a dimension layer, and votes only inside the eaves loop; a length, area or count word after the number (MT, METRE, M2, ADET ...) is no slope.",
+   "lesson": "28 Nov 2026 (audit fix round 5b fix-up): a slope word with a bare number is per cent over 5-150 (a larger number is never a flatter roof; a roof reader lists a low one as no roof pitch); a bare angle on a roof plan is never 45 or 90 degrees, never on a dimension layer, and votes only inside the eaves loop; a length, area or count word after the number (MT, METRE, M2, ADET ...) is no slope.",
+   "question": null
+  },
+  {
+   "id": "UL517",
+   "date": "2026-11-28",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "28 Nov 2026 (audit fix round 5b fix-up): a section's drawn ground line stands at its own end of the cut (its side, the section's flip applied) and is refused only when it would bury an outside door on that side; with no door on its side it stays (a building dug into its slope). Test case real15 (the '+2.70' line buries the door on its side: refused).",
+   "lesson": "28 Nov 2026 (audit fix round 5b fix-up): a section's drawn ground line stands at its own end of the cut (its side, the section's flip applied) and is refused only when it would bury an outside door on that side; with no door on its side it stays (a building dug into its slope). Test case real15 (the '+2.70' line buries the door on its side: refused).",
    "question": null
   }
  ]
