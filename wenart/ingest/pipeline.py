@@ -2857,7 +2857,7 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
     from wenart.levels import model as LMO        # 20 Nov 2026 (R03-02): the walls' outline when no union closes
     b["slabs"] = TB.slabs_block(sheets, b["levels"], build.unions, b["furniture"], slab_default, build.warn,
                                 b["variants"], b["rooms"], build.voids, outline_of=lambda lid: LMO.level_outline(b, lid))
-    terrace = TB.roof_terrace(b, sheets, build.warn)      # real10: parapets and the stair house of a roof terrace
+    terrace = TB.roof_terrace(b, sheets, build.warn, build.frame_shift)   # real10: parapets, stair house (R23 ring)
     b["roof"] = TB.roof_block(sheets, b["levels"], b["rooms"], b["walls"], build.frame_shift, b.get("site"),
                               terrace=terrace)
     why = TB.roof_frame_guard(b["roof"], b["levels"], sheets)        # 20 Nov 2026 (pre-pod check, R09-10)
@@ -3420,6 +3420,10 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
     named = RN.name_faces(building)                # its open neighbour's label or a role name, never a bare 'Oda'
     if named:
         building.setdefault("level_inference", {})["room_names"] = named
+    from wenart.sheets import typical_check as TCK   # 27 Nov 2026 (round 5b, R22): copied storeys against the section
+    TCK.apply(build)
+    # 28 Nov 2026 (round 5b fix-up): the upper floors past the walls under them are judged by R16's one rule inside the
+    # levels model (``outdoor_checks.upper_reach``), not here
     masters =[sorted(ws, key=lambda w: w.rank)[0] for ws in by_level.values()]
     if any(w.extraction.source_kind is not None for w in masters):
         # The generic core's unit system; an evidence-only raster page beside a DXF/PDF level does not count.

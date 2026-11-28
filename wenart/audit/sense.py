@@ -98,6 +98,8 @@ def graph(building: dict) -> tuple[dict, dict]:
         # visitor walks from the arrival into the floor is the model review's M9. Only a stair that cannot be planned
         # (no heights, no flights) falls back to its centre.
         try:
+            if SA.blocked(building, f):
+                continue        # 28 Nov 2026 (round 5b fix-up, SLABS-2): a blocked stair (no opening) joins no levels
             ends = SA.stair_rooms(building, f)
             upper_end = ends is None and SA.is_upper_end(building, f)
         except Exception:  # noqa: BLE001 - shapely's errors too: the centre stands in

@@ -22,6 +22,17 @@ kitchen doors never open into the air); what is wrong with it is a finding on th
   label, no door, no facing window) is not built, as a finding.
 - An inferred upper space reaches at most ``UPPER_REACH_M`` beyond the outline of the storeys under it (never a
   basement's: GENERAL-13).
+- 28 Nov 2026 (round 5b fix-up, the coordinator's decision: one rule for upper outdoor spaces; round 5b's
+  ``levels.upper_support`` folded in here): ``upper_reach`` judges an upper storey's space (never a ground-floor or
+  basement space: it stands on the ground) against one reference, the storey directly under it, with one threshold
+  and one geometry for the trigger and the clip (``UPPER_REACH_M``, a round join). A part past that reach with walls
+  or columns of the storey below under it is supported. Otherwise "undrawn" is decided by the method: a drawn outline
+  ("drawn face", "strokes") is kept and listed (a cantilever that needs supports the drawings do not show); an
+  inferred rectangle is cut to the reach (a written area only confirms its size, it never exempts it); a space a door
+  lands on or with a label is never dropped (kept as read and listed when no part stays within the reach); only a
+  purely inferred space is refused (``record_refusal``). The drawn roof covering most of its part over the storey below
+  is named in the finding. It runs inside ``levels.outdoor.outdoor_spaces`` (``levels.model.infer_levels``), before the
+  space's floor, roof and posts are derived, so every re-run gives the same verdict.
 
 Why: real15's first-floor 'TERAS' label got a 204 m² rectangle cantilevering 5.5 m past the west facade with no door
 onto it; real17's corner balcony was built at half its size, leaving a hole in the floor.
@@ -41,6 +52,11 @@ TWIN_REACH_M = 0.6              # a space of another storey this close (centres)
 UPPER_MIN_M = 0.5               # a storey this far over the ground storey is an upper storey
 LOW_SILL_M = 0.60               # a window this near the floor facing a doorless space is its probable door
 RULE = "A-R16"
+UPPER_PAST_M2 = 0.5             # 28 Nov 2026 (fold of round 5b's upper support): less past the storey below is no reach
+UPPER_TOL_M = 0.05              # ... a reach within this of UPPER_REACH_M is a drawing tolerance (the cut stays within it)
+UPPER_KEEP_M2 = 1.0             # ... a cut leaving less than this keeps nothing of the space
+UPPER_ROOF_SHARE = 0.5          # ... the drawn roof covering this share of its part over the storey below is named
+SUPPORT_TYPES = ("column", "pillar", "pier", "post")
 
 
 def _shp(poly):
@@ -197,22 +213,119 @@ def record_refusal(building: dict, area: dict, level_id: str, polygon, method, r
                                               and x.get("area_id") is not None)] + [rec]
 
 
-def clip_upper(polygon, level_id: str, levels: dict, outlines: dict, ground_id: Optional[str] = None):
-    """An inferred upper space cut to ``UPPER_REACH_M`` beyond the storeys under it (the ground storey up, never a
-    basement's outline): ``(polygon, reason or None)``."""
-    from shapely.ops import unary_union
-
+def level_below(level_id: str, levels: dict, ground_id: Optional[str] = None) -> Optional[dict]:
+    """The base storey directly under an upper storey (the one reference of ``upper_reach``); None for the ground storey
+    and a basement (their spaces stand on the ground: GENERAL-1)."""
     if not is_upper(level_id, levels, ground_id):
-        return polygon, None
+        return None
     lower = lower_levels(level_id, levels, ground_id)
-    rings = [_shp(outlines[x["id"]]) for x in lower if len(outlines.get(x["id"]) or []) >= 3]
-    if not rings:
+    return max(lower, key=lambda x: float(x["elevation"])) if lower else None
+
+
+def reach_zone(outline):
+    """The one geometry of the reach: the storey's outline grown by ``UPPER_REACH_M`` with a round join (a corner is
+    never 2.83 m out: GENERAL-9)."""
+    return _shp(outline).buffer(UPPER_REACH_M, join_style=1, quad_segs=16)
+
+
+def _supports(building: dict, below_id: str, part) -> list:
+    """The walls and columns of the storey below under ``part`` (their ids)."""
+    from shapely.geometry import LineString, Point
+
+    inner = part.buffer(-0.05)
+    if inner.is_empty:
+        return []
+    out = []
+    for w in building.get("walls") or []:
+        if w.get("level_id") == below_id and w.get("start") and w.get("end") and \
+                LineString([w["start"][:2], w["end"][:2]]).intersects(inner):
+            out.append(w["id"])
+    for f in building.get("furniture") or []:
+        c = (f.get("footprint") or {}).get("center")
+        if f.get("level_id") == below_id and str(f.get("type") or "") in SUPPORT_TYPES and c is not None \
+                and inner.contains(Point(float(c[0]), float(c[1]))):
+            out.append(f["id"])
+    return out
+
+
+def _roof_polys(building: dict) -> list:
+    roof = building.get("roof") if isinstance(building.get("roof"), dict) else None
+    if roof is None or roof.get("type") in (None, "flat"):
+        return []
+    polys = [roof.get("outline")] + [o.get("points") for o in (roof.get("roof_plan_outline") or {}).get("others") or []
+                                     if isinstance(o, dict)]
+    return [_shp(q) for q in polys if q and len(q) >= 3]
+
+
+def upper_reach(building: dict, area: dict, level_id: str, levels: dict, ground_id: Optional[str], method, polygon,
+                outlines: dict, doors_onto: Optional[list] = None) -> dict:
+    """The one rule for an upper outdoor space past the storey under it (module docstring; pure). Returns ``{"action":
+    None | "supported" | "kept" | "clipped" | "refused", "polygon", "reason", "below", "reach_m", "past_m2"}``."""
+    from shapely.geometry import Point
+
+    out = {"action": None, "polygon": polygon, "reason": None, "below": None, "reach_m": 0.0, "past_m2": 0.0}
+    below = level_below(level_id, levels, ground_id)
+    if below is None or len(outlines.get(below["id"]) or []) < 3 or not polygon or len(polygon) < 3:
+        return out
+    under, sp = _shp(outlines[below["id"]]), _shp(polygon)
+    past = sp.difference(under)
+    if past.is_empty or past.area < UPPER_PAST_M2:
+        return out
+    reach = max((under.distance(Point(c)) for g in getattr(past, "geoms", [past]) if g.geom_type == "Polygon"
+                 for c in g.exterior.coords), default=0.0)
+    out.update(below=below["id"], reach_m=round(reach, 2), past_m2=round(past.area, 2))
+    if reach <= UPPER_REACH_M + UPPER_TOL_M:
+        return out
+    name = f"{area.get('id')} ({area.get('label')}) of {level_id}"
+    sup = _supports(building, below["id"], past)
+    if sup:
+        out.update(action="supported", reason=f"{name} reaches {reach:.2f} m past {below['id']}'s walls on "
+                                              f"{', '.join(sup[:3])} of {below['id']}")
+        return out
+    over = sp.intersection(under)
+    roofs = _roof_polys(building)
+    covered = min(sum(over.intersection(r).area for r in roofs), over.area) if roofs and not over.is_empty else 0.0
+    roof_note = (f"; the drawn roof covers {covered:.1f} of its {over.area:.1f} m² over {below['id']} (the plan above "
+                 f"draws a roof there: to review)" if over.area >= UPPER_KEEP_M2 and
+                 covered >= UPPER_ROOF_SHARE * over.area else "")
+    head = (f"{name} reaches {reach:.2f} m past the walls of {below['id']} ({past.area:.1f} m² past them) with no wall or "
+            f"column drawn under it")
+    if not is_rectangle(method):
+        out.update(action="kept", reason=f"{head}: its outline is drawn ({method}): kept, a cantilever over "
+                                         f"{UPPER_REACH_M:g} m that needs supports the drawings do not show (listed)"
+                                         + roof_note)
+        return out
+    keep = sp.intersection(reach_zone(outlines[below["id"]]))
+    parts = [g for g in getattr(keep, "geoms", [keep]) if g.geom_type == "Polygon" and g.area > 0.05]
+    anchor = area.get("anchor")
+    g = next((q for q in parts if anchor and q.buffer(0.01).contains(Point(float(anchor[0]), float(anchor[1])))),
+             max(parts, key=lambda q: q.area) if parts else None)
+    if g is not None and g.area >= UPPER_KEEP_M2:
+        out.update(action="clipped", polygon=[[round(x, 4), round(y, 4)] for x, y in list(g.exterior.coords)[:-1]],
+                   reason=f"{head}; its outline is inferred ({method}): cut to {UPPER_REACH_M:g} m beyond the walls of "
+                          f"{below['id']} ({sp.area:.2f} -> {g.area:.2f} m²; a written area confirms only its size)"
+                          + roof_note)
+        return out
+    purely = not str(area.get("label") or "").strip() and not doors_onto
+    out.update(action="refused" if purely else "kept",
+               reason=f"{head}; its outline is inferred ({method}) and less than {UPPER_KEEP_M2:g} m² of it stands within "
+                      f"{UPPER_REACH_M:g} m of the walls of {below['id']}: " + ("not built (a purely inferred space)" if purely else
+                                                          "kept as read, its label or door holds it (to review)")
+                      + roof_note)
+    return out
+
+
+def clip_upper(polygon, level_id: str, levels: dict, outlines: dict, ground_id: Optional[str] = None):
+    """An inferred upper space cut to ``UPPER_REACH_M`` beyond the storey directly under it (``level_below``, never a
+    basement's outline; the one geometry ``reach_zone``): ``(polygon, reason or None)``."""
+    below = level_below(level_id, levels, ground_id)
+    if below is None or len(outlines.get(below["id"]) or []) < 3:
         return polygon, None
     sp = _shp(polygon)
-    reach = unary_union(rings).buffer(UPPER_REACH_M, join_style=2)
-    if reach.contains(sp):
+    zone = reach_zone(outlines[below["id"]])
+    if zone.contains(sp):
         return polygon, None
-    cut = sp.intersection(reach)
+    cut = sp.intersection(zone)
     parts = [g for g in getattr(cut, "geoms", [cut]) if g.geom_type == "Polygon" and g.area > 0.05]
     if not parts:
         return polygon, None
@@ -227,10 +340,21 @@ def unreached(b: dict, warn=None) -> list[dict]:
     (``finding`` on the space, a record, a warning): its stacked twin's status when a same-kind space of another storey
     at the same place is reached, else 'no door reaches it' with the facing low-sill window named as its probable door.
     Only a purely inferred space (no drawn outline, no label, no door, no facing window) leaves
-    ``site.outdoor_spaces`` for ``site.outdoor_spaces_refused``. Returns the records."""
+    ``site.outdoor_spaces`` for ``site.outdoor_spaces_refused``. Returns the records.
+    28 Nov 2026 (round 5b fix-up, OPENINGS2-8: a re-run of the levels model lost every finding): it also runs at the end
+    of the levels model's outdoor step (``levels.model.infer_levels``, so every re-run writes it again) and is
+    idempotent: its finding keeps the finding it covers (``base``) and a space reached since gets that back; a refusal
+    replaces the record of the same space."""
     site = b.get("site") if isinstance(b.get("site"), dict) else None
     if not site or not site.get("outdoor_spaces"):
         return []
+    for s in site["outdoor_spaces"]:
+        f = s.get("finding")
+        if isinstance(f, dict) and f.get("unreached"):
+            if f.get("base"):
+                s["finding"] = f["base"]
+            else:
+                s.pop("finding", None)
     levels = {lv["id"]: lv for lv in b.get("levels") or [] if not lv.get("base_level_id")}
     reached = {}
     for s in site["outdoor_spaces"]:
@@ -268,9 +392,13 @@ def unreached(b: dict, warn=None) -> list[dict]:
                                                              "why": why})
         if purely:
             rec["refused"] = True
-            site.setdefault("outdoor_spaces_refused", []).append(dict(s, refused={"rule": RULE, "reason": why}))
+            site["outdoor_spaces_refused"] = [x for x in site.get("outdoor_spaces_refused") or []
+                                              if not (isinstance(x, dict) and x.get("id") == s.get("id"))] + \
+                [dict(s, refused={"rule": RULE, "reason": why})]
         else:
-            s["finding"] = {"rule": RULE, "reason": why, **({"probable_door": win["id"]} if win else {})}
+            base = s.get("finding") if isinstance(s.get("finding"), dict) else None
+            s["finding"] = {"rule": RULE, "reason": why, "unreached": True,
+                            **({"probable_door": win["id"]} if win else {}), **({"base": base} if base else {})}
             keep.append(s)
         out.append(rec)
         if warn:

@@ -2708,7 +2708,10 @@ def site_summary(building: Optional[dict]) -> Optional[dict]:
         areas.append({"id": a.get("id"), "label": a.get("label"), "label_size": ls.get("text"),
                       "measured": ls.get("measured"), "status": ls.get("status"),
                       "closed": a.get("polygon") is not None or bool(space.get("built")), "kind": a.get("kind"),
-                      "build": True if space.get("built") else a.get("build"), "space": space.get("id")})
+                      "build": True if space.get("built") else a.get("build"), "space": space.get("id"),
+                      # 28 Nov 2026 (round 5b fix-up): why a labelled outdoor space is not built (the rule's verdict)
+                      **({"not_built_reason": space.get("reason"), "rule": space.get("finding")}
+                         if space and not space.get("built") and space.get("reason") else {})})
     decor: dict[str, int] = {}
     for d in site.get("decor") or []:
         if isinstance(d, dict):

@@ -17,6 +17,7 @@ Only drawn looks are written (§1.6b row 12): every other look is resolved by th
 from __future__ import annotations
 
 import math
+import re
 from typing import Callable, Optional
 
 from shapely.geometry import Point, Polygon
@@ -275,6 +276,7 @@ def _slab(lv: dict, below: Optional[dict], unions: dict, furniture: list[dict], 
     from wenart.blender import stair_access as SA
     rise = float(lv.get("elevation") or 0.0) - float(below.get("elevation") or 0.0) if below else None
     ended = []
+    not_stacked: list = []
     for f in _stairs(below_id, furniture):
         if short_run(f):
             continue                         # a short run of steps reaches no floor above: no opening
@@ -296,8 +298,44 @@ def _slab(lv: dict, below: Optional[dict], unions: dict, furniture: list[dict], 
         if poly is None:
             poly = [[round(x, 4), round(y, 4)] for x, y in G.rotated_rectangle(fp["center"], fp["size"],
                                                                                   fp["rotation_deg"])]
-        openings.append({"id": f"sv_{slab_id[3:]}_{len(openings) + 1:03d}", "kind": "stair_void",
-                         "furniture_id": f["id"], "polygon": poly, "source": "derived"})
+        # 27 Nov 2026 (audit fix round 5b: real19's stair opened a bedroom of the floor above, real18's a store room):
+        # the opening stays in the rooms of the level above a stair can arrive in (``void_fit``)
+        ups = _stairs(lv["id"], furniture)
+        fit = void_fit(poly, lv["id"], rooms or [], [_footprint_poly(g) for g in ups], f, ups)
+        f.pop("stair_blocked", None)
+        if fit["stacks"] is False:
+            not_stacked.append((f["id"], fit))
+            # 28 Nov 2026 (fix-up, SLABS-2): a stair that does not stack is blocked (the build and M9 see it)
+            f["stair_blocked"] = {"level_above": lv["id"], "closed_rooms": list(fit["closed"]),
+                                  "reason": f"the level above ({lv['id']}) cannot be reached by this stair: its "
+                                            f"opening would stand {fit['closed_m2']:.2f} of {fit['closed_m2'] + fit['open_m2']:.2f} "
+                                            f"m2 in {', '.join(fit['closed'])} of {lv['id']}"}
+            continue
+        head = None
+        if fit["clipped"]:
+            # 28 Nov 2026 (fix-up, SLABS-4): the clear height over the flights the clip leaves under the slab
+            from shapely.ops import unary_union as _uu
+            left_out = Polygon(poly).buffer(0).difference(_uu([Polygon(q).buffer(0) for q in fit["polygons"]]))
+            head = SA.headroom_under(f, rise, rise - thickness, left_out) if rise and rise > thickness else None
+        for k, ring in enumerate(fit["polygons"]):
+            rec_o = {"id": f"sv_{slab_id[3:]}_{len(openings) + 1:03d}", "kind": "stair_void",
+                     "furniture_id": f["id"], "polygon": ring, "source": "derived"}
+            if fit["clipped"]:
+                short = head is not None and head < SA.HEADROOM_M - 1e-9
+                rec_o.update(clipped_rooms=fit["clipped"], clipped_m2=fit["clipped_m2"], headroom_m=head,
+                             headroom_short=bool(short) if head is not None else None,
+                             reason=f"the stair's opening clipped to the rooms of {lv['id']} a stair arrives in: the "
+                                    f"{fit['clipped_m2']:.2f} m2 in {', '.join(fit['clipped'])} left out; the flights "
+                                    f"under that part run under the slab: "
+                                    + (f"{head:.2f} m clear height over them ("
+                                       + ("under" if short else "at least") + f" the {SA.HEADROOM_M:.2f} m a stair "
+                                       f"needs)" if head is not None else "their clear height is not known (no drawn "
+                                       "flights)"))
+            if fit.get("registration"):
+                rec_o["registration"] = dict(fit["registration"], reason=(
+                    f"the same stair {fit['registration']['stair']} stands {fit['registration']['offset_m']:.2f} m off on "
+                    f"{lv['id']}: the level above is registered off (a reading finding); the opening is kept"))
+            openings.append(rec_o)
     if below is not None:
         for o in void_openings(lv["id"], rooms or [], voids):
             openings.append(dict(o, id=f"sv_{slab_id[3:]}_{len(openings) + 1:03d}"))
@@ -318,10 +356,169 @@ def _slab(lv: dict, below: Optional[dict], unions: dict, furniture: list[dict], 
         for e in ev:
             if e.get("rule") == "outer_wall_outline":
                 e["method"] = "inferred"
-    return {"id": slab_id, "below_level_id": below_id, "above_level_id": lv["id"], "z_top": float(lv["elevation"]),
-            "thickness": round(thickness, 3), "thickness_source": "section" if from_section else "assumed_default",
-            "outline": outline, "openings": openings, "variants": [],
-            "status": "verified" if from_section else "assumed", "evidence": ev}
+    out = {"id": slab_id, "below_level_id": below_id, "above_level_id": lv["id"], "z_top": float(lv["elevation"]),
+           "thickness": round(thickness, 3), "thickness_source": "section" if from_section else "assumed_default",
+           "outline": outline, "openings": openings, "variants": [],
+           "status": "verified" if from_section else "assumed", "evidence": ev}
+    if not_stacked:
+        # 27 Nov 2026 (round 5b): a stair whose opening would stand in the closed rooms of the level above does not
+        # stack with that level's plan: reported, it cuts no slab (the build adds none either: ``stairs_not_stacked``)
+        out["stairs_not_stacked"] = [{"stair": sid, "closed_rooms": fit["closed"], "closed_m2": fit["closed_m2"],
+                                      "open_m2": fit["open_m2"],
+                                      "reason": f"the opening of stair {sid} of {below_id} would stand "
+                                                f"{fit['closed_m2']:.2f} m2 in {', '.join(fit['closed'])} of "
+                                                f"{lv['id']} and {fit['open_m2']:.2f} m2 in rooms a stair arrives in: "
+                                                f"the stair does not stack with the plan above; no opening (listed)"}
+                                     for sid, fit in not_stacked]
+    return out
+
+
+# 27 Nov 2026 (audit fix round 5b): rooms a stair's floor opening never stands in (the plan above draws them closed).
+# 28 Nov 2026 (fix-up, SLABS-5): an open-plan kitchen, a generic 'ODA', a garage and a store are common stair arrivals:
+# they close the opening only where a room edge (a wall between rooms) crosses it
+CLOSED_ROOM_TYPES = ("bedroom", "kitchen", "bathroom", "wc", "prayer", "shaft", "technical")
+SOFT_ROOM_TYPES = ("garage", "storage")
+OPEN_PLAN_RE = re.compile(r"SALON|YASAM|OTURMA|YEMEK|DINING|LIVING|ACIK|OPEN|LOUNGE|WOHN|ESS")
+GENERIC_ROOM_RE = re.compile(r"^\s*(?:ODA|ROOM|RAUM|PIECE)\s*[0-9]*\s*$")
+EDGE_CROSS_M = 0.5               # a room edge this long inside the opening is a wall across the flights
+VOID_CLIP_MIN_M2 = 0.05          # less than this of the opening in closed rooms is a drawing tolerance: kept as it is
+STAIR_ABOVE_REACH_M = 0.30       # a stair the plan above draws keeps the opening this far round its footprint open
+NOT_STACKED_SHARE = 0.5          # SLABS-1: the opening "does not stack" only when closed rooms hold over this share of it
+REGISTRATION_REACH_M = 3.0       # SLABS-4: the same stair this far off on the level above is a registration finding
+PIECE_MIN_M2 = 0.5               # a part of a clipped opening smaller than this is a sliver the clip left
+SPLIT_PIECE_MIN_M2 = 0.01        # ... but a piece of an opening split round a hole is kept down to this
+
+
+def _closedness(r: dict) -> str:
+    """'closed', 'soft' (closed only where a room edge crosses the opening) or 'open' for a stair's arrival (pure)."""
+    if B.is_void_label(r.get("label_raw")) or B.is_void_label(r.get("label")):
+        return "open"
+    t = r.get("room_type")
+    label = B.fold_ascii(str(r.get("label_raw") or r.get("label") or "")).upper()
+    if t in SOFT_ROOM_TYPES:
+        return "soft"
+    if t == "kitchen" and OPEN_PLAN_RE.search(label):
+        return "soft"
+    if t == "bedroom" and GENERIC_ROOM_RE.match(label):
+        return "soft"
+    return "closed" if t in CLOSED_ROOM_TYPES else "open"
+
+
+def _same_stair_offset(stair: Optional[dict], above: list) -> Optional[dict]:
+    """``{"stair", "offset_m"}`` of a stair of the same size and turn on the level above within
+    ``REGISTRATION_REACH_M`` of ``stair`` that does not stand over it (pure), else None."""
+    if not stair or not above:
+        return None
+    fp = stair.get("footprint") or {}
+    try:
+        size = sorted(float(v) for v in fp["size"][:2])
+        rot = float(fp.get("rotation_deg") or 0.0) % 180.0
+        c = (float(fp["center"][0]), float(fp["center"][1]))
+    except (KeyError, TypeError, ValueError):
+        return None
+    best = None
+    for g in above:
+        gf = g.get("footprint") or {}
+        try:
+            gs = sorted(float(v) for v in gf["size"][:2])
+            gr = float(gf.get("rotation_deg") or 0.0) % 180.0
+            gc = (float(gf["center"][0]), float(gf["center"][1]))
+        except (KeyError, TypeError, ValueError):
+            continue
+        d = math.dist(c, gc)
+        turn = min(abs(gr - rot), 180.0 - abs(gr - rot))
+        if abs(gs[0] - size[0]) <= 0.10 and abs(gs[1] - size[1]) <= 0.10 and turn <= 5.0 and 0.5 < d <= \
+                REGISTRATION_REACH_M and (best is None or d < best["offset_m"]):
+            best = {"stair": g.get("id"), "offset_m": round(d, 2),
+                    "shift": [round(gc[0] - c[0], 3), round(gc[1] - c[1], 3)]}
+    return best
+
+
+def _pieces(geom) -> list:
+    """The simple polygons of ``geom`` (pure): every part of at least ``PIECE_MIN_M2`` (a smaller part is a sliver the
+    clip left), a part with a hole split through the hole into pieces that are all kept (SLABS-3: a closed room inside
+    the opening stays a hole, never quietly open; no piece of the opening round it is lost)."""
+    from shapely.geometry import LineString as _L
+    from shapely.ops import split
+    todo = [(g, False) for g in getattr(geom, "geoms", [geom]) if g.geom_type == "Polygon"]
+    out = []
+    while todo:
+        g, cut = todo.pop()
+        if g.is_empty or g.area < (SPLIT_PIECE_MIN_M2 if cut else PIECE_MIN_M2):
+            continue
+        if not g.interiors:
+            out.append(g)
+            continue
+        cx = g.interiors[0].centroid.x
+        parts = split(g, _L([(cx, g.bounds[1] - 1.0), (cx, g.bounds[3] + 1.0)]))
+        todo.extend((q, True) for q in parts.geoms if q.geom_type == "Polygon")
+    return sorted(out, key=lambda q: -q.area)
+
+
+def void_fit(poly: list, level_id: str, rooms: list, stairs_above: Optional[list] = None,
+             stair: Optional[dict] = None, stair_pieces_above: Optional[list] = None) -> dict:
+    """27 Nov 2026 (audit fix round 5b): a stair's floor opening is its flights and landing on the level below, clipped
+    to the rooms of the level above a stair can arrive in. 28 Nov 2026 (fix-up, SLABS-1/-3/-4/-5, GENERAL-7): the part
+    no room covers is open; a room is closed (``CLOSED_ROOM_TYPES``) or soft (``_closedness``: closed only where one of
+    its edges crosses the opening); a stair the plan above draws there (``stairs_above``) keeps its place open; the
+    stair does not stack (``stacks`` False: no opening, the stair is blocked) only when closed rooms hold over
+    ``NOT_STACKED_SHARE`` of the opening, and never when the same stair stands a few metres off on the level above
+    (``registration``: a registration finding, the opening kept); a clip keeps holes (the opening split round them).
+    Returns ``{"polygon", "polygons", "stacks", "clipped", "clipped_m2", "closed", "closed_m2", "open_m2",
+    "registration"}`` (pure)."""
+    from shapely.geometry import LineString as _L
+    from shapely.ops import unary_union
+    p = Polygon(poly)
+    p = p if p.is_valid else p.buffer(0)
+    above = [q if q.is_valid else q.buffer(0) for q in stairs_above or [] if q is not None and not q.is_empty]
+    drawn_up = unary_union([q.buffer(STAIR_ABOVE_REACH_M, join_style=2) for q in above]) if above else None
+    closed, closed_polys = [], []
+    for r in rooms:
+        if r.get("level_id") != level_id or len(r.get("polygon") or []) < 3:
+            continue
+        rp = Polygon(r["polygon"])
+        rp = rp if rp.is_valid else rp.buffer(0)
+        if rp.intersection(p).area <= 0.01:                # a sliver along a shared wall face is no overlap
+            continue
+        kind = _closedness(r)
+        if kind == "open":
+            continue
+        if kind == "soft":
+            edge = _L(list(rp.exterior.coords)).intersection(p)
+            if edge.length < EDGE_CROSS_M:
+                continue                                   # no wall of it crosses the flights: an open arrival
+        rest = rp.difference(drawn_up) if drawn_up is not None else rp
+        if rest.intersection(p).area <= 0.01:
+            continue                                       # the stair above stands there: its own place
+        closed.append(r["id"])
+        closed_polys.append(rest)
+    out = {"polygon": poly, "polygons": [poly], "stacks": True, "clipped": [], "clipped_m2": 0.0, "closed": closed,
+           "closed_m2": 0.0, "open_m2": round(p.area, 3), "registration": None}
+    if not closed_polys:
+        return out
+    shut = unary_union(closed_polys)
+    closed_m2 = shut.intersection(p).area
+    out["closed_m2"] = round(closed_m2, 3)
+    out["open_m2"] = round(p.area - closed_m2, 3)
+    if closed_m2 < VOID_CLIP_MIN_M2:
+        return out
+    if closed_m2 > NOT_STACKED_SHARE * p.area:
+        reg = _same_stair_offset(stair, stair_pieces_above or [])
+        if reg is not None:
+            out["registration"] = reg                      # the opening stays: the level above is misregistered
+            return out
+        out["stacks"] = False
+        return out
+    pieces = _pieces(p.difference(shut))
+    if not pieces:
+        out["stacks"] = False
+        return out
+    ring = lambda q: [[round(x, 4) + 0.0, round(y, 4) + 0.0] for x, y in list(q.simplify(0.005).exterior.coords)[:-1]]
+    out["polygons"] = [ring(q) for q in pieces]
+    out["polygon"] = out["polygons"][0]
+    out["clipped"] = closed
+    out["clipped_m2"] = round(p.area - sum(q.area for q in pieces), 3)
+    return out
 
 
 def void_openings(level_id: str, rooms: list[dict], voids: Optional[list[dict]] = None) -> list[dict]:
@@ -436,6 +633,14 @@ def slabs_block(sheets: dict, levels: list[dict], unions: dict, furniture: list[
             continue
         if slab["thickness_source"] != "section":
             warn(f"slab under {lv['id']}: thickness {slab['thickness']:.2f} m assumed (brief slab_thickness)")
+        for o in slab.get("openings") or []:
+            if o.get("clipped_rooms"):
+                warn(f"slab under {lv['id']}: {o['id']} over stair {o.get('furniture_id')}: {o['reason']}")
+            if o.get("registration"):
+                warn(f"slab under {lv['id']}: {o['id']} over stair {o.get('furniture_id')}: "
+                     f"{o['registration']['reason']}")
+        for ns in slab.get("stairs_not_stacked") or []:
+            warn(f"slab under {lv['id']}: {ns['reason']}")
         out.append(slab)
     by_id = {s["id"]: s for s in out}
     for v in variants or []:
@@ -777,7 +982,7 @@ def _guarded(w: dict, top_m: float, source: str) -> None:
 HOUSE_REACH_M = 0.40               # a wall within this of the top level's rooms belongs to the stair house
 
 
-def roof_terrace(b: dict, sheets: dict, warn) -> Optional[dict]:
+def roof_terrace(b: dict, sheets: dict, warn, shift: Optional[Shift] = None) -> Optional[dict]:
     """real10 (1 Nov 2026): the top level is a roof terrace floor (``roof_terrace``): its rooms (the stair house:
     stair, lift, machine room) keep full walls under a flat roof at the stair house's height; every other wall of
     the level stands on the terrace's edge: a parapet (``height`` = the section's parapet mark, else
@@ -807,11 +1012,14 @@ def roof_terrace(b: dict, sheets: dict, warn) -> Optional[dict]:
         w["parapet"] = True
         _guarded(w, w["height"], "section mark" if parapet is not None else "assumed")
         n_par += 1
+    # 27 Nov 2026 (audit fix round 5b, R23): the terrace's own drawn edge ring (any layer) gives its slab, its rooms and
+    # its parapets; the floor below's outline only where the plan draws no ring
+    ring = drawn_ring(b, sheets, top, rooms, warn, shift)
     # 4 Nov 2026 (real10, user: "If nothing is built in the last floor roof etc, putting a bit parapet would be nice so
     # people on the last floor can walk safely"): the terrace plan drew only three short parapet pieces, the edge stood
     # open; where no wall of the top level stands on the edge of the floor below, a parapet is inferred along it
     edge = _edge_parapets(b, top, float(parapet if parapet is not None else ROOF_TERRACE_PARAPET_M),
-                          "section mark" if parapet is not None else "assumed")
+                          "section mark" if parapet is not None else "assumed", ring=ring)
     if house_h is not None:
         top["ceiling_height"] = round(float(house_h), 3)
         top["ceiling_height_source"] = "section"
@@ -828,9 +1036,10 @@ def roof_terrace(b: dict, sheets: dict, warn) -> Optional[dict]:
         warn(f"roof terrace {top['id']}: the terrace round the stair house is {n_terr} outdoor room(s) 'Teras' "
              f"(balcony type, inferred: the plan titles a roof terrace floor and draws no room there)")
     if edge:
-        warn(f"roof terrace {top['id']}: {edge} parapet piece(s) inferred along the terrace's open edge (the outer walls "
-             f"of the floor below), {parapet if parapet is not None else ROOF_TERRACE_PARAPET_M:.2f} m high, so the "
-             f"terrace is safe to walk on")
+        where = "its drawn edge ring" if ring is not None else "the outer walls of the floor below"
+        warn(f"roof terrace {top['id']}: {edge} parapet piece(s) inferred along the terrace's open edge ({where}), "
+             f"{parapet if parapet is not None else ROOF_TERRACE_PARAPET_M:.2f} m high, so the terrace is safe to walk "
+             f"on")
     warn(f"roof terrace {top['id']}: {n_par} wall(s) on the terrace's edge are parapets "
          f"{parapet if parapet is not None else ROOF_TERRACE_PARAPET_M:.2f} m high "
          f"({'section mark' if parapet is not None else 'assumed'}); the stair house "
@@ -901,14 +1110,23 @@ EDGE_SIMPLIFY_M = 0.05             # the edge's jogs from outer walls of differe
 EDGE_CORNER_MIN_M = 0.05           # a whole edge of the outline this short still gets its piece (the corners stay closed)
 
 
-def _edge_parapets(b: dict, top: dict, height: float, source: str) -> int:
+def _edge_parapets(b: dict, top: dict, height: float, source: str, ring: Optional[dict] = None) -> int:
     """4 Nov 2026: parapet walls (``parapet: true``, inferred) along the open stretches of a roof terrace's edge: the
     centre line of the outer walls of the highest level below that has walls, less where a wall of the top level
-    stands within ``EDGE_COVERED_M``. Returns the number of pieces added to ``b["walls"]``."""
+    stands within ``EDGE_COVERED_M``. 27 Nov 2026 (round 5b, R23): with the terrace's drawn edge ring (``drawn_ring``)
+    the parapets stand on the ring, half its drawn thickness inside its outer face. Returns the number of pieces added
+    to ``b["walls"]``."""
     import statistics
     from shapely.geometry import LineString
     from shapely.ops import unary_union
 
+    if ring is not None:
+        t_out = float(ring.get("thickness") or EDGE_PARAPET_T_M)
+        edge_ring = ring["polygon"].buffer(-t_out / 2.0, join_style=2)
+        # 28 Nov 2026 (fix-up, GENERAL-6): a ring with no drawn inner face gives the parapets' line, not their
+        # thickness: those parapets stay inferred
+        return _parapet_pieces(b, top, edge_ring, t_out, height, source, drawn=bool(ring.get("thickness")),
+                               on_ring=True) if not edge_ring.is_empty else 0
     below = []
     for lv in sorted((lv for lv in b.get("levels") or [] if lv.get("order") is not None
                       and lv["order"] < (top.get("order") or 0)), key=lambda lv: -lv["order"]):
@@ -929,6 +1147,17 @@ def _edge_parapets(b: dict, top: dict, height: float, source: str) -> int:
     ring = filled.buffer(-t_out / 2.0, join_style=2)
     if ring.is_empty:
         return 0
+    return _parapet_pieces(b, top, ring, t_out, height, source)
+
+
+def _parapet_pieces(b: dict, top: dict, ring, t_out: float, height: float, source: str, drawn: bool = False,
+                    on_ring: bool = False) -> int:
+    """The parapet pieces of ``_edge_parapets`` along ``ring`` (its centre line), where no wall of the top level stands
+    within ``EDGE_COVERED_M``. ``on_ring``: the line is the terrace's drawn edge ring (rule ``roof_terrace_ring``);
+    ``drawn``: its thickness is drawn too (a double line: vector, verified), else the parapet stays inferred
+    (28 Nov 2026, fix-up GENERAL-6)."""
+    from shapely.geometry import LineString
+    from shapely.ops import unary_union
     ring = max(getattr(ring, "geoms", [ring]), key=lambda g: g.area).simplify(EDGE_SIMPLIFY_M)
     own = [LineString([w["start"], w["end"]]) for w in b.get("walls") or []
            if w["level_id"] == top["id"] and w["start"] != w["end"]]
@@ -955,11 +1184,120 @@ def _edge_parapets(b: dict, top: dict, height: float, source: str) -> int:
                 "status": "unverified", "parapet": True, "inferred": True,
                 "guard": {"top_m": round(max(float(height), GUARD_TOP_M), 3), "kind": "handrail", "source": source},
                 "evidence": [B.evidence("building.json", "inferred", 0.6, rule="roof_terrace_edge_parapet",
-                                        text=f"the terrace's edge over the outer walls of the floor below stands "
-                                             f"open: a {min(height, PARAPET_LOW_M):.2f} m low wall with a handrail "
-                                             f"to {max(height, GUARD_TOP_M):.2f} m ({source}) so the terrace is safe "
-                                             f"to walk on")]})
+                                        text=(f"the terrace's drawn edge ring stands open there (no wall read on it)"
+                                              if on_ring else "the terrace's edge over the outer walls of the floor "
+                                                            "below stands open")
+                                        + f": a {min(height, PARAPET_LOW_M):.2f} m low wall with a handrail to "
+                                          f"{max(height, GUARD_TOP_M):.2f} m ({source}) so the terrace is safe to "
+                                          f"walk on")]})
+            if on_ring:
+                b["walls"][-1]["rule"] = "roof_terrace_ring"
+            if drawn:
+                b["walls"][-1]["evidence"][0]["method"] = "vector"
+                b["walls"][-1]["status"] = "verified"
     return n
+
+
+RING_DIFF_M2 = 0.5                 # 27 Nov 2026 (round 5b, R23): the floor below's outline and the drawn ring differ
+OPEN_BELOW_WORDS = ("ISIK", "AYDINLIK", "HAVA BACA", "LIGHT WELL", "LICHTHOF", "SAFT", "SHAFT", "BOSLUK", "GALERI")
+
+
+def _frame_shift_of(b: dict, sheets: dict, region_id: Optional[str]) -> tuple[float, float]:
+    """The sheets -> building frame shift (building = sheets - shift) of a region: its sheets transform's offset less
+    its page's in the building JSON (pure)."""
+    reg = next((r for r in sheets.get("regions") or [] if r.get("id") == region_id), None)
+    tf_s = (reg or {}).get("transform_to_building")
+    for doc in b.get("documents") or []:
+        for pg in doc.get("pages") or []:
+            tf_b = pg.get("transform_to_building")
+            if pg.get("region_id") == region_id and tf_s and tf_b:
+                return (round(float(tf_s[2]) - float(tf_b[2]), 6), round(float(tf_s[5]) - float(tf_b[5]), 6))
+    return (0.0, 0.0)
+
+
+def drawn_ring(b: dict, sheets: dict, top: dict, rooms: list, warn, shift: Optional[Shift] = None) -> Optional[dict]:
+    """27 Nov 2026 (audit fix round 5b, R23): the roof terrace's own drawn edge ring (``terrace_ring.choose`` on the
+    rings its plan's lines close, any layer: around the stair house, within ``terrace_ring.NEAR_M`` of the outline of the
+    floor below along most of its length) becomes the outline of the slab under the terrace level (its slots and
+    recesses stay open: the light well is covered but for its drawn slot, the stair recess stays open); a difference to
+    the floor below's outline over ``RING_DIFF_M2`` is listed. Returns the ring record, or None (then the floor below's
+    outline stays, as before)."""
+    from wenart.levels import model as LMO
+    from wenart.sheets import terrace_ring as TRG
+    lv_s = next((lv for lv in sheets.get("levels") or [] if lv.get("id") == top["id"]), None)
+    cands = (lv_s or {}).get("edge_rings") or []
+    if not cands:
+        return None
+    ordered = sorted((lv for lv in b.get("levels") or [] if not lv.get("base_level_id")),
+                     key=lambda lv: float(lv.get("elevation") or 0.0))
+    i = next((k for k, lv in enumerate(ordered) if lv["id"] == top["id"]), 0)
+    below = ordered[i - 1] if i > 0 else None
+    pts = LMO.level_outline(b, below["id"]) if below is not None else None
+    below_poly = Polygon(pts).buffer(0) if pts and len(pts) >= 3 else None
+    core = [tuple(r.representative_point().coords[0]) for r in rooms]
+    ring = TRG.choose(cands, below_poly, core, shift if shift is not None else
+                      _frame_shift_of(b, sheets, top.get("region_id")))
+    if ring is None:
+        warn(f"roof terrace {top['id']}: {len(cands)} drawn ring(s) on its plan, none around the stair house along the "
+             f"floor below's outline: the terrace takes the floor below's outline")
+        return None
+    slab = next((sl for sl in b.get("slabs") or [] if sl.get("above_level_id") == top["id"] and not sl.get("variants")),
+                None)
+    poly = ring["polygon"]
+    # 28 Nov 2026 (fix-up, RING-1): what the ring leaves out of the floor below's outline may be open only over a void,
+    # a light well, a shaft, a stair (its drawn recess) or outside the walls; over any other room the old outline stays
+    # there and the room is a finding
+    if slab is not None and len(slab.get("outline") or []) >= 3 and below is not None:
+        from shapely.ops import unary_union
+        old0 = Polygon(slab["outline"]).buffer(0)
+        left = old0.difference(poly.buffer(0.01))
+        keep, kept_rooms = [], []
+        for part in [g for g in getattr(left, "geoms", [left]) if g.geom_type == "Polygon" and g.area >= 0.3]:
+            bad = []
+            for r in b.get("rooms") or []:
+                if r.get("level_id") != below["id"] or len(r.get("polygon") or []) < 3:
+                    continue
+                rp = Polygon(r["polygon"]).buffer(0)
+                a = rp.intersection(part).area
+                if a < 0.1:
+                    continue
+                label = B.fold_ascii(str(r.get("label_raw") or r.get("label") or "")).upper()
+                open_ok = r.get("room_type") in ("shaft", "stair") or B.is_void_label(r.get("label_raw")) or \
+                    B.is_void_label(r.get("label")) or any(w in label for w in OPEN_BELOW_WORDS)
+                if not open_ok:
+                    bad.append((r["id"], round(a, 2)))
+            if bad:
+                keep.append(part)
+                kept_rooms.extend(bad)
+        if keep:
+            grown = unary_union([poly.buffer(0.03, join_style=2)] + [k.buffer(0.03, join_style=2) for k in keep]) \
+                .buffer(-0.03, join_style=2)
+            if grown.geom_type == "MultiPolygon":
+                grown = max(grown.geoms, key=lambda g: g.area)
+            if grown.geom_type == "Polygon":
+                poly = grown
+                ring = dict(ring, polygon=poly, kept_below=kept_rooms)
+            for rid, a in kept_rooms:
+                warn(f"roof terrace {top['id']}: its drawn edge ring would leave {a:.2f} m2 of {rid} of {below['id']} "
+                     f"open to the sky: the floor below's outline is kept there (a finding: the ring or the room is "
+                     f"misread)")
+    if slab is not None:
+        old = Polygon(slab.get("outline") or []).buffer(0) if len(slab.get("outline") or []) >= 3 else None
+        diff = old.symmetric_difference(poly).area if old is not None else poly.area
+        slab["outline"] = [[round(x, 4) + 0.0, round(y, 4) + 0.0] for x, y in list(poly.exterior.coords)[:-1]]
+        slab["outline_source"] = "roof_terrace_ring"
+        slab.setdefault("evidence", []).append(B.evidence(
+            top["evidence"][0]["file"] if top.get("evidence") else "", "vector", 0.9,
+            entity=f"the closed ring on layer '{ring['layer']}'", region_id=top.get("region_id"),
+            rule="roof_terrace_ring"))
+        # the stair openings of the slab stay; any part of them outside the drawn ring is no floor anyway
+        if diff > RING_DIFF_M2:
+            warn(f"roof terrace {top['id']}: its drawn edge ring (layer '{ring['layer']}', {poly.area:.1f} m2, "
+                 f"{ring['near_share'] * 100:.0f} % of it along the floor below's outline) and the floor below's "
+                 f"outline differ by {diff:.1f} m2: the drawn ring is the terrace's slab (listed)")
+    warn(f"roof terrace {top['id']}: the slab, the terrace rooms and the parapets follow its drawn edge ring on layer "
+         f"'{ring['layer']}'" + (f" (a double line, {ring['thickness']:.2f} m)" if ring.get("thickness") else ""))
+    return ring
 
 
 def _value_of(entry) -> Optional[float]:

@@ -1070,6 +1070,8 @@ def stair_links(building: dict, rooms: Optional[Sequence[dict]] = None) -> list[
             continue
         # 27 Oct 2026: the room the stair starts in and the room its arrival floor lies in on the next level (not the
         # rooms at its centre: real06's stair arrived on a strip its opening cut off from the hall)
+        if SA.blocked(building, f):
+            continue            # 28 Nov 2026 (round 5b fix-up, SLABS-2): a blocked stair (no opening) links no rooms
         try:
             ends = SA.stair_rooms(building, f)
         except Exception:  # noqa: BLE001 - shapely's errors too: the centre stands in

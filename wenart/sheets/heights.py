@@ -48,6 +48,7 @@ GROUND_TOUCH_M = 0.05                  # ... to a wall face it ends on (within t
 GROUND_MARK_TOL_M = 0.20               # a level mark up to this far above a ground line stands on it (real10: its point
                                        # 0.144 m above the line, as every mark of that section)
 MARK_TOL_M = 0.05
+ROOF_MARK_SNAP_M = 0.15          # 27 Nov 2026 (round 5b, R07 d): a printed mark this close snaps the eaves or ridge
 BAND_MATCH_M = 0.10                    # 24 Nov 2026: a slab band's top this close to a storey's floor mark is its slab
 SLAB_MIN_M = 0.12                      # ... and a band thinner than this is a finish's lines, no slab's thickness
 BAND_REFINE_M = 0.25                   # ... the bands' frame set on the band tops nearest the floor marks within this
@@ -655,6 +656,24 @@ def heights(section: Optional[SectionGeometry], levels: list[dict], reference_ex
         roof["ridge_z"] = _value(z(ridge[1]), "vector", ev,
                                  note=None if top_floor_y is None else
                                  f"{(ridge[1] - top_floor_y) * s:.2f} m above the top floor")
+        # 27 Nov 2026 (audit fix round 5b, R07 d): the eaves and the ridge snap to the section's own printed level mark
+        # when one stands at them (its value and the height it points at within ``ROOF_MARK_SNAP_M``)
+        if datum is not None:
+            for key, y_pt in (("eaves_z", eave[1]), ("ridge_z", ridge[1])):
+                zl = z(y_pt)
+                near = [m for m in marks if mark_z(m) is not None and abs(mark_z(m) - zl) <= ROOF_MARK_SNAP_M
+                        and abs(z(m["y"]) - zl) <= ROOF_MARK_SNAP_M]
+                if not near:
+                    continue
+                m = min(near, key=lambda q: abs(mark_z(q) - zl))
+                if abs(mark_z(m) - zl) < 0.005:
+                    continue
+                roof[key] = _value(mark_z(m), "vector", list(roof[key]["evidence"]) + [
+                    _ev(file_rel, m["t"].id, "level_mark", rid, m["t"].text)],
+                    note=f"snapped to the section's printed mark {m['t'].text} ({mark_z(m):+.2f}; the roof line gives "
+                         f"{zl:+.2f}, {abs(mark_z(m) - zl) * 100:.0f} cm off)")
+                warnings.append(f"section {rid}: the roof's {key.replace('_z', '')} {zl:+.2f} snapped to the printed "
+                                f"mark {m['t'].text} ({mark_z(m):+.2f})")
         pitches = []
         for (ax, ay), (bx, by) in zip(prof, prof[1:]):
             if bx - ax <= 0:
@@ -1132,6 +1151,31 @@ def marks_first_reasons(out: dict, levels: list[dict], section, bands_mismatch: 
         why.append(f"{lid} floor to floor {ftf:.2f} m (over {HOUSE_STOREY_MAX_M:.1f} m, no level mark at the floor "
                    f"above)")
     return why
+
+
+def reject_roof(out: dict, why: str) -> Optional[str]:
+    """27 Nov 2026 (audit fix round 5b, R07 e; real16: the section's storey heights were no storeys, every floor was
+    assumed, and its roof, eaves 13.62 and ridge 15.74 in the same section frame, was built about 8 m over the top
+    ceiling): when a section's storey heights are rejected its roof heights are rejected too, in place: the eaves, the
+    ridge, the knee wall, the overhang (measured from the same outer walls) and the profile become assumed (no value;
+    the build derives them from the top storey); the pitches (angles of the drawn lines) and the thickness stay. Returns
+    the line to log, or None when the section gave no roof height (pure but for ``out``)."""
+    roof = out.get("roof") or {}
+    keys = ("eaves_z", "ridge_z", "knee_wall", "overhang")
+    old = {k: roof[k]["value"] for k in keys if isinstance(roof.get(k), dict) and roof[k].get("method") == "vector"
+           and roof[k].get("value") is not None}
+    if not old and not roof.get("profile"):
+        return None
+    note = f"{why}: the section's roof heights stand in the same rejected frame (not used)"
+    for k in old:
+        roof[k] = assumed(None, note)
+    had_profile = bool(roof.get("profile"))
+    roof["profile"] = []
+    roof["rejected"] = {"why": why, **{k: round(float(v), 3) for k, v in old.items()}}
+    out["roof"] = roof
+    return (f"{why}: the section's roof heights are rejected too ("
+            + ", ".join(f"{k.replace('_z', '')} {float(v):.2f}" for k, v in old.items())
+            + (", its profile" if had_profile else "") + "): the build derives the roof from the top storey")
 
 
 def refuse_storeys(out: dict, levels: list[dict], refused: list[str], ceiling: float, slab: float,

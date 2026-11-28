@@ -2431,7 +2431,60 @@ def _threshold(opening, wall, centre, angle, floor_z, has_below, rooms, style, l
     if step is not None:
         manifest_objects[-1]["step"] = {"rise": step["rise"], "low_room": step["low_room"],
                                         "high_room": step["high_room"]}
+    blocks = door_step_blocks(opening, has_below, wall)
+    if blocks is not None:
+        # 27 Nov 2026 (audit fix round 5b): the reading's steps (or a garage's ramp) in front of the door, in the lower
+        # room (``wenart.levels.door_steps``; inferred)
+        low = next((r for r in rooms if r.get("id") == (opening.get("steps") or {}).get("room_id")), room)
+        smat, _w = floor_material(low or {}, style, library)
+        sob = common.new_mesh_object(f"{opening['id']}_steps", blocks[0], blocks[1], collection=collection,
+                                     wenart_id=opening["id"], kind="floor", status="assumed", materials=[smat])
+        st = opening.get("steps") or {}
+        manifest_objects.append({
+            "name": sob.name, "wenart_id": opening["id"], "kind": "floor", "status": "assumed",
+            "level_id": opening["level_id"], "element_id": opening["id"], "evidence": opening.get("evidence", []),
+            "material": smat.name, "textured": library.textured(smat), "pass_index": None,
+            "room_id": st.get("room_id"), "door_steps": {k: st.get(k) for k in ("kind", "risers", "riser", "tread",
+                                                                                 "run", "rise", "slope")},
+            "assumed": {"steps": st.get("reason")}})
     return ob
+
+
+def door_step_blocks(opening: dict, has_below: bool = False, wall: dict | None = None) -> tuple[list, list] | None:
+    """27 Nov 2026 (audit fix round 5b; pure): the mesh of the steps or ramp the reading planned in front of a door
+    between two floors of different height (``wenart.levels.door_steps``): a prism per tread block, a sloped prism for a
+    ramp (low at its far end, at the threshold at the door). 28 Nov 2026 (fix-up, STEPS-1 / STEPS-5): the blocks are
+    rebuilt from the opening and its wall as they are now (``door_steps.plan_blocks``: a door the later stages move or
+    resize carries its steps, a door moved to another wall loses them), and the ramp's faces are wound outwards for
+    either side of the wall. None without steps to build."""
+    from wenart.levels import door_steps as DS
+    st = opening.get("steps") if isinstance(opening.get("steps"), dict) else None
+    if not st:
+        return None
+    blocks = DS.plan_blocks(opening, wall, st)
+    if not blocks:
+        return None
+    lift = DEFAULTS["threshold_lift"] if has_below else 0.0
+    parts = []
+    for blk in blocks:
+        poly = [tuple(p[:2]) for p in blk.get("polygon") or []]
+        if len(poly) < 3:
+            continue
+        z0, z1 = float(blk["z0"]) + lift, float(blk["z1"]) + lift
+        if blk.get("slope_to") == "door" and len(poly) == 4:
+            # the ramp's first two corners stand at the door (the wall face), the last two at its far end
+            verts = [(x, y, z0) for x, y in poly] + [(poly[0][0], poly[0][1], z1), (poly[1][0], poly[1][1], z1),
+                                                     (poly[2][0], poly[2][1], z0 + 0.001),
+                                                     (poly[3][0], poly[3][1], z0 + 0.001)]
+            faces = [[3, 2, 1, 0], [4, 5, 6, 7], [0, 1, 5, 4], [1, 2, 6, 5], [2, 3, 7, 6], [3, 0, 4, 7]]
+            if G.polygon_signed_area(poly) < 0:
+                faces = [list(reversed(f)) for f in faces]      # a clockwise ring: every face turned outwards
+            parts.append((verts, faces))
+        elif z1 > z0 + 1e-4:
+            parts.append(geom2d.prism(poly, z0, z1))
+    if not parts:
+        return None
+    return geom2d.merge(parts)
 
 
 def _soffit(opening, wall, centre, angle, z, style, library, collection, manifest_objects, op_assumed, shift):
@@ -3759,14 +3812,27 @@ def slab_plan(building: dict, levels: list[dict], brief_thickness: float = 0.20,
         # evidence rule stair_ends_below) gets no opening in this slab
         ended = {x.strip() for e in ((s or {}).get("evidence") or []) if isinstance(e, dict)
                  and e.get("rule") == "stair_ends_below" for x in str(e.get("entity") or "").split(",")}
+        # 27 Nov 2026 (audit fix round 5b): a stair the reading found not stacking with the plan above cuts no opening
+        # (``to_building.void_fit``, listed there); an opening the reading clipped to the rooms of the level above is
+        # never widened back into them
+        unstacked = {str(x.get("stair")) for x in ((s or {}).get("stairs_not_stacked") or []) if isinstance(x, dict)}
+        clipped = {o.get("furniture_id") for o in ((s or {}).get("openings") or []) if isinstance(o, dict)
+                   and o.get("clipped_rooms")}
         if below is not None:
             for item in plan_stairs(building, below, slab_void=True):
                 if item["plan"] is None or item["piece"]["id"] in ended:
                     continue
                 pid = item["piece"]["id"]
+                if pid in unstacked:
+                    rec["assumed"].append(f"no opening for stair {pid}: it does not stack with the plan above "
+                                          f"(the reading's finding)")
+                    warnings.append(f"{rec['id']}: stair {pid} does not stack with the plan above: no opening cut")
+                    continue
                 rec["stairs"].append(pid)
                 own = [loop for loop in item["plan"]["void"] if len(loop) >= 3]
-                if own and not any(_overlap(loop, v) for loop in own for v in rec["voids"]):
+                if pid in clipped and any(_overlap(loop, v) for loop in own for v in rec["voids"]):
+                    pass                                 # the reading's clipped opening stands as it is
+                elif own and not any(_overlap(loop, v) for loop in own for v in rec["voids"]):
                     rec["voids"].extend(geom2d.ccw(loop) for loop in own)
                     rec["assumed"].append(f"opening for stair {pid} added (the stair's own opening)")
                     warnings.append(f"{rec['id']}: no opening over stair {pid}; the stair's opening is cut (assumed)")

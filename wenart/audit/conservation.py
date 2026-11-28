@@ -255,13 +255,24 @@ def untyped(final: dict) -> list[dict]:
                     continue                      # 30 Oct 2026: its drawn surface (paving, parking, pool) is built
                 if el.get("build") is False or not el.get("polygon"):
                     label = el.get("label") or el.get("label_raw") or el["id"]
+                    space = el.get("space") if isinstance(el.get("space"), dict) else {}
+                    ruled = space.get("built") is False and space.get("finding") and space.get("reason")
+                    evidence = {"collection": coll, "label": label,
+                                "source": [e.get("entity") for e in el.get("evidence") or [] if isinstance(e, dict)][:4]}
+                    if ruled:
+                        # 28 Nov 2026 (round 5b fix-up): a rule refused the space with its reason and finding (R16:
+                        # the space below seen from above, a purely inferred space past the storey under it): Argus
+                        # reports that verdict, it does not ask to build the space
+                        out.append(K.finding("conservation", "C5", "major", el["id"],
+                                             f"the documents label a site area '{label}'; the reading's rule "
+                                             f"{space.get('finding')} does not build it: {space['reason']} (listed, to "
+                                             f"review)", owner="site", evidence=dict(evidence, rule=space.get("finding")),
+                                             fix=None))
+                        continue
                     out.append(K.finding("conservation", "C5", "critical", el["id"],
                                          f"the documents label a site area '{label}' and the model does not build it "
-                                         f"({_reason(el) or 'no outline, no reason'})", owner="site",
-                                         evidence={"collection": coll, "label": label,
-                                                   "source": [e.get("entity") for e in el.get("evidence") or []
-                                                              if isinstance(e, dict)][:4]},
-                                         fix="build_outdoor_space"))
+                                         f"({_reason(el) or space.get('reason') or 'no outline, no reason'})",
+                                         owner="site", evidence=evidence, fix="build_outdoor_space"))
                 continue
             if coll in TYPED_COLLECTIONS and _type(el) in UNTYPED and _drawn(el) and not _reason(el):
                 untyped_.setdefault(coll, []).append(el)

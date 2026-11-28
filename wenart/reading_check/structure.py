@@ -376,7 +376,38 @@ def findings(building: dict) -> list:
     shapes = outlines(building)
     return doors_into_air(building, shapes) + slabs_beyond_walls(building, shapes) + outdoor_labels_lost(building) \
         + scales_misread(building) + openings_off_wall(building) + inferred_walls_off_facade(building) \
-        + core_spaces_unbuilt(building)
+        + core_spaces_unbuilt(building) + stairs_blocked(building)
+
+
+def stairs_blocked(building: dict) -> list:
+    """28 Nov 2026 (audit fix round 5b fix-up, SLABS-2): RC17 ``stair_blocked`` (critical, pure): a stair the reading
+    found not stacking with the plan above (``stair_blocked``: its floor opening would stand in that plan's closed
+    rooms, no opening is cut): the level above cannot be reached by it; and RC17 ``stair_registration`` (major): a slab
+    opening kept because the same stair stands offset on the level above (the levels are registered off); and RC17
+    ``stair_headroom`` (major): a clipped opening whose flights left under the slab lack the stair's clear height."""
+    out, seen = [], set()
+    from wenart.blender import stair_access as SA
+    for f in building.get("furniture") or []:
+        blk = SA.blocked(building, f) if isinstance(f, dict) and f.get("type") == "stair" else None
+        if blk:
+            c = (f.get("footprint") or {}).get("center")
+            out.append(_finding("stair_blocked", "critical", f.get("level_id"),
+                                f"stair {f.get('id')}: {blk.get('reason') or 'the level above cannot be reached'}",
+                                place=c, element_ids=[f.get("id")] + list(blk.get("closed_rooms") or [])))
+    for sl in building.get("slabs") or []:
+        for o in (sl or {}).get("openings") or []:
+            reg = (o or {}).get("registration") if isinstance(o, dict) else None
+            if reg:
+                out.append(_finding("stair_registration", "major", sl.get("above_level_id"),
+                                    f"stair {o.get('furniture_id')}: {reg.get('reason')}",
+                                    element_ids=[o.get("furniture_id"), reg.get("stair")]))
+            if isinstance(o, dict) and o.get("headroom_short") and (sl.get("id"), o.get("furniture_id")) not in seen:
+                # a clipped opening that leaves flights under the slab with too little clear height (SLABS-4)
+                seen.add((sl.get("id"), o.get("furniture_id")))
+                out.append(_finding("stair_headroom", "major", sl.get("above_level_id"),
+                                    f"stair {o.get('furniture_id')}: {o.get('reason')}",
+                                    element_ids=[o.get("furniture_id")] + list(o.get("clipped_rooms") or [])))
+    return out
 
 
 # 21 Nov 2026 (the facade-line rule on; real13 L0-L3: the lift shaft's face vanished and no lift room was built, its

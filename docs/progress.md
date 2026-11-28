@@ -5638,3 +5638,162 @@ both drawn, against the plan's written 30 % (16.7 degrees); the three do not agr
 its attic plan (one region of two drawings): no slab band is found, and its pitched roof stays a 'gambrel' as before
 round 4. Not done here: one pitch per roof part (multi-part roofs, round 5b), a roof plan arrow's ridge direction,
 real17's 19-riser stair still built with 18 risers, the torn gable over real17's recessed terrace. No pod run.
+
+### Audit fix round 5b (27 Nov 2026)
+
+Structure rules from the audit plan (R22 major, R23 major, R07 leftovers) and the findings of the last check pod (stair
+floor openings, door steps, real15's floating first-floor terrace) and the coordinator's two check-pod findings of 27
+Nov (real15's L0 terrace bands, real17's attic), CPU only, no pod; lessons UL500-UL509. Every fix is a rule for every
+project; the projects are the test cases. Tests: `tests/test_audit_round5b_20261127.py` (32 tests, all synthetic; every
+one fails on 2475714f); `test_levels_model`'s inner-step record now carries the step plan. Round 5a works in parallel on openings, entrances, outdoor spaces, room names,
+blocks and fixed equipment; this round touched its files only in three hook lines of `wenart/ingest/pipeline.py`
+(`TCK.apply`, `UPS.apply`, and the frame shift passed to `roof_terrace`).
+
+| item | root cause | rule now | effect |
+|---|---|---|---|
+| R22 copied storey vs section (UL500) | a storey no plan draws (the typical plan stands for it) was built as the plan, whatever the section drew; real10's jogged 'A' cut line was not found (its letters 2.4 m apart across the cut, the bottom one inside the outline's box) | `register.cut_marks`: a jogged cut (two marks up to 25 % apart across, both triangles the same way; `ends` per half) and marks on both sides when 0.8 of the outline's extent apart; `sheets.section_evidence`: per slab band the stretches its lines cover, per storey the short strokes per 0.25 m; `sheets.typical_check`: a stretch of 2 m or more where the copy's floor slab is not drawn but the drawn storey's and the slab above are: the copy's rooms the cut crosses there (70 % of their chord) are not built, their floor a void (rule `typical_vs_section`), their pieces and the openings on their walls go; a stair the section draws no strokes for in the copy's storey (at most 20 % of the drawn storeys', 8 or more there) is not built and cuts no slab; acts only with a known cut and a section as wide as the building at the cut (1.5 m or 10 %) | real10: cut along y (jogged, seen flipped); the check finds L0's escape stair room r_L0_oda over the double-height hall (95 % of its chord), with f_L0_024, o_L0_001, d_L0_003 and the two kitchen windows on its walls. Carried out, the score gate fell on correction C0035 (4 Nov: "There should have been fire escape ladders here, and a door to reach there via Hall"). Corrected on 28 Nov: C0035 was placed on L0 by the machine (`located_by_machine`, "the same on L1 to L6"); the user's words name no storey; the coordinator asks the user whether it holds for the ground floor (Zemin Kat). The first version listed the verdict and changed nothing (`ACT` False); the fix-up below makes the check act with a per-stretch veto by the user's corrections. real21 has no section: unchanged (noted) |
+| stair floor openings (UL501) | the opening came from the stair below whatever the plan above drew there | `to_building.void_fit`: clipped to the rooms of the level above a stair arrives in (closed: bedroom, kitchen, bathroom, WC, store, prayer, shaft, garage, technical); more in closed rooms than open ones: the stair does not stack, reported, no opening (`stairs_not_stacked`); `shell.slab_plan` adds none for it and never widens a clipped one | real19 L2: f_L1_002's opening (3.49 m2 in a bedroom) not cut, listed; real19 L1, real18 L1-L3 (1.56 m2 of store and bathrooms), real14 L7 (1.83 m2 of a bedroom), real10 L7 (0.08 m2 shaft) clipped. real10's "0.94 m2 off the bathrooms" of the pod run no longer occurs on the current reading (no reading void touches a bathroom); its 5.69 m2 escape-stair landing part on L2-L6 is a stair reading problem (see below) |
+| R07 e rejected frame (UL502) | a section whose storeys were no storeys kept its roof heights in the same frame | `heights.reject_roof`: eaves, ridge, knee wall, overhang and profile rejected with the storeys (pitches kept); not when only the printed ground value disagrees with the titles (z 0 is the same band) | real16: see the regress table |
+| R07 f slopes (UL503) | 'EĞİM 30', 'EĞİM 30°', '30°' not read | `titles.slope_reading`: a degree sign or DERECE is degrees (a bare angle only on a roof plan); a bare number is per cent when 10-150, degrees only when only 5-60 fits; a length unit after it is no slope | - |
+| R07 d marks (UL504) | the eaves and ridge came from the roof lines only | snapped to the section's own printed mark within 0.15 m (value and the height it points at) | - |
+| R07 g written pitch vs drawn heights (UL505; the main session's default) | real15: drawn eaves 5.78 and ridge 6.95 gave 6.5 degrees over the one roof, against the plan's 30 % | within 2 degrees they agree; else one reading is checked first (drawn eaves on a full top storey's ceiling confirm themselves: a ridge that would need eaves under that ceiling is the wrong reading, another part's mark: the written pitch and the drawn eaves stay); else the drawn heights win unless their pitch is under the covering's minimum (10 degrees tiled), then the written pitch with the drawn ridge; listed either way; `follow_section` does not solve the pitch back | real15: 16.7 degrees, eaves 5.78 (drawn), ridge 8.87 (+1.92 m over the roof plan's +7.45 mark, which is the north block's own ridge: one roof over the five drawn roofs; multi-part roofs are not done) |
+| R07 h | - | kept from round 4b: a drawn opening head wins over a drawn ridge | - |
+| R23 roof-terrace ring (UL506) | the terrace took the floor below's outline: the light well stayed a hole, the escape-stair recess was roofed, 90+ parapets on undrawn lines | `sheets.terrace_ring.rings`: the rings each layer's lines close on a roof-terrace plan; `to_building.drawn_ring`: one around the stair house, along the floor below's outline for 60 % of its length, area 0.8-1.4 of it: the slab's outline (slots and recesses open), the terrace rooms, the parapets on it (half its drawn thickness in); a difference over 0.5 m2 listed | real10 L7: see the regress table |
+| door steps (UL507) | `levels.model` computed the inner steps but nothing built them; the build made one block from the low floor to the threshold, M1 kept its finding | `levels.door_steps`: steps in the lower room (risers at most 0.18 m, the last one the threshold; inferred) or a ramp in front of a garage's vehicle door; a flight that does not fit is a finding; `shell.door_step_blocks` builds them (M1 sees `opening.steps`) | real15 d_L0_006: 2 risers of 0.125 m in the garage; real10 d_L-2_001 / d_L-2_004: 2 risers of 0.175 m in the shelter; d_L-2_005: does not fit (listed); real17 o_L4_001 / d_L4_001 (1.0 m into the machine room): do not fit (listed) |
+| stair openings, a stair drawn above (UL501) | the first cut refused the opening of a stair drawn in a bedroom on every plan (the synthetic sheets project) | a stair the level above draws over the opening is where the stair goes on or arrives: that part is open whatever room holds it | - |
+| section ground gate (UL509; the coordinator's real15 finding) | section B-B's line at '+2.70' (z 2.2) was read as the ground, 2.2 m over the ground floor and its terrace doors: the L0 terraces became pits with stepped bands (z 1.1) up to that ground | `levels.model._section_ground_gate`: the section's ground lines pass the ground marks' gate; refused when every one stands over the plinth top and the ground floor's outside doors; listed (`site.ground.refused_levels`); the ground comes from the next source | real15: the line refused, the ground from the default under the floor; no stepped bands |
+| upper outdoor spaces (UL508) | real15's first-floor 'TERAS' had no drawn outline: a 204 m2 rectangle reached 5.5 m past the ground floor's walls | `levels.upper_support`: past the walls below by more than 2.0 m (+0.25) with no wall or column under it: an undrawn outline is dropped when the drawn roof covers its part over the floor below, else clipped to that part and 2.0 m; a drawn one, or one sized by the area the drawing writes beside its label, is kept and listed; levels that do not stack (over 6 m off) are not checked | real15: os_L1_teras dropped; real06, real07, real14, real19: balconies over 2 m drawn or sized by their written area, kept and listed; real16's balconies 18-100 m off: not checked (its levels do not stack) |
+
+Not done here (honest list): R07 a multi-part roofs split by gutters and valleys (real15's five drawn roofs: one roof
+still covers them; the R07 g rule gives the right pitch and eaves but a ridge 1.9 m over the north block's mark), R07 b
+the gable over a recessed top-level terrace (real17's torn gables), R07 c real17's hips from the roof plan and the
+elevations, R22 (3) the copy's facade openings against the elevation (needs R11, elevations as data, deferred), R29
+drawn flues (a box with a diagonal needs the reader's strokes: the boxes the building JSON keeps at the same place on
+stacked plans were real06's toilets and basins and real02's columns, so a rule without the diagonal would put stacks on
+them; reverted), real10's escape-stair landing part on L2-L6 (a stair reading problem, not the opening's size).
+
+The coordinator's check-pod findings of 27 Nov (runs/20261127-214740-full against runs/20261127-060830-full):
+
+- real15's L0 terrace bands planned but not built (Argus C3 x9): the cause was the ground at +2.20 (above). Separately,
+  the build re-plans the site (`site.py`) and its platform list differs from the reading's `site.platforms` (the scene
+  had 13 platforms, the building JSON 19): planned pieces the scene does not build are not recorded as skipped. Not
+  fixed here (a build-side rule: every planned platform built or listed as skipped with its reason; next round).
+- real17's attic L4 (the round 4b duplex-upper floor, 17 rooms): the section's roof line meets the outer wall 0.2 m over
+  the attic floor (knee wall 0.20 m, vector), so the eaves stand at the attic floor (12.30); the elevations print
+  'PARAPET +13.00' (z 12.80). The 0.15 m snap of R07 d does not reach a 0.5 m difference and the elevations' marks are
+  R11's (deferred). The 1.00 m step is the lift machine room's own floor mark (r_L4_makine_dairesi, +1.0): its two doors
+  get no steps because a 6-riser flight does not fit in front of them: listed as findings by the door-step rule (not
+  built). The terraces of the attic plan are cut into the roof (roof openings ro_001 / ro_002), but the gable wall over
+  them stays open (R07 b, not done). The door through the slope (M31 d_L4_001, in the raised machine room) and the
+  unreachable r_L4_oda_2 / r_L4_oda_5 are not fixed here. Next round: an attic's eaves from the elevations' parapet or
+  eaves marks when the section's eaves stand at the attic floor; doors under a slope clipped to the headroom (as
+  windows); the gable closed over a terrace opening at a roof end; unreachable rooms of a new level as reading findings.
+
+Gates (this round's final code; "main" = 2475714f):
+
+| gate | main | this round | holds |
+|---|---|---|---|
+| `score --gate` against 381016c0 (never --update) | overall 97.9, synthetic (gated) 97.5, real06 100, real10 100 | first run (R22 carried out): fell, real10 96.9 (C0035: the fire stair and its door on L0); with R22 listed, not carried out: overall 97.9, synthetic 97.5, real06 100, real10 100, every row identical; GATE holds | yes |
+| regress set (34 projects, real08 left out) | main's lines | every first line and every non-struct line identical but real10's L7 walls 133 -> 70 and room area 22.9 -> 386.9 m2 (R23: the drawn ring); struct lines changed: real06 and real15 roofs (R07 g), real16 roof (R07 e), real10's cut axis (R22); new struct lines (slab openings, door steps, copied storeys, upper outdoor spaces) on 31 projects | yes (every change intended) |
+| sheet compare against main after 4b (22 projects) | - | 19 identical; real10 (the jogged cut: axis y at 14.41, flipped, one conflict fewer), real16 (its section's roof heights rejected with its storeys), real13 (the same cut x at 8.62, its marks now found on r5 first instead of r8) | yes |
+| dataset bench (107 projects, 201 floors) | mean 76.34; F1 levels .889, rooms .778, walls .751, doors .818, windows .777, stairs .759 | identical, every project's total the same | yes |
+| new tests | - | 32 pass (`test_audit_round5b_20261127.py`); every one fails on 2475714f | yes |
+| `pytest -m "not gpu"` (three batches, m34's lists) | 12 known failures | 16 failed in the batches (run on the first commit): the 12 known and four this round caused, fixed and rerun (pass): `test_mirror_halves` real10 (C0035, the R22 default), `test_sheets_pipeline` 2 (the stair opening in a bedroom drawn on every plan), `test_levels_model` (the inner-step record now carries the plan); 15 files touching the later commits rerun on the final code: 302 passed, 2 skipped | yes |
+
+### Audit fix round 5b fix-up (28 Nov 2026)
+
+An independent review of round 5b (three lenses, each finding re-run by a skeptic) kept 32 findings and listed 22 weak
+tests; GENERAL-5 and GENERAL-11 were refuted (left as they are). CPU only, no pod; lessons UL510-UL517 (UL500, UL503,
+UL505 and UL509 amended). The upper-support findings (UPS-1, UPS-2, UPS-3, GENERAL-1, -2, -3, -8, -9) wait for round
+5a: its outdoor checks are not merged into opus_branch_11 yet, and the coordinator folds `levels.upper_support` into
+them after that merge. Tests: `tests/test_audit_round5b_20261127.py` now 54 (every one fails on 2475714f) (22 weak tests rewritten so each fails when
+its behaviour is absent; integration tests for `slabs_block` with a stair below and rooms above, the `_ground` wiring of
+the section ground gate, a re-run of `infer_levels`, and the struct lines from the producers' own records).
+
+| finding | rule now | shown by |
+|---|---|---|
+| SECTIONS-1 (real15's ridge 1.9 m over two drawn ridges) and SECTIONS-2 (real06 18.3 -> 20.6 degrees; L outlines) | R07 g asks the drawings first (`roof.drawn_roof_evidence`): when the section's own rafters (segments of 1 m or more at 5-60 degrees) draw the written pitch, or the roof plan's ridge mark and the section's ridge agree within 0.3 m, the one roof's span is the wrong reading: drawn eaves and ridge kept, "one roof over several drawn roofs (multi-part roofs not built)" listed (`assumed` conflict `multi_part_roof`); a pitch from the heights over the profile's own eaves-to-ridge run, never a rectangle's half width; an outline that does not fill its rectangle with no profile: the pitch is not judged (a note) | real15: eaves 5.782, ridge 6.95, pitch 6.47 with the listing (the section's rafters draw 15.3-17.2 degrees); real06: 18.3 degrees with the listing; repro `lgable` unchanged against main; tests `test_r07g_*` (4) |
+| SECTIONS-3 (two 'WC' labels inside a plan made a cut) | `register._outside_both`: each letter outside the outline drawn without its annotation layers (dimension, axis, level, text, hatch) or within 1 m of it | repro `inside_marks`: None (was a cut 'WC'); real10's 'A' pair still found; test with the pointed-bay positive and the interior-label negative |
+| SECTIONS-4 (R22 shipped off for a correction the machine placed) | `typical_check.ACT = True` with a per-stretch veto: a double-height stretch holding anything a correction of the user (`results/reading_corrections.jsonl`, accepted, not a brief input) asserts present on that storey is left whole (rooms, stair, openings: never a stair left in a removed room), listed as a conflict naming the correction; every removal carries the section crop (`crop_box`) as its evidence; the struct line shows "held by the user's corrections". C0035 was placed on L0 by the machine (`located_by_machine`, "the same on L1 to L6"); the user's words name no storey: the coordinator asks the user whether it holds for the ground floor; the truth and the correction records are unchanged | real10: L0's stretch held by C0035 (listed, conflict); tests: veto, a correction of another project, storey, a brief input or a rejected one vetoes nothing |
+| SECTIONS-5 (the frame centred on every level's outline) | `typical_check.frame_of`: the section anchored on the copied and drawn storeys' own outline at each half of the cut; refused when either end lies more than 0.3 m off that storey's facade | repro `tck_frame`: a basement 2 m longer drops the same room as without it; test |
+| SECTIONS-6 (a split level read as a double height) | `section_evidence`: per band the slab-like line pairs within 1.5 m of its top (`near_slabs`); a stretch where they cover half or more is no double-height space | repro `split_level`: nothing dropped ("a split level or a sunken floor"); tests |
+| SECTIONS-7 (bare slope numbers non-monotonic; plan angles as pitches) | `titles.slope_reading`: a bare number is per cent over 5-150 (monotonic; the roof readers list a low one as no roof pitch); a bare angle on a roof plan is never 45 or 90 degrees, never on a dimension layer and votes only inside the eaves loop (`exterior.roof_from_roof_plan`); a length, area or count word after the number (MT, METRE, M2, ADET, KG ...) is no slope | repro `slope`: 'EĞİM 9.5' 9.5 %, 'EĞİM 12' 12 %, '45°' none, 'EĞİM 30 MT' / 'EĞİM 12 M2' / 'EĞİM 30 ADET' none; tests |
+| SECTIONS-8 (every section ground line at the outline's centre) | `levels.model._section_ground_gate`: each line at its own end of the cut (its side, the flip applied), refused only when it would bury an outside door on that side; with no door on its side it stays (a building dug into its slope); a line for every side against every door | repro `gate3`: the sloping-site lines kept; real15's '+2.20' line still refused (it buries d_L0_014 on its side); tests incl. the `_ground` wiring |
+| SLABS-1 / GENERAL-7 (uncovered opening area ignored) | `to_building.void_fit`: the area no room covers is open; "does not stack" only when closed rooms hold over half the opening | repros `repro_voidfit`, `voidfit_uncovered`, `voidfit2`: stacks, the bedroom strip clipped |
+| SLABS-2 (a stair with no opening still a way up) | a stair that does not stack is blocked (`stair_blocked`, also read from a slab's `stairs_not_stacked`): RC17 `stair_blocked` (critical, "the level above cannot be reached by this stair"), M9 judges it cut off (`stair_access.walk_review`, `cut_off_text`), the build's stair fix lists it open, never "fixed"; a re-read clears a stale block | repro `repro_walk`: judged, not ok; integration test |
+| SLABS-3 (a closed room inside the opening stayed open) | the clip keeps holes: the opening split into pieces round the room, every piece kept (a sliver under 0.5 m2 is dropped only when the clip itself made it) | repro `repro_voidfit_hole` (adapted): two pieces, 8.0 m2, none over the store; real18 L1-L3: the 1.56 m2 store inside the stair's opening stays a hole (two pieces, 4.1 m2 open, was 5.7 with the store open) |
+| SLABS-4 (real19's verdict is a misregistration; clipped headroom unknown) | the same stair (same size and turn) 0.5-3 m off on the level above: a registration finding (RC17 `stair_registration`, major), the opening kept; a clipped opening reports the clear height over the flights left under the slab (`headroom_m`, `stair_access.headroom_under`; under 2.00 m: RC17 `stair_headroom`) | tests (1.70 m offset, a bathroom over the top of a flight) |
+| SLABS-5 (open-plan kitchens, generic rooms, garages, stores closed) | they close the opening only where one of their walls crosses the flights | tests for each |
+| STEPS-1 (absolute blocks) | `door_steps.plan`: the plan relative to the door (wall, side, width, run); `plan_blocks` (plain Python) and `shell.door_step_blocks` rebuild it from the opening as it is (a door moved along its wall carries its steps; to another wall: none) | repro `repro_moved_door`: the steps follow the door; test |
+| STEPS-2 / GENERAL-4 (stale steps) | `door_steps.place` clears every opening's plan first | repros `repro_stale_steps` (adapted), `stale_steps`, `stale_steps2`; integration test with two `infer_levels` runs |
+| STEPS-3 (steps blocking a corridor, a door, a stair) | the flight is checked against the other doors' approaches, the stairs and a 0.8 m walkway; else a finding, not built | repro `repro_steps_block` (adapted): not built, "would block the approach of d_wc, the stair f_stair"; test |
+| STEPS-4 (drawn steps ignored) | a short run of steps the plan draws at the door (short steps or at most 4) is its steps: no inferred blocks | repro `repro_drawn_steps` (adapted): drawn, 0 m2 of inferred blocks; test (a storey's stair is not) |
+| STEPS-5 (ramp faces inwards) | the ramp's faces are reversed for a clockwise ring | repro `repro_ramp_normals`: every face outwards both sides; test |
+| STEPS-6 (two garage rules, indoor risers outdoors) | the vehicle door is `levels.model.is_garage_door` (one predicate); a lower outdoor room takes the outdoor riser | tests (a 2.1 m garage door: steps; a balcony: 3 risers against 2 indoors) |
+| RING-1 (a ring leaving a closed room below roofless) | what the ring leaves out of the floor below's outline may be open only over a void, a light well, a shaft or a stair; else the old outline stays there and the room is a finding | repro `repro_ring_notch`: the bedroom keeps its roof (0.0 of 14.19 m2 open), a finding; test |
+| GENERAL-6 (a double-line parapet on one layer) | `terrace_ring.rings`: every face's outer ring and holes by enclosed area; `choose`: the inner face by its mean offset; parapets on a one-line ring stay inferred, on a double line drawn (vector) | repro `ring_double`: the outer face kept, thickness 0.149 / 0.247 / 0.392 for 0.15 / 0.25 / 0.40; test incl. a shifted frame |
+| GENERAL-10 (the snap test on the 0.15 m boundary) | the test uses +7.50 (0.20 m off) | test |
+| UPS-1, UPS-2, UPS-3, GENERAL-1, -2, -3, -8, -9 | done after round 5a's merge: item 8 below (one upper-support rule inside 5a's outdoor checks) | item 8 |
+
+Effects on the regress set (struct lines only; every first line and every other line identical on all 34 projects):
+real06 roof 20.6 -> 18.3 degrees (ridge 7.77 -> 7.55, the listing); real15 roof ridge 8.87 -> 6.95 (pitch 6.5, the listing);
+real10 copied storey: held by the user's corrections C0021 and C0035 (r_L0_oda and f_L0_024 left as read, listed); real03,
+real09, real20, real21: the copied-storey line now reads "dropped -" (the check acts; nothing to drop); real19 L2: f_L1_002's
+opening kept, a registration finding (the same stair 1.70 m off on L2); real13 L4: f_L3_002 no longer "not stacked" (the
+machine room holds 47 % of its opening, under half), the stair is still not built (the reading's stair-over-nothing rule
+removes it and its opening); real18 L1-L3: the store inside the opening a hole; real11 L1 and real14 L7: the clipped
+openings' flights left under the slab lack the 2.00 m clear height (listed). real07, real17 and the synthetic projects:
+identical.
+
+Gates (the fix-up's final code; "main" = 2475714f, "5b" = 93c082bb):
+
+| gate | before | now | holds |
+|---|---|---|---|
+| `score --gate` against 381016c0 (never --update) | 5b: overall 97.9, synthetic (gated) 97.5, real06 100, real10 100 | overall 97.9, synthetic (gated) 97.5, real06 100, real10 100 (R22 acting, its L0 stretch held by C0021 and C0035), every row identical; GATE holds | yes |
+| regress set (34 projects, real08 left out) | 5b's lines | 12 projects with changed struct lines (above), every one intended; 22 identical | yes |
+| sheet compare (22 projects) | 5b's dumps | identical to 5b's on every project (against main: the same three changes as 5b: real10's cut, real13's marks on r5, real16's roof heights rejected) | yes |
+| dataset bench (107 projects, 201 floors) | mean 76.34; F1 levels .889, rooms .778, walls .751, doors .818, windows .777, stairs .759 | identical (the whole report, every project and kind) | yes |
+| new tests | 32 | 54 pass; every one fails on 2475714f | yes |
+| `pytest -m "not gpu"` (three batches, m34's lists) | 12 known failures | 13 failed: the 12 known and `test_levels_model` (its step record now has no stored blocks: updated to `door_steps.plan_blocks`, rerun with the touched files: 128 passed) | yes |
+
+### Round 5b fix-up, item 8: round 5a merged, the upper support folded into R16 (28 Nov 2026)
+
+opus_branch_11 (round 5a and its fix-up, cc49b4ce) merged into round 5b (lessons: the union by id; progress: both
+sides; pipeline: 5a's room names, then 5b's copied-storey check). Round 5b's `levels.upper_support` is gone: one rule for
+upper outdoor spaces, `outdoor_checks.upper_reach` in 5a's R16 hook of `levels.outdoor.outdoor_spaces` (inside
+`levels.model.infer_levels`, before the space's floor, roof and posts are derived). Lesson UL518 (UL508 amended).
+
+| finding | rule now | shown by |
+|---|---|---|
+| GENERAL-8 (two rules for one problem) | one rule: `upper_reach` (5a's `clip_upper` keeps its name and uses the same reference and geometry) | `merge_overlap`, `merge_overlap2` (adapted): the one rule and `clip_upper` give the same polygon (64.75 and 16.8 m², below L1) |
+| GENERAL-1 (a ground-floor terrace judged against a basement) | one reference: the base storey directly under an upper storey (`level_below`); a ground-floor or basement space stands on the ground and is never judged | `ups_ground` (adapted): both ground-floor terraces untouched |
+| GENERAL-9 (mitre corners 2.83 m out, a second record) | one threshold and one geometry for the trigger and the cut: 2.0 m (5 cm drawing tolerance on the trigger), a round join (`reach_zone`) | `ups_twice` (adapted): run 1 clipped (the kept polygon at most 2.00 m out), run 2 nothing |
+| GENERAL-2, UPS-3 (a written area as an exemption) | "undrawn" by the method (`rectangle*`); a written area confirms only the size (5a's 80-120 % finding), it never exempts the cut | `ups_area` (adapted): the 36 m² rectangle scaled to 'TERAS 36 m²' is cut (24.4 m² kept) |
+| UPS-1, GENERAL-3 (stale records, no refusal contract) | the verdict is taken before the derived parts: a cut space carries its new polygon, area, floor, roof and posts, the inferred entry holds the cut polygon, the area's `space` points to it; a refusal (only a purely inferred space: no label, no door) uses 5a's contract (`site.outdoor_spaces_refused` with rule and reason, the area's `space` built False with reason and finding R16, no inferred entry); Argus C5 reports a rule's refusal as that verdict (major, no "build the outdoor space"); `report.final.site_summary` names the reason | `ups_contract`, `ups_contract2` (adapted): area.space, inferred entry, Argus (no C5) and the report agree; tests |
+| UPS-2 (a later `infer_levels` brought the space back) | the rule runs inside `infer_levels`: every re-run gives the same verdict and polygon | test with two `infer_levels` runs |
+| 5a's R16 decisions | kept: R16's seen-from-above refusal comes first; a space a drawn door lands on, with a drawn outline or a label, is never dropped (a drawn outline past the reach is kept and listed as a cantilever; a labelled rectangle with nothing within the reach is kept as read and listed); the roof-cover drop of round 5b is gone (named in the finding instead) | `corner_balcony` (adapted): drawn corner balconies kept (listed when the corner is more than 2.0 m from the walls), inferred ones cut round the corner |
+| real15's first-floor 'TERAS' | one verdict, R16's: its own level mark '+0.50' (beside the label, outside L1) is L0's floor and no door of L1 lands on it: the ground floor's terrace seen from above, not built again on L1 (`site.outdoor_spaces_refused`, the area's `space` built False, finding R16). The L1 plan draws nothing there but the label and its mark (the area west of the lower hip roof over the ground floor); section B-B shows no first-floor terrace, only the balcony | the reading of real15 on the merged code; the plan crop (debug r3) and section B-B |
+| OPENINGS2-8 (round 5a's second review: R16 records did not survive a re-run) | R16's refusals are made again on every run of the outdoor step (a stale one never outlives its area being built); `unreached` runs inside `infer_levels` once the doors are known (after the entrances and facade gaps) and once more in the completion, idempotent (its finding keeps the finding it covers, a space reached since gets it back; a refusal replaces the record of the same space; `level_inference.outdoor_spaces_unreached` rewritten or removed) | `r16_stale` on real15: win_L1_006 made a door gives os_L1_teras built and no refusal left; `r16_rerun` on real19: no finding lost (9 kept), on real15 the refusal kept; test with three `infer_levels` runs (refused, built after a door, a balcony's finding gone after its door) |
+
+Effects on the readings: real15 L1 'TERAS' refused by R16 (as in 5a); real19's inferred upper balconies: 2 cut to 2.0 m past
+the storey under them, 2 kept as read and listed (L2 stands 3.1-3.8 m past L1's walls: its levels are registered off, the
+registration finding of round 5b); no upper space refused.
+Regress effects (34 projects) against round 5a's final lines: every non-struct line identical but real10's L7 (round 5b's
+R23 ring: walls 133 -> 70, room area 386.9 m2); the struct lines add round 5b's kinds (slab openings, door steps, copied
+storeys, upper outdoor spaces) and its roof and cut changes (real06, real15, real16, real10). Against the 5b fix-up: 5a's
+own changes (real06 and real15 openings, stair ids renumbered) and the one rule's verdicts: real07's inferred balcony and
+real10's, real13's, real14's and real19's inferred upper spaces cut to 2.0 m past the storey under them (5a's clip did
+that before with a mitre join); real09's, real11's and real13's ground-floor spaces no longer judged against a basement;
+real16's L1 balconies (its levels do not stack: 18-100 m off) listed as kept cantilevers instead of "not checked" (one
+threshold: the old 6 m sanity limit is gone; no geometry changes); real15's TERAS refused by R16 only.
+
+Gates on 8c2d4804 (the merge 5bc1ebee and the fold):
+
+| gate | before | now | holds |
+|---|---|---|---|
+| `score --gate` against 381016c0 (never --update) | 5a and the 5b fix-up: overall 97.9, synthetic 97.5, real06 100, real10 100 | the same; every row identical to both | yes |
+| regress set (34 projects) | 5a's final lines, the 5b fix-up's | as above: every change from 5a, round 5b or the one rule, intended | yes |
+| sheet compare (22 projects) | the 5b fix-up's dumps | identical on every project | yes |
+| dataset bench (107 projects, 201 floors) | 5a: mean 76.37, doors .819, windows .779 | identical to 5a's report (every project and kind) | yes |
+| tests | - | `test_audit_round5b_20261127.py` 55 and `test_audit_round5a_20261127.py` 53 pass | yes |
+| `pytest -m "not gpu"` (three batches, m34's lists, both round test files) | 12 known failures | 12 failed, the 12 known (4 + 5 + 3) | yes |

@@ -197,8 +197,13 @@ def test_room_floor_offsets_and_thresholds_from_floor_marks():
     ops = {o["id"]: o for o in b["openings"]}
     assert ops["d_inner"]["threshold_z"] == 0.0 and ops["d_front"]["threshold_z"] == 0.0
     assert "threshold_z" not in ops["win_1"]
-    assert b["level_inference"]["inner_steps"] == [{"opening_id": "d_inner", "rise": 0.3, "low_room": "r_living",
-                                                    "risers": 2, "riser": 0.15}]
+    steps = b["level_inference"]["inner_steps"]
+    assert [{k: s[k] for k in ("opening_id", "rise", "low_room", "risers", "riser")} for s in steps] == \
+        [{"opening_id": "d_inner", "rise": 0.3, "low_room": "r_living", "risers": 2, "riser": 0.15}]
+    # 27 Nov 2026 (audit fix round 5b): the steps are planned in the lower room (``levels.door_steps``); 28 Nov 2026
+    # (fix-up): relative to the door, the blocks rebuilt from it (``door_steps.plan_blocks``)
+    from wenart.levels import door_steps as DS
+    assert steps[0]["placed"] == "r_living" and steps[0]["kind"] == "steps" and DS.plan_blocks(ops["d_inner"])
     assert b["levels"][0]["elevation_source"] == "level_mark"                  # the most common floor mark: 0.00
 
 

@@ -571,6 +571,59 @@ def derived_opening(piece: dict, rise: float, soffit: float) -> Optional[list]:
     return opening_polygon(plan, float(soffit))
 
 
+def blocked(building: dict, piece: dict) -> Optional[dict]:
+    """28 Nov 2026 (round 5b fix-up, SLABS-2): ``{"level_above", "closed_rooms", "reason"}`` when the reading found the
+    stair does not stack with the plan above (the piece's ``stair_blocked``, or a slab's ``stairs_not_stacked`` naming
+    it: no floor opening is cut, nobody gets up it), else None (pure)."""
+    if not isinstance(piece, dict):
+        return None
+    if isinstance(piece.get("stair_blocked"), dict):
+        return piece["stair_blocked"]
+    for sl in building.get("slabs") or []:
+        for ns in (sl or {}).get("stairs_not_stacked") or []:
+            if isinstance(ns, dict) and ns.get("stair") == piece.get("id") and not sl.get("variants"):
+                return {"level_above": sl.get("above_level_id"), "closed_rooms": list(ns.get("closed_rooms") or []),
+                        "reason": f"the level above ({sl.get('above_level_id')}) cannot be reached by this stair: "
+                                  f"{ns.get('reason') or 'it does not stack with the plan above (no floor opening)'}"}
+    return None
+
+
+def headroom_under(piece: dict, rise: float, soffit: float, area) -> Optional[float]:
+    """28 Nov 2026 (audit fix round 5b fix-up, SLABS-4: a stair's opening clipped to the rooms above said nothing of the
+    flights left under the slab): the least clear height (m) over the steps of a stair piece with drawn flights whose
+    tread lies under ``area`` (a shapely geometry in plan: the part of its opening the clip left out), under the slab
+    underside ``soffit`` (``rise`` floor to floor, both from the stair's floor); None without drawn flights or when no
+    step stands under ``area`` (pure)."""
+    from wenart.blender import parametric as P
+    if area is None or area.is_empty:
+        return None
+    data = P.stair_data(piece)
+    if not data or not data.get("flights"):
+        return None
+    try:
+        plan = P.stair_plan(piece, float(rise), float(soffit), float(soffit) + P.STAIR_SHAFT_CAP_M, ())
+    except (KeyError, TypeError, ValueError, ZeroDivisionError, IndexError):
+        return None
+    if plan.get("generic"):
+        return None
+    riser = float(plan.get("riser_m") or 0.0)
+    best = None
+    for f in plan.get("flights") or []:
+        r, g, hw = f["rise_dir"], float(f["going"]), float(f["width"]) / 2.0
+        s0 = f["nosings"][0]
+        q = (-r[1], r[0])
+        for i in range(len(f["nosings"])):
+            a = (s0[0] + r[0] * i * g, s0[1] + r[1] * i * g)
+            b = (s0[0] + r[0] * (i + 1) * g, s0[1] + r[1] * (i + 1) * g)
+            tread = _poly([(a[0] + q[0] * hw, a[1] + q[1] * hw), (b[0] + q[0] * hw, b[1] + q[1] * hw),
+                           (b[0] - q[0] * hw, b[1] - q[1] * hw), (a[0] - q[0] * hw, a[1] - q[1] * hw)])
+            if tread is None or tread.intersection(area).area < 0.25 * tread.area:
+                continue
+            clear = float(soffit) - (float(f["base_z"]) + (i + 1) * riser)
+            best = clear if best is None else min(best, clear)
+    return None if best is None else round(best, 3)
+
+
 # --------------------------------------------------------------------------
 # The readings of a stair
 # --------------------------------------------------------------------------
@@ -1060,6 +1113,15 @@ def fix_arrivals(building: dict) -> dict:
             if it is None or not it.get("plan"):
                 continue
             piece = it["piece"]
+            blk = blocked(building, piece)
+            if blk:
+                # 28 Nov 2026 (round 5b fix-up, SLABS-2): the reading found the stair does not stack with the plan
+                # above; no other reading of its flights gives it a floor opening there: listed, never "fixed"
+                out["stairs"].append({"stair": piece.get("id"), "level_id": level["id"],
+                                      "up_level_id": blk.get("level_above"), "status": "open",
+                                      "change": None, "found": f"stair {piece.get('id')}: {blk.get('reason')}"})
+                out["open"] += 1
+                continue
             rec = assess(building, piece, level, items)
             row = {"stair": piece.get("id"), "level_id": level["id"], "up_level_id": rec.get("up_level_id"),
                    "status": "ok", "change": None}
@@ -1277,6 +1339,8 @@ def under_stair(plan: dict, walls=(), voids=()) -> dict:
 def cut_off_text(rec: dict) -> str:
     """What is wrong with a stair's walk (``assess``), in words."""
     pid = rec.get("stair")
+    if rec.get("blocked"):
+        return f"stair {pid}: {rec['blocked']}"
     bits = []
     ends = rec.get("ends") or {}
     for key, lid, verb in (("arrival", rec.get("up_level_id"), "arrives on"), ("start", rec.get("level_id"),
@@ -1332,6 +1396,17 @@ def walk_review(building: dict) -> dict:
             continue
         for it in items:
             if not it.get("plan"):
+                continue
+            blk = blocked(building, it.get("piece") or {})
+            if blk:
+                # 28 Nov 2026 (round 5b fix-up, SLABS-2): the reading found the stair does not stack with the plan above
+                # (no floor opening): nobody gets up it
+                out["stairs"].append({"stair": it["piece"].get("id"), "level_id": level["id"],
+                                      "up_level_id": (level_above(building, level) or {}).get("id"), "judged": True,
+                                      "ok": False, "blocked": blk.get("reason"),
+                                      "arrival": {"ok": False, "pocket": True, "room": None, "floor_m2": 0.0,
+                                                  "rooms": [], "missed": []}, "start": {"ok": True}, "ends": {}})
+                out["checked"] += 1
                 continue
             rec = assess(building, it["piece"], level, items)
             if not rec["judged"]:
@@ -1434,8 +1509,8 @@ def stair_rooms(building: dict, piece: dict) -> Optional[dict]:
     above; None when the stair cannot be planned or has no level above."""
     level = _level(building, piece.get("level_id"))
     up = level_above(building, level) if level is not None else None
-    if up is None:
-        return None
+    if up is None or blocked(building, piece):
+        return None                     # 28 Nov 2026 (round 5b fix-up, SLABS-2): a blocked stair joins no levels
     items = _planned_cached(building, level, up)
     it = next((x for x in items if x["id"] == piece.get("id")), None)
     if it is None or not it.get("plan") or not it["plan"].get("flights"):
