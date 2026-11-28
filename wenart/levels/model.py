@@ -1280,6 +1280,30 @@ def _ground_gate(b: dict, marks: list, gl: dict, outline, points: list, params: 
             "refused": [m["id"] for m in points], "buried": [d["id"] for d, _z in buried]}
 
 
+def _section_ground_gate(b: dict, marks: list, gl: dict, outline, drawn_levels: list,
+                         params: Optional[dict] = None) -> Optional[dict]:
+    """28 Nov 2026 (audit fix round 5b): the ground marks' gate (``_ground_gate``) on the section's drawn ground lines
+    (each as a mark at the outline's centre): a record when every one of them stands more than ``GROUND_GATE_M`` over
+    the plinth top and the ground floor's outside doors (a building is never sunk into its ground on every side; a
+    sloping site keeps a line under the floor on its low side and passes), else None (pure)."""
+    lines = [g for g in drawn_levels if not g.get("from_mark") and not g.get("from_frame")
+             and isinstance(g.get("z"), dict) and g["z"].get("value") is not None]
+    if not lines or len(outline) < 3:
+        return None
+    cx = sum(p[0] for p in outline) / len(outline)
+    cy = sum(p[1] for p in outline) / len(outline)
+    pseudo = [{"id": f"section_ground_{g.get('side') or 'all'}_{k + 1}", "point": [cx, cy],
+               "z": float(g["z"]["value"]), "kind": "ground"} for k, g in enumerate(lines)]
+    rec = _ground_gate(b, marks, gl, outline, pseudo, params)
+    if rec is None or len(rec.get("refused") or []) < len(pseudo):
+        return None
+    zs = ", ".join(f"{p['z']:+.2f} m ({g.get('side')})" for p, g in zip(pseudo, lines))
+    rec = dict(rec, why=f"the section's ground line(s) {zs} " + rec["why"].split(") ", 1)[-1]
+               if ") " in rec["why"] else rec["why"])
+    rec["section_lines"] = [g.get("z", {}).get("evidence") for g in lines]
+    return rec
+
+
 def _buried_doors(points: list, doors: list, params: Optional[dict]) -> list:
     """The doors (with the ground there) the terrain of the ground marks ``points`` buries: over the door's threshold
     by more than ``GROUND_GATE_M`` 0.3 m in front of its face (pure; audit H3). The terrain: the plane or the TIN of
@@ -1357,6 +1381,18 @@ def _ground(b: dict, marks: list, params: dict, gl: dict, outline, inferred: lis
     ground["points"] = [{"x": _r(m["point"][0], 4), "y": _r(m["point"][1], 4), "z": _r(m["z"]),
                          "kind": m["kind"], "mark_id": m["id"], "inferred": False, "used": m not in rejected,
                          "evidence": _mark_ev(m)} for m in points + rejected]
+    sgate = _section_ground_gate(b, marks, gl, outline, drawn_levels, params) if drawn_levels and force is None \
+        else None
+    if sgate is not None:
+        # 28 Nov 2026 (audit fix round 5b; real15: section B-B's line at '+2.70' read as the ground, 2.2 m over the
+        # ground floor and its terrace doors: the terraces became stepped pits): the section's ground lines pass the
+        # ground marks' gate; refused on every side, they are listed and the ground comes from the next source
+        warnings.append(f"levels: {sgate['why']}")
+        b.setdefault("level_inference", {})["section_ground_gate"] = sgate
+        ground["refused_levels"] = [dict(g, refused=sgate["why"]) for g in drawn_levels]
+        drawn_levels = []
+        if gate is None:
+            gate = sgate
     if gate is not None and not points and not drawn_levels and gate.get("frame_zero") is not None:
         # R01 e: no section ground line: the ground at the printed ±0.00 of the plans' frame
         drawn_levels = [{"side": "all", "azimuth_deg": None, "from_frame": True, "frame_why": "ground_gate",

@@ -514,3 +514,26 @@ def test_struct_lines_show_slab_openings_door_steps_copies_and_upper_spaces():
     lines2 = R.structure_lines(dict(R.structure_5b(b), levels={}, section={}, roof=None, stairs={}))
     assert "copied storeys vs section: rooms to drop (listed) L0:r_L0_oda" in "\n".join(lines2)
     assert "upper outdoor spaces past the walls below: os_L1_teras:dropped" in text
+
+
+# --------------------------------------------------------------------------------------------------------------------
+# the coordinator's check-pod findings: a section line over the ground floor's doors is no ground
+# --------------------------------------------------------------------------------------------------------------------
+
+def test_a_section_ground_line_over_the_ground_floors_doors_is_refused():
+    from wenart.levels import model as M
+    from wenart.levels import rules as RU
+    b = {"levels": [{"id": "L0", "order": 0, "elevation": 0.0, "ceiling_height": 2.7}],
+         "walls": _walls("L0", 0, 0, 10, 8), "rooms": [_room("r_L0_salon", "L0", _rect(0.1, 0.1, 9.9, 7.9))],
+         "openings": [{"id": "d_L0_1", "level_id": "L0", "type": "door", "wall_id": "w_L0_001", "width": 0.9,
+                       "center": [5.0, 0.0], "threshold_z": 0.0}],
+         "furniture": [], "site": {}}
+    outline = M.level_outline(b, "L0")
+    high = [{"side": "right", "z": {"value": 2.2, "method": "vector", "evidence": [{"rule": "ground_line"}]}}]
+    rec = M._section_ground_gate(b, [], b["levels"][0], outline, high, dict(RU.BUILTIN_PARAMS))
+    assert rec is not None and "section's ground line" in rec["why"] and rec["refused"]
+    # one side under the floor (a sloping site): kept
+    both = high + [{"side": "left", "z": {"value": -0.4, "method": "vector", "evidence": []}}]
+    assert M._section_ground_gate(b, [], b["levels"][0], outline, both, dict(RU.BUILTIN_PARAMS)) is None
+    low = [{"side": "all", "z": {"value": -0.5, "method": "vector", "evidence": []}}]
+    assert M._section_ground_gate(b, [], b["levels"][0], outline, low, dict(RU.BUILTIN_PARAMS)) is None
