@@ -27,7 +27,8 @@ import math
 import re
 from typing import Optional
 
-from wenart import building as B
+from wenart.textfold import fold_ascii   # 28 Nov 2026 (round 5a fix-up, TAGS-2): never wenart.building (jsonschema), so
+#                                          the size-tag grammar stays importable in Blender's Python
 
 SELF_TOL = 0.03                  # N x R within 3 % of the H the text itself writes
 STOREY_TOL = 0.03                # N x R within 3 % of the storey height (R24)
@@ -80,7 +81,7 @@ def parse(text: str) -> Optional[dict]:
     no 'x' between two numbers, a riser outside ``RISER_M``, a count outside ``RISERS``, an H that N x R does not give
     or no formula context (``formula_context``: '20x20 SERAMİK', '15X15', '2x0.15' are sizes) is no formula.
     ``rise_m`` is the H written (None when not written)."""
-    folded = B.fold_ascii(str(text or "")).upper()
+    folded = fold_ascii(str(text or "")).upper()
     m = FORMULA_RE.search(folded)
     if not m:
         return None

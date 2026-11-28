@@ -748,6 +748,18 @@ def check(out_dir, reference: Optional[str] = None) -> dict:
                                "level_id": lid, "message": f"the door-tag check did not run: {type(exc).__name__}: "
                                                           f"{str(exc)[:200]}", "element_ids": [], "advisory": True})
     findings += storey_area_causes(building)          # 20 Nov 2026 (pre-pod check: real21)
+    # 28 Nov 2026 (audit fix round 5a fix-up, ENTRANCES-14): the outdoor spaces' R16 findings and refusals are read here
+    # (advisory, info: a space no door reaches, a rectangle off its stated area, a label seen from above)
+    site = building.get("site") if isinstance(building.get("site"), dict) else {}
+    for s in list(site.get("outdoor_spaces") or []) + list(site.get("outdoor_spaces_refused") or []):
+        why = (s.get("finding") or s.get("refused") or {}) if isinstance(s, dict) else {}
+        if isinstance(why, dict) and why.get("reason"):
+            structural.append({"check": "RC17", "name": "outdoor space (R16)", "rule": why.get("rule"),
+                               "severity": "info", "level_id": s.get("level_id"),
+                               "message": f"outdoor space {s.get('id') or s.get('area_id')} ({s.get('label')})"
+                                          f"{' not built' if s.get('refused') else ''}: {why['reason']}",
+                               "element_ids": [x for x in (s.get("id"), why.get("probable_door")) if x],
+                               "advisory": True})
     ref = reference or next((lid for lid in ("L0", "L1") if lid in anchors), next(iter(anchors), None))
     if ref:
         findings += stacking(anchors, ref, {lv["id"]: lv.get("order") for lv in building.get("levels") or []})

@@ -3258,18 +3258,22 @@ def lost_spaces(before: dict, after: dict) -> list[str]:
 # that change a door, a window or a room
 # --------------------------------------------------------------------------
 
-DOOR_TAG_RE = r"^\s*(?:[KkDd]\s*\d{0,2}\s*[:\-.]?\s*)?(\d{2,3})\s*/\s*(\d{2,3})\s*$"   # 'K1-80/210', 'K:90/210', '80/210'
+# door size tags ('K1-80/210', 'K:90/210', 'CK3 260/240', '80/210'): ``wenart.ingest.tag_grammar`` (27 Nov 2026, R09)
 DOOR_TAG_MIN_H_CM = 180          # a size tag this high names a door (= core_rules.DOOR_TAG_MIN_H_M)
 NOT_DRAWN_RULES = ("inferred_door", "lift_door", "cut_span_door", "wide_gap", "glazed_facade", "framed_window",
                    "basement_footprint", "gap_behind_furniture", "door_over_window", "inferred_window", "no_glass")
 WINDOW_RULES = ("framed_window", "glazed_facade", "door_over_window", "sliding_window", "window_block")
 
 
-def _tag_cm(text) -> Optional[tuple[int, int]]:
-    import re
+def _tag_cm(text, width=None) -> Optional[tuple[int, int]]:
+    """``(width, height)`` in cm of a door size tag; a glued 'K290/210' (K2 + 90 or 2.90 m, TAGS-1) takes the reading
+    nearest the door's own ``width`` (m)."""
+    from wenart.ingest import tag_grammar as TG
 
-    m = re.match(DOOR_TAG_RE, str(text or ""))
-    return (int(m.group(1)), int(m.group(2))) if m else None
+    m = TG.door_size(text, 0)
+    if m is not None and m.ambiguous and width:
+        m = m.pick(width) or m
+    return (m.w_cm, m.h_cm) if m else None
 
 
 def door_tag(o: dict) -> Optional[tuple[float, float, str]]:
@@ -3281,7 +3285,7 @@ def door_tag(o: dict) -> Optional[tuple[float, float, str]]:
                                     ("door_tag", "own_door_tag")):
             texts += [str(e.get(k)) for k in ("text", "tag") if e.get(k)]
     for t in texts:
-        got = _tag_cm(t)
+        got = _tag_cm(t, o.get("width"))
         if got and got[1] >= DOOR_TAG_MIN_H_CM:
             return got[0] / 100.0, got[1] / 100.0, t.strip()
     return None

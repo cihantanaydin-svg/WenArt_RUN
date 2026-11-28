@@ -65,7 +65,8 @@ ANGLED_MIN_M = 2.0            # this much angled drawn wall on a level before it
 ANGLE_SAME_DEG = 2.0          # a model wall within this angle of a drawn stroke follows it ...
 FOLLOW_M = 0.25               # ... when the stroke lies within this distance of its centre line plus half its thickness
 FOLLOW_SHARE = 0.5            # under this share of the angled drawn length followed, the finding is written
-OPEN_AIR_TYPES = ("balcony", "terrace", "loggia", "deck", "patio", "courtyard", "roof_terrace", "garden")
+OPEN_AIR_TYPES = ("balcony", "terrace", "loggia", "deck", "patio", "courtyard", "roof_terrace", "garden",
+                  "porch")                    # 28 Nov 2026 (round 5a fix-up, ENTRANCES-12): the open porch (R08)
 
 
 def _finding(rule: str, severity: str, level: Optional[str], message: str, place=None, element_ids=()) -> dict:
@@ -272,7 +273,9 @@ def doors_without_opening(page, tf, building: dict, level: str) -> list:
         p = (tf[0] * c[0] + tf[1] * c[1] + tf[2], tf[3] * c[0] + tf[4] * c[1] + tf[5])
         if width is not None:
             # a tag's door: an opening of about its width (``DOOR_WIDTH_TOL_M``) within reach of the tag
-            near = [o for o in opens if abs(float(o.get("width") or 0) - width) <= DOOR_WIDTH_TOL_M
+            # (28 Nov 2026, TAGS-1: a glued 'K290/210' reads K2 + 90 or 2.90 m: an opening of either reading)
+            widths = list(ev.get("tag_widths") or [width])
+            near = [o for o in opens if min(abs(float(o.get("width") or 0) - x) for x in widths) <= DOOR_WIDTH_TOL_M
                     and math.dist(p, o["center"][:2]) <= DOOR_OPENING_REACH_M + float(o.get("width") or 0) / 2.0]
         else:
             w = float(ev.get("size_m") or 0.0)

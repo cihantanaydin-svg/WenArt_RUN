@@ -273,7 +273,9 @@ def today() -> str:
 
 def _room(r: dict, source: str) -> dict:
     area = r.get("area_computed")
-    out = {"id": r.get("id"), "label": r.get("label"), "room_type": r.get("room_type"),
+    from wenart.ingest import room_names as RN    # 28 Nov 2026 (ROOMS-2): a role name is no label; the score reads the
+    out = {"id": r.get("id"), "label": RN.reader_label(r) if r.get("label_role") else r.get("label"),  # placeholder
+           "room_type": r.get("room_type"),
            "area": round(float(area), ROUND) if area is not None else None,
            "centroid": centroid(r.get("polygon") or []), "polygon": _poly(r.get("polygon")),
            "source": source, "confidence": confidence_of(r), "method": method_of(r)}

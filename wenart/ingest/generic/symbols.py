@@ -1006,6 +1006,45 @@ def _block_keyword(name: str) -> Optional[str]:
     return keyword_type(name, extended=False)
 
 
+# 27 Nov 2026 (audit fix round 5a, R21; real15: eight 'KLO' toilet blocks typed by no word, left untyped): the common
+# abbreviations and misspellings of sanitary and kitchen block names, matched against whole name tokens only (the name
+# folded, split at every non-letter: 'KLO', 'klo-01', 'LAV_2' -> KLO, LAV); a stem of five letters or more also as a
+# token's start ('KLOZET1', 'LAVABOSAG'). Two tokens in a row ('DUS TEKNE') are one phrase.
+BLOCK_ABBREVIATIONS: tuple[tuple[str, str], ...] = (
+    ("DUS TEKNE", "shower"), ("DUS TEKNESI", "shower"), ("DUSTEKNE", "shower"), ("SHOWER TRAY", "shower"),
+    ("KLO", "toilet"), ("KLZ", "toilet"), ("KLOZ", "toilet"), ("KLOZET", "toilet"), ("ALAFRANGA", "toilet"),
+    ("ALATURKA", "toilet"), ("WC", "toilet"),
+    ("LAV", "washbasin"), ("LVB", "washbasin"), ("LAVA", "washbasin"), ("LAVABO", "washbasin"),
+    ("KUV", "bathtub"), ("KUVE", "bathtub"), ("KUVET", "bathtub"), ("KUVETI", "bathtub"), ("BANYO KUVET", "bathtub"),
+    ("EVY", "sink_kitchen"), ("EVYE", "sink_kitchen"), ("EVIY", "sink_kitchen"), ("EVIYE", "sink_kitchen"),
+)
+ABBREV_STEM_MIN = 5             # a key this long also matches the start of a token (LAVABO, KLOZET, KUVET)
+
+
+def name_tokens(name: str) -> list[str]:
+    """A block name's tokens: folded to ASCII upper case, split at every non-letter (digits too)."""
+    folded = B.fold_ascii(str(name or "")).upper()
+    return [t for t in re.split(r"[^A-Z]+", folded) if t]
+
+
+def abbreviation_type(name: str) -> Optional[str]:
+    """The fixture type an abbreviation in a block name gives (``BLOCK_ABBREVIATIONS``, whole tokens; a long stem as a
+    token's start), or None (pure)."""
+    toks = name_tokens(name)
+    if not toks:
+        return None
+    phrases = [" ".join(toks[i:i + 2]) for i in range(len(toks) - 1)]
+    for key, ftype in BLOCK_ABBREVIATIONS:
+        if " " in key:
+            if key in phrases:
+                return ftype
+            continue
+        if key in toks or (len(key) >= ABBREV_STEM_MIN and any(t.startswith(key) and len(t) <= len(key) + 4
+                                                                for t in toks)):
+            return ftype
+    return None
+
+
 def keyword_type(name: str, extended: bool = True) -> Optional[str]:
     """The type word of a block name: the Milestone 12 words (``extended``) and the Milestone 10 words first (folded
     name, whole words for short ones), then the M7 keywords (substring of the upper-case or the folded name: DUŞ is
@@ -1030,6 +1069,11 @@ def keyword_type(name: str, extended: bool = True) -> Optional[str]:
     hit = next(((key, ftype) for key, ftype in BLOCK_KEYWORDS if key in upper or key in folded), None)
     if hit is not None:
         return "seat" if hit[0] in SEAT_KEYWORDS else hit[1]
+    # 27 Nov 2026 (R21): KLO, LAV, KÜV, EVİYE, DUŞ TEKNE as name tokens; 28 Nov 2026 (round 5a fix-up, BLOCK-1): after
+    # the M7 table, so a counter block with a sink or basin word ('TEZGAH EVIYE') stays a counter
+    ftype = abbreviation_type(name)
+    if ftype is not None:
+        return ftype
     return match(BLOCK_GENERIC_M10)[1]
 
 

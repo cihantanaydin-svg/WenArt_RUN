@@ -376,7 +376,10 @@ def test_a_window_drawn_in_a_flats_only_link_is_that_window_and_the_entrance_is_
     b["openings"].append(RF.gap("g_bath", "L0_8", (8.0, 5.0), 1.6))
     b["rooms"] = [r for r in b["rooms"] if r["id"] != "L0_bed"] + [RF.room("L0_bath2", "Banyo", "bathroom",
                                                                            RF.rect(8.1, 4.1, 10.9, 7.9))]
-    out = CR.close_core_gaps(b, {}, {"L0": [{"text": "P150/50", "x": 8.0, "y": 5.1}]})    # an upper-case tag
+    # an upper-case tag; 28 Nov 2026 (round 5a fix-up TAGS-1): a glued 'P150/50' reads P1 + 50/50 or 1.50 x 0.50 m and
+    # sets no width alone; real14's POZ layer writes 'P3130/150' too, which proves the type number (P1 + 0.50 m)
+    texts = [{"text": "P150/50", "x": 8.0, "y": 5.1}, {"text": "P3130/150", "x": 40.0, "y": 40.0}]
+    out = CR.close_core_gaps(b, {}, {"L0": texts})
     win = next(o for o in b["openings"] if o["id"] == "g_bath")
     assert out["windows"] and win["type"] == "window" and win["drawn_type"] == "opening"
     assert any(r["opening"] == "g_bath" and "entrance door" in r["reason"] for r in out["review"])

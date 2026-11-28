@@ -191,9 +191,15 @@ def _room(building: dict, room_id: str) -> dict:
 # --------------------------------------------------------------------------
 
 def _label_words(room: dict) -> list[str]:
+    """The words of a room's label. 28 Nov 2026 (round 5a fix-up, ROOMS-4 / GENERAL-10): a role name (R28,
+    ``label_role``) is no word of the plan; the room keeps the program its reader's placeholder gave it before
+    (``label_placeholder``, 'Oda': an unlabelled room of 7 m² or more is furnished as a bedroom, as before R28)."""
     from wenart import building as B
 
-    text = " ".join(str(room.get(k) or "") for k in ("label", "label_raw"))
+    if room.get("label_role"):
+        text = " ".join(str(room.get(k) or "") for k in ("label_placeholder", "label_raw"))
+    else:
+        text = " ".join(str(room.get(k) or "") for k in ("label", "label_raw"))
     return [w for w in re.split(r"[^a-z0-9]+", B.fold_ascii(text).lower()) if w]
 
 
@@ -223,6 +229,8 @@ def room_kind(building: dict, room: dict) -> str:
     rtype = room.get("room_type") or "unknown"
     if rtype in TEMPLATE_KINDS and rtype not in ALIAS_KINDS:
         return rtype
+    if room.get("room_use") == "dressing":
+        return "dressing"                          # 28 Nov 2026 (ROOMS-5): R28's dressing room (``room_names``)
     aliases = GR.room_aliases()
     words = _label_words(room)
     area = _area(room)
@@ -725,7 +733,9 @@ def room_program(building: dict, room_id: str, brief: Optional[dict] = None, cho
     if _B.is_common_room(room):
         out["reason"] = "a common area of the building (shared hall, UL305): no furniture groups"
         return out
-    if own_type in schemas.NOT_FURNISHED_ROOM_TYPES or own_type in ("prayer", "stair", "shaft", "storage"):
+    # 28 Nov 2026 (round 5a fix-up, ENTRANCES-12 / GENERAL-10): an open porch (R08) is open air: never an indoor
+    # hall's or office's furniture
+    if own_type in schemas.NOT_FURNISHED_ROOM_TYPES or own_type in ("prayer", "stair", "shaft", "storage", "porch"):
         # 26 Oct 2026: a storage room read as a dressing room (its label, its bedroom door) is furnished as one
         if not (own_type == "storage" and room_kind(building, room) == "dressing"):
             out["reason"] = f"{own_type} room: no furniture groups"

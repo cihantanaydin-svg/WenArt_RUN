@@ -85,6 +85,16 @@ RULES = {
     # 20 Nov 2026 (real20's kitchen-to-balcony door: its gap closed by the wall's cut lines, a door block with no arc)
     "cut_span_door": (("R53",), "a door size tag or door block at a wall span framed by two jamb lines across the wall "
                                 "with door strokes inside is that door: the lines along it are the section edge"),
+    # 28 Nov 2026 (audit fix round 5a fix-up, ENTRANCES-13): the round's rules, under the audit plan's own ids (A-R08,
+    # A-R09, A-R16: the audit of 26 Nov 2026 numbers its rules apart from the building-sense audit's R08 / R16 above)
+    "open_porch": (("A-R08",), "a facade gap at the floor with a mark or steps in front of it, into a small unlabelled "
+                               "recess, is the open mouth of a covered porch"),
+    "facade_gap_entrance": (("A-R08",), "a facade gap at the floor with a mark or steps in front of it is an entrance "
+                                        "door"),
+    "entrance_word_main": (("A-R08",), "a drawn entrance word or an open porch names the building's main entrance"),
+    "size_tag_door": (("A-R09",), "a size tag makes a window a glazed door onto a balcony or terrace, or where its "
+                                  "own evidence says door"),
+    "outdoor_unreached": (("A-R16",), "an outdoor space no door reaches is a finding (a probable balcony door named)"),
     # staged rules (``STAGED``): written and tested, off until their review (the coordinator, 13 Nov 2026)
     "exterior_spans": (("R14",), "the exterior flag is read per stretch of a wall before the windows; a level or a "
                                  "stretch that does not qualify takes no inferred window"),

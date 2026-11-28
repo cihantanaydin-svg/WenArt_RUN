@@ -470,6 +470,8 @@ def _furniture_dict(level_id: str, piece: FurnitureItem, piece_id: str, rooms: l
                 dfp = (out["stair"].get("drawn_stair") or {}).get("footprint")
                 if isinstance(dfp, dict) and dfp.get("center") is not None:
                     out["drawn_footprint"] = dict(dfp)
+        if piece.details.get("drain"):
+            out["drain"] = True             # 28 Nov 2026 (round 5a fix-up, TUB-1): a drain drawn in it (a tub, a tray)
         if piece.details.get("shape"):
             # A round outline (§6.4: a round side table); Blender reads shape / circle_fit.
             out["shape"] = piece.details["shape"]
@@ -614,6 +616,9 @@ def _generic_rooms(build: ProjectBuild, level_id: str, ex: LevelExtraction) -> R
         if reason and reason.startswith("named:") and "|" in reason:
             reason = reason.rsplit("|", 1)[0].rstrip()
         label = label or TP.closet_label(reason, turkish)      # 3 Nov 2026 (real10): a closet is a "Depo"
+        if not label and TP.wet_cell_label(reason, turkish):
+            # 27 Nov 2026 (R21): a wet cell is a "Duş"; 28 Nov 2026 (ROOMS-3): a role name (``label_role``, R28)
+            return room_type, reason, TP.wet_cell_label(reason, turkish), True
         return (room_type, reason, label) if label else (room_type, reason)
 
     anchors = [_to_building(ex, t.start) for t in ex.labels]
@@ -3395,10 +3400,26 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
     _add_named_pieces(build)          # 26 Oct 2026: a furniture name text with no drawn piece adds the piece it names
     RD.resolve_named_conflicts(build)  # 26 Oct 2026: the disputed pieces a name text, a zone label or the AI typed
     _gaps_behind_furniture(build)      # 27 Oct 2026: a gap the drawing puts furniture in front of is a window
+    from wenart.ingest.generic import reading as RDG  # 28 Nov 2026 (round 5a fix-up): a counter the type inference
+    RDG.wet_room_vanities(build)                       # made in a wet room is its vanity too
+    from wenart.ingest import fixed_context as FXC  # 27 Nov 2026 (audit fix round 5a, R18): kitchen kit only in a
+    kit = FXC.kitchen_context(building)             # kitchen; a run along a bedroom's wall is a wardrobe
+    cells = FXC.wet_cells(building)                 # 28 Nov 2026 (R21 fix-up): a cell holding a drawn shower or toilet
+    if cells:
+        building.setdefault("level_inference", {})["wet_cells"] = cells
+        build.warn("wet cells: " + "; ".join(x["reason"] for x in cells[:3]))
+    if kit:
+        building.setdefault("level_inference", {})["kitchen_context"] = kit
+        build.warn(f"fixed equipment: {len(kit)} kitchen piece(s) out of a kitchen read again (R18): "
+                   + "; ".join(x["reason"] for x in kit[:3]))
     from wenart.ingest import completion as CP   # 6 Nov 2026 (real21, UL331): the storeys and windows a drawing leaves out
     CP.complete(build, sheets, by_level, _to_building)
     from wenart.ingest import edge_guards as EGD   # 26 Nov 2026 (audit rule R04): balcony edges are guards, not walls
     EGD.apply(build)
+    from wenart.ingest import room_names as RN     # 27 Nov 2026 (audit fix round 5a, R28): a face no text names takes
+    named = RN.name_faces(building)                # its open neighbour's label or a role name, never a bare 'Oda'
+    if named:
+        building.setdefault("level_inference", {})["room_names"] = named
     masters =[sorted(ws, key=lambda w: w.rank)[0] for ws in by_level.values()]
     if any(w.extraction.source_kind is not None for w in masters):
         # The generic core's unit system; an evidence-only raster page beside a DXF/PDF level does not count.
