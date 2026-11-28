@@ -2285,6 +2285,13 @@ def infer_levels(building: dict, brief: Optional[dict] = None) -> dict:
                                    spaces=site["outdoor_spaces"])
     # 13 Nov 2026 (review CODE-01): the completion's entrance decisions stay
     keep_completion_entrances(b, copy.deepcopy((building.get("site") or {}).get("entrances") or []))
+    # 28 Nov 2026 (round 5b fix-up, OPENINGS2-8: a re-run after an agent level edit lost every 'no door reaches it'
+    # finding): R16's unreached findings once the doors are known, written again by every run (the completion runs it
+    # once more after the last door rules)
+    from wenart.ingest import outdoor_checks as OCK
+    record["outdoor_spaces_unreached"] = OCK.unreached(b, warnings.append)
+    if not record["outdoor_spaces_unreached"]:
+        record.pop("outdoor_spaces_unreached")
     for e in site["entrances"]:
         if e["solution"] != "none":
             inferred.append({"item": f"entrance {e['door_id']}", "value": e["solution"], "reason": e["reason"]})

@@ -193,7 +193,13 @@ def structure_5b(b: dict) -> dict:
                "vetoed": sorted(f"{v.get('level_id')}:{'+'.join(v.get('rooms') or v.get('stairs') or [])}"
                                 f"({'+'.join(map(str, v.get('corrections') or []))})" for v in tc.get("vetoed") or [])} \
         if tc else None
-    upper = sorted(f"{r.get('space')}:{r.get('action')}" for r in li.get("upper_support") or [])
+    # 28 Nov 2026 (fix-up): the one upper-reach rule writes its verdict on the space (or its refusal)
+    site = b.get("site") if isinstance(b.get("site"), dict) else {}
+    upper = sorted([f"{s_.get('id')}:{(s_.get('upper_support') or {}).get('action')}"
+                    for s_ in site.get("outdoor_spaces") or [] if isinstance(s_, dict) and s_.get("upper_support")]
+                   + [f"{r.get('area_id')}:refused" for r in site.get("outdoor_spaces_refused") or []
+                      if isinstance(r, dict) and "a purely inferred space" in str((r.get("refused") or {}).get("reason")
+                                                                                  or "")])
     # 28 Nov 2026 (fix-up, SLABS-2): stairs the reading found blocked (the level above cannot be reached by them)
     blocked = sorted(f"{f.get('level_id')}:{f.get('id')}" for f in b.get("furniture") or []
                      if isinstance(f, dict) and f.get("stair_blocked"))

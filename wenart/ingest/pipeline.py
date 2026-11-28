@@ -3422,8 +3422,8 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
         building.setdefault("level_inference", {})["room_names"] = named
     from wenart.sheets import typical_check as TCK   # 27 Nov 2026 (round 5b, R22): copied storeys against the section
     TCK.apply(build)
-    from wenart.levels import upper_support as UPS   # 27 Nov 2026 (round 5b): upper floors past the walls under them
-    UPS.apply(build)
+    # 28 Nov 2026 (round 5b fix-up): the upper floors past the walls under them are judged by R16's one rule inside the
+    # levels model (``outdoor_checks.upper_reach``), not here
     masters =[sorted(ws, key=lambda w: w.rank)[0] for ws in by_level.values()]
     if any(w.extraction.source_kind is not None for w in masters):
         # The generic core's unit system; an evidence-only raster page beside a DXF/PDF level does not count.

@@ -829,6 +829,8 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
     unreached = OCK.unreached(b, build.warn)
     if unreached:
         b["level_inference"]["outdoor_spaces_unreached"] = unreached
+    else:                                  # 28 Nov 2026 (OPENINGS2-8): the levels model's records of spaces reached since
+        b["level_inference"].pop("outdoor_spaces_unreached", None)
     _entrance_summary(b)
 
 

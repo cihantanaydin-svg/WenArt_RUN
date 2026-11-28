@@ -1004,6 +1004,14 @@ def outdoor_spaces(building: dict, levels: Sequence[dict], outlines: dict, marks
     from shapely.geometry import Point
 
     site = building.get("site") if isinstance(building.get("site"), dict) else {}
+    # 28 Nov 2026 (round 5b fix-up, OPENINGS2-8: real15's refusal stayed after a door made the space built): R16's
+    # refusals are made again on every run of this step and of ``outdoor_checks.unreached`` after it
+    from wenart.ingest import outdoor_checks as OC
+    if site.get("outdoor_spaces_refused"):
+        site["outdoor_spaces_refused"] = [x for x in site["outdoor_spaces_refused"] if not (
+            isinstance(x, dict) and (x.get("refused") or {}).get("rule") == OC.RULE)]
+        if not site["outdoor_spaces_refused"]:
+            site.pop("outdoor_spaces_refused")
     by_id = {lv["id"]: lv for lv in levels}
     order = sorted(levels, key=lambda lv: float(lv["elevation"]))
     ground_lv = next((lv for lv in order if lv.get("order") == 0), None) or \
@@ -1078,10 +1086,24 @@ def outdoor_spaces(building: dict, levels: Sequence[dict], outlines: dict, marks
         if r16:
             warnings.append(f"outdoor space {a.get('id')} ({a.get('label')}) on {level_id}: {r16} (R16; a finding to "
                             f"review)")
-        if OC.is_rectangle(method) and level_id != ground_id:
-            clipped, cut_why = OC.clip_upper(poly, level_id, by_id, outlines, ground_id)
-            if cut_why:
-                poly, why = clipped, f"{why}; {cut_why}"
+        # 28 Nov 2026 (round 5b fix-up: round 5b's upper support folded into R16): an upper storey's space past the
+        # storey under it, one rule (``outdoor_checks.upper_reach``), before its floor, roof and posts are derived
+        upper_rec = None
+        if level_id != ground_id:
+            up = OC.upper_reach(building, a, level_id, by_id, ground_id, method, poly, outlines, landed)
+            if up["action"] == "refused":
+                warnings.append(f"outdoor space {a.get('id')} ({a.get('label')}) on {level_id} not built: "
+                                f"{up['reason']} (R16 upper reach)")
+                a["space"] = {"built": False, "reason": up["reason"], "finding": "R16"}
+                OC.record_refusal(building, a, level_id, poly, method, up["reason"])
+                continue
+            if up["action"] in ("clipped", "kept"):
+                upper_rec = {"action": up["action"], "below": up["below"], "reach_m": up["reach_m"],
+                             "past_m2": up["past_m2"], "rule": OC.RULE, "reason": up["reason"]}
+                warnings.append(f"outdoor space {a.get('id')} ({a.get('label')}) on {level_id}: {up['reason']} "
+                                f"(R16 upper reach)")
+            if up["action"] == "clipped":
+                poly, why = up["polygon"], f"{why}; {up['reason']}"
                 sp = _shp(poly)
                 area = round(sp.area, 3)
                 on = space_doors(poly, level_id, doors)
@@ -1139,6 +1161,10 @@ def outdoor_spaces(building: dict, levels: Sequence[dict], outlines: dict, marks
                 used.append(f"outdoor_floor:{sid}")
         if r16:
             rec["finding"] = {"rule": OC.RULE, "reason": r16}     # 28 Nov 2026 (R16 fix-up): built, with its finding
+        if upper_rec is not None:
+            rec["upper_support"] = upper_rec
+            if upper_rec["action"] == "kept":                     # a cantilever kept as read: a finding to review
+                rec["finding"] = {"rule": OC.RULE, "reason": (f"{r16}; " if r16 else "") + upper_rec["reason"]}
         out.append(rec)
         a["space"] = {"built": True, "id": sid}
     if not out:

@@ -872,55 +872,169 @@ def test_drawn_short_steps_at_the_door_are_its_steps_and_outdoor_steps_use_outdo
 # an upper outdoor space past the walls under it
 # --------------------------------------------------------------------------------------------------------------------
 
-def _upper(space_poly, evidence_text, roof=True):
+def _upper_case(roof=True):
+    """Two storeys: L0 10 x 10 m, L1 10 x 6 m (y 0-6); the levels by id, their outlines (outer faces)."""
     b = {"levels": [{"id": "L0", "elevation": 0.0}, {"id": "L1", "elevation": 3.0}],
          "walls": _walls("L0", 0, 0, 10, 10) + _walls("L1", 0, 0, 10, 6), "furniture": [], "rooms": [],
-         "roof": {"type": "hip", "outline": _rect(-0.5, -0.5, 10.5, 10.5)} if roof else None,
-         "site": {"outdoor_spaces": [{"id": "os_L1_teras", "level_id": "L1", "label": "TERAS", "kind": "terrace",
-                                      "polygon": space_poly,
-                                      "evidence": [{"method": "inferred", "text": evidence_text}]}]}}
+         "roof": {"type": "hip", "outline": _rect(-0.5, -0.5, 10.5, 10.5)} if roof else None, "site": {}}
+    levels = {lv["id"]: lv for lv in b["levels"]}
+    outlines = {"L0": _rect(-0.1, -0.1, 10.1, 10.1), "L1": _rect(-0.1, -0.1, 10.1, 6.1)}
+    return b, levels, outlines
+
+
+def test_upper_reach_one_rule_one_reference_one_threshold_and_a_round_join():
+    """Fix-up (UPS-1/-3, GENERAL-1/-2/-8/-9; round 5b's upper support folded into R16's ``outdoor_checks``): an upper
+    space is judged against the storey directly under it; an inferred rectangle is cut to 2.0 m beyond its walls with a
+    round join (no corner 2.83 m out; a second check finds nothing to do); a written area never exempts it."""
+    from shapely.geometry import Point, Polygon
+    from wenart.ingest import outdoor_checks as OC
+    b, levels, outlines = _upper_case(roof=False)
+    area = {"id": "sa_L1_teras", "label": "TERAS", "anchor": [-1.0, 8.0]}
+    rect = _rect(-4, 6.1, 10, 12)
+    up = OC.upper_reach(b, area, "L1", levels, "L0", "rectangle in the inner corner", rect, outlines, [])
+    assert up["action"] == "clipped" and up["below"] == "L0" and up["reach_m"] == pytest.approx(4.34, abs=0.01)
+    under = Polygon(outlines["L0"])
+    assert max(under.distance(Point(q)) for q in up["polygon"]) <= OC.UPPER_REACH_M + 0.01
+    again = OC.upper_reach(b, area, "L1", levels, "L0", "rectangle in the inner corner", up["polygon"], outlines, [])
+    assert again["action"] is None                              # the same geometry for the trigger and the clip
+    # 5a's helper gives the same geometry (one geometry)
+    poly2, why2 = OC.clip_upper(rect, "L1", levels, outlines, "L0")
+    assert why2 and Polygon(poly2).symmetric_difference(Polygon(up["polygon"])).area < 0.01
+    # the stated area sized the rectangle: still cut (it confirms the size, it never exempts)
+    area_w = dict(area, label_raw="TERAS A:82.60m²")
+    assert OC.upper_reach(b, area_w, "L1", levels, "L0", "rectangle against the facade (scaled to the stated area)",
+                          rect, outlines, [])["action"] == "clipped"
+
+
+def test_upper_reach_never_judges_a_ground_floor_space_and_keeps_what_is_drawn_supported_or_labelled():
+    """Fix-up (GENERAL-1, GENERAL-2, 5a's R16 contract): a ground-floor terrace over a basement stands on the ground; a
+    drawn outline is kept and listed; walls or columns under the part make it supported; a labelled rectangle with no
+    part within the reach is kept as read (listed); only a purely inferred space is refused."""
+    from wenart.ingest import outdoor_checks as OC
+    b, levels, outlines = _upper_case(roof=False)
+    levels["L-1"] = {"id": "L-1", "elevation": -3.0}
+    outlines["L-1"] = _rect(-0.1, -0.1, 10.1, 6.1)
+    far = _rect(-6, 0, -0.1, 10)
+    area = {"id": "sa_L0_teras", "label": "TERAS", "anchor": [-3.0, 5.0]}
+    assert OC.upper_reach(b, area, "L0", levels, "L0", "rectangle against the facade", far, outlines,
+                          [])["action"] is None
+    up_area = {"id": "sa_L1_teras", "label": "TERAS", "anchor": [-1.0, 8.0]}
+    rect = _rect(-4, 6.1, 10, 12)
+    kept = OC.upper_reach(b, up_area, "L1", levels, "L0", "strokes", rect, outlines, [])
+    assert kept["action"] == "kept" and kept["polygon"] == rect and "needs supports" in kept["reason"]
+    b["furniture"] = [{"id": "f_col", "level_id": "L0", "type": "column",
+                       "footprint": {"center": [-3.0, 11.0], "size": [0.3, 0.3], "rotation_deg": 0}}]
+    assert OC.upper_reach(b, up_area, "L1", levels, "L0", "rectangle", rect, outlines, [])["action"] == "supported"
+    b["furniture"] = []
+    off = _rect(-12, 4, -8, 8)                                      # nothing of it within 2 m of L0
+    assert OC.upper_reach(b, up_area, "L1", levels, "L0", "rectangle", off, outlines, [])["action"] == "kept"
+    assert OC.upper_reach(b, dict(up_area, label=""), "L1", levels, "L0", "rectangle", off, outlines,
+                          [])["action"] == "refused"
+    assert OC.upper_reach(b, dict(up_area, label=""), "L1", levels, "L0", "rectangle", off, outlines,
+                          ["d_L1_1"])["action"] == "kept"
+    # the drawn roof over its part above L0 is named in the finding
+    b2, levels2, outlines2 = _upper_case(roof=True)
+    named = OC.upper_reach(b2, up_area, "L1", levels2, "L0", "rectangle", rect, outlines2, [])
+    assert named["action"] == "clipped" and "the drawn roof covers" in named["reason"]
+
+
+def _upper_building(label_raw="TERAS"):
+    from tests import _levels_fixture  # noqa: F401 - the fixture module the helper below imports
+    from tests.test_audit_round2_20261126 import _two_storeys
+    b = _two_storeys([("r_living", 0.0), ("r_bed", 0.0), ("r_hall", 0.0)])
+    b["site"] = dict(b.get("site") or {}, areas=[{"id": "sa_L1_teras", "level_id": "L1", "label": "TERAS",
+                                                   "label_raw": label_raw, "anchor": [-3.5, 4.0], "build": False,
+                                                   "evidence": [{"file": "x.dxf", "method": "vector",
+                                                                 "text": label_raw}]}])
     return b
 
 
-def test_an_undrawn_upper_terrace_under_the_drawn_roof_and_far_past_the_walls_is_not_built():
-    from wenart.levels import upper_support as US
-    b = _upper(_rect(-4, 6, 10, 10), "rectangle in the inner corner: no drawn outline closes around the label")
-    rec = US.check(b)
-    assert rec and rec[0]["action"] == "dropped" and b["site"]["outdoor_spaces"] == []
-
-
-def test_an_undrawn_upper_terrace_keeps_its_part_over_the_floor_below_and_within_a_cantilever():
-    from wenart.levels import upper_support as US
+def test_upper_reach_runs_inside_the_levels_model_and_survives_a_rerun():
+    """Fix-up (UPS-1, UPS-2): the one rule runs inside ``infer_levels`` before the space's floor, roof and posts: the
+    space, its site area, the inferred entry and the report agree; a second run gives the same verdict and polygon;
+    no separate ``level_inference.upper_support`` record is left."""
     from shapely.geometry import Polygon
-    b = _upper(_rect(-4, 6, 10, 10), "rectangle in the inner corner: no drawn outline closes around the label",
-               roof=False)
-    rec = US.check(b)
-    assert rec[0]["action"] == "clipped"
-    p = Polygon(b["site"]["outdoor_spaces"][0]["polygon"])
-    assert p.bounds[0] == pytest.approx(-2.1, abs=0.01) and p.area == pytest.approx(48.4, abs=0.1)  # outer faces
-    # a drawn outline is kept as drawn and listed
-    b2 = _upper(_rect(-4, 6, 10, 10), "strokes: closed from the 3 stroke(s) on layer 'BALKON'")
-    rec2 = US.check(b2)
-    assert rec2[0]["action"] == "kept" and len(b2["site"]["outdoor_spaces"][0]["polygon"]) == 4
+    from wenart.levels import model as M
+    from wenart.report import final as RF
+    b = M.infer_levels(_upper_building())
+    os_ = b["site"]["outdoor_spaces"]
+    assert [s["id"] for s in os_] == ["os_L1_teras"] and os_[0]["upper_support"]["action"] == "clipped"
+    first = Polygon(os_[0]["polygon"])
+    assert first.bounds[0] == pytest.approx(-2.1, abs=0.01) and os_[0]["area_m2"] == pytest.approx(first.area, abs=0.01)
+    area = b["site"]["areas"][0]
+    assert area["space"] == {"built": True, "id": "os_L1_teras"}
+    inf = [i for i in b["level_inference"]["inferred"] if i["item"] == "outdoor space os_L1_teras"]
+    assert len(inf) == 1 and Polygon(inf[0]["value"]).equals_exact(first, 1e-6)
+    assert "upper_support" not in b["level_inference"]
+    summ = RF.site_summary(b)
+    assert next(x for x in summ["areas"] if x["id"] == "sa_L1_teras")["space"] == "os_L1_teras"
+    b = M.infer_levels(b)
+    again = b["site"]["outdoor_spaces"]
+    assert len(again) == 1 and Polygon(again[0]["polygon"]).equals_exact(first, 1e-6)
+    assert again[0]["upper_support"]["action"] == "clipped"
 
 
-def test_an_upper_canopy_is_no_floor_to_check():
-    from wenart.levels import upper_support as US
-    b = _upper(_rect(-4, 6, 10, 10), "rectangle in the inner corner: no drawn outline closes around the label")
-    b["site"]["outdoor_spaces"][0].update(kind="porch", label="GİRİŞ SAÇAK")
-    assert US.check(b) == [] and len(b["site"]["outdoor_spaces"]) == 1
+def test_r16_records_survive_a_rerun_of_the_levels_model():
+    """Fix-up (OPENINGS2-8): the first run refuses an upper 'TERAS' whose own mark is the floor below (seen from above);
+    an agent edit adds a door onto it and the second run builds it, its refusal gone; the 'no door reaches it' finding of
+    a drawn balcony is written again by every run (it lived only in the completion)."""
+    import copy as _copy
+    from tests import _levels_fixture as F
+    from tests.test_audit_round2_20261126 import _two_storeys
+    from wenart.levels import model as M
+    b = _two_storeys([("r_living", 0.0), ("r_bed", 0.0), ("r_hall", 0.0)])
+    b["level_marks"].append(F.mark("lm_t", 0.0, point=(-1.6, 4.3), level="L1", raw="+0.00"))
+    b["site"] = dict(b.get("site") or {}, areas=[
+        {"id": "sa_L1_teras", "level_id": "L1", "label": "TERAS", "label_raw": "TERAS", "anchor": [-1.5, 4.0],
+         "build": False, "evidence": [{"file": "t.dxf", "method": "vector", "text": "TERAS"}]},
+        {"id": "sa_L1_balkon", "level_id": "L1", "label": "BALKON", "label_raw": "BALKON", "anchor": [10.8, 3.5],
+         "polygon": [[10.1, 2.0], [11.5, 2.0], [11.5, 5.0], [10.1, 5.0]], "build": False,
+         "evidence": [{"file": "t.dxf", "method": "vector", "text": "BALKON"}]}])
+    b1 = M.infer_levels(b)
+    s1 = b1["site"]
+    assert [r["area_id"] for r in s1["outdoor_spaces_refused"]] == ["sa_L1_teras"]
+    assert s1["areas"][0]["space"]["built"] is False and s1["areas"][0]["space"]["finding"] == "R16"
+    balk = next(o for o in s1["outdoor_spaces"] if o["id"] == "os_L1_balkon")
+    assert balk["finding"]["unreached"] and "no door or opening of L1 reaches it" in balk["finding"]["reason"]
+    assert [r["space"] for r in b1["level_inference"]["outdoor_spaces_unreached"]] == ["os_L1_balkon"]
+    b2 = _copy.deepcopy(b1)
+    b2["openings"].append({"id": "d_L1_teras", "level_id": "L1", "type": "door", "wall_id": "w_4_up", "width": 0.9,
+                           "height": 2.1, "center": [0.0, 4.0], "status": "verified", "evidence": [dict(F.EV)]})
+    b2 = M.infer_levels(b2)
+    s2 = b2["site"]
+    assert "os_L1_teras" in [o["id"] for o in s2["outdoor_spaces"]] and not s2.get("outdoor_spaces_refused")
+    assert s2["areas"][0]["space"] == {"built": True, "id": "os_L1_teras"}
+    balk2 = next(o for o in s2["outdoor_spaces"] if o["id"] == "os_L1_balkon")
+    assert balk2["finding"]["unreached"] and "base" not in balk2["finding"]           # written once, not nested
+    assert [r["space"] for r in b2["level_inference"]["outdoor_spaces_unreached"]] == ["os_L1_balkon"]
+    # a door onto the balcony: its finding goes (the space keeps no stale finding)
+    b3 = _copy.deepcopy(b2)
+    b3["openings"].append({"id": "d_L1_balkon", "level_id": "L1", "type": "door", "wall_id": "w_2_up", "width": 0.9,
+                           "height": 2.1, "center": [10.0, 3.5], "status": "verified", "evidence": [dict(F.EV)]})
+    b3 = M.infer_levels(b3)
+    assert not next(o for o in b3["site"]["outdoor_spaces"] if o["id"] == "os_L1_balkon").get("finding")
+    assert "outdoor_spaces_unreached" not in b3["level_inference"]
 
 
-def test_an_undrawn_upper_balcony_sized_by_its_written_area_is_kept_and_listed():
-    from wenart.levels import upper_support as US
-    b = _upper(_rect(-3, 6, 3, 10), "rectangle against the facade: no drawn outline closes around the label", roof=False)
-    b["site"]["outdoor_spaces"][0]["evidence"].insert(0, {"method": "vector", "text": "A:24.00m²"})
-    rec = US.check(b)
-    assert rec[0]["action"] == "kept" and len(b["site"]["outdoor_spaces"][0]["polygon"]) == 4
-    # the inference's own note with the computed area is no written area
-    b2 = _upper(_rect(-3, 6, 3, 10), "rectangle in the inner corner: no drawn outline closes around the label (24.00 "
-                                     "m², inferred)", roof=False)
-    assert US.check(b2)[0]["action"] == "clipped"
+def test_a_refused_upper_space_follows_the_refused_contract_and_argus_agrees():
+    """Fix-up (GENERAL-3): a refusal moves the space to ``site.outdoor_spaces_refused`` with its rule and reason, sets
+    the site area's ``space`` (built False, its reason and finding) and leaves no inferred entry; Argus reports the
+    rule's verdict (never 'build the outdoor space') and the report names the reason."""
+    from wenart.audit import conservation as CV
+    from wenart.ingest import outdoor_checks as OC
+    from wenart.report import final as RF
+    b = {"site": {"areas": [{"id": "sa_L1_x", "level_id": "L1", "label": "TERAS", "build": False,
+                             "space": {"built": False, "reason": "no part within reach", "finding": "R16"},
+                             "evidence": [{"method": "vector", "entity": "TEXT:1"}]}],
+                  "outdoor_spaces": []}}
+    OC.record_refusal(b, b["site"]["areas"][0], "L1", _rect(0, 0, 2, 2), "rectangle", "no part within reach")
+    assert b["site"]["outdoor_spaces_refused"][0]["refused"] == {"rule": OC.RULE, "reason": "no part within reach"}
+    f = [x for x in CV.untyped(b) if x["check"] == "C5"]
+    assert len(f) == 1 and f[0]["severity"] == "major" and f[0]["fix"] is None and "no part within reach" in \
+        f[0]["message"]
+    summ = RF.site_summary(dict(b, site=dict(b["site"], boundary_walls=[], decor=[], openings=[])))
+    row = next(x for x in summ["areas"] if x["id"] == "sa_L1_x")
+    assert row["not_built_reason"] == "no part within reach" and row["rule"] == "R16"
 
 
 # --------------------------------------------------------------------------------------------------------------------
@@ -1063,8 +1177,12 @@ def test_struct_lines_show_slab_openings_door_steps_copies_and_upper_spaces():
          "level_inference": {"inner_steps": [{"opening_id": "d_1", "rise": 0.25, "risers": 2, "placed": "r_garaj",
                                               "kind": "steps"}],
                              "typical_checks": {"dropped": [{"level_id": "L0", "room": "r_L0_oda"}],
-                                                "stairs": [], "notes": []},
-                             "upper_support": [{"space": "os_L1_teras", "action": "dropped"}]}}
+                                                "stairs": [], "notes": []}},
+         # 28 Nov 2026 (fix-up): the one upper-reach rule writes its verdict on the space or its refusal
+         "site": {"outdoor_spaces": [{"id": "os_L1_teras", "upper_support": {"action": "clipped"}}],
+                  "outdoor_spaces_refused": [{"area_id": "sa_L2_balkon",
+                                              "refused": {"rule": "A-R16", "reason": "... not built (a purely "
+                                                                                     "inferred space)"}}]}}
     lines = R.structure_lines(dict(R.structure_5b(b), levels={}, section={}, roof=None, stairs={}))
     text = "\n".join(lines)
     assert "slab sl_L1: 1 stair void(s), 0 void(s), 4.0 m2 open; clipped f1; not stacked f9; outline roof_terrace_ring" \
@@ -1074,7 +1192,7 @@ def test_struct_lines_show_slab_openings_door_steps_copies_and_upper_spaces():
     b["level_inference"]["typical_checks"]["acted"] = False
     lines2 = R.structure_lines(dict(R.structure_5b(b), levels={}, section={}, roof=None, stairs={}))
     assert "copied storeys vs section: rooms to drop (listed) L0:r_L0_oda" in "\n".join(lines2)
-    assert "upper outdoor spaces past the walls below: os_L1_teras:dropped" in text
+    assert "upper outdoor spaces past the walls below: os_L1_teras:clipped, sa_L2_balkon:refused" in text
 
 
 def test_struct_lines_from_the_producers_show_blocked_stairs_short_headroom_and_held_copies(tmp_path, monkeypatch):
