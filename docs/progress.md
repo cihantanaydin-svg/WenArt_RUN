@@ -5554,9 +5554,10 @@ real17's 19-riser stair still built with 18 risers, the torn gable over real17's
 ### Audit fix round 5b (27 Nov 2026)
 
 Structure rules from the audit plan (R22 major, R23 major, R07 leftovers) and the findings of the last check pod (stair
-floor openings, door steps, real15's floating first-floor terrace), CPU only, no pod; lessons UL500-UL508. Every fix is
-a rule for every project; the projects are the test cases. Tests: `tests/test_audit_round5b_20261127.py` (27 tests, all
-synthetic; 27 of 27 fail on 2475714f). Round 5a works in parallel on openings, entrances, outdoor spaces, room names,
+floor openings, door steps, real15's floating first-floor terrace) and the coordinator's two check-pod findings of 27
+Nov (real15's L0 terrace bands, real17's attic), CPU only, no pod; lessons UL500-UL509. Every fix is a rule for every
+project; the projects are the test cases. Tests: `tests/test_audit_round5b_20261127.py` (32 tests, all synthetic; every
+one fails on 2475714f); `test_levels_model`'s inner-step record now carries the step plan. Round 5a works in parallel on openings, entrances, outdoor spaces, room names,
 blocks and fixed equipment; this round touched its files only in three hook lines of `wenart/ingest/pipeline.py`
 (`TCK.apply`, `UPS.apply`, and the frame shift passed to `roof_terrace`).
 
@@ -5571,6 +5572,8 @@ blocks and fixed equipment; this round touched its files only in three hook line
 | R07 h | - | kept from round 4b: a drawn opening head wins over a drawn ridge | - |
 | R23 roof-terrace ring (UL506) | the terrace took the floor below's outline: the light well stayed a hole, the escape-stair recess was roofed, 90+ parapets on undrawn lines | `sheets.terrace_ring.rings`: the rings each layer's lines close on a roof-terrace plan; `to_building.drawn_ring`: one around the stair house, along the floor below's outline for 60 % of its length, area 0.8-1.4 of it: the slab's outline (slots and recesses open), the terrace rooms, the parapets on it (half its drawn thickness in); a difference over 0.5 m2 listed | real10 L7: see the regress table |
 | door steps (UL507) | `levels.model` computed the inner steps but nothing built them; the build made one block from the low floor to the threshold, M1 kept its finding | `levels.door_steps`: steps in the lower room (risers at most 0.18 m, the last one the threshold; inferred) or a ramp in front of a garage's vehicle door; a flight that does not fit is a finding; `shell.door_step_blocks` builds them (M1 sees `opening.steps`) | real15 d_L0_006: 2 risers of 0.125 m in the garage; real10 d_L-2_001 / d_L-2_004: 2 risers of 0.175 m in the shelter; d_L-2_005: does not fit (listed); real17 o_L4_001 / d_L4_001 (1.0 m into the machine room): do not fit (listed) |
+| stair openings, a stair drawn above (UL501) | the first cut refused the opening of a stair drawn in a bedroom on every plan (the synthetic sheets project) | a stair the level above draws over the opening is where the stair goes on or arrives: that part is open whatever room holds it | - |
+| section ground gate (UL509; the coordinator's real15 finding) | section B-B's line at '+2.70' (z 2.2) was read as the ground, 2.2 m over the ground floor and its terrace doors: the L0 terraces became pits with stepped bands (z 1.1) up to that ground | `levels.model._section_ground_gate`: the section's ground lines pass the ground marks' gate; refused when every one stands over the plinth top and the ground floor's outside doors; listed (`site.ground.refused_levels`); the ground comes from the next source | real15: the line refused, the ground from the default under the floor; no stepped bands |
 | upper outdoor spaces (UL508) | real15's first-floor 'TERAS' had no drawn outline: a 204 m2 rectangle reached 5.5 m past the ground floor's walls | `levels.upper_support`: past the walls below by more than 2.0 m (+0.25) with no wall or column under it: an undrawn outline is dropped when the drawn roof covers its part over the floor below, else clipped to that part and 2.0 m; a drawn one, or one sized by the area the drawing writes beside its label, is kept and listed; levels that do not stack (over 6 m off) are not checked | real15: os_L1_teras dropped; real06, real07, real14, real19: balconies over 2 m drawn or sized by their written area, kept and listed; real16's balconies 18-100 m off: not checked (its levels do not stack) |
 
 Not done here (honest list): R07 a multi-part roofs split by gutters and valleys (real15's five drawn roofs: one roof
@@ -5580,3 +5583,32 @@ elevations, R22 (3) the copy's facade openings against the elevation (needs R11,
 drawn flues (a box with a diagonal needs the reader's strokes: the boxes the building JSON keeps at the same place on
 stacked plans were real06's toilets and basins and real02's columns, so a rule without the diagonal would put stacks on
 them; reverted), real10's escape-stair landing part on L2-L6 (a stair reading problem, not the opening's size).
+
+The coordinator's check-pod findings of 27 Nov (runs/20261127-214740-full against runs/20261127-060830-full):
+
+- real15's L0 terrace bands planned but not built (Argus C3 x9): the cause was the ground at +2.20 (above). Separately,
+  the build re-plans the site (`site.py`) and its platform list differs from the reading's `site.platforms` (the scene
+  had 13 platforms, the building JSON 19): planned pieces the scene does not build are not recorded as skipped. Not
+  fixed here (a build-side rule: every planned platform built or listed as skipped with its reason; next round).
+- real17's attic L4 (the round 4b duplex-upper floor, 17 rooms): the section's roof line meets the outer wall 0.2 m over
+  the attic floor (knee wall 0.20 m, vector), so the eaves stand at the attic floor (12.30); the elevations print
+  'PARAPET +13.00' (z 12.80). The 0.15 m snap of R07 d does not reach a 0.5 m difference and the elevations' marks are
+  R11's (deferred). The 1.00 m step is the lift machine room's own floor mark (r_L4_makine_dairesi, +1.0): its two doors
+  get no steps because a 6-riser flight does not fit in front of them: listed as findings by the door-step rule (not
+  built). The terraces of the attic plan are cut into the roof (roof openings ro_001 / ro_002), but the gable wall over
+  them stays open (R07 b, not done). The door through the slope (M31 d_L4_001, in the raised machine room) and the
+  unreachable r_L4_oda_2 / r_L4_oda_5 are not fixed here. Next round: an attic's eaves from the elevations' parapet or
+  eaves marks when the section's eaves stand at the attic floor; doors under a slope clipped to the headroom (as
+  windows); the gable closed over a terrace opening at a roof end; unreachable rooms of a new level as reading findings.
+
+Gates (this round's final code; "main" = 2475714f):
+
+| gate | main | this round | holds |
+|---|---|---|---|
+| `score --gate` against 381016c0 (never --update) | overall 97.9, synthetic (gated) 97.5, real06 100, real10 100 | first run (R22 carried out): fell, real10 96.9 (C0035: the fire stair and its door on L0); with R22 listed, not carried out: overall 97.9, synthetic 97.5, real06 100, real10 100, every row identical; GATE holds | yes |
+| regress set (34 projects, real08 left out) | main's lines | every first line and every non-struct line identical but real10's L7 walls 133 -> 70 and room area 22.9 -> 386.9 m2 (R23: the drawn ring); struct lines changed: real06 and real15 roofs (R07 g), real16 roof (R07 e), real10's cut axis (R22); new struct lines (slab openings, door steps, copied storeys, upper outdoor spaces) on 31 projects | yes (every change intended) |
+| sheet compare against main after 4b (22 projects) | - | 19 identical; real10 (the jogged cut: axis y at 14.41, flipped, one conflict fewer), real16 (its section's roof heights rejected with its storeys), real13 (the same cut x at 8.62, its marks now found on r5 first instead of r8) | yes |
+| dataset bench (107 projects, 201 floors) | mean 76.34; F1 levels .889, rooms .778, walls .751, doors .818, windows .777, stairs .759 | identical, every project's total the same | yes |
+| new tests | - | 32 pass (`test_audit_round5b_20261127.py`); every one fails on 2475714f | yes |
+| `pytest -m "not gpu"` (three batches, m34's lists) | 12 known failures | 16 failed in the batches (run on the first commit): the 12 known and four this round caused, fixed and rerun (pass): `test_mirror_halves` real10 (C0035, the R22 default), `test_sheets_pipeline` 2 (the stair opening in a bedroom drawn on every plan), `test_levels_model` (the inner-step record now carries the plan); 15 files touching the later commits rerun on the final code: 302 passed, 2 skipped | yes |
+

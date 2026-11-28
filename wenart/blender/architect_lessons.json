@@ -1,7 +1,7 @@
 {
  "_note": "What the user asked and corrected while this project was built, each turned into a general lesson the architect applies to every project (wenart/blender/architect_lessons.py; user request of 25 Oct 2026: 'the architect should ask the questions and corrections I was asking all along the build; use AI to understand what I was asking and keep developing with the future requests'). checks: the architect rules that check it on every build (architect.ORDER ids) or 'build' (the build does it by itself); status: rule (a rule checks it), built (code does it), open (no automatic check yet: the AI architect looks for it on every run and it is the next rule to write), process (how we work). Add a new request with: python -m wenart.agent.lessons add \"<the request>\"",
  "version": 1,
- "updated": "2026-11-27",
+ "updated": "2026-11-28",
  "lessons": [
   {
    "id": "UL01",
@@ -5301,6 +5301,16 @@
    "checks": [],
    "request": "27 Nov 2026 (audit fix round 5b): an upper balcony or terrace reaching more than 2.0 m past the walls under it needs drawn walls or columns there; an outline no line draws is not built when the drawn roof covers its part over the floor below (the plan above draws a roof there), else it keeps only its part over the floor below and within 2.0 m of its walls; a drawn outline, or an inferred one whose area the drawing writes beside its label, is kept and listed. Test case real15 (the 204 m2 'TERAS' of the first floor).",
    "lesson": "27 Nov 2026 (audit fix round 5b): an upper balcony or terrace reaching more than 2.0 m past the walls under it needs drawn walls or columns there; an outline no line draws is not built when the drawn roof covers its part over the floor below (the plan above draws a roof there), else it keeps only its part over the floor below and within 2.0 m of its walls; a drawn outline, or an inferred one whose area the drawing writes beside its label, is kept and listed. Test case real15 (the 204 m2 'TERAS' of the first floor).",
+   "question": null
+  },
+  {
+   "id": "UL509",
+   "date": "2026-11-28",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "27 Nov 2026 (audit fix round 5b, the coordinator's check-pod finding): a section's drawn ground line passes the same gate as the ground marks: when every drawn line stands more than 0.05 m over the plinth top and the ground floor's outside door thresholds (a building is never sunk into its ground on every side; a sloping site keeps a line under the floor on its low side) it is refused and listed, and the ground comes from the next source. Test case real15 (section B-B's '+2.70' line read as the ground 2.2 m over the terrace doors).",
+   "lesson": "27 Nov 2026 (audit fix round 5b, the coordinator's check-pod finding): a section's drawn ground line passes the same gate as the ground marks: when every drawn line stands more than 0.05 m over the plinth top and the ground floor's outside door thresholds (a building is never sunk into its ground on every side; a sloping site keeps a line under the floor on its low side) it is refused and listed, and the ground comes from the next source. Test case real15 (section B-B's '+2.70' line read as the ground 2.2 m over the terrace doors).",
    "question": null
   }
  ]
