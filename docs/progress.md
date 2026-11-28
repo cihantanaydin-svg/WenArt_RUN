@@ -5733,7 +5733,7 @@ the section ground gate, a re-run of `infer_levels`, and the struct lines from t
 | RING-1 (a ring leaving a closed room below roofless) | what the ring leaves out of the floor below's outline may be open only over a void, a light well, a shaft or a stair; else the old outline stays there and the room is a finding | repro `repro_ring_notch`: the bedroom keeps its roof (0.0 of 14.19 m2 open), a finding; test |
 | GENERAL-6 (a double-line parapet on one layer) | `terrace_ring.rings`: every face's outer ring and holes by enclosed area; `choose`: the inner face by its mean offset; parapets on a one-line ring stay inferred, on a double line drawn (vector) | repro `ring_double`: the outer face kept, thickness 0.149 / 0.247 / 0.392 for 0.15 / 0.25 / 0.40; test incl. a shifted frame |
 | GENERAL-10 (the snap test on the 0.15 m boundary) | the test uses +7.50 (0.20 m off) | test |
-| UPS-1, UPS-2, UPS-3, GENERAL-1, -2, -3, -8, -9 | not done here: they wait for round 5a's merge (one upper-support rule inside 5a's outdoor checks) | - |
+| UPS-1, UPS-2, UPS-3, GENERAL-1, -2, -3, -8, -9 | done after round 5a's merge: item 8 below (one upper-support rule inside 5a's outdoor checks) | item 8 |
 
 Effects on the regress set (struct lines only; every first line and every other line identical on all 34 projects):
 real06 roof 20.6 -> 18.3 degrees (ridge 7.77 -> 7.55, the listing); real15 roof ridge 8.87 -> 6.95 (pitch 6.5, the listing);
@@ -5755,3 +5755,45 @@ Gates (the fix-up's final code; "main" = 2475714f, "5b" = 93c082bb):
 | dataset bench (107 projects, 201 floors) | mean 76.34; F1 levels .889, rooms .778, walls .751, doors .818, windows .777, stairs .759 | identical (the whole report, every project and kind) | yes |
 | new tests | 32 | 54 pass; every one fails on 2475714f | yes |
 | `pytest -m "not gpu"` (three batches, m34's lists) | 12 known failures | 13 failed: the 12 known and `test_levels_model` (its step record now has no stored blocks: updated to `door_steps.plan_blocks`, rerun with the touched files: 128 passed) | yes |
+
+### Round 5b fix-up, item 8: round 5a merged, the upper support folded into R16 (28 Nov 2026)
+
+opus_branch_11 (round 5a and its fix-up, cc49b4ce) merged into round 5b (lessons: the union by id; progress: both
+sides; pipeline: 5a's room names, then 5b's copied-storey check). Round 5b's `levels.upper_support` is gone: one rule for
+upper outdoor spaces, `outdoor_checks.upper_reach` in 5a's R16 hook of `levels.outdoor.outdoor_spaces` (inside
+`levels.model.infer_levels`, before the space's floor, roof and posts are derived). Lesson UL518 (UL508 amended).
+
+| finding | rule now | shown by |
+|---|---|---|
+| GENERAL-8 (two rules for one problem) | one rule: `upper_reach` (5a's `clip_upper` keeps its name and uses the same reference and geometry) | `merge_overlap`, `merge_overlap2` (adapted): the one rule and `clip_upper` give the same polygon (64.75 and 16.8 m², below L1) |
+| GENERAL-1 (a ground-floor terrace judged against a basement) | one reference: the base storey directly under an upper storey (`level_below`); a ground-floor or basement space stands on the ground and is never judged | `ups_ground` (adapted): both ground-floor terraces untouched |
+| GENERAL-9 (mitre corners 2.83 m out, a second record) | one threshold and one geometry for the trigger and the cut: 2.0 m (5 cm drawing tolerance on the trigger), a round join (`reach_zone`) | `ups_twice` (adapted): run 1 clipped (the kept polygon at most 2.00 m out), run 2 nothing |
+| GENERAL-2, UPS-3 (a written area as an exemption) | "undrawn" by the method (`rectangle*`); a written area confirms only the size (5a's 80-120 % finding), it never exempts the cut | `ups_area` (adapted): the 36 m² rectangle scaled to 'TERAS 36 m²' is cut (24.4 m² kept) |
+| UPS-1, GENERAL-3 (stale records, no refusal contract) | the verdict is taken before the derived parts: a cut space carries its new polygon, area, floor, roof and posts, the inferred entry holds the cut polygon, the area's `space` points to it; a refusal (only a purely inferred space: no label, no door) uses 5a's contract (`site.outdoor_spaces_refused` with rule and reason, the area's `space` built False with reason and finding R16, no inferred entry); Argus C5 reports a rule's refusal as that verdict (major, no "build the outdoor space"); `report.final.site_summary` names the reason | `ups_contract`, `ups_contract2` (adapted): area.space, inferred entry, Argus (no C5) and the report agree; tests |
+| UPS-2 (a later `infer_levels` brought the space back) | the rule runs inside `infer_levels`: every re-run gives the same verdict and polygon | test with two `infer_levels` runs |
+| 5a's R16 decisions | kept: R16's seen-from-above refusal comes first; a space a drawn door lands on, with a drawn outline or a label, is never dropped (a drawn outline past the reach is kept and listed as a cantilever; a labelled rectangle with nothing within the reach is kept as read and listed); the roof-cover drop of round 5b is gone (named in the finding instead) | `corner_balcony` (adapted): drawn corner balconies kept (listed when the corner is more than 2.0 m from the walls), inferred ones cut round the corner |
+| real15's first-floor 'TERAS' | one verdict, R16's: its own level mark '+0.50' (beside the label, outside L1) is L0's floor and no door of L1 lands on it: the ground floor's terrace seen from above, not built again on L1 (`site.outdoor_spaces_refused`, the area's `space` built False, finding R16). The L1 plan draws nothing there but the label and its mark (the area west of the lower hip roof over the ground floor); section B-B shows no first-floor terrace, only the balcony | the reading of real15 on the merged code; the plan crop (debug r3) and section B-B |
+| OPENINGS2-8 (round 5a's second review: R16 records did not survive a re-run) | R16's refusals are made again on every run of the outdoor step (a stale one never outlives its area being built); `unreached` runs inside `infer_levels` once the doors are known (after the entrances and facade gaps) and once more in the completion, idempotent (its finding keeps the finding it covers, a space reached since gets it back; a refusal replaces the record of the same space; `level_inference.outdoor_spaces_unreached` rewritten or removed) | `r16_stale` on real15: win_L1_006 made a door gives os_L1_teras built and no refusal left; `r16_rerun` on real19: no finding lost (9 kept), on real15 the refusal kept; test with three `infer_levels` runs (refused, built after a door, a balcony's finding gone after its door) |
+
+Effects on the readings: real15 L1 'TERAS' refused by R16 (as in 5a); real19's inferred upper balconies: 2 cut to 2.0 m past
+the storey under them, 2 kept as read and listed (L2 stands 3.1-3.8 m past L1's walls: its levels are registered off, the
+registration finding of round 5b); no upper space refused.
+Regress effects (34 projects) against round 5a's final lines: every non-struct line identical but real10's L7 (round 5b's
+R23 ring: walls 133 -> 70, room area 386.9 m2); the struct lines add round 5b's kinds (slab openings, door steps, copied
+storeys, upper outdoor spaces) and its roof and cut changes (real06, real15, real16, real10). Against the 5b fix-up: 5a's
+own changes (real06 and real15 openings, stair ids renumbered) and the one rule's verdicts: real07's inferred balcony and
+real10's, real13's, real14's and real19's inferred upper spaces cut to 2.0 m past the storey under them (5a's clip did
+that before with a mitre join); real09's, real11's and real13's ground-floor spaces no longer judged against a basement;
+real16's L1 balconies (its levels do not stack: 18-100 m off) listed as kept cantilevers instead of "not checked" (one
+threshold: the old 6 m sanity limit is gone; no geometry changes); real15's TERAS refused by R16 only.
+
+Gates on 8c2d4804 (the merge 5bc1ebee and the fold):
+
+| gate | before | now | holds |
+|---|---|---|---|
+| `score --gate` against 381016c0 (never --update) | 5a and the 5b fix-up: overall 97.9, synthetic 97.5, real06 100, real10 100 | the same; every row identical to both | yes |
+| regress set (34 projects) | 5a's final lines, the 5b fix-up's | as above: every change from 5a, round 5b or the one rule, intended | yes |
+| sheet compare (22 projects) | the 5b fix-up's dumps | identical on every project | yes |
+| dataset bench (107 projects, 201 floors) | 5a: mean 76.37, doors .819, windows .779 | identical to 5a's report (every project and kind) | yes |
+| tests | - | `test_audit_round5b_20261127.py` 55 and `test_audit_round5a_20261127.py` 53 pass | yes |
+| `pytest -m "not gpu"` (three batches, m34's lists, both round test files) | 12 known failures | 12 failed, the 12 known (4 + 5 + 3) | yes |
