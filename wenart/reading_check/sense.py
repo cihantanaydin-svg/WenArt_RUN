@@ -266,6 +266,9 @@ def _fold(text) -> str:
 
 
 def _label(room: dict) -> str:
+    # 27 Nov 2026 (R28): a role name the reading gave a face no text names (``label_role``) is no label of its own
+    if room.get("label_role"):
+        return ""
     return str(room.get("label") or room.get("label_raw") or "")
 
 
@@ -2349,7 +2352,7 @@ def open_passage(building: dict) -> list:
     return out
 
 
-EXIT_TAG_RE = re.compile(r"^\s*[a-z]?\s*(\d{2,3})\s*/\s*(\d{2,3})\s*$", re.I)
+# size tags: ``wenart.ingest.tag_grammar`` (27 Nov 2026, R09: one parser for the pipeline)
 EXIT_TAG_DOOR_CM = 200          # a size tag this high or higher names a door
 
 
@@ -2364,8 +2367,9 @@ def _drawn_door(o: dict) -> bool:
         for name in str(e.get("block") or e.get("block_name") or "").split("/"):
             if name and LN.layer_role(name) == "door":
                 return True
-        m = EXIT_TAG_RE.match(str(e.get("text") or ""))
-        if e.get("rule") == "size_tag" or (m and int(m.group(2)) >= EXIT_TAG_DOOR_CM):
+        from wenart.ingest import tag_grammar as TG
+        m = TG.door_size(e.get("text"), EXIT_TAG_DOOR_CM)
+        if e.get("rule") == "size_tag" or m is not None:
             return True
     return False
 

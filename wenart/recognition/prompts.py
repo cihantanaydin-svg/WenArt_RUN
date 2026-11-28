@@ -265,6 +265,7 @@ ROOM_WORDS: dict[str, str] = {
     "bathroom": "a bathroom", "wc": "a toilet (WC)", "hall": "a hall or corridor", "balcony": "a balcony",
     "storage": "a storage room", "prayer": "a prayer room", "stair": "a stair room",
     "shaft": "a shaft", "garage": "a garage", "technical": "a technical room (boiler, heating or plant room)",
+    "porch": "a covered entrance porch",
 }
 
 

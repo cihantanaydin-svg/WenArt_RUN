@@ -150,7 +150,9 @@ def test_the_hall_is_one_unlabelled_face_holding_the_stair(run):
         ref_area = sum(s["area_sqft"] for s in REF["circulation"]["spaces"])
         assert abs(hall["area_computed"] / FT / FT - ref_area) <= merged["tol"]["area_rel"] * ref_area
     for hall in unlabelled:
-        assert hall["room_type"] == "hall" and hall["label"] == "Room" and hall["status"] == "unverified"
+        # 27 Nov 2026 (round 5a, R28): an unnamed face takes a role name (never the placeholder), no text names it
+        assert hall["room_type"] == "hall" and hall["label"] in ("Hall", "Corridor") and hall.get("label_role") \
+            and hall["status"] == "unverified"
     stair = next(f for f in run["building"]["furniture"] if f["type"] == "stair")
     assert stair["room_id"] in {h["id"] for h in unlabelled}
 
@@ -442,7 +444,8 @@ def test_debug_image_report_and_questions(run):
     for heading in ("## Units", "## Scale", "## Site", "## Separators", "## Room size labels", "## Gaps",
                     "## Furniture typing", "## Assumed values"):
         assert heading in report, heading
-    assert "| r_L0_room | L0 | Room | — | hall |" in report
+    # 27 Nov 2026 (round 5a, R28): the unnamed hall face carries a role name, never the placeholder 'Room'
+    assert "| r_L0_room | L0 | Hall | — | hall |" in report or "| r_L0_room | L0 | Corridor | — | hall |" in report
     assert "11' 0\" (3.35 m)" in report and "two room names shared one face" in report
     from wenart.recognition import answers as A
     doc = A.read_requests(out / "recognition")

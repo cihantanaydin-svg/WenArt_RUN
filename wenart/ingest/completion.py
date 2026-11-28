@@ -688,7 +688,8 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
         drawn = Drawn.of(ex)
         if drawn is not None:
             drawn_by_level[lid] = drawn
-        texts_by_level[lid] = [{"text": t.text, "x": p[0], "y": p[1], "entity": t.entity}
+        texts_by_level[lid] = [{"text": t.text, "x": p[0], "y": p[1], "entity": t.entity,
+                                "layer": (t.evidence or {}).get("layer") if isinstance(t.evidence, dict) else None}
                                for t in ex.texts for p in [to_building(ex, G_centre(t))]]
         reg = _region_for(sheets, w.record)
         region_by_level[lid] = reg
@@ -755,7 +756,25 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
                 strokes_by_level.setdefault(copy["id"], strokes_by_level[lid])
             if lid in drawn_by_level:
                 drawn_by_level.setdefault(copy["id"], drawn_by_level[lid])
+    # 27 Nov 2026 (audit fix round 5a, R09): every size tag binds to one opening and sets its width, height and type
+    # (one window split at its mullion is one opening; floor-level glass; a tag saying door), before the core rules
+    from wenart.ingest import tag_binding as TBN
+    bound = TBN.bind(b, texts_by_level, build.warn)
+    if bound:
+        b["level_inference"]["size_tags_bound"] = bound
+    # 27 Nov 2026 (audit fix round 5a, R08): a facade gap at the floor with steps, a ground mark or a small recess behind
+    # it is an open entrance (a covered porch and its door, or an entrance door), before the core rules check entrances
+    from wenart.ingest import porches as PCH
+    porches = PCH.open_porches(b, strokes_by_level, build.warn, texts_by_level)
+    if porches:
+        b["level_inference"]["open_entrances"] = porches
     rules = CR.apply(build, texts_by_level, party_by_level, strokes_by_level, drawn_by_level)
+    words = PCH.entrance_words(b, texts_by_level, build.warn)   # R08: entrance words outside the walls name a door
+    if words:
+        b["level_inference"]["entrance_words"] = words
+    landed = TBN.space_doors(b)       # R09: the doors the tags and the core rules made land on their outdoor spaces
+    if landed:
+        b["level_inference"]["space_doors_added"] = landed
     b["level_inference"]["core_rules"] = rules
     gf = (b["level_inference"].get("storeys") or {}).get("ground_floor")
     if isinstance(gf, dict):
@@ -795,10 +814,21 @@ def complete(build, sheets: Optional[dict], by_level: dict, to_building: Callabl
     # 12 Nov 2026 (the architect's audit, second series): shafts, stairs over nothing, balcony doors, exterior flags
     from wenart.ingest import sense_rules as SR
     b["level_inference"]["sense_rules"] = SR.apply(build, texts_by_level, drawn_by_level)
-    # 27 Nov 2026 (audit rule R17 e): a door's own size tag is evidence of its size (the build keeps a tagged size)
+    # 27 Nov 2026 (audit rule R17 e): a door's own size tag is evidence of its size (the build keeps a tagged size);
+    # since R09 (round 5a) the binding step above records it (``door_tags``, rule own_door_tag); the doors a rule made
+    # after it (R37, sense rules) are bound here
     tagged = CR.own_door_tags(b, texts_by_level)
     if tagged:
         b["level_inference"]["own_door_tags"] = tagged
+    # 27 Nov 2026 (audit fix round 5a, R16): once every door is read (tags, core rules, sense rules), the doors land on
+    # their outdoor spaces, and an inferred upper space no door reaches is not built (kept as a finding)
+    landed = TBN.space_doors(b)
+    if landed:
+        b["level_inference"]["space_doors_added"] = (b["level_inference"].get("space_doors_added") or []) + landed
+    from wenart.ingest import outdoor_checks as OCK
+    unreached = OCK.unreached(b, build.warn)
+    if unreached:
+        b["level_inference"]["outdoor_spaces_unreached"] = unreached
     _entrance_summary(b)
 
 

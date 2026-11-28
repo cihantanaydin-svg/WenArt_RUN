@@ -60,6 +60,7 @@ from typing import Optional
 
 from shapely.geometry import Point, Polygon
 
+from wenart.ingest import tag_grammar as TG
 from wenart import building as B
 from wenart import geometry as G
 from wenart.ingest import completion as CP
@@ -101,7 +102,7 @@ UNIT_USE_RE = re.compile(r"(?<![a-z])(?:dukkan|dukkani|magaza|magazasi|depo|depo
 # ... and a flat's own hall (an antre): never the common core
 FLAT_HALL_RE = re.compile(r"(?<![a-z])(?:antre|antresi|vestiyer|vestibule|diele|daire\s+girisi)(?![a-z])")
 WINDOW_LAYER_RE = re.compile(r"pencere|penc|window|glass|glazing|(?<![a-z])cam(?![a-z])|fenster|fenetre|ventana")
-WINDOW_TAG_RE = re.compile(r"^\s*(?:[a-z]\s*[:.]?)?\s*(\d{2,3})\s*/\s*(\d{2,3})\s*$", re.I)   # P150/50, K 100/210 (CODE-06)
+# size tags (P150/50, K 100/210, CK3 260/240; CODE-06): ``wenart.ingest.tag_grammar`` (27 Nov 2026, R09: one parser)
 GAP_WINDOW_MIN_M = 0.30         # a window drawn in a gap at least this wide is kept as a window when the gap closes
 GAP_WINDOW_HEAD_M = 2.10        # ... its head, and its height without a tag (a high window between a wet room and the core)
 GAP_WINDOW_H_M = 0.60
@@ -802,23 +803,24 @@ def _gap_window(level: "CP.Level", o: dict, drawn, texts: list) -> Optional[dict
     # than to the gap, of its width) is that door's, never the gap's
     doors = [d for d in level.openings if d is not o and d.get("type") == "door" and d.get("center")
              and not d.get("lift_door")]
+    conv = TG.glued_convention(texts)
     for t in texts or []:
-        m = WINDOW_TAG_RE.match(str(t.get("text") or ""))
+        m = TG.parse(t.get("text"), t.get("layer"), conv)
         if m and box.buffer(0.6).contains(Point(t["x"], t["y"])):
-            tw = int(m.group(1)) / 100.0
             dg = math.dist((t["x"], t["y"]), c[:2])
             if any(math.dist((t["x"], t["y"]), d["center"][:2]) <= min(dg, float(d.get("width") or 0) / 2.0
                                                                         + TAG_REACH_M)
-                   and abs(tw - float(d.get("width") or 0)) <= 0.05 for d in doors):
+                   and min(abs(tw - float(d.get("width") or 0)) for tw in m.widths) <= 0.05 for d in doors):
                 continue
-            tag = (tw, int(m.group(2)) / 100.0, str(t["text"]).strip())
+            # (28 Nov 2026, TAGS-1) a glued 'P150/50' the drawing does not decide gives no window width alone
+            tag = (None if m.ambiguous else m.w, m.h, str(t["text"]).strip())
             break
     if tag is not None and tag[1] >= DOOR_TAG_H_M:
         return {"door_tag": tag[2]}         # a door's size tag (100/210): a door the reading did not read
     if len(lines) >= 2:
         ts = [((p[0] - a[0]) * u[0] + (p[1] - a[1]) * u[1]) for s in lines for p in (s["a"], s["b"])]
         t0, t1 = max(min(ts), tc - half), min(max(ts), tc + half)
-    elif tag is not None and tag[0] < 2 * half:
+    elif tag is not None and tag[0] is not None and tag[0] < 2 * half:
         t0, t1 = tc - tag[0] / 2.0, tc + tag[0] / 2.0
     else:
         return None
@@ -1057,9 +1059,12 @@ def entrance_storeys(b: dict, texts_by_level: Optional[dict] = None) -> list:
     return out
 
 
-def _entrance_record(b: dict, o: dict, level: "CP.Level", lv: dict, hall: dict, face: dict, reason: str) -> dict:
+def _entrance_record(b: dict, o: dict, level: "CP.Level", lv: dict, hall: dict, face: dict, reason: str,
+                     ground: Optional[tuple] = None) -> dict:
     """The ``site.entrances`` record of an inferred building entrance (CS1-05), with the levels model's step rules: the
-    hall's floor, the ground the reading knows (else at the floor), the rise, the steps and landing."""
+    hall's floor, the ground the reading knows (else at the floor), the rise, the steps and landing. ``ground``: ``(z,
+    source)`` the rule's own evidence gives (28 Nov 2026, ENTRANCES-11: the mark in front of the gap, the terrain at
+    it)."""
     from wenart.blender import site as S
     from wenart.levels import model as LM
     from wenart.levels.rules import level_params, steps_for
@@ -1073,7 +1078,7 @@ def _entrance_record(b: dict, o: dict, level: "CP.Level", lv: dict, hall: dict, 
     ht = float(w.get("thickness") or 0.15) / 2.0
     cx, cy = o["center"][:2]
     threshold = LM.room_floor_z(b, hall)
-    zs = ground_zs(b)
+    zs = [float(ground[0])] if ground is not None else ground_zs(b)
     gz = min(zs, key=lambda z: abs(threshold - z)) if zs else threshold
     rise = max(threshold - gz, 0.0)
     width = float(o.get("width") or ENTRANCE_DOOR_M[0])
@@ -1082,7 +1087,8 @@ def _entrance_record(b: dict, o: dict, level: "CP.Level", lv: dict, hall: dict, 
     o["threshold_z"] = round(threshold, 3)
     return {"door_id": o["id"], "level_id": lv["id"], "room_id": hall["id"], "threshold_z": round(threshold, 3),
             "ground_z": round(gz, 3), "rise": round(rise, 3),
-            "ground_source": "the ground the reading knows" if zs else "no ground read: at the floor (assumed)",
+            "ground_source": (str(ground[1]) if ground is not None else "the ground the reading knows" if zs
+                              else "no ground read: at the floor (assumed)"),
             "centre": [round(cx, 4), round(cy, 4)], "outward": [round(outward[0], 6), round(outward[1], 6)],
             "face": [round(cx + outward[0] * ht, 4), round(cy + outward[1] * ht, 4)], "width": round(width, 3),
             "half_t": round(ht, 4), "side": S.side_of(outward, north, known),
@@ -1095,7 +1101,8 @@ def _entrance_record(b: dict, o: dict, level: "CP.Level", lv: dict, hall: dict, 
                           "rule": "inferred_entrance", "text": reason}]}
 
 
-SIZE_TAG_RE = re.compile(r"^\s*([kp])\s*[:.]?\s*(\d{2,3})\s*/\s*(\d{2,3})\s*$")
+# R37 reads the tags whose code or words say door or window ('K:80/210', 'P:120/150', 'CK3 260/240', '180/210 FRANSIZ
+# PENCERE'): ``tag_grammar`` (27 Nov 2026, R09); a bare 'W/H' says neither
 TAG_REACH_M = 0.9               # a size tag this far beyond an opening's half width is that opening's
 DOOR_TAG_MIN_H_M = 1.80         # a K/P tag this high is a door's; lower a window's (P:120/150)
 TAG_SILL_M = 0.90               # the sill of a door a window's tag turns into a window (assumed; R09-3)
@@ -1104,22 +1111,27 @@ AT_GRADE_M = 0.60               # a storey's floor this close to the ground stan
 NO_TERRACE_DOOR = ("bathroom", "wc", "shower", "toilet", "shaft", "stair", "technical", "storage", "hall")
 
 
-def _tag_of(o: dict, texts: list) -> Optional[tuple]:
+def _tag_of(o: dict, texts: list, conv: Optional[str] = None) -> Optional[tuple]:
     """``(kind 'door' | 'window', width, height, text, distance)``: the nearest K:/P: size tag at an opening (within
-    its half width and ``TAG_REACH_M``), or None (pure)."""
+    its half width and ``TAG_REACH_M``), or None (pure). ``conv``: the drawing's glued-code convention
+    (``tag_grammar.glued_convention``); a glued tag it does not decide gives the reading nearest the opening's width
+    (TAGS-1)."""
     c = o.get("center")
     if not c:
         return None
     reach = float(o.get("width") or 0.0) / 2.0 + TAG_REACH_M
     best = None
     for t in texts or []:
-        m = SIZE_TAG_RE.match(B.fold_ascii(str(t.get("text") or "")).lower())
-        if not m:
+        m = TG.parse(t.get("text"), t.get("layer"), conv)
+        if m is None or m.kind is None:
             continue
+        m = m.pick(o.get("width")) or m
         d = math.dist((t["x"], t["y"]), c[:2])
         if d <= reach and (best is None or d < best[4]):
-            w, h = int(m.group(2)) / 100.0, int(m.group(3)) / 100.0
-            kind = "door" if m.group(1) == "k" and h >= DOOR_TAG_MIN_H_M else "window"
+            w, h = m.w, m.h
+            # a French window's tag ('FRANSIZ PENCERE') makes a window onto a balcony its door, never a door a window
+            kind = "door" if m.says_door and h >= DOOR_TAG_MIN_H_M else (
+                "french" if m.kind == "french_window" else "window")
             best = (kind, w, h, str(t["text"]).strip(), d)
     return best
 
@@ -1136,15 +1148,16 @@ def own_door_tags(b: dict, texts_by_level: Optional[dict]) -> list[dict]:
     first, one tag a door): ``door_tags`` and an evidence entry (rule ``own_door_tag``). Evidence only (in place): the
     door's place, size and assumed fields stay; the build's door sizes keep a tagged door's size
     (``door_states.plan_sizes``). Returns ``[{"opening", "level_id", "tag"}]``."""
-    from wenart.ingest.twins import DOOR_SIZE_TAG_MIN_H_CM, DOOR_SIZE_TAG_RE
+    from wenart.ingest.twins import DOOR_SIZE_TAG_MIN_H_CM
 
     out: list[dict] = []
+    conv = TG.glued_convention([t for ts in (texts_by_level or {}).values() for t in ts or []])
     for lid, texts in sorted((texts_by_level or {}).items()):
         tags = []
         for t in texts or []:
-            m = DOOR_SIZE_TAG_RE.match(B.fold_ascii(str(t.get("text") or "")))
-            if m and int(m.group(2)) >= DOOR_SIZE_TAG_MIN_H_CM:
-                tags.append((t, int(m.group(1)) / 100.0))
+            m = TG.door_size(t.get("text"), DOOR_SIZE_TAG_MIN_H_CM, t.get("layer"), conv)
+            if m:
+                tags.append((t, m.widths))          # TAGS-1: a glued 'K290/210' is the door of either reading
         if not tags:
             continue
         doors = [o for o in b.get("openings") or [] if o.get("level_id") == lid and o.get("type") == "door"
@@ -1152,11 +1165,11 @@ def own_door_tags(b: dict, texts_by_level: Optional[dict]) -> list[dict]:
                  and not any(isinstance(e, dict) and str(e.get("rule") or "").startswith(("size_tag", "own_door_tag"))
                              for e in o.get("evidence") or [])]
         pairs = []
-        for ti, (t, tw) in enumerate(tags):
+        for ti, (t, tws) in enumerate(tags):
             for oi, o in enumerate(doors):
                 w = float(o.get("width") or 0.0)
                 d = math.dist((float(t["x"]), float(t["y"])), (float(o["center"][0]), float(o["center"][1])))
-                if abs(w - tw) <= OWN_TAG_SAME_W_M + 1e-9 and d <= w / 2.0 + OWN_TAG_REACH_M:
+                if min(abs(w - tw) for tw in tws) <= OWN_TAG_SAME_W_M + 1e-9 and d <= w / 2.0 + OWN_TAG_REACH_M:
                     pairs.append((d, ti, oi))
         used_t, used_o = set(), set()
         for d, ti, oi in sorted(pairs):
@@ -1200,7 +1213,8 @@ def _twin(level: "CP.Level", o: dict, axis, texts: list) -> Optional[dict]:
             continue
         if abs(float(x.get("width") or 0) - float(o.get("width") or 0)) > 0.05 or math.dist(x["center"][:2], m) > TWIN_M:
             continue
-        if [s[0] for s in _sides(level, x)].count("outside") == 1 and _tag_of(x, texts) is None:
+        if [s[0] for s in _sides(level, x)].count("outside") == 1 and _tag_of(x, texts, TG.glued_convention(texts)) \
+                is None:
             return x
     return None
 
@@ -1244,6 +1258,7 @@ def size_tags(b: dict, texts_by_level: Optional[dict]) -> dict:
         if level.outline is None:
             continue
         axis = _mirror_axis(b, lid)
+        conv = TG.glued_convention(texts)
         for o in list(level.openings):
             if o.get("virtual") or o.get("type") not in ("door", "opening", "window") or o.get("lift_door"):
                 continue
@@ -1253,11 +1268,16 @@ def size_tags(b: dict, texts_by_level: Optional[dict]) -> dict:
                 # (20 Nov 2026, pre-pod review R09-6) a window whose nearest tag is a door's, onto a balcony or a
                 # terrace, or on a storey at grade: that door; never a door into the air on an upper storey
                 room = next((s[1] for s in sides if s[1] is not None and s[0] != "balcony"), None)
-                tag = _tag_of(o, texts)
-                if room is None or tag is None or tag[0] != "door" or room.get("room_type") in NO_TERRACE_DOOR:
+                tag = _tag_of(o, texts, conv)
+                if room is None or tag is None or tag[0] not in ("door", "french") \
+                        or room.get("room_type") in NO_TERRACE_DOOR:
                     continue
+                # 28 Nov 2026 (R09 decision, round 5a fix-up): a tag never turns a drawn window into a door: at grade
+                # only a window nothing draws as a window (no window layer, block, frame lines or window tag)
+                from wenart.blender import architect_actions as AA
                 onto = "a balcony or terrace" if "balcony" in kinds else (
-                    "the ground at grade" if kinds.count("outside") == 1 and _at_grade(b, lv) else None)
+                    "the ground at grade" if kinds.count("outside") == 1 and _at_grade(b, lv)
+                    and AA.window_evidence(o) is None else None)
                 if onto is None:
                     continue
                 _kind, tw, th, text, _d = tag
@@ -1276,7 +1296,7 @@ def size_tags(b: dict, texts_by_level: Optional[dict]) -> dict:
             if kinds.count("outside") != 1:
                 continue
             room = next((s[1] for s in sides if s[1] is not None), None)
-            tag = _tag_of(o, texts)
+            tag = _tag_of(o, texts, conv)
             if room is None or tag is None:
                 continue
             kind, tw, th, text, _d = tag
@@ -1303,12 +1323,10 @@ def size_tags(b: dict, texts_by_level: Optional[dict]) -> dict:
                                                "reason": t_why + " (adjusted_by_ai)"})
             elif o["type"] == "opening" and kind == "door" and room.get("room_type") in ("hall", "stair") and \
                     not FLAT_HALL_RE.search(CP._fold(f"{room.get('label_raw') or ''} {room.get('label') or ''}")):
-                pair = [t for t in texts or [] if (SIZE_TAG_RE.match(B.fold_ascii(str(t.get("text") or "")).lower())
-                                                   or [""])[0][:1] == "k"
+                pair = [t for t in texts or [] if TG.says_door(t.get("text"), t.get("layer"))
                         and math.dist((t["x"], t["y"]), o["center"][:2]) <= float(o.get("width") or 0) / 2.0
                         + TAG_REACH_M]
-                widths = sorted(int(SIZE_TAG_RE.match(B.fold_ascii(str(t["text"])).lower()).group(2)) / 100.0
-                                for t in pair if SIZE_TAG_RE.match(B.fold_ascii(str(t["text"])).lower()).group(1) == "k")
+                widths = sorted(TG.parse(t["text"], None, conv).w for t in pair)
                 double = len(widths) >= 2 and abs(sum(widths[:2]) - float(o.get("width") or 0)) <= 0.2
                 # (20 Nov 2026, pre-pod review OL-01: real14's reader-bridged 2.8 m gap on the 7th storey, a lost
                 # bedroom behind it and type-coded POZ labels 'K290/210' near it, became the main entrance) never a

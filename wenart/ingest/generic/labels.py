@@ -471,6 +471,8 @@ def _classify(run: TextRun, default_system: str, hull=None) -> _Line:
     name), or ``skip`` (a single length, a bare number, a long note: never part of a block)."""
     text = collapse_spaced(run.text.strip())
     box = _frame_box(run)
+    if UNIT_ONLY_RE.match(text):
+        return _Line(run, "skip", "", frame_box=box)       # 27 Nov 2026 (R28): a unit alone is no part of a name
     if is_drawing_title(text):
         return _Line(run, "skip", "", frame_box=box)       # real10: "TERAS KAT PLANI ÖLÇEK : 1/50" is no room
     if units.parse_area(text) is not None:
@@ -480,6 +482,8 @@ def _classify(run: TextRun, default_system: str, hull=None) -> _Line:
     if units.parse_length(text, default_system) is not None:
         return _Line(run, "skip", "", frame_box=box)
     head, size_text, area_text = _strip_suffixes(text)
+    if re.search(r"[^\W\d_]{2,}", UNIT_TAIL_RE.sub("", head)):
+        head = UNIT_TAIL_RE.sub("", head)                  # 27 Nov 2026 (R28): 'ANTRE m²' names the ANTRE
     if area_text and (AREA_PREFIX_RE.match(B.fold_ascii(head).upper()) or _room_area_words(head)):
         return _Line(run, "area", "", area_text=area_text, frame_box=box)    # "A = 24,50 m²", "NF: 18,2 m²", "NET 24.50 M2"
     rest, notation = split_notation(head)
@@ -888,6 +892,59 @@ def _column_above(k: int, runs: list, fbs: list, hs: list, tree, used: set) -> O
     return best[1] if best is not None else None
 
 
+# 27 Nov 2026 (audit fix round 5a, R28; real06: 'ANTRE' over '7,20' beside 'm²' became the room 'Antre M²' with no area):
+# an area unit is never part of a room's name; written as a text of its own it belongs to the number beside it
+UNIT_ONLY_RE = re.compile(r"^\s*(?:m\s*(?:²|2|\^2)|sq\.?\s*m|sqm|sq\.?\s*ft|ft\s*(?:²|2))\s*\.?\s*$", re.IGNORECASE)
+UNIT_TAIL_RE = re.compile(r"\s+(?:m\s*(?:²|2|\^2)|sqm|sq\.?\s*m)\s*\.?\s*$", re.IGNORECASE)
+BARE_NUMBER_RE = re.compile(r"^\s*\d{1,4}(?:[.,]\d{1,2})?\s*$")
+UNIT_JOIN_GAP = 2.0             # a unit text at most this many text heights right of (or under) its number
+
+
+def join_area_units(texts: list) -> list:
+    """A unit written as a text of its own ('m²') joins the bare number beside it ('7,20', on its line to its left, or
+    just above it) into one area text '7,20 m²'; a unit with no number near stays a text of its own (no name part:
+    ``_classify`` skips it). Pure; the joined run keeps the number's place and evidence."""
+    units_ = [t for t in texts if UNIT_ONLY_RE.match(str(t.text or ""))]
+    if not units_:
+        return texts
+    numbers = [t for t in texts if BARE_NUMBER_RE.match(str(t.text or ""))]
+    used, joined = set(), {}
+    for u in units_:
+        h = max(_line_height(u), 1e-6)
+        ub = _frame_box(u)
+        best = None
+        for n in numbers:
+            if id(n) in used or not _same_rotation(u, n):
+                continue
+            nb = _frame_box(n)
+            nh = max(_line_height(n), h)
+            same_line = abs((nb[1] + nb[3]) / 2.0 - (ub[1] + ub[3]) / 2.0) <= 0.6 * nh and \
+                (ub[0] + ub[2]) / 2.0 > (nb[0] + nb[2]) / 2.0 and ub[0] - nb[2] <= UNIT_JOIN_GAP * nh
+            above = 0.0 <= nb[1] - ub[3] <= UNIT_JOIN_GAP * nh and min(nb[2], ub[2]) - max(nb[0], ub[0]) > -nh
+            if same_line or above:
+                d = math.hypot((nb[0] + nb[2]) / 2.0 - (ub[0] + ub[2]) / 2.0, (nb[1] + nb[3]) / 2.0 - (ub[1] + ub[3]) / 2.0)
+                if best is None or d < best[0]:
+                    best = (d, n)
+        if best is not None:
+            used.add(id(best[1]))
+            joined[id(best[1])] = u
+    if not joined:
+        return texts
+    out = []
+    gone = {id(u) for u in joined.values()}
+    for t in texts:
+        if id(t) in gone:
+            continue
+        u = joined.get(id(t))
+        if u is not None:
+            b0, b1 = t.box, u.box
+            t = TextRun(id=t.id, text=f"{str(t.text).strip()} {str(u.text).strip()}",
+                        box=(min(b0[0], b1[0]), min(b0[1], b1[1]), max(b0[2], b1[2]), max(b0[3], b1[3])),
+                        height=t.height, rotation_deg=t.rotation_deg, source=t.source, evidence=list(t.evidence))
+        out.append(t)
+    return out
+
+
 def merge_label_blocks(texts_m: list[TextRun], file_rel: Optional[str] = None,
                        page: Optional[int] = None, hull=None,
                        schedules_out: Optional[list] = None) -> list[LabelBlock]:
@@ -904,6 +961,7 @@ def merge_label_blocks(texts_m: list[TextRun], file_rel: Optional[str] = None,
         if schedules_out is not None:
             schedules_out.extend(found)
     texts_m = join_spaced_letters([t for t in texts_m if not _services_text(t)])
+    texts_m = join_area_units(texts_m)       # 27 Nov 2026 (R28): '7,20' and 'm²' written apart are one area
     system = page_unit_system(texts_m)
     lines = [_classify(t, system, hull) for t in texts_m if t.text and t.text.strip()]
     candidates = [ln for ln in lines if ln.kind != "skip"]

@@ -2921,13 +2921,16 @@ def wet_room_vanities(build) -> list[str]:
     a kitchen sink the code typed (not the AI) is the vanity: the counter becomes the washbasin (a vanity unit, its
     footprint kept), a sink inside it is its basin (not built, ``replaced_by``), a sink alone is the washbasin. The
     drawn type stays (``drawn_type``), ``adjusted_by_ai`` (by code) with the reason. A kitchen's sink cabinet is drawn
-    the same way, so only the room tells them apart. Returns the ids of the changed pieces."""
+    the same way, so only the room tells them apart. Returns the ids of the changed pieces.
+
+    28 Nov 2026 (round 5a fix-up; real10's 'Duş' rooms): whatever typed the counter or the sink (the AI too): in a wet
+    room it is the vanity and its basin; the pipeline asks again after the type inference (``pipeline``)."""
     b = build.building
     wet = {r["id"] for r in b.get("rooms") or [] if str(r.get("room_type") or "") in WET_ROOM_TYPES}
     changed = []
     by_room: dict = {}
     for f in b.get("furniture") or []:
-        if f.get("room_id") in wet and f.get("build") is not False and f.get("type_method") in ("rule", "inferred") \
+        if f.get("room_id") in wet and f.get("build") is not False \
                 and f.get("type") in ("kitchen_counter", "sink_kitchen"):
             by_room.setdefault(f["room_id"], []).append(f)
     for rid, pieces in sorted(by_room.items()):
@@ -2943,7 +2946,9 @@ def wet_room_vanities(build) -> list[str]:
                 why = (f"a {f['type'].replace('_', ' ')} read in the wet room {rid}: its vanity with the basin, a "
                        f"washbasin")
                 f["type"] = "washbasin"
-            f["adjusted_by_ai"] = {"by": "code", "rule": VANITY_RULE, "reason": why}
+            from wenart.furniture import infer as IF
+            IF.merge_code_label(f, {"by": "code", "rule": VANITY_RULE, "reason": why,
+                                    "changed": {"type": f["drawn_type"]}})
             f.setdefault("evidence", []).append(_ev(f, VANITY_RULE, why, 0.8))
             build.warn(f"{f['id']}: {why}")
             changed.append(f["id"])

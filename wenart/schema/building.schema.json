@@ -405,11 +405,11 @@
         "width": {"type": "number"},
         "height": {"type": ["number", "null"]},
         "sill_height": {"type": ["number", "null"]},
-        "assumed": {"type": "array", "items": {"enum": ["height", "sill_height"]}, "description": "Values that are defaults, not drawn (door and doorless height 2.10 m, window sill 0.90 m and height 1.20 m)"},
+        "assumed": {"type": "array", "items": {"enum": ["height", "sill_height", "position"]}, "description": "Values that are defaults, not drawn (door and doorless height 2.10 m, window sill 0.90 m and height 1.20 m; position: where a door hangs in a gap wider than its size tag, 27 Nov 2026)"},
         "type_raw": {"type": ["string", "null"], "description": "e.g. 'unclassified gap content' for a gap whose strokes are no door, window or empty gap"},
         "swing_side": {"type": ["string", "null"], "description": "Room id the door opens into, if drawn"},
         "operation": {"enum": ["swing", "double", "sliding", "pocket", "folding", "fixed", "unknown", null], "description": "Milestone 10: how the drawn door or window opens (the drawn type always wins over the style's door look); null = swing, assumed"},
-        "operation_source": {"enum": ["block_name", "geometry", "ai", "assumed", null]},
+        "operation_source": {"enum": ["block_name", "geometry", "ai", "assumed", "size_tag", null]},
         "status": {"enum": ["verified", "unverified"]},
         "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/evidence"}}
       }
@@ -427,7 +427,7 @@
         "level_id": {"type": "string"},
         "label": {"type": "string", "description": "Normalised Turkish label, e.g. Salon, Yatak Odası, Mutfak, Banyo, Balkon"},
         "label_raw": {"type": ["string", "null"]},
-        "room_type": {"enum": ["living", "dining", "bedroom", "kitchen", "bathroom", "wc", "hall", "balcony", "storage", "prayer", "stair", "shaft", "garage", "technical", "other", "unknown"]},
+        "room_type": {"enum": ["living", "dining", "bedroom", "kitchen", "bathroom", "wc", "hall", "balcony", "storage", "prayer", "stair", "shaft", "garage", "technical", "other", "unknown", "porch"]},
         "polygon": {"type": "array", "items": {"$ref": "#/$defs/point"}, "minItems": 3},
         "area_computed": {"type": "number"},
         "area_label": {"type": ["number", "null"], "description": "Area read from the drawing in m², e.g. 24.5 from 'Salon 24,50 m²' (sq ft converted)"},

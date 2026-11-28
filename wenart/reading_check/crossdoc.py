@@ -97,9 +97,8 @@ SPACED_LETTERS_RE = re.compile(r"^\s*(?:[^\W\d_]\s+)+[^\W\d_]\s*$")
 LABEL_WORDS = ("HAVUZ", "POOL", "PISCINE", "PISCINA", "SCHWIMMBAD")
 POOL_RE = re.compile(r"(?<![A-Z])(?:HAVUZ|HAVUZU|POOL|SWIMMING|PISCINE|PISCINA|SCHWIMMBAD|POOLS)(?![A-Z])")
 PLOT_TOL_M = 0.10
-# RC11: SIZE_TAG_RE is ``wenart.ingest.generic.core.SIZE_TAG_RE`` (imported in ``size_tags``; copied here only if the
-# import fails): width/height in cm, "90/210", "90 / 210"
-SIZE_TAG_FALLBACK_RE = re.compile(r"^\s*(\d{2,3})\s*/\s*(\d{2,3})\s*$")
+# RC11: the size tags are read by ``wenart.ingest.tag_grammar`` (``size_tag_re``, 27 Nov 2026, R09): width/height in cm,
+# "90/210", "90 / 210", "K:80/240", "CK3 260/240", "180/210 FRANSIZ PENCERE"
 TAG_REACH_M = 0.8              # a tag stands this close to a wall of its level, its opening this close to it
 TAG_WIDTH_TOL_M = 0.10
 TAG_SIZE_CM = ((40, 600), (40, 400))
@@ -1058,12 +1057,28 @@ def rc10(building: dict, sheets: dict, site_texts: list[str], plan_texts: Option
 # --------------------------------------------------------------------------------------------------------------- RC11
 def size_tag_re():
     """20 Nov 2026 (pre-pod check: real09's 'P:150/150' and 'K:80/240' were no tag to RC11): the reader's opening tag,
-    an optional kind letter and number before W/H (``core.OPENING_TAG_RE``)."""
-    try:
-        from wenart.ingest.generic.core import OPENING_TAG_RE
-        return OPENING_TAG_RE
-    except ImportError:                                          # pragma: no cover
-        return SIZE_TAG_FALLBACK_RE
+    a code before W/H and words after it; since 27 Nov 2026 (R09) the pipeline's one parser ``tag_grammar.parse``
+    (this returns an object with ``match(text)`` giving ``group(1)`` / ``group(2)`` W and H in cm, for old callers)."""
+    return _ParserRe()
+
+
+class _ParserRe:
+    """``tag_grammar.parse`` behind a regular expression's ``match`` (R09)."""
+
+    class _M:
+        def __init__(self, t):
+            self.t = t
+
+        def group(self, i):
+            return str(self.t.w_cm if i == 1 else self.t.h_cm)
+
+        def groups(self):
+            return str(self.t.w_cm), str(self.t.h_cm)
+
+    def match(self, text):
+        from wenart.ingest import tag_grammar as TG
+        t = TG.parse(text)
+        return self._M(t) if t is not None else None
 
 
 def paired_texts(page, tf=None) -> list[dict]:
@@ -1110,7 +1125,9 @@ def rc11(level_id: str, tags: list[dict], walls: list[dict], openings: list[dict
         if t.get("unknown_layer") and near_wall > TAG_WALL_FACE_M:
             continue                         # a column or furniture tag ('50/50', '60/120') on a layer of no role
         dists = sorted(((_seg_dist(p, a, b), o) for o, (a, b) in spans), key=lambda x: x[0])
-        if any(d <= TAG_REACH_M and abs(float(o.get("width") or 0) - t["w"]) <= TAG_WIDTH_TOL_M for d, o in dists):
+        ws = t.get("ws") or [t["w"]]         # TAGS-1: a glued 'K290/210' reads 0.90 or 2.90 m
+        if any(d <= TAG_REACH_M and min(abs(float(o.get("width") or 0) - w) for w in ws) <= TAG_WIDTH_TOL_M
+               for d, o in dists):
             continue
         nearest = next(((d, o) for d, o in dists if d <= TAG_NEAREST_M), None)
         hits.append((t, nearest))
@@ -1120,7 +1137,7 @@ def rc11(level_id: str, tags: list[dict], walls: list[dict], openings: list[dict
         sev = "minor"
         if nearest:
             d, o = nearest
-            if abs(float(o.get("width") or 0) - t["w"]) > TAG_MAJOR_WIDTH_M:
+            if min(abs(float(o.get("width") or 0) - w) for w in (t.get("ws") or [t["w"]])) > TAG_MAJOR_WIDTH_M:
                 sev = "major"
             what = (f"the nearest opening is {o['id']} ({o.get('type')}" + (f", {o['type_raw']}" if o.get("type_raw")
                                                                              else "")
@@ -1229,19 +1246,20 @@ def size_tags(texts: list[dict]) -> list[dict]:
     """The size tags among a level's texts (``{"text", "x", "y", "layer", "entity"}``): ``W/H`` in cm on a door,
     window, glass or text layer (``wenart.ingest.generic.layer_names``), or on a layer of no known role (marked
     ``unknown_layer``: ``rc11`` takes those only next to a wall face), sizes in ``TAG_SIZE_CM``."""
+    from wenart.ingest import tag_grammar as TG
     from wenart.ingest.generic import layer_names as LN
 
-    rx = size_tag_re()
+    conv = TG.glued_convention(texts)        # 28 Nov 2026 (TAGS-1): 'K2100/210' proves 'K290/210' = K2 + 90
     out = []
     for t in texts:
-        m = rx.match(str(t.get("text") or ""))
+        m = TG.parse(str(t.get("text") or ""), None, conv)
         role = LN.layer_role(t.get("layer"))
         if not m or (role is not None and role not in TAG_LAYER_ROLES):
             continue
-        w, h = int(m.group(1)), int(m.group(2))
+        w, h = m.w_cm, m.h_cm
         if not (TAG_SIZE_CM[0][0] <= w <= TAG_SIZE_CM[0][1] and TAG_SIZE_CM[1][0] <= h <= TAG_SIZE_CM[1][1]):
             continue
-        out.append(dict(t, w=w / 100.0, h=h / 100.0, unknown_layer=role is None))
+        out.append(dict(t, w=w / 100.0, h=h / 100.0, ws=list(m.widths), unknown_layer=role is None))
     return out
 
 

@@ -243,12 +243,11 @@ def test_r24_stair_formula_variants():
 
 
 def test_r24_the_size_tag_parsers_ignore_stair_formulas():
-    from wenart.ingest import sense_rules, twins
-    from wenart.ingest.generic import core
+    # 27 Nov 2026 (round 5a, R09): one size-tag parser for the whole pipeline (``tag_grammar``) replaced the copies
+    from wenart.ingest import sense_rules, tag_grammar
     for text in ("(19X17.36Rh=330/27)", "(17x 17.65 / 28)", "17X17.64Rh=300/27"):
-        for rx in (core.SIZE_TAG_RE, core.OPENING_TAG_RE, core.K_TAG_RE, core.WINDOW_TAG_RE, twins.DOOR_SIZE_TAG_RE,
-                   sense_rules.TAG_RE):
-            assert not rx.search(text), (rx.pattern, text)
+        assert tag_grammar.parse(text) is None, text
+        assert sense_rules._tag_cm(text) is None, text
 
 
 def _num(v: int, x: float, y: float) -> SimpleNamespace:

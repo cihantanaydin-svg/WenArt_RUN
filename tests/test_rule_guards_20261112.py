@@ -44,11 +44,14 @@ def test_every_rule_key_is_asked_by_its_rule():
     src += (ROOT.parent / "sheets" / "storeys.py").read_text(encoding="utf-8")     # margin_join: the sheets stage
     # 20 Nov 2026 (R35 angled_wall): the generic reader's walls and openings ask it as a whole
     src += "".join((ROOT / "generic" / f).read_text(encoding="utf-8") for f in ("walls.py", "openings.py", "core.py"))
+    # 28 Nov 2026 (audit fix round 5a fix-up, ENTRANCES-13): the round's own rule modules ask their keys
+    src += "".join((ROOT / f).read_text(encoding="utf-8") for f in ("porches.py", "tag_binding.py", "outdoor_checks.py"))
     asked = set(re.findall(r'RGU?\.(?:blocked|active)\(\s*"([a-z_]+)"', src))
     asked |= {"party_eaves"} if 'staged.get("party_eaves")' in eaves and "RG.STAGED" in src else set()
     asked |= {"stair_box", "stair_typical_copy", "stair_signs"} if "RG.blocked(kind, b" in src else set()
     assert asked == set(RULES := RG.RULES), sorted(set(RULES) ^ asked)
-    assert all(ids and all(re.fullmatch(r"R\d\d", i) for i in ids) and what for ids, what in RULES.values())
+    # (the audit of 26 Nov 2026 numbers its rules apart: 'A-R08', 'A-R09', 'A-R16')
+    assert all(ids and all(re.fullmatch(r"(?:A-)?R\d\d", i) for i in ids) and what for ids, what in RULES.values())
 
 
 def test_a_guard_stops_one_change_and_says_why():

@@ -114,7 +114,9 @@ def facts(building: dict, plan: AA.Plan, element: str) -> dict:
     if element in plan.room:
         r = plan.room[element]
         glass, wins = AA.outside_glass(plan, element)
-        return {"kind": "room", "type": r.get("room_type"), "label": r.get("label") or r.get("name"),
+        from wenart.ingest import room_names as RN    # 28 Nov 2026 (ROOMS-2): a role name is no label of the plan
+        return {"kind": "room", "type": r.get("room_type"), "label": RN.label_of(r) or r.get("name"),
+                **({"role_name": r.get("label")} if r.get("label_role") else {}),
                 "level": r.get("level_id"), "area_m2": round(AA.room_area(r), 1),
                 "ceiling_m": round(plan.ceiling(r.get("level_id")), 2), "outside_glass_m2": round(glass, 2),
                 "outside_windows": [w["id"] for w in wins]}

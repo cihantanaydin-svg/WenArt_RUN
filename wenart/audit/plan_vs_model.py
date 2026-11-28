@@ -107,6 +107,7 @@ from typing import Any, Iterable, Optional, Sequence
 from wenart import building as B
 from wenart import geometry as G
 from wenart.agent.model import IMAGE_MAX_SIDE, user_message
+from wenart.ingest import room_names as RN
 
 LINE_PLAN = "plan_vs_model"
 LINE_ELEVATIONS = "elevations"
@@ -326,8 +327,9 @@ def element_index(building: dict) -> dict:
     for lv in building.get("levels") or []:
         put(lv.get("id"), "level", lv.get("id"), lv.get("kind") or "floor", True, lv.get("label"), lv)
     for r in building.get("rooms") or []:
+        # 28 Nov 2026 (round 5a fix-up, ROOMS-2): a role name (R28, ``label_role``) is no label of the plan
         put(r.get("id"), "room", r.get("level_id"), r.get("room_type"), r.get("build") is not False,
-            r.get("label_raw") or r.get("label") or r.get("name"), r)
+            r.get("label_raw") or RN.label_of(r) or r.get("name"), r)
     for w in building.get("walls") or []:
         put(w.get("id"), "wall", w.get("level_id"), "wall", w.get("build") is not False, None, w)
     for o in building.get("openings") or []:
@@ -365,7 +367,7 @@ def source_labels(building: dict, level_id: str) -> list[dict]:
             continue
         texts = _evidence_texts(r)
         area = r.get("area_label") if isinstance(r.get("area_label"), (int, float)) else None
-        out.append({"element": r.get("id"), "cat": "room", "label": r.get("label_raw") or r.get("label") or "",
+        out.append({"element": r.get("id"), "cat": "room", "label": r.get("label_raw") or RN.label_of(r) or "",
                     "area_m2": area, "texts": texts})
     site = building.get("site") if isinstance(building.get("site"), dict) else {}
     for a in site.get("areas") or []:
@@ -395,7 +397,8 @@ def match_label(building: dict, level_id: Optional[str], text: Any, *, kind: Opt
         if e["cat"] not in ("area", "room"):
             continue
         rec = e["record"]
-        texts = [e.get("label") or "", rec.get("label") or "", *_evidence_texts(rec)]
+        texts = [e.get("label") or "", (RN.label_of(rec) if e["cat"] == "room" else rec.get("label")) or "",
+                 *_evidence_texts(rec)]
         rwords = set().union(*(name_words(t) for t in texts)) if texts else set()
         how = None
         if words and words & rwords:

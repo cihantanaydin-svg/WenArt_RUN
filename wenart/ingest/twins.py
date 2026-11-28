@@ -36,6 +36,8 @@ from typing import Optional
 
 from shapely.geometry import Point, Polygon
 
+from wenart.ingest import tag_grammar as TG
+
 TOL = 0.02
 OPENING_REACH = 0.35          # an opening belongs to a room when its centre is this close to the room's boundary
 
@@ -2141,7 +2143,7 @@ LIFT_CAR_GAP_ALIGN = 0.5            # a landing gap whose centre lies within thi
 
 LIFT_STACK_M = 0.30                 # 19 Nov 2026 (review A3, POD-A3-01): a shaft stacks when a shaft, a car or a lift word
 #                                     stands this close to it on the storey above or below
-DOOR_SIZE_TAG_RE = re.compile(r"^\s*(?:[KD]\s*\d{0,2}\s*[:\-.]?\s*)?(\d{2,3})\s*/\s*(\d{2,3})\s*$", re.IGNORECASE)
+# a door size tag ('K:100/210', 'K3-100/210', 'CK3 260/240', '100/210'): ``tag_grammar.door_size`` (27 Nov 2026, R09)
 DOOR_SIZE_TAG_MIN_H_CM = 180        # ... a size tag this high (``core.DOOR_TAG_LOW_H_CM``, 'K:100/210') names a door
 CAR_DOOR_LAYER_ROLES = ("door", "window", "glass")
 
@@ -2305,9 +2307,9 @@ def lift_cars(rooms: list[dict], symbols: list[dict], furniture: list[dict], ope
             Point(o["center"][:2]).distance(cp.centroid) <= max(float(v) for v in x["footprint"]["size"]) / 2.0
             + LIFT_WALL_REACH_M for x, cp in cars)]
         tag = next((t for t in texts or () if t.get("level_id") == lv and t.get("point") is not None
-                    and (m := DOOR_SIZE_TAG_RE.match(str(t.get("text") or "")))
-                    and int(m.group(2)) >= DOOR_SIZE_TAG_MIN_H_CM and poly.contains(Point(t["point"][:2]))
-                    and not (LIFT_DOOR_MIN_W_M <= int(m.group(1)) / 100.0 <= LIFT_DOOR_MAX_W_M
+                    and (m := TG.door_size(t.get("text"), DOOR_SIZE_TAG_MIN_H_CM))
+                    and poly.contains(Point(t["point"][:2]))
+                    and not (any(LIFT_DOOR_MIN_W_M <= w <= LIFT_DOOR_MAX_W_M for w in m.widths)   # TAGS-1
                              and any(Point(t["point"][:2]).distance(Point(o["center"][:2])) <= LIFT_WALL_REACH_M
                                      for o in car_gaps))), None)
         if tag is not None:
