@@ -299,7 +299,7 @@ def _slab(lv: dict, below: Optional[dict], unions: dict, furniture: list[dict], 
                                                                                   fp["rotation_deg"])]
         # 27 Nov 2026 (audit fix round 5b: real19's stair opened a bedroom of the floor above, real18's a store room):
         # the opening stays in the rooms of the level above a stair can arrive in (``void_fit``)
-        fit = void_fit(poly, lv["id"], rooms or [])
+        fit = void_fit(poly, lv["id"], rooms or [], [_footprint_poly(g) for g in _stairs(lv["id"], furniture)])
         if fit["stacks"] is False:
             not_stacked.append((f["id"], fit))
             continue
@@ -350,17 +350,23 @@ def _slab(lv: dict, below: Optional[dict], unions: dict, furniture: list[dict], 
 # 27 Nov 2026 (audit fix round 5b): rooms a stair's floor opening never stands in (the plan above draws them closed)
 CLOSED_ROOM_TYPES = ("bedroom", "kitchen", "bathroom", "wc", "storage", "prayer", "shaft", "garage", "technical")
 VOID_CLIP_MIN_M2 = 0.05          # less than this of the opening in closed rooms is a drawing tolerance: kept as it is
+STAIR_ABOVE_REACH_M = 0.30       # a stair the plan above draws keeps the opening this far round its footprint open
 
 
-def void_fit(poly: list, level_id: str, rooms: list) -> dict:
+def void_fit(poly: list, level_id: str, rooms: list, stairs_above: Optional[list] = None) -> dict:
     """27 Nov 2026 (audit fix round 5b; real19's stair opening stood 3.49 m2 in a bedroom of the floor above, real18's
     1.56 m2 in a store room, real14's 1.83 m2 in a bedroom): a stair's floor opening is its flights and landing on the
     level below, clipped to the rooms of the level above a stair can arrive in (``CLOSED_ROOM_TYPES`` are closed: never
     cut; a stair, hall, living or void room and the parts no room covers stay open). When the opening stands more in
     closed rooms than in open ones the stair does not stack with the plan above (``stacks`` False: reported, no
-    opening). Returns ``{"polygon", "stacks", "clipped", "clipped_m2", "closed", "closed_m2", "open_m2"}`` (pure)."""
+    opening). A stair the plan above draws there (``stairs_above``, footprints) is where the stair goes on or arrives:
+    its part of the opening is open whatever room holds it (a stair drawn in a bedroom on every plan stacks). Returns
+    ``{"polygon", "stacks", "clipped", "clipped_m2", "closed", "closed_m2", "open_m2"}`` (pure)."""
     p = Polygon(poly)
     p = p if p.is_valid else p.buffer(0)
+    from shapely.ops import unary_union
+    above = [q if q.is_valid else q.buffer(0) for q in stairs_above or [] if q is not None and not q.is_empty]
+    drawn_up = unary_union([q.buffer(STAIR_ABOVE_REACH_M, join_style=2) for q in above]) if above else None
     closed, closed_polys, open_m2 = [], [], 0.0
     for r in rooms:
         if r.get("level_id") != level_id or len(r.get("polygon") or []) < 3:
@@ -372,15 +378,19 @@ def void_fit(poly: list, level_id: str, rooms: list) -> dict:
             continue
         void_room = B.is_void_label(r.get("label_raw")) or B.is_void_label(r.get("label"))
         if r.get("room_type") in CLOSED_ROOM_TYPES and not void_room:
+            rest = rp.difference(drawn_up) if drawn_up is not None else rp
+            if rest.intersection(p).area <= 0.01:
+                open_m2 += a                           # the stair above stands there: its own place
+                continue
             closed.append(r["id"])
-            closed_polys.append(rp)
+            closed_polys.append(rest)
+            open_m2 += a - rest.intersection(p).area
         else:
             open_m2 += a
     out = {"polygon": poly, "stacks": True, "clipped": [], "clipped_m2": 0.0, "closed": closed, "closed_m2": 0.0,
            "open_m2": round(open_m2, 3)}
     if not closed_polys:
         return out
-    from shapely.ops import unary_union
     shut = unary_union(closed_polys)
     closed_m2 = shut.intersection(p).area
     out["closed_m2"] = round(closed_m2, 3)

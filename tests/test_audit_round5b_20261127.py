@@ -212,6 +212,10 @@ def test_stair_opening_is_clipped_to_the_rooms_a_stair_arrives_in():
     assert TB.void_fit(_rect(1, 1, 5, 3), "L1", rooms2)["stacks"] is False
     # no closed room under it: as before
     assert TB.void_fit(_rect(1, 1, 5, 3), "L1", rooms[:1])["clipped"] == []
+    # a stair the plan above draws there (in the bedroom) stacks: its place stays open
+    from shapely.geometry import Polygon as _P
+    fit3 = TB.void_fit(_rect(1, 1, 5, 3), "L1", rooms2, [_P(_rect(2.0, 0.8, 5.2, 3.2))])
+    assert fit3["stacks"] is True and fit3["clipped"] == []
 
 
 def test_the_build_keeps_a_clipped_opening_and_cuts_none_for_a_stair_that_does_not_stack():
